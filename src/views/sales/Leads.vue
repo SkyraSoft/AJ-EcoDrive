@@ -82,6 +82,11 @@ const leads = ref([
 
 const filteredLeads = computed(() => {
   return leads.value.filter(lead => {
+    // Branch Authorization Scoping
+    if (!store.isBranchAllowed(lead.branch)) {
+      return false
+    }
+
     // Tab filter
     if (activeTab.value !== 'All' && lead.stage.toLowerCase() !== activeTab.value.toLowerCase()) {
       return false

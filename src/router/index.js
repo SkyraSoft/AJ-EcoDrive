@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { store } from '@/store.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -597,6 +598,26 @@ const router = createRouter({
       ]
     }
   ],
+})
+
+// Authentication & Branch Authorization Guard
+router.beforeEach((to, from, next) => {
+  // Public auth paths that don't require login
+  const publicPaths = ['/login', '/forgot-password', '/verify-identity', '/create-new-password', '/password-updated']
+  const isPublic = publicPaths.includes(to.path)
+  const isAuthenticated = store.currentUser && store.currentUser.isAuthenticated
+
+  if (!isAuthenticated && !isPublic) {
+    // Redirect unauthenticated requests to login
+    return next({ path: '/login', query: { redirect: to.fullPath } })
+  }
+
+  if (isAuthenticated && isPublic && to.path === '/login') {
+    // Already authenticated, redirect to dashboard
+    return next({ path: '/dashboard' })
+  }
+
+  next()
 })
 
 export default router

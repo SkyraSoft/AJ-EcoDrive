@@ -46,6 +46,9 @@ const resetFilters = () => {
 
 const filteredExpenses = computed(() => {
   return store.expenses.filter(item => {
+    // Branch Authorization Scoping
+    if (!store.isBranchAllowed(item.branch)) return false
+
     if (activeFilterTab.value === 'Pending' && item.approval !== 'Pending') return false
     if (activeFilterTab.value === 'Approved' && item.approval !== 'Approved') return false
     if (activeFilterTab.value === 'Paid' && item.payment !== 'Paid') return false

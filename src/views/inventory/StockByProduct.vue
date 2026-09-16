@@ -1,17 +1,21 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronDown, Check } from 'lucide-vue-next'
+import { Search, ChevronDown, Check, Lock } from 'lucide-vue-next'
+import { store } from '@/store.js'
 
 const router = useRouter()
 
 const searchQuery = ref('')
-const selectedBranch = ref('All Branches')
+const isBranchUser = computed(() => store.isBranchUser())
+const selectedBranch = ref(store.isBranchUser() ? store.currentUser.branchName : 'All Branches')
+const branchOptions = computed(() => store.getBranchOptions())
 const selectedCategory = ref('All Categories')
 const selectedHealth = ref('All')
 const openDropdown = ref(null)
 
 const toggleDropdown = (name) => {
+  if (name === 'branch' && isBranchUser.value) return
   openDropdown.value = openDropdown.value === name ? null : name
 }
 
@@ -30,9 +34,12 @@ const filteredProducts = computed(() => {
       return false
     }
 
-    // Branch Filter
-    if (selectedBranch.value === 'Peshawar' && item.peshawar === 0) return false
-    if (selectedBranch.value === 'Islamabad' && item.islamabad === 0) return false
+    // Branch Filter (respecting active branch session)
+    const effectiveBranch = isBranchUser.value ? store.currentUser.branchName : selectedBranch.value
+    if (effectiveBranch === 'Peshawar' && item.peshawar === 0) return false
+    if (effectiveBranch === 'Islamabad' && item.islamabad === 0) return false
+    if (effectiveBranch === 'Lahore' && item.lahore === 0) return false
+    if (effectiveBranch === 'Rawalpindi' && item.rawalpindi === 0) return false
 
     // Stock Health Filter
     if (selectedHealth.value === 'Below Reorder' && item.available >= item.reorder) return false
@@ -53,7 +60,7 @@ const filteredProducts = computed(() => {
 })
 
 const resetFilters = () => {
-  selectedBranch.value = 'All Branches'
+  selectedBranch.value = isBranchUser.value ? store.currentUser.branchName : 'All Branches'
   selectedCategory.value = 'All Categories'
   selectedHealth.value = 'All'
   searchQuery.value = ''
@@ -65,9 +72,13 @@ const resetFilters = () => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Inventory / <span class="font-bold text-gray-800">Stock by Product</span></div>
+        <div class="text-[10px] text-gray-500 mb-1">
+          {{ isBranchUser ? store.currentUser.branchName : 'Super Admin' }} / Inventory / <span class="font-bold text-gray-800">Stock by Product</span>
+        </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Stock by Product</h1>
-        <p class="text-sm text-gray-500 mt-1">Review inventory quantity and value at product and branch level.</p>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ isBranchUser ? `Review stock quantity and valuation for ${store.currentUser.branchName} Branch.` : 'Review inventory quantity and value at product and branch level.' }}
+        </p>
       </div>
     </div>
 
@@ -89,14 +100,16 @@ const resetFilters = () => {
         <div class="relative" @click.stop>
           <button 
             @click="toggleDropdown('branch')"
-            class="px-3 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex items-center gap-1.5 cursor-pointer"
+            class="px-3 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex items-center gap-1.5"
+            :class="isBranchUser ? 'cursor-default bg-gray-50 text-gray-800' : 'hover:bg-gray-50 cursor-pointer'"
           >
             <span>{{ selectedBranch }}</span>
-            <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
+            <Lock v-if="isBranchUser" class="w-3 h-3 text-[#165A31]" />
+            <ChevronDown v-else class="w-3.5 h-3.5 text-gray-400" />
           </button>
-          <div v-if="openDropdown === 'branch'" class="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div v-if="openDropdown === 'branch' && !isBranchUser" class="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
             <button 
-              v-for="branch in ['All Branches', 'Peshawar', 'Islamabad']"
+              v-for="branch in branchOptions" 
               :key="branch"
               @click="selectedBranch = branch; openDropdown = null"
               class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer"

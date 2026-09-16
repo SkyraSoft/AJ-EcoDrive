@@ -1,18 +1,47 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { 
   Home, Building2, LayoutGrid, FileText, Package, Users, 
   PlusCircle, CircleDollarSign, MessageSquare, PieChart, 
-  Settings, Search, Bell, MessageCircle, Moon, ChevronDown, ChevronRight, ChevronsLeft, Menu, X
+  Settings, Search, Bell, MessageCircle, Moon, ChevronDown, ChevronRight, ChevronsLeft, Menu, X, Lock
 } from 'lucide-vue-next'
+import { store } from '@/store.js'
 
 const route = useRoute()
+const router = useRouter()
 const isMobileMenuOpen = ref(false)
+
+const user = computed(() => store.currentUser)
+const isBranchUser = computed(() => store.isBranchUser())
+
+const userInitials = computed(() => {
+  if (!user.value || !user.value.name) return 'SA'
+  const parts = user.value.name.trim().split(' ')
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return user.value.name.substring(0, 2).toUpperCase()
+})
+
+const selectedBranchScope = ref(store.getActiveBranch())
+
+watch(() => store.currentUser, () => {
+  selectedBranchScope.value = store.getActiveBranch()
+}, { deep: true })
+
+const selectBranchScope = (branchName) => {
+  if (isBranchUser.value) return // Branch users cannot change branch scope
+  selectedBranchScope.value = branchName
+  openDropdown.value = null
+}
+
+const handleLogout = () => {
+  store.logout()
+  router.push('/login')
+}
 
 const navigation = ref([
   { name: 'HOME', icon: Home, expanded: false, subItems: [
-    { name: 'Super Admin Dashboard', route: '/dashboard' },
+    { name: 'Dashboard', route: '/dashboard' },
     { name: 'Branch Performance', route: '/dashboard/branch-performance' },
     { name: 'Business Performance', route: '/dashboard/business-performance' },
     { name: 'Action Centre', route: '/dashboard/action-centre' }
@@ -180,9 +209,11 @@ const closeDropdowns = () => {
         <div class="bg-white border border-gray-100 rounded-lg p-3 flex justify-between items-center shadow-sm">
           <div>
             <div class="text-[9px] font-bold text-gray-400 tracking-wider">SIGNED IN AS</div>
-            <div class="text-xs font-bold text-[#165A31]">Super Admin</div>
+            <div class="text-xs font-bold text-[#165A31]">{{ user.role || 'Super Admin' }}</div>
           </div>
-          <div class="text-[10px] text-gray-400 font-medium">All Branches</div>
+          <div class="text-[10px] text-gray-400 font-medium">
+            {{ user.branchCode ? `${user.branchName} (${user.branchCode})` : (user.branchName || 'All Branches') }}
+          </div>
         </div>
       </div>
 
@@ -219,14 +250,14 @@ const closeDropdowns = () => {
       </nav>
 
       <!-- Bottom Profile -->
-      <div class="p-6 border-t border-gray-100 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+      <div @click="router.push('/system/account')" class="p-6 border-t border-gray-100 flex items-center justify-between cursor-pointer hover:bg-gray-50">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-[#eefcf2] text-[#165A31] border border-[#d1f4e0] flex items-center justify-center text-[10px] font-bold">
-            SA
+            {{ userInitials }}
           </div>
           <div>
-            <div class="text-[11px] font-bold text-gray-900">Super Admin</div>
-            <div class="text-[9px] text-gray-500">admin@ajecodrive.com</div>
+            <div class="text-[11px] font-bold text-gray-900">{{ user.name || 'Super Admin' }}</div>
+            <div class="text-[9px] text-gray-500">{{ user.email || 'admin@ajecodrive.com' }}</div>
           </div>
         </div>
         <ChevronRight class="w-4 h-4 text-gray-400" />
@@ -247,21 +278,41 @@ const closeDropdowns = () => {
           <div class="hidden sm:flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
             <!-- Branch Scope -->
             <div class="relative">
-              <button @click="toggleDropdown('branch')" class="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                <span class="hidden xl:inline">Viewing: </span><span class="font-bold whitespace-nowrap">All Branches</span>
-                <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
+              <button 
+                @click="!isBranchUser && toggleDropdown('branch')" 
+                class="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 transition-colors"
+                :class="isBranchUser ? 'cursor-default bg-gray-50/80 text-gray-800' : 'hover:text-gray-900 cursor-pointer'"
+              >
+                <span class="hidden xl:inline">Viewing: </span>
+                <span class="font-bold whitespace-nowrap">
+                  {{ isBranchUser ? `${user.branchName} Branch` : selectedBranchScope }}
+                </span>
+                <Lock v-if="isBranchUser" class="w-3 h-3 text-[#165A31] ml-0.5" />
+                <ChevronDown v-else class="w-3.5 h-3.5 text-gray-400" />
               </button>
-              <div v-if="openDropdown === 'branch'" class="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
+
+              <div v-if="openDropdown === 'branch' && !isBranchUser" class="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
                 <div class="px-4 py-2 text-[10px] font-bold text-gray-900 uppercase tracking-wider border-b border-gray-50 mb-1">Branch Scope</div>
-                <button class="w-full text-left px-4 py-2 text-xs font-bold text-[#165A31] bg-[#eefcf2] flex items-center justify-between">
+                <button 
+                  @click="selectBranchScope('All Branches')"
+                  class="w-full text-left px-4 py-2 text-xs flex items-center justify-between"
+                  :class="selectedBranchScope === 'All Branches' ? 'font-bold text-[#165A31] bg-[#eefcf2]' : 'text-gray-600 hover:bg-gray-50'"
+                >
                   All Branches
-                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  <svg v-if="selectedBranchScope === 'All Branches'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 </button>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Peshawar Branch</button>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Islamabad Branch</button>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Lahore Branch</button>
+                <button 
+                  v-for="b in ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']"
+                  :key="b"
+                  @click="selectBranchScope(`${b} Branch`)"
+                  class="w-full text-left px-4 py-2 text-xs flex items-center justify-between transition-colors"
+                  :class="selectedBranchScope === `${b} Branch` ? 'font-bold text-[#165A31] bg-[#eefcf2]' : 'text-gray-600 hover:bg-gray-50'"
+                >
+                  {{ b }} Branch
+                  <svg v-if="selectedBranchScope === `${b} Branch`" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </button>
                 <div class="border-t border-gray-50 mt-1 pt-1">
-                  <button class="w-full text-left px-4 py-2 text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between">
+                  <button @click="openDropdown = null; router.push('/organisation/branches')" class="w-full text-left px-4 py-2 text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors flex items-center justify-between">
                     Manage branches
                     <ChevronRight class="w-3.5 h-3.5" />
                   </button>
@@ -354,7 +405,7 @@ const closeDropdowns = () => {
                     <span class="text-[10px] text-gray-400 whitespace-nowrap ml-4">1h</span>
                   </div>
                 </div>
-                <button class="w-full text-left px-4 py-3 text-xs font-bold text-[#165A31] hover:bg-[#eefcf2] transition-colors flex items-center justify-between">
+                <button @click="openDropdown = null; router.push('/communication/notifications')" class="w-full text-left px-4 py-3 text-xs font-bold text-[#165A31] hover:bg-[#eefcf2] transition-colors flex items-center justify-between">
                   View all notifications
                   <ChevronRight class="w-3.5 h-3.5" />
                 </button>
@@ -368,16 +419,18 @@ const closeDropdowns = () => {
             <!-- Profile -->
             <div class="relative ml-1 sm:ml-2">
               <button @click="toggleDropdown('profile')" class="w-7 h-7 rounded-full bg-[#eefcf2] text-[#165A31] flex items-center justify-center text-[10px] font-bold border border-[#d1f4e0]">
-                SA
+                {{ userInitials }}
               </button>
-              <div v-if="openDropdown === 'profile'" class="absolute top-full right-0 mt-3 w-48 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
-                <div class="px-4 py-2 text-[10px] font-bold text-gray-900 uppercase tracking-wider border-b border-gray-50 mb-1">Super Admin</div>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Account</button>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Security & Sessions</button>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Preferences</button>
-                <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Switch theme</button>
+              <div v-if="openDropdown === 'profile'" class="absolute top-full right-0 mt-3 w-52 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
+                <div class="px-4 py-2 border-b border-gray-50 mb-1">
+                  <div class="text-[11px] font-bold text-gray-900">{{ user.name || 'Super Admin' }}</div>
+                  <div class="text-[9px] text-gray-400 font-medium">{{ user.branchName || 'All Branches' }} &middot; {{ user.role || 'Super Admin' }}</div>
+                </div>
+                <button @click="openDropdown = null; router.push('/system/account')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Account</button>
+                <button @click="openDropdown = null; router.push('/system/security')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Security & Sessions</button>
+                <button @click="openDropdown = null; router.push('/system/preferences')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Preferences</button>
                 <div class="border-t border-gray-50 mt-1 pt-1">
-                  <button class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors">
+                  <button @click="handleLogout" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer font-semibold">
                     Logout
                   </button>
                 </div>
@@ -401,9 +454,13 @@ const closeDropdowns = () => {
         
         <div class="flex items-center justify-between gap-2">
           <!-- Branch Dropdown Toggle (Simplified for Mobile) -->
-          <button @click="toggleDropdown('branch-mobile')" class="flex-1 flex justify-center items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-            <span class="truncate">All Branches</span>
-            <ChevronDown class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+          <button 
+            @click="!isBranchUser && toggleDropdown('branch-mobile')" 
+            class="flex-1 flex justify-center items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100"
+          >
+            <span class="truncate">{{ isBranchUser ? `${user.branchName} Branch` : selectedBranchScope }}</span>
+            <Lock v-if="isBranchUser" class="w-3 h-3 text-[#165A31]" />
+            <ChevronDown v-else class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           </button>
           
           <!-- Date Dropdown Toggle (Simplified for Mobile) -->
@@ -414,15 +471,26 @@ const closeDropdowns = () => {
         </div>
 
         <!-- Mobile Dropdown Menus (Positioned absolutely over screen) -->
-        <div v-if="openDropdown === 'branch-mobile'" class="absolute top-full left-4 right-4 mt-1 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">
+        <div v-if="openDropdown === 'branch-mobile' && !isBranchUser" class="absolute top-full left-4 right-4 mt-1 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">
           <div class="px-4 py-2 text-[10px] font-bold text-gray-900 uppercase tracking-wider border-b border-gray-50 mb-1">Branch Scope</div>
-          <button class="w-full text-left px-4 py-2 text-xs font-bold text-[#165A31] bg-[#eefcf2] flex items-center justify-between">
+          <button 
+            @click="selectBranchScope('All Branches')"
+            class="w-full text-left px-4 py-2 text-xs flex items-center justify-between"
+            :class="selectedBranchScope === 'All Branches' ? 'font-bold text-[#165A31] bg-[#eefcf2]' : 'text-gray-600 hover:bg-gray-50'"
+          >
             All Branches
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <svg v-if="selectedBranchScope === 'All Branches'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
           </button>
-          <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Peshawar Branch</button>
-          <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Islamabad Branch</button>
-          <button class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Lahore Branch</button>
+          <button 
+            v-for="b in ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']"
+            :key="b"
+            @click="selectBranchScope(`${b} Branch`)"
+            class="w-full text-left px-4 py-2 text-xs flex items-center justify-between"
+            :class="selectedBranchScope === `${b} Branch` ? 'font-bold text-[#165A31] bg-[#eefcf2]' : 'text-gray-600 hover:bg-gray-50'"
+          >
+            {{ b }} Branch
+            <svg v-if="selectedBranchScope === `${b} Branch`" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          </button>
         </div>
 
         <div v-if="openDropdown === 'date-mobile'" class="absolute top-full left-4 right-4 mt-1 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">

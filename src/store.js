@@ -1,6 +1,92 @@
-import { reactive } from 'vue'
+// Load initial session from storage if available
+const savedSession = (() => {
+  try {
+    const raw = localStorage.getItem('ecodrive_auth_session') || sessionStorage.getItem('ecodrive_auth_session')
+    return raw ? JSON.parse(raw) : null
+  } catch (e) {
+    return null
+  }
+})()
 
 export const store = reactive({
+  // Active User / Branch Session
+  currentUser: savedSession || {
+    isAuthenticated: false,
+    branchCode: '',
+    branchName: '',
+    role: '',
+    name: '',
+    email: '',
+    isSuperAdmin: false
+  },
+
+  // Set authenticated branch session
+  setSession(sessionData, remember = true) {
+    this.currentUser = {
+      ...sessionData,
+      isAuthenticated: true
+    }
+    try {
+      const serialized = JSON.stringify(this.currentUser)
+      if (remember) {
+        localStorage.setItem('ecodrive_auth_session', serialized)
+      } else {
+        sessionStorage.setItem('ecodrive_auth_session', serialized)
+      }
+    } catch (e) {
+      console.error('Failed to persist session:', e)
+    }
+  },
+
+  // Logout and clear active branch session
+  logout() {
+    this.currentUser = {
+      isAuthenticated: false,
+      branchCode: '',
+      branchName: '',
+      role: '',
+      name: '',
+      email: '',
+      isSuperAdmin: false
+    }
+    try {
+      localStorage.removeItem('ecodrive_auth_session')
+      sessionStorage.removeItem('ecodrive_auth_session')
+      localStorage.removeItem('auth_user')
+    } catch (e) {
+      console.error('Failed to clear session:', e)
+    }
+  },
+
+  // Check if current user is locked to a specific branch
+  isBranchUser() {
+    return this.currentUser.isAuthenticated && !this.currentUser.isSuperAdmin
+  },
+
+  // Get active branch name for data filtering
+  getActiveBranch() {
+    if (!this.currentUser.isAuthenticated) return 'All Branches'
+    if (this.currentUser.isSuperAdmin) return 'All Branches'
+    return this.currentUser.branchName || 'All Branches'
+  },
+
+  // Security check: Verify if a record belongs to the current user's branch
+  isBranchAllowed(recordBranch) {
+    if (!this.currentUser.isAuthenticated || this.currentUser.isSuperAdmin) return true
+    if (!recordBranch) return true
+    const userBranch = (this.currentUser.branchName || '').toLowerCase()
+    const targetBranch = String(recordBranch).toLowerCase()
+    return targetBranch.includes(userBranch) || userBranch.includes(targetBranch)
+  },
+
+  // Get allowed branch options for dropdowns based on user role
+  getBranchOptions(defaultList = ['All Branches', 'Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']) {
+    if (this.isBranchUser()) {
+      return [this.currentUser.branchName]
+    }
+    return defaultList
+  },
+
   // References to the original items being edited
   originalEditProduct: null,
   originalEditSupplier: null,

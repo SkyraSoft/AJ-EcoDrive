@@ -1,18 +1,22 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronDown, Check } from 'lucide-vue-next'
+import { Search, ChevronDown, Check, Lock } from 'lucide-vue-next'
 import CreateSaleModal from './CreateSale.vue'
+import { store } from '@/store.js'
 
 const router = useRouter()
 const showCreateModal = ref(false)
 const activeTab = ref('All')
 const tabs = ['All', 'New', 'Confirmed', 'Payment Pending', 'Reserved', 'Ready', 'Completed', 'Returned']
 const searchQuery = ref('')
-const selectedBranch = ref('All Branches')
+const selectedBranch = ref(store.isBranchUser() ? store.currentUser.branchName : 'All Branches')
+const branchOptions = computed(() => store.getBranchOptions())
+const isBranchUser = computed(() => store.isBranchUser())
 const openDropdown = ref(null)
 
 const toggleDropdown = (name) => {
+  if (name === 'branch' && isBranchUser.value) return
   openDropdown.value = openDropdown.value === name ? null : name
 }
 
@@ -81,6 +85,11 @@ const orders = ref([
 
 const filteredOrders = computed(() => {
   return orders.value.filter(order => {
+    // Branch Authorization Scoping
+    if (!store.isBranchAllowed(order.branch)) {
+      return false
+    }
+
     // Tab Filter
     if (activeTab.value !== 'All' && order.status.toLowerCase() !== activeTab.value.toLowerCase()) {
       return false
@@ -108,7 +117,7 @@ const filteredOrders = computed(() => {
 
 const resetFilters = () => {
   activeTab.value = 'All'
-  selectedBranch.value = 'All Branches'
+  selectedBranch.value = isBranchUser.value ? store.currentUser.branchName : 'All Branches'
   searchQuery.value = ''
 }
 </script>
@@ -118,9 +127,13 @@ const resetFilters = () => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Sales & CRM / <span class="font-bold text-gray-800">Orders</span></div>
+        <div class="text-[10px] text-gray-500 mb-1">
+          {{ isBranchUser ? store.currentUser.branchName : 'Super Admin' }} / Sales & CRM / <span class="font-bold text-gray-800">Orders</span>
+        </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Orders</h1>
-        <p class="text-sm text-gray-500 mt-1">Track confirmed sales from payment through reservation and handover.</p>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ isBranchUser ? `Track confirmed sales for ${store.currentUser.branchName} Branch.` : 'Track confirmed sales from payment through reservation and handover.' }}
+        </p>
       </div>
       <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <span class="text-lg leading-none">+</span> Create Order
@@ -146,14 +159,16 @@ const resetFilters = () => {
           <div class="relative" @click.stop>
             <button 
               @click="toggleDropdown('branch')"
-              class="px-3 py-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+              class="px-3 py-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm"
+              :class="isBranchUser ? 'cursor-default bg-gray-50 text-gray-800' : 'hover:bg-gray-50 cursor-pointer'"
             >
               <span>{{ selectedBranch }}</span>
-              <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
+              <Lock v-if="isBranchUser" class="w-3 h-3 text-[#165A31]" />
+              <ChevronDown v-else class="w-3.5 h-3.5 text-gray-400" />
             </button>
-            <div v-if="openDropdown === 'branch'" class="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div v-if="openDropdown === 'branch' && !isBranchUser" class="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
               <button 
-                v-for="branch in ['All Branches', 'Peshawar', 'Islamabad', 'Lahore']"
+                v-for="branch in branchOptions" 
                 :key="branch"
                 @click="selectedBranch = branch; openDropdown = null"
                 class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -167,8 +182,8 @@ const resetFilters = () => {
         </div>
 
         <button 
-          v-if="activeTab !== 'All' || selectedBranch !== 'All Branches' || searchQuery"
-          @click="resetFilters" 
+          v-if="activeTab !== 'All' || (!isBranchUser && selectedBranch !== 'All Branches') || searchQuery"
+          @click="resetFilters"  
           class="text-[11px] text-[#165A31] font-semibold hover:underline cursor-pointer"
         >
           Reset Filters

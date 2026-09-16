@@ -1,20 +1,53 @@
 <script setup>
+import { computed } from 'vue'
 import { 
   TrendingUp, 
   TrendingDown, 
   MoreHorizontal
 } from 'lucide-vue-next'
+import { store } from '@/store.js'
 
-const kpis = [
-  { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
-  { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
-  { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true },
-  { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true },
-  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true },
-  { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true },
-  { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null },
-  { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false }
-]
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+const dashboardTitle = computed(() => {
+  if (isBranchUser.value) {
+    return `${user.value.branchName} Branch Dashboard`
+  }
+  return 'Super Admin Dashboard'
+})
+
+const dashboardSubtitle = computed(() => {
+  if (isBranchUser.value) {
+    return `Branch command center & operations overview for ${user.value.branchName} (${user.value.branchCode}).`
+  }
+  return 'Company-wide command center across every AJ ECODRIVE branch.'
+})
+
+const kpis = computed(() => {
+  if (isBranchUser.value && user.value.branchName === 'Peshawar') {
+    return [
+      { label: 'Net Sales', value: 'PKR 9.8M', change: '+14.2%', positive: true },
+      { label: 'Units Sold', value: '64', change: '+9.1%', positive: true },
+      { label: 'Purchases', value: 'PKR 4.8M', change: '+3.5%', positive: true },
+      { label: 'Operating Expenses', value: 'PKR 1.0M', change: '-1.8%', positive: true },
+      { label: 'Gross Profit', value: 'PKR 2.4M', change: '+16.5%', positive: true },
+      { label: 'Net Operating Profit', value: 'PKR 1.4M', change: '+22.0%', positive: true },
+      { label: 'Inventory Value', value: 'PKR 14.2M', subtitle: '108 units', positive: null },
+      { label: 'Receivables', value: 'PKR 850K', subtitle: '4 overdue', positive: false }
+    ]
+  }
+  return [
+    { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
+    { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
+    { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true },
+    { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true },
+    { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true },
+    { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true },
+    { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null },
+    { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false }
+  ]
+})
 
 const branchPerformance = [
   { name: 'Peshawar', value: 92 },
@@ -36,9 +69,11 @@ const expenseSummary = [
   <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Breadcrumb & Header -->
     <div>
-      <div class="text-[10px] text-gray-500 mb-1">Super Admin / <span class="font-bold text-gray-800">Super Admin Dashboard</span></div>
-      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Super Admin Dashboard</h1>
-      <p class="text-sm text-gray-500 mt-1">Company-wide command center across every AJ ECODRIVE branch.</p>
+      <div class="text-[10px] text-gray-500 mb-1">
+        {{ isBranchUser ? user.branchName : 'Super Admin' }} / <span class="font-bold text-gray-800">{{ dashboardTitle }}</span>
+      </div>
+      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">{{ dashboardTitle }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ dashboardSubtitle }}</p>
     </div>
 
     <!-- 8 KPI Cards -->

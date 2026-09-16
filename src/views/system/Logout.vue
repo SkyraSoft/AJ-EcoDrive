@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { store } from '@/store.js'
 
 const router = useRouter()
 
@@ -12,8 +13,8 @@ const handleCancel = () => {
 }
 
 const handleSignOut = () => {
-  // Clear any stored user state or tokens
-  localStorage.removeItem('auth_user')
+  // Clear stored branch session state
+  store.logout()
   router.push('/login')
 }
 </script>
