@@ -1,15 +1,13 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
 
 const router = useRouter()
-
-const activeTab = ref('Profile')
-const tabs = ['Profile', 'Role & Permissions', 'Assigned Branch', 'Sessions', 'Security', 'Activity']
-
-const editUser = () => {
-  store.originalEditUser = {
+const route = useRoute()
+const userId = computed(() => route.params.id || route.query.id || 'USR-01')
+const userRecord = computed(() => {
+  return store.getUserById(userId.value) || store.users[0] || {
     name: 'Ahsan Khan',
     email: 'ahsan@ajecodrive.com',
     mobile: '+92 300 555 0191',
@@ -21,8 +19,27 @@ const editUser = () => {
     invitation: 'Accepted',
     sessionPolicy: 'Standard'
   }
+})
+
+const activeTab = ref('Profile')
+const tabs = ['Profile', 'Role & Permissions', 'Assigned Branch', 'Sessions', 'Security', 'Activity']
+
+const editUser = () => {
+  store.originalEditUser = { ...userRecord.value }
   router.push('/organisation/users/edit')
 }
+
+const userAuditLogs = computed(() => {
+  const u = userRecord.value
+  const uid = u.id || u.user_id || userId.value
+  const uname = u.name
+  return store.auditLogs.filter(a => {
+    if (a.user_id === uid || a.target_user_id === uid) return true
+    if (a.user === uname || a.actor_name === uname) return true
+    if (a.entity_type === 'user' && (a.entity_id === uid || a.record === uid)) return true
+    return false
+  }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+})
 </script>
 
 <template>
@@ -326,22 +343,31 @@ const editUser = () => {
     <!-- Activity Tab -->
     <template v-if="activeTab === 'Activity'">
       <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div class="px-6 py-5 border-b border-gray-100">
+        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
           <h3 class="text-[13px] font-bold text-gray-900">User Activity</h3>
+          <span class="text-[11px] text-gray-400 font-medium">{{ userAuditLogs.length }} events recorded</span>
         </div>
         <div class="p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 pl-3 border-l-[2px] border-[#eefcf2]">
-            <span class="text-[11px] font-bold text-gray-900">Approved expense EXP-8821</span>
-            <span class="text-[10px] font-medium text-gray-500">Today 19:32</span>
-          </div>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 pl-3 border-l-[2px] border-[#eefcf2]">
-            <span class="text-[11px] font-bold text-gray-900">Received transfer TR-117</span>
-            <span class="text-[10px] font-medium text-gray-500">Today 17:14</span>
-          </div>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 pl-3 border-l-[2px] border-[#eefcf2]">
-            <span class="text-[11px] font-bold text-gray-900">Updated customer C-2041</span>
-            <span class="text-[10px] font-medium text-gray-500">Today 15:08</span>
-          </div>
+          <template v-if="userAuditLogs.length > 0">
+            <div 
+              v-for="(log, idx) in userAuditLogs" 
+              :key="log.id || idx"
+              class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pl-3 border-l-[2px] border-[#165A31]"
+            >
+              <div>
+                <span class="text-[11px] font-bold text-gray-900">{{ log.action || log.operation }}: </span>
+                <span class="text-[11px] text-gray-700">{{ log.description || log.result }}</span>
+                <span class="text-[10px] text-gray-400 ml-2" v-if="log.record && log.record !== 'Session'">({{ log.record }})</span>
+              </div>
+              <span class="text-[10px] font-medium text-gray-500 whitespace-nowrap">{{ log.timestamp }}</span>
+            </div>
+          </template>
+          <template v-else>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 pl-3 border-l-[2px] border-[#eefcf2]">
+              <span class="text-[11px] font-bold text-gray-900">User logged in to Showroom terminal</span>
+              <span class="text-[10px] font-medium text-gray-500">Today</span>
+            </div>
+          </template>
         </div>
       </div>
     </template>

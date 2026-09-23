@@ -1,23 +1,20 @@
 <script setup>
-import { Eye } from 'lucide-vue-next'
+import { Eye, Plus } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
+import CreatePurchaseOrder from './CreatePurchaseOrder.vue'
+
+import { store } from '../../store.js'
 
 const activeFilter = ref('All')
-const filters = ['All', 'Draft', 'Pending Approval', 'Approved', 'In Transit', 'Partial', 'Received']
+const showCreateModal = ref(false)
+const filters = ['All', 'Draft', 'Pending Approval', 'Approved', 'In Transit', 'Partially Received', 'Fully Received']
 const searchQuery = ref('')
 const selectedDestination = ref('All Destinations')
 const openDropdown = ref(null)
 
 const destinations = ['All Destinations', 'All Branches', 'Peshawar', 'Islamabad', 'Lahore']
 
-const purchaseOrders = ref([
-  { po: 'PO-2049', supplier: 'BRG Factory', destination: 'All Branches', amount: '4.8M', units: '28', expected: 'Sep 18', status: 'Pending Approval', match: '—', action: 'Open · Approve' },
-  { po: 'PO-2048', supplier: 'BRG Factory', destination: 'Peshawar', amount: '2.8M', units: '16', expected: 'Aug 29', status: 'In Transit', match: '—', action: 'Open' },
-  { po: 'PO-2022', supplier: 'BRG Factory', destination: 'Islamabad', amount: '2.2M', units: '12', expected: 'Aug 24', status: 'Partial', match: '2/3', action: 'Open' },
-  { po: 'PO-2015', supplier: 'PowerCell Co.', destination: 'Lahore', amount: '1.5M', units: '8', expected: 'Aug 20', status: 'Received', match: '3/3', action: 'Open' },
-  { po: 'PO-2010', supplier: 'BRG Factory', destination: 'Peshawar', amount: '3.1M', units: '20', expected: 'Sep 25', status: 'Draft', match: '—', action: 'Open' },
-  { po: 'PO-2008', supplier: 'Pak Logistics', destination: 'Islamabad', amount: '0.4M', units: '—', expected: 'Sep 05', status: 'Approved', match: '—', action: 'Open' }
-])
+const purchaseOrders = computed(() => store.purchaseOrders)
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -36,15 +33,25 @@ const resetFilters = () => {
 
 const filteredOrders = computed(() => {
   return purchaseOrders.value.filter(item => {
-    if (activeFilter.value !== 'All' && item.status.toLowerCase() !== activeFilter.value.toLowerCase()) return false
+    if (activeFilter.value !== 'All') {
+      const filterLower = activeFilter.value.toLowerCase()
+      const statusLower = (item.status || '').toLowerCase()
+      if (filterLower === 'partially received' || filterLower === 'partial') {
+        if (!statusLower.includes('parti')) return false
+      } else if (filterLower === 'fully received' || filterLower === 'received') {
+        if (!statusLower.includes('receiv') && statusLower !== 'fully received') return false
+      } else if (statusLower !== filterLower) {
+        return false
+      }
+    }
     if (selectedDestination.value !== 'All Destinations' && item.destination !== selectedDestination.value) return false
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
       const match = item.po.toLowerCase().includes(q) ||
                     item.supplier.toLowerCase().includes(q) ||
-                    item.destination.toLowerCase().includes(q) ||
-                    item.amount.toLowerCase().includes(q) ||
-                    item.status.toLowerCase().includes(q)
+                    (item.destination || '').toLowerCase().includes(q) ||
+                    (item.amount || '').toLowerCase().includes(q) ||
+                    (item.status || '').toLowerCase().includes(q)
       if (!match) return false
     }
     return true
@@ -61,8 +68,8 @@ const filteredOrders = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Purchase Orders</h1>
         <p class="text-sm text-gray-500 mt-1">Control BRG procurement from draft through receipt and closure.</p>
       </div>
-      <button @click="$router.push('/procurement/purchase-orders/create')" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + Create Purchase Order
+      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <Plus class="w-4 h-4" /> <span>Create Purchase Order</span>
       </button>
     </div>
 
@@ -151,28 +158,31 @@ const filteredOrders = computed(() => {
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr v-for="item in filteredOrders" :key="item.po" @click="$router.push('/procurement/purchase-orders/detail')" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
+            <tr v-for="item in filteredOrders" :key="item.po" @click="$router.push(`/procurement/purchase-orders/${item.po}`)" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
               <td class="px-5 py-4 font-semibold text-gray-900">{{ item.po }}</td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ item.supplier }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.destination }}</td>
+              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.destination || item.branch }}</td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ item.amount }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.units }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.expected }}</td>
+              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.totalOrdered || item.units }}</td>
+              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.expected || item.expectedDate }}</td>
               <td class="px-5 py-4">
                 <span v-if="item.status === 'Pending Approval'" class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-amber-50 text-amber-600">{{ item.status }}</span>
                 <span v-else-if="item.status === 'In Transit'" class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-blue-50 text-blue-600">{{ item.status }}</span>
                 <span v-else-if="item.status === 'Partial' || item.status === 'Partially Received'" class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-orange-50 text-orange-600">{{ item.status }}</span>
-                <span v-else-if="item.status === 'Approved' || item.status === 'Received'" class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-[#eefcf2] text-[#165A31]">{{ item.status }}</span>
+                <span v-else-if="item.status === 'Approved' || item.status === 'Received' || item.status === 'Fully Received'" class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-[#eefcf2] text-[#165A31]">{{ item.status }}</span>
                 <span v-else class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-gray-100 text-gray-600">{{ item.status }}</span>
               </td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ item.match }}</td>
               <td class="px-5 py-4 text-right">
-                <div v-if="item.action.includes('·')" class="flex items-center justify-end gap-3 text-gray-400">
-                  <span @click.stop="$router.push('/procurement/purchase-orders/detail')" class="cursor-pointer hover:text-gray-600 transition-colors" title="Open"><Eye class="w-4 h-4" /></span>
-                  <span class="cursor-pointer hover:text-gray-600 transition-colors font-medium">Approve</span>
-                </div>
-                <div v-else class="flex items-center justify-end text-gray-400">
-                  <span @click.stop="$router.push('/procurement/purchase-orders/detail')" class="cursor-pointer hover:text-gray-600 transition-colors" title="Open"><Eye class="w-4 h-4" /></span>
+                <div class="flex items-center justify-end gap-3 text-gray-400">
+                  <span @click.stop="$router.push(`/procurement/purchase-orders/${item.po}`)" class="cursor-pointer hover:text-gray-600 transition-colors" title="Open"><Eye class="w-4 h-4" /></span>
+                  <button 
+                    v-if="item.status !== 'Fully Received' && (item.remainingUnits === undefined || item.remainingUnits > 0)"
+                    @click.stop="$router.push(`/procurement/purchase-orders/${item.po}/receive`)" 
+                    class="cursor-pointer hover:text-[#165A31] text-[#165A31] transition-colors font-bold text-[11px]"
+                  >
+                    Receive
+                  </button>
                 </div>
               </td>
             </tr>
@@ -193,6 +203,9 @@ const filteredOrders = computed(() => {
       </div>
     </div>
   </div>
+
+  <!-- Create Purchase Order Modal Popup -->
+  <CreatePurchaseOrder v-if="showCreateModal" @close="showCreateModal = false" />
 
   <router-view />
 </template>

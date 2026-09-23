@@ -1,7 +1,22 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { store } from '../../store.js'
+import CreatePurchaseReturn from './CreatePurchaseReturn.vue'
+
+const route = useRoute()
+const returnId = computed(() => route.params.id || route.query.id || 'PRTN-044')
+const returnRecord = computed(() => {
+  return store.getPurchaseReturnById(returnId.value) || store.purchaseReturns[0] || {
+    returnNo: 'PRTN-044',
+    supplier: 'BRG Factory',
+    po: 'PO-2022',
+    status: 'Approved'
+  }
+})
 
 const activeTab = ref('Summary')
+const showEditModal = ref(false)
 const tabs = ['Summary', 'Units', 'Shipment Back', 'Supplier Credit', 'Financial Effect', 'Documents', 'Activity']
 
 const returnUnits = [
@@ -47,7 +62,7 @@ const activities = [
         <span class="inline-flex items-center px-2 py-1 rounded-[4px] text-[10px] font-bold bg-[#eefcf2] text-[#165A31]">
           Approved
         </span>
-        <button @click="$router.push('/procurement/purchase-returns/create')" class="px-4 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="showEditModal = true" class="px-4 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Update Return
         </button>
         <button class="px-3 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1">
@@ -255,4 +270,7 @@ const activities = [
 
     </div>
   </div>
+
+  <!-- Edit Purchase Return Modal Popup -->
+  <CreatePurchaseReturn v-if="showEditModal" @close="showEditModal = false" />
 </template>

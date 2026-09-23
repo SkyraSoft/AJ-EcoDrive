@@ -1,30 +1,60 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Printer, Download, ArrowLeft } from 'lucide-vue-next'
 
-const router = useRouter()
+import { store } from '../../store.js'
 
-const invoiceData = {
-  invoiceNo: 'INV-4402',
-  orderNo: 'SO-7731',
-  date: 'Aug 27, 2026',
-  dueDate: 'Sep 10, 2026',
-  status: 'Paid',
-  branch: 'Islamabad Branch',
-  customer: {
-    name: 'Saad Ahmad',
-    phone: '+92 300 1234567',
-    address: '123 Main Street, F-8, Islamabad'
-  },
-  items: [
-    { description: 'BRG DS11 - Chassis: CH-88194', qty: 1, price: '185,000', total: '185,000' }
-  ],
-  subtotal: '185,000',
-  discount: '0',
-  total: '185,000',
-  paid: '185,000',
-  balance: '0'
-}
+const router = useRouter()
+const route = useRoute()
+
+const rawInvId = computed(() => route.params.id || route.query.id)
+const invRecord = computed(() => {
+  if (rawInvId.value) return store.getInvoiceById(rawInvId.value)
+  return store.invoices[0] || null
+})
+
+const invoiceData = computed(() => {
+  if (!invRecord.value) return null
+  const inv = invRecord.value
+  const customerName = inv.customer || 'Saad Ahmad'
+  const customerObj = store.getCustomerById(inv.customer_id) || store.customers.find(c => c.name === customerName) || {
+    name: customerName,
+    phone: '+92 312 5538198',
+    address: '123 Main Street, Peshawar'
+  }
+  const rawSubtotal = inv.rawSubtotal !== undefined ? inv.rawSubtotal : (inv.subtotal || inv.rawTotal || (parseFloat(String(inv.amount || '0').replace(/[^0-9.]/g, '')) || 0))
+  const rawTotal = inv.rawTotal !== undefined ? inv.rawTotal : (inv.total || rawSubtotal)
+  const rawPaid = inv.paidAmount !== undefined ? inv.paidAmount : (inv.status === 'Paid' ? rawTotal : 0)
+  const rawBal = inv.outstandingAmount !== undefined ? inv.outstandingAmount : Math.max(0, rawTotal - rawPaid)
+
+  return {
+    invoiceNo: inv.id || inv.invoiceNo || inv.invoice || rawInvId.value,
+    orderNo: inv.order_id || inv.order || inv.orderNo || 'SO-7740',
+    date: inv.date || inv.issued || 'Aug 27, 2026',
+    dueDate: inv.dueDate || 'Sep 10, 2026',
+    status: inv.status || inv.paymentStatus || 'Paid',
+    branch: `${inv.branch || 'Peshawar'} Branch`,
+    customer: {
+      name: customerObj.name || customerName,
+      phone: customerObj.phone || '+92 312 5538198',
+      address: customerObj.address || `${inv.branch || 'Peshawar'}, Pakistan`
+    },
+    items: (inv.items || [
+      { description: 'BRG DS11 - Serialized Electric Scooter', qty: 1, price: rawTotal.toLocaleString(), total: rawTotal.toLocaleString() }
+    ]).map(i => ({
+      description: i.item || i.description || 'Product Item',
+      qty: i.qty || i.quantity || 1,
+      price: typeof i.rate === 'string' ? i.rate.replace(/[^0-9,]/g, '') : (i.unitPrice ? i.unitPrice.toLocaleString() : (i.rate || rawTotal).toLocaleString()),
+      total: typeof i.total === 'string' ? i.total.replace(/[^0-9,]/g, '') : (i.total || rawTotal).toLocaleString()
+    })),
+    subtotal: rawSubtotal.toLocaleString(),
+    discount: (inv.discount || 0).toLocaleString(),
+    total: rawTotal.toLocaleString(),
+    paid: rawPaid.toLocaleString(),
+    balance: rawBal.toLocaleString()
+  }
+})
 
 const handlePrint = () => {
   window.print()
@@ -32,7 +62,15 @@ const handlePrint = () => {
 </script>
 
 <template>
-  <div class="max-w-[1000px] mx-auto space-y-6 pb-12">
+  <div v-if="!invRecord" class="max-w-[1000px] mx-auto py-16 text-center space-y-4">
+    <h2 class="text-2xl font-bold text-gray-900">Invoice Not Found</h2>
+    <p class="text-sm text-gray-500">No invoice found with identifier "{{ rawInvId }}".</p>
+    <button @click="router.push('/sales/invoices')" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28]">
+      <ArrowLeft class="w-4 h-4" /> Back to Invoices
+    </button>
+  </div>
+
+  <div v-else class="max-w-[1000px] mx-auto space-y-6 pb-12">
     <!-- Actions Header -->
     <div class="flex items-center justify-between no-print mb-6">
       <button @click="router.push('/sales/invoices')" class="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors">
@@ -54,8 +92,8 @@ const handlePrint = () => {
       <!-- Invoice Header -->
       <div class="flex items-start justify-between border-b border-gray-100 pb-8 mb-8">
         <div>
-          <h1 class="text-3xl font-black text-gray-900 tracking-tight">AJ ECODRIVE</h1>
-          <p class="text-sm text-gray-500 mt-1">BRG Management System</p>
+          <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE' }}</h1>
+          <p class="text-sm text-gray-500 mt-1 uppercase">{{ store.settings?.company?.brand || 'BRG Management System' }}</p>
           <p class="text-sm text-gray-500 mt-4">{{ invoiceData.branch }}</p>
         </div>
         <div class="text-right">

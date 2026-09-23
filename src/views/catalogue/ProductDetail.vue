@@ -1,10 +1,176 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { FileText, Clock, AlertCircle } from 'lucide-vue-next'
 import { store } from '../../store.js'
 
 const router = useRouter()
+const route = useRoute()
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+const productId = computed(() => route.params.id || route.query.id || 'PROD-001')
+const productRecord = computed(() => store.getProductById(productId.value))
+
+// Branch Manager Tab configuration
+const branchCurrentTab = ref('Overview')
+const branchTabs = [
+  'Overview',
+  'Specifications',
+  'Selling Price',
+  'My Branch Stock',
+  'Serialized Units',
+  'Availability & Incoming',
+  'My Branch Sales',
+  'Warranty',
+  'Media & Documents'
+]
+
+const branchTabData = computed(() => {
+  const branchName = user.value?.branchName || 'Peshawar'
+  const p = productRecord.value
+  const pName = p?.name || p?.modelName || 'BRG E-125'
+  const pSku = p?.sku || productId.value
+  const pPrice = typeof p?.price === 'string' ? p?.price : `PKR ${(p?.price || 280000).toLocaleString()}`
+
+  switch (branchCurrentTab.value) {
+    case 'Overview':
+      return {
+        leftTitle: 'Overview',
+        rightTitle: 'Branch context',
+        banner: 'Branch Managers can view approved selling price and permitted discount authority; sensitive company-wide cost data is excluded.',
+        items: [
+          { label: 'Product', value: pName },
+          { label: 'SKU', value: pSku },
+          { label: 'Selling Price', value: pPrice },
+          { label: 'Available', value: typeof p?.stock === 'number' ? `${p.stock} units` : (p?.stock || '12 units') },
+          { label: 'Reserved', value: '2 units' },
+          { label: 'Incoming', value: '4 units' }
+        ]
+      }
+    case 'Specifications':
+      return {
+        leftTitle: 'Specifications',
+        rightTitle: 'Catalogue governance',
+        banner: 'Specifications are read-only for Branch Managers and come from the approved global catalogue. Missing catalogue values are shown as Not set.',
+        items: [
+          { label: 'Motor', value: 'Approved catalogue value' },
+          { label: 'Battery', value: 'Approved catalogue value' },
+          { label: 'Range', value: 'Not set' },
+          { label: 'Charging Time', value: 'Not set' },
+          { label: 'Top Speed', value: 'Not set' },
+          { label: 'Dimensions / Weight', value: 'Not set' }
+        ]
+      }
+    case 'Selling Price':
+      return {
+        leftTitle: 'Selling Price',
+        rightTitle: 'Pricing controls',
+        banner: 'Branch Managers can use the approved selling price and only the discount authority assigned to them. Company-wide cost and margin data remains restricted.',
+        items: [
+          { label: 'Approved Selling Price', value: 'PKR 475,000' },
+          { label: 'Branch Override', value: 'Not allowed' },
+          { label: 'Discount Authority', value: 'Within assigned limit' },
+          { label: 'Cost / Landed Cost', value: 'Restricted' },
+          { label: 'Price Status', value: 'Active' },
+          { label: 'Effective Scope', value: `${branchName} Branch sales` }
+        ]
+      }
+    case 'My Branch Stock':
+      return {
+        leftTitle: 'My Branch Stock',
+        rightTitle: 'Branch stock controls',
+        banner: 'This tab shows branch-local stock only. Use Serialized Units for exact chassis/serial records and Availability & Incoming for inbound pipeline.',
+        items: [
+          { label: 'Available', value: '12 units' },
+          { label: 'Reserved', value: '2 units' },
+          { label: 'Incoming', value: '4 units' },
+          { label: 'QC / Hold', value: '0 units' },
+          { label: 'Stock Location', value: `${branchName} Branch` },
+          { label: 'Stock Action', value: 'Request stock' }
+        ]
+      }
+    case 'Serialized Units':
+      return {
+        leftTitle: 'Serialized Units',
+        rightTitle: 'Unit controls',
+        banner: 'Serialized inventory is unit-level. A receipt is an event; posted units use operational statuses such as Available, Reserved, In Transit, Sold, or QC / Hold.',
+        items: [
+          { label: 'Serial / Chassis', value: 'BRG-E9P-PSH-0012' },
+          { label: 'Unit Status', value: 'Available' },
+          { label: 'Current Location', value: `${branchName} Branch` },
+          { label: 'Reservation', value: 'None' },
+          { label: 'Sale Link', value: 'Not sold' },
+          { label: 'Unit Record', value: 'Open unit detail' }
+        ]
+      }
+    case 'Availability & Incoming':
+      return {
+        leftTitle: 'Availability & Incoming',
+        rightTitle: 'Inbound pipeline',
+        banner: 'Incoming quantity is not Available stock until the inbound delivery is received, inspected where required, and posted into an operational unit status.',
+        items: [
+          { label: 'Available Now', value: '12 units' },
+          { label: 'Reserved', value: '2 units' },
+          { label: 'Incoming', value: '4 units' },
+          { label: 'Inbound Stage', value: 'In transit' },
+          { label: 'Expected Receipt', value: 'Inbound delivery' },
+          { label: 'QC on Arrival', value: 'Required' }
+        ]
+      }
+    case 'My Branch Sales':
+      return {
+        leftTitle: 'My Branch Sales',
+        rightTitle: 'Branch sales links',
+        banner: `Sales metrics and records are scoped to ${branchName} Branch. Company-wide cost, COGS, and confidential margin data are not exposed here.`,
+        items: [
+          { label: 'Units Sold — 30d', value: '18' },
+          { label: 'Gross Sales — 30d', value: 'Branch-authorised view' },
+          { label: 'Open Orders', value: '4' },
+          { label: 'Returns — 30d', value: '1' },
+          { label: 'Latest Sale', value: 'Order linked' },
+          { label: 'Report Scope', value: `${branchName} only` }
+        ]
+      }
+    case 'Warranty':
+      return {
+        leftTitle: 'Warranty',
+        rightTitle: 'After-sales links',
+        banner: 'Warranty eligibility is confirmed against the sold serialized unit, sale date, approved coverage and service history. Use After-Sales for case handling.',
+        items: [
+          { label: 'Warranty Term', value: '24 months' },
+          { label: 'Eligibility', value: 'Per approved policy' },
+          { label: 'Service Cases', value: 'Open after-sales' },
+          { label: 'Coverage Source', value: 'Approved catalogue' },
+          { label: 'Unit Validation', value: 'Serial required' },
+          { label: 'Warranty Action', value: 'Create service case' }
+        ]
+      }
+    case 'Media & Documents':
+      return {
+        leftTitle: 'Media & Documents',
+        rightTitle: 'Document controls',
+        banner: 'This tab contains approved product-level media and documents. Unit-specific ownership, sale, warranty or service documents remain on the serialized unit record.',
+        items: [
+          { label: 'Approved Images', value: 'Product gallery' },
+          { label: 'Brochure', value: 'Approved document' },
+          { label: 'Specification Sheet', value: 'Approved document' },
+          { label: 'Warranty Document', value: 'Approved document' },
+          { label: 'Unit Documents', value: 'Open serialized unit' },
+          { label: 'Media Scope', value: 'Approved catalogue' }
+        ]
+      }
+    default:
+      return {
+        leftTitle: 'Overview',
+        rightTitle: 'Branch context',
+        banner: '',
+        items: []
+      }
+  }
+})
+
+// Super Admin Configuration
 const currentTab = ref('Overview')
 const tabs = [
   'Overview', 'Specifications', 'Variants', 'Pricing', 
@@ -113,11 +279,31 @@ const mediaData = [
 ]
 
 // Audit Data
-const auditData = [
-  { action: 'Selling price updated to PKR 185K', date: 'Aug 01' },
-  { action: 'Red variant activated', date: 'Jul 12' },
-  { action: 'Warranty rule updated', date: 'Jun 18' }
-]
+const productAuditLogs = computed(() => {
+  const pid = productId.value
+  const psku = productRecord.value?.sku
+  return store.auditLogs.filter(a => {
+    if (a.entity_type === 'product' && (a.entity_id === pid || a.record === pid)) return true
+    const s = JSON.stringify(a).toLowerCase()
+    if (pid && s.includes(pid.toLowerCase())) return true
+    if (psku && s.includes(psku.toLowerCase())) return true
+    return false
+  }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+})
+
+const auditData = computed(() => {
+  if (productAuditLogs.value.length > 0) {
+    return productAuditLogs.value.map(l => ({
+      action: `${l.action || l.operation}: ${l.description || l.result} (${l.user || l.actor_name || 'Admin'})`,
+      date: l.timestamp || 'Recent'
+    }))
+  }
+  return [
+    { action: 'Selling price updated to PKR 185K', date: 'Aug 01' },
+    { action: 'Red variant activated', date: 'Jul 12' },
+    { action: 'Warranty rule updated', date: 'Jun 18' }
+  ]
+})
 
 const editProduct = () => {
   store.originalEditProduct = {
@@ -149,7 +335,87 @@ const editProduct = () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto pb-12">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">
+    <!-- Header -->
+    <div>
+      <div class="text-[11px] text-gray-400 mb-1">
+        Branch Manager / Products / <span class="font-medium text-gray-600">Product Detail — BRG E9 Pro</span>
+      </div>
+      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Product Detail — BRG E9 Pro</h1>
+      <p class="text-xs text-gray-500 mt-1">{{ branchCurrentTab }} view for {{ user.branchName }} Branch.</p>
+    </div>
+
+    <!-- Tabs Navigation Bar -->
+    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-2">
+      <div class="flex items-center gap-2 overflow-x-auto">
+        <button 
+          v-for="tab in branchTabs" 
+          :key="tab"
+          @click="branchCurrentTab = tab"
+          class="px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors cursor-pointer"
+          :class="branchCurrentTab === tab ? 'bg-[#dcfce7] text-[#165A31] font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'"
+        >
+          {{ tab }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Content: Left Box (Overview/Specs/Price/Stock/etc.) & Right Box (Branch context) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Box -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 mb-5">{{ branchTabData.leftTitle }}</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <div v-for="(item, idx) in branchTabData.items" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Notice Banner -->
+        <div v-if="branchTabData.banner" class="bg-[#f0fdf4] border border-[#dcfce7] rounded-lg p-3.5 text-[11px] text-gray-600 leading-relaxed font-medium">
+          {{ branchTabData.banner }}
+        </div>
+      </div>
+
+      <!-- Right Box -->
+      <div class="lg:col-span-4 flex flex-col">
+        <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+          <h3 class="text-sm font-bold text-gray-900 mb-5">{{ branchTabData.rightTitle }}</h3>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Warranty</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">24 months</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Category</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">Electric Scooter</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Branch Sales</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">18 units / 30d</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Status</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">Active</span>
+            </div>
+          </div>
+        </div>
+        
+        <p class="text-[11px] text-gray-400 font-medium mt-3 px-1">
+          Only {{ user.branchName }} Branch operational data is shown.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto pb-12">
     <!-- Header -->
     <div class="mb-6">
       <div class="text-[10px] text-gray-500 mb-1">
@@ -207,7 +473,7 @@ const editProduct = () => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Product Summary -->
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
           <h3 class="text-[14px] font-bold text-gray-900 mb-6">Product Summary</h3>
@@ -257,6 +523,7 @@ const editProduct = () => {
         </table></div>
       </div>
     </div>
+
 
     <!-- Variants Tab -->
     <div v-else-if="currentTab === 'Variants'">

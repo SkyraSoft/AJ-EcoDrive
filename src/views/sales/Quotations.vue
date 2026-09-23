@@ -1,12 +1,84 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { Search, ChevronDown, Check } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { Search, ChevronDown, Check, Plus, Pencil } from 'lucide-vue-next'
+import { store } from '../../store.js'
 import CreateQuotationModal from './CreateQuotation.vue'
 
 const router = useRouter()
+const route = useRoute()
 const showCreateModal = ref(false)
+const selectedQuotationToEdit = ref(null)
+const initialCustomer = ref(null)
 
+onMounted(() => {
+  if (route.query.action === 'new' || route.query.customer) {
+    initialCustomer.value = route.query.customer || null
+    showCreateModal.value = true
+  }
+})
+
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+// Branch Manager Data
+const branchKpis = [
+  { label: 'Open', value: '18', sub: '5 sent today' },
+  { label: 'Accepted', value: '7', sub: '39% conversion' },
+  { label: 'Expiring', value: '4', sub: 'Next 3 days' },
+  { label: 'Value', value: 'PKR 4.2M', sub: 'Open quotes' }
+]
+
+const branchStatusFilter = ref('All')
+const openBranchDropdown = ref(null)
+const branchSearchQuery = ref('')
+
+const toggleBranchDropdown = (name) => {
+  openBranchDropdown.value = openBranchDropdown.value === name ? null : name
+}
+
+const filteredBranchQuotations = computed(() => {
+  const activeBranch = store.getActiveBranch().toLowerCase()
+  return store.quotations.filter(item => {
+    const itemBranch = (item.branch || '').toLowerCase()
+    if (itemBranch && itemBranch !== activeBranch && itemBranch !== 'all branches' && itemBranch !== 'all') {
+      return false
+    }
+    if (branchStatusFilter.value !== 'All' && item.status.toLowerCase() !== branchStatusFilter.value.toLowerCase()) {
+      return false
+    }
+    if (branchSearchQuery.value.trim()) {
+      const q = branchSearchQuery.value.toLowerCase()
+      const match = (item.quote && item.quote.toLowerCase().includes(q)) ||
+                    (item.id && item.id.toLowerCase().includes(q)) ||
+                    (item.customer && item.customer.toLowerCase().includes(q)) ||
+                    (item.product && item.product.toLowerCase().includes(q)) ||
+                    (item.status && item.status.toLowerCase().includes(q))
+      if (!match) return false
+    }
+    return true
+  })
+})
+
+const openCreateModal = () => {
+  selectedQuotationToEdit.value = null
+  showCreateModal.value = true
+}
+
+const openEditModal = (item) => {
+  selectedQuotationToEdit.value = { ...item }
+  showCreateModal.value = true
+}
+
+const handleCreated = (item) => {
+  store.addQuotation(item)
+}
+
+const handleUpdated = (item) => {
+  store.updateQuotation(item.id || item.quote, item)
+}
+
+// Super Admin Data
 const tabs = ['All', 'Draft', 'Sent', 'Accepted', 'Expired']
 const activeTab = ref('All')
 const searchQuery = ref('')
@@ -17,38 +89,23 @@ const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
 }
 
-const quotations = ref([
-  { quote: 'QT-1108', branch: 'Peshawar', customer: 'Faisal Khan', items: 'BRG DS11', amount: '185K', validUntil: 'Sep 02', status: 'Sent', owner: 'Hamza Ali' },
-  { quote: 'QT-1104', branch: 'Islamabad', customer: 'Saad Ahmad', items: 'BRG EV-5', amount: '210K', validUntil: 'Aug 31', status: 'Accepted', owner: 'Ali Raza' },
-  { quote: 'QT-1098', branch: 'Lahore', customer: 'M. Bilal', items: 'Cargo Pro', amount: '275K', validUntil: 'Aug 29', status: 'Draft', owner: 'Sami Ullah' },
-  { quote: 'QT-1092', branch: 'Peshawar', customer: 'Tariq Mehmood', items: 'BRG DS11', amount: '185K', validUntil: 'Aug 15', status: 'Expired', owner: 'Hamza Ali' },
-  { quote: 'QT-1085', branch: 'Islamabad', customer: 'Zubair Shah', items: 'BRG EV-5', amount: '220K', validUntil: 'Aug 12', status: 'Accepted', owner: 'Ali Raza' }
-])
-
 const filteredQuotations = computed(() => {
-  return quotations.value.filter(item => {
-    // Status Tab
+  return store.quotations.filter(item => {
     if (activeTab.value !== 'All' && item.status.toLowerCase() !== activeTab.value.toLowerCase()) {
       return false
     }
-
-    // Branch Filter
     if (selectedBranch.value !== 'All Branches' && item.branch !== selectedBranch.value) {
       return false
     }
-
-    // Search Query
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
       const match = 
-        item.quote.toLowerCase().includes(q) ||
-        item.customer.toLowerCase().includes(q) ||
-        item.items.toLowerCase().includes(q) ||
-        item.branch.toLowerCase().includes(q) ||
-        item.owner.toLowerCase().includes(q)
+        (item.quote && item.quote.toLowerCase().includes(q)) ||
+        (item.customer && item.customer.toLowerCase().includes(q)) ||
+        (item.product && item.product.toLowerCase().includes(q)) ||
+        (item.branch && item.branch.toLowerCase().includes(q))
       if (!match) return false
     }
-
     return true
   })
 })
@@ -69,7 +126,158 @@ const getStatusClass = (status) => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openDropdown = null">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      <div>
+        <div class="text-[11px] text-gray-400 mb-1">
+          Branch Manager / Quotations / <span class="font-medium text-gray-600">Quotations</span>
+        </div>
+        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Quotations</h1>
+        <p class="text-xs text-gray-500 mt-1">Create, send and convert branch quotations.</p>
+      </div>
+      <button 
+        @click="openCreateModal" 
+        class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+      >
+        <Plus class="w-4 h-4" />
+        <span>New Quotation</span>
+      </button>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+        <div>
+          <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
+          <div class="text-[11px] font-semibold text-[#165A31] mt-1">{{ kpi.sub }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Buttons Row -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Status Filter Dropdown -->
+        <div class="relative" @click.stop>
+          <button 
+            @click="toggleBranchDropdown('status')"
+            class="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+          >
+            <span>Status: {{ branchStatusFilter }}</span>
+            <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
+          </button>
+          <div v-if="openBranchDropdown === 'status'" class="absolute top-full left-0 mt-1 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <button 
+              v-for="st in ['All', 'Sent', 'Accepted', 'Draft', 'Expired']"
+              :key="st"
+              @click="branchStatusFilter = st; openBranchDropdown = null"
+              class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors"
+              :class="branchStatusFilter === st ? 'font-bold text-[#165A31] bg-[#eefcf2]/50' : 'text-gray-700'"
+            >
+              <span>{{ st }}</span>
+              <Check v-if="branchStatusFilter === st" class="w-3.5 h-3.5 text-[#165A31]" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative w-48 sm:w-64">
+          <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input 
+            v-model="branchSearchQuery"
+            type="text" 
+            placeholder="Search quotation or customer..." 
+            class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Branch Quotations Table Card -->
+    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold text-gray-900">Branch Quotations</h3>
+        <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchQuotations.length }} quotations</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="text-[10px] font-bold text-gray-400 border-b border-gray-100 pb-3 uppercase tracking-wider">
+              <th class="pb-3 font-semibold w-36">Quotation</th>
+              <th class="pb-3 font-semibold w-48">Customer</th>
+              <th class="pb-3 font-semibold w-48">Product</th>
+              <th class="pb-3 font-semibold w-36">Value</th>
+              <th class="pb-3 font-semibold w-36">Status</th>
+              <th class="pb-3 font-semibold w-24 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs divide-y divide-gray-50">
+            <tr 
+              v-for="(item, index) in filteredBranchQuotations" 
+              :key="index" 
+              class="hover:bg-gray-50/50 transition-colors"
+            >
+              <td class="py-4 align-middle font-bold text-gray-900">
+                {{ item.quote }}
+              </td>
+              <td class="py-4 align-middle text-gray-800 font-semibold">
+                {{ item.customer }}
+              </td>
+              <td class="py-4 align-middle text-gray-700 font-medium">
+                {{ item.product }}
+              </td>
+              <td class="py-4 align-middle text-gray-900 font-bold">
+                {{ item.value }}
+              </td>
+              <td class="py-4 align-middle">
+                <span class="px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap" :class="item.statusClass">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td class="py-4 align-middle text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-2">
+                  <button 
+                    @click="openEditModal(item)" 
+                    class="p-1.5 text-gray-400 hover:text-[#165A31] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center"
+                    title="Edit Quotation"
+                  >
+                    <Pencil class="w-4 h-4 text-[#165A31]" />
+                  </button>
+                  <button 
+                    @click="router.push(`/sales/quotations/detail?id=${item.quote}`)"
+                    class="text-xs font-medium text-gray-400 hover:text-gray-700 cursor-pointer flex items-center justify-end gap-0.5"
+                  >
+                    Open &rsaquo;
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredBranchQuotations.length === 0">
+              <td colspan="6" class="text-center py-8 text-xs text-gray-400">
+                No quotations match your filters.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Popup -->
+    <CreateQuotationModal 
+      v-if="showCreateModal" 
+      :quotation="selectedQuotationToEdit"
+      @close="showCreateModal = false"
+      @created="handleCreated"
+      @updated="handleUpdated"
+    />
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openDropdown = null">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -77,8 +285,9 @@ const getStatusClass = (status) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Quotations</h1>
         <p class="text-sm text-gray-500 mt-1">Create, send and convert customer quotations into orders.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + New Quotation
+      <button @click="openCreateModal" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <Plus class="w-4 h-4" />
+        <span>New Quotation</span>
       </button>
     </div>
 
@@ -104,7 +313,7 @@ const getStatusClass = (status) => {
           <div class="relative w-full sm:w-64 shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
             <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input 
-              v-model="searchQuery"
+              v-model="searchQuery" 
               type="text" 
               placeholder="Search quotation #, customer, item..." 
               class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -170,7 +379,7 @@ const getStatusClass = (status) => {
                 v-for="item in filteredQuotations" 
                 :key="item.quote" 
                 class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer"
-                @click="router.push('/sales/quotations/detail')"
+                @click="router.push(`/sales/quotations/detail?id=${item.quote}`)"
               >
                 <td class="px-5 py-4 font-bold text-gray-900">{{ item.quote }}</td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ item.branch }}</td>
@@ -185,13 +394,12 @@ const getStatusClass = (status) => {
                 </td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ item.owner }}</td>
                 <td class="px-5 py-4 text-right">
-                  <button @click.stop="router.push('/sales/quotations/detail')" class="text-[#165A31] hover:underline font-semibold cursor-pointer">
-                    View
+                  <button @click.stop="openEditModal(item)" class="text-[#165A31] hover:underline font-semibold cursor-pointer">
+                    Edit &rarr;
                   </button>
                 </td>
               </tr>
 
-              <!-- Empty State -->
               <tr v-if="filteredQuotations.length === 0">
                 <td colspan="9" class="text-center py-12 text-gray-500">
                   <div class="space-y-2">
@@ -208,6 +416,14 @@ const getStatusClass = (status) => {
       </div>
     </div>
 
-    <CreateQuotationModal v-if="showCreateModal" @close="showCreateModal = false" />
+    <!-- Modal Popup -->
+    <CreateQuotationModal 
+      v-if="showCreateModal" 
+      :quotation="selectedQuotationToEdit"
+      :customer="initialCustomer"
+      @close="showCreateModal = false"
+      @created="handleCreated"
+      @updated="handleUpdated"
+    />
   </div>
 </template>

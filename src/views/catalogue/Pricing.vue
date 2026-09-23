@@ -1,10 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Search, ChevronDown, Pencil, Clock } from 'lucide-vue-next'
+import { Search, ChevronDown, Pencil, Clock, Plus } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import CreatePriceRule from './CreatePriceRule.vue'
+import EditPriceRule from './EditPriceRule.vue'
 
 const router = useRouter()
+const showCreateModal = ref(false)
+const showEditModal = ref(false)
 const showHistory = ref(false)
 const selectedHistoryProduct = ref('')
 
@@ -58,7 +62,7 @@ const filteredPricing = computed(() => {
 
 const editRule = (rule) => {
   store.originalEditPriceRule = rule
-  router.push('/catalogue/pricing/edit')
+  showEditModal.value = true
 }
 
 const openHistory = (productName) => {
@@ -76,8 +80,8 @@ const openHistory = (productName) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Pricing</h1>
         <p class="text-sm text-gray-500 mt-1">Control catalogue selling prices, margin rules and branch overrides.</p>
       </div>
-      <button @click="$router.push('/catalogue/pricing/create')" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + New Price Rule
+      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <Plus class="w-4 h-4" /> <span>New Price Rule</span>
       </button>
     </div>
 
@@ -263,6 +267,10 @@ const openHistory = (productName) => {
       </div>
     </div>
   </div>
+
+  <!-- Create & Edit Price Rule Modal Popups -->
+  <CreatePriceRule v-if="showCreateModal" @close="showCreateModal = false" />
+  <EditPriceRule v-if="showEditModal" @close="showEditModal = false" />
 
   <router-view />
 </template>

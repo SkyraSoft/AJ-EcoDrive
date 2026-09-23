@@ -1,5 +1,20 @@
 <script setup>
-const kpis = [
+import { computed } from 'vue'
+import { store } from '@/store.js'
+
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+// Branch Manager KPIs
+const branchManagerKpis = [
+  { label: 'Period Sales', value: 'PKR 8.7M', change: '+10% vs prior' },
+  { label: 'Units Sold', value: '31', change: '+4' },
+  { label: 'Operating Expenses', value: 'PKR 482K', change: '+6%' },
+  { label: 'Net Operating Profit', value: 'PKR 1.28M', change: '14.7% margin' }
+]
+
+// Super Admin KPIs
+const superAdminKpis = [
   { label: 'Organisation Sales', value: 'PKR 28.4M', change: '+12.8%' },
   { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%' },
   { label: 'Net Profit', value: 'PKR 3.7M', change: '+21.4%' },
@@ -22,7 +37,68 @@ const detailedComparison = [
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+    <!-- Header -->
+    <div>
+      <div class="text-[11px] text-gray-400 mb-1">
+        Branch Manager / My Branch Performance / <span class="font-medium text-gray-600">My Branch Performance</span>
+      </div>
+      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">My Branch Performance</h1>
+      <p class="text-xs text-gray-500 mt-1">Period performance for {{ user.branchName }} Branch only; no other-branch financial data.</p>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-for="(kpi, index) in branchManagerKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+        <div>
+          <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
+          <div class="text-[11px] font-bold text-[#209249] mt-1">{{ kpi.change }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Grids: Target vs Actual & Performance Indicators -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <!-- Target vs Actual -->
+      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-7 flex flex-col justify-between min-h-[260px]">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">Target vs Actual</h3>
+        <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-xl flex items-end justify-center gap-6 pt-8 pb-4 px-6">
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 60%;"></div>
+          <div class="w-10 bg-[#34d399] rounded-t-md" style="height: 88%;"></div>
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 52%;"></div>
+          <div class="w-10 bg-[#6ee7b7] rounded-t-md" style="height: 80%;"></div>
+        </div>
+      </div>
+
+      <!-- Performance Indicators -->
+      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-5 flex flex-col">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">Performance Indicators</h3>
+        <div class="grid grid-cols-2 gap-3 flex-1">
+          <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">Gross Profit</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">PKR 1.76M</span>
+          </div>
+          <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">Margin</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">20.2%</span>
+          </div>
+          <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">Inventory Value</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">Authorised view</span>
+          </div>
+          <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">Top Category</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">E-Series</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -33,8 +109,8 @@ const detailedComparison = [
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-for="(kpi, index) in superAdminKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="flex items-end justify-between">
           <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
@@ -46,7 +122,7 @@ const detailedComparison = [
     </div>
 
     <!-- Middle Grids -->
-    <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- Branch Ranking -->
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
         <h3 class="text-[13px] font-bold text-gray-900 mb-5">Branch Ranking</h3>
@@ -65,7 +141,6 @@ const detailedComparison = [
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
         <h3 class="text-[13px] font-bold text-gray-900 mb-5">Sales vs Expenses</h3>
         <div class="flex-1 min-h-[140px] bg-[#f8faf9] rounded-lg flex items-end justify-start px-6 pt-6 pb-4 gap-4 relative">
-          <!-- Simple CSS representation of bars since we don't have charting lib -->
           <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 100%;"></div>
           <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 75%;"></div>
           <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 85%;"></div>
@@ -117,3 +192,4 @@ const detailedComparison = [
     </div>
   </div>
 </template>
+

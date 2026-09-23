@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { Plus } from 'lucide-vue-next'
+import { store } from '../../store.js'
 
 const activeFilter = ref('All')
 const filters = ['All', 'Draft', 'Approved', 'Shipped', 'Credited', 'Closed']
@@ -9,12 +11,7 @@ const openDropdown = ref(null)
 
 const suppliers = ['All Suppliers', 'BRG Factory', 'Pak Logistics', 'PowerCell Co.']
 
-const returns = ref([
-  { returnNo: 'PRTN-041', supplier: 'BRG Factory', po: 'PO-1961', units: '1', reason: 'Transit damage', credit: '152K', status: 'Closed' },
-  { returnNo: 'PRTN-044', supplier: 'BRG Factory', po: 'PO-2022', units: '2', reason: 'QC failure', credit: '336K', status: 'Approved' },
-  { returnNo: 'PRTN-045', supplier: 'PowerCell Co.', po: 'PO-1980', units: '4', reason: 'Battery voltage defect', credit: '240K', status: 'Shipped' },
-  { returnNo: 'PRTN-046', supplier: 'Pak Logistics', po: 'PO-1990', units: '1', reason: 'Wrong packaging', credit: '50K', status: 'Draft' }
-])
+const returns = computed(() => store.purchaseReturns)
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -60,7 +57,7 @@ const filteredReturns = computed(() => {
       </div>
       <div>
         <button @click="$router.push('/procurement/purchase-returns/create')" class="px-4 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] flex items-center gap-2 cursor-pointer">
-          <span>+</span> Create Purchase Return
+          <Plus class="w-4 h-4" /> <span>Create Purchase Return</span>
         </button>
       </div>
     </div>

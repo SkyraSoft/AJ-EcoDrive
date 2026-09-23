@@ -1,4 +1,19 @@
 <script setup>
+import { computed } from 'vue'
+import { store } from '../../store.js'
+
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+// Branch Manager Data
+const branchKpis = [
+  { label: "Today's Sales", value: 'PKR 1.84M', sub: '+12% vs yesterday' },
+  { label: 'Units Sold', value: '7', sub: '+2 vs yesterday' },
+  { label: 'Collections', value: 'PKR 1.32M', sub: '72% collected' },
+  { label: 'Outstanding', value: 'PKR 520K', sub: '6 open balances' }
+]
+
+// Super Admin Data
 const kpis = [
   { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
   { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
@@ -31,7 +46,85 @@ const collections = [
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      <div>
+        <div class="text-[11px] text-gray-400 mb-1">
+          Branch Manager / Sales / <span class="font-medium text-gray-600">Sales Dashboard</span>
+        </div>
+        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Sales Dashboard</h1>
+        <p class="text-xs text-gray-500 mt-1">Branch sales, collections, outstanding balances and product performance.</p>
+      </div>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+        <div>
+          <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
+          <div class="text-[11px] font-semibold text-[#165A31] mt-1">{{ kpi.sub }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Card: Sales Trend (Bar Chart) -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
+        <h3 class="text-sm font-bold text-gray-900 mb-6">Sales Trend</h3>
+        
+        <div class="border border-gray-100 rounded-[12px] p-6 flex items-end justify-start gap-5 min-h-[220px]">
+          <!-- Bar 1 -->
+          <div class="w-9 h-28 bg-[#86efac]/70 rounded-t-sm"></div>
+          <!-- Bar 2 -->
+          <div class="w-9 h-36 bg-[#86efac] rounded-t-sm"></div>
+          <!-- Bar 3 -->
+          <div class="w-9 h-32 bg-[#86efac]/80 rounded-t-sm"></div>
+          <!-- Bar 4 -->
+          <div class="w-9 h-44 bg-[#4ade80] rounded-t-sm"></div>
+          <!-- Bar 5 -->
+          <div class="w-9 h-40 bg-[#86efac] rounded-t-sm"></div>
+          <!-- Bar 6 -->
+          <div class="w-9 h-48 bg-[#4ade80] rounded-t-sm"></div>
+        </div>
+      </div>
+
+      <!-- Right Card: Top Products -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-4 flex flex-col justify-between space-y-4">
+        <h3 class="text-sm font-bold text-gray-900 mb-2">Top Products</h3>
+
+        <!-- Product 1 -->
+        <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex items-center justify-between">
+          <span class="text-xs font-semibold text-gray-500">BRG E-125</span>
+          <span class="text-xs font-bold text-gray-900">12 units</span>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex items-center justify-between">
+          <span class="text-xs font-semibold text-gray-500">BRG X7</span>
+          <span class="text-xs font-bold text-gray-900">9 units</span>
+        </div>
+
+        <!-- Average Sale & Returns Split -->
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">Average Sale</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">PKR 280K</span>
+          </div>
+          <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">Returns</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -42,7 +135,7 @@ const collections = [
     </div>
 
     <!-- 8 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="flex items-end justify-between">
@@ -61,12 +154,11 @@ const collections = [
     </div>
 
     <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Sales Trend -->
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col">
         <h3 class="text-[13px] font-bold text-gray-900 mb-4">Sales Trend</h3>
         <div class="flex-1 min-h-[160px] bg-[#f0f9f4] rounded-lg flex items-center justify-center relative">
-           <!-- Simple SVG Line placeholder -->
            <svg class="w-full h-[120px]" viewBox="0 0 100 30" preserveAspectRatio="none">
              <polyline points="0,25 20,24 40,22 60,20 80,18 100,16" fill="none" stroke="#209249" stroke-width="0.5" vector-effect="non-scaling-stroke"/>
            </svg>
@@ -89,8 +181,7 @@ const collections = [
     </div>
 
     <!-- Bottom Grids -->
-    <div class="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 gap-4">
-      
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Top Products -->
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100">
@@ -98,7 +189,7 @@ const collections = [
         </div>
         
         <div class="overflow-x-auto">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <th class="px-5 py-3">Product</th>
@@ -115,7 +206,7 @@ const collections = [
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ product.margin }}</td>
               </tr>
             </tbody>
-          </table></div>
+          </table>
         </div>
       </div>
 
@@ -126,7 +217,7 @@ const collections = [
         </div>
         
         <div class="overflow-x-auto">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <th class="px-5 py-3">Branch</th>
@@ -143,10 +234,9 @@ const collections = [
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ col.overdue }}</td>
               </tr>
             </tbody>
-          </table></div>
+          </table>
         </div>
       </div>
-
     </div>
   </div>
 </template>

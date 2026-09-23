@@ -1,10 +1,15 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import EditSupplier from './EditSupplier.vue'
 
 const router = useRouter()
+const route = useRoute()
+const supplierId = computed(() => route.params.id || route.query.id || 'SUP-01')
+
 const activeTab = ref('Overview')
+const showEditModal = ref(false)
 const tabs = ['Overview', 'Contacts', 'Products', 'Purchase Orders', 'Receipts', 'Bills & Payments', 'Returns', 'Performance', 'Documents', 'Activity']
 
 // Data for tabs
@@ -49,8 +54,8 @@ const activities = [
   { text: 'Vendor bill BILL-784 received', date: 'Aug 24' }
 ]
 
-const editSupplier = () => {
-  store.originalEditSupplier = {
+const supplierRecord = computed(() => {
+  return store.getSupplierById(supplierId.value) || store.suppliers[0] || {
     name: 'BRG Factory',
     code: 'SUP-BRG-001',
     category: 'OEM / Bikes',
@@ -63,7 +68,11 @@ const editSupplier = () => {
     address: 'Shenzhen, China',
     notes: 'Primary supplier for E-Bikes'
   }
-  router.push('/procurement/suppliers/edit')
+})
+
+const editSupplier = () => {
+  store.originalEditSupplier = { ...supplierRecord.value }
+  showEditModal.value = true
 }
 </script>
 
@@ -476,4 +485,7 @@ const editSupplier = () => {
       <!-- Placeholder for other tabs -->
     </div>
   </div>
+
+  <!-- Edit Supplier Modal Popup -->
+  <EditSupplier v-if="showEditModal" @close="showEditModal = false" />
 </template>

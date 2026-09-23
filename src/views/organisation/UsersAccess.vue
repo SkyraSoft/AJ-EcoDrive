@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Eye, Pencil } from 'lucide-vue-next'
+import { Eye, Pencil, Plus, Trash2, Check, Search, ChevronDown } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import CreateUser from './CreateUser.vue'
+import EditUser from './EditUser.vue'
 
 const router = useRouter()
 
@@ -12,17 +14,28 @@ const selectedBranch = ref('All Branches')
 const selectedStatus = ref('All Statuses')
 const openDropdown = ref(null)
 
-const roles = ['All Roles', 'Branch Manager', 'Sales Executive', 'CRM Executive', 'Super Admin']
-const branches = ['All Branches', 'Peshawar', 'Islamabad', 'Lahore', 'Unassigned']
-const statuses = ['All Statuses', 'Active', 'Pending']
+const showCreateModal = ref(false)
+const showEditModal = ref(false)
+const selectedUserToEdit = ref(null)
 
-const users = ref([
-  { name: 'Ahsan Khan', email: 'ahsan@ajecodrive.com', mobile: '+92 300 555 0191', role: 'Branch Manager', branch: 'Peshawar', mfa: 'On', lastLogin: 'Today 22:01', status: 'Active', invitation: 'Accepted', sessionPolicy: 'Standard' },
-  { name: 'Hassan Ali', email: 'hassan@ajecodrive.com', mobile: '+92 300 555 0192', role: 'Branch Manager', branch: 'Islamabad', mfa: 'On', lastLogin: 'Today 21:44', status: 'Active', invitation: 'Accepted', sessionPolicy: 'Standard' },
-  { name: 'Sana Noor', email: 'sana@ajecodrive.com', mobile: '+92 300 555 0193', role: 'CRM Executive', branch: 'Peshawar', mfa: 'On', lastLogin: 'Today 20:16', status: 'Active', invitation: 'Accepted', sessionPolicy: 'Strict' },
-  { name: 'Bilal Ahmad', email: 'bilal@ajecodrive.com', mobile: '+92 300 555 0194', role: 'Branch Manager', branch: 'Unassigned', mfa: 'Off', lastLogin: 'Invite pending', status: 'Pending', invitation: 'Pending', sessionPolicy: 'Standard' },
-  { name: 'Hamza Ali', email: 'hamza@ajecodrive.com', mobile: '+92 300 555 0195', role: 'Sales Executive', branch: 'Lahore', mfa: 'On', lastLogin: 'Today 18:30', status: 'Active', invitation: 'Accepted', sessionPolicy: 'Standard' }
-])
+const roles = ['All Roles', 'Branch Manager', 'Sales Executive', 'CRM Executive', 'Technician', 'Super Admin']
+const branches = ['All Branches', 'Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi', 'Unassigned']
+const statuses = ['All Statuses', 'Active', 'Pending', 'Inactive']
+
+const users = computed(() => store.users)
+
+const kpis = computed(() => {
+  const total = users.value.length
+  const activeCount = users.value.filter(u => u.status === 'Active').length
+  const pendingCount = users.value.filter(u => u.status === 'Pending').length
+  const mfaCount = users.value.filter(u => u.mfa === 'On').length
+  return [
+    { label: 'Users', value: String(total) },
+    { label: 'Active', value: String(activeCount) },
+    { label: 'Pending Invite', value: String(pendingCount) },
+    { label: 'MFA Enabled', value: String(mfaCount) }
+  ]
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -49,21 +62,32 @@ const filteredUsers = computed(() => {
     if (selectedStatus.value !== 'All Statuses' && user.status !== selectedStatus.value) return false
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
-      const match = user.name.toLowerCase().includes(q) ||
-                    user.email.toLowerCase().includes(q) ||
-                    user.mobile.toLowerCase().includes(q) ||
-                    user.role.toLowerCase().includes(q) ||
-                    user.branch.toLowerCase().includes(q) ||
-                    user.status.toLowerCase().includes(q)
+      const match = (user.name && user.name.toLowerCase().includes(q)) ||
+                    (user.email && user.email.toLowerCase().includes(q)) ||
+                    (user.mobile && user.mobile.toLowerCase().includes(q)) ||
+                    (user.role && user.role.toLowerCase().includes(q)) ||
+                    (user.branch && user.branch.toLowerCase().includes(q)) ||
+                    (user.status && user.status.toLowerCase().includes(q))
       if (!match) return false
     }
     return true
   })
 })
 
+const handleUserCreated = (newUser) => {
+  store.addUser(newUser)
+  showCreateModal.value = false
+}
+
 const editUser = (user) => {
+  selectedUserToEdit.value = user
   store.originalEditUser = user
-  router.push('/organisation/users/edit')
+  showEditModal.value = true
+}
+
+const handleUserUpdated = (updatedUser) => {
+  store.updateUser(updatedUser.id || updatedUser.email || updatedUser.name, updatedUser)
+  showEditModal.value = false
 }
 </script>
 
@@ -76,42 +100,32 @@ const editUser = (user) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Users & Access</h1>
         <p class="text-[13px] text-gray-500 mt-1">Manage users, branch assignments, account state and access controls.</p>
       </div>
-      <button @click="$router.push('/organisation/users/create')" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + Add User
+      <button 
+        @click="showCreateModal = true" 
+        class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+      >
+        <Plus class="w-4 h-4" /> <span>Add User</span>
       </button>
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[100px]">
-        <div class="text-xs font-semibold text-gray-400">Users</div>
-        <div class="text-[22px] font-bold text-gray-900 leading-none">18</div>
-      </div>
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[100px]">
-        <div class="text-xs font-semibold text-gray-400">Active</div>
-        <div class="text-[22px] font-bold text-gray-900 leading-none">16</div>
-      </div>
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[100px]">
-        <div class="text-xs font-semibold text-gray-400">Pending Invite</div>
-        <div class="text-[22px] font-bold text-gray-900 leading-none">1</div>
-      </div>
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[100px]">
-        <div class="text-xs font-semibold text-gray-400">MFA Enabled</div>
-        <div class="text-[22px] font-bold text-gray-900 leading-none">15</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[100px]">
+        <div class="text-xs font-semibold text-gray-400">{{ kpi.label }}</div>
+        <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
       </div>
     </div>
 
     <!-- Table Filters & Search -->
     <div class="flex flex-wrap items-center gap-3 mb-6">
+      <!-- Search -->
       <div class="relative w-full sm:w-64">
-        <svg class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input 
           v-model="searchQuery"
           type="text" 
           placeholder="Search users..." 
-          class="w-full pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[11px] placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] focus:ring-1 focus:ring-[#165A31] transition-colors shadow-sm"
+          class="w-full pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-[11px] placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors shadow-sm"
         />
       </div>
       
@@ -119,21 +133,22 @@ const editUser = (user) => {
       <div class="relative">
         <button 
           @click.stop="toggleDropdown('role')"
-          class="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shadow-sm transition-colors"
+          class="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shadow-sm transition-colors cursor-pointer"
           :class="{ 'border-[#165A31] text-[#165A31] bg-[#eefcf2]/30': selectedRole !== 'All Roles' }"
         >
           <span>{{ selectedRole }}</span>
-          <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          <ChevronDown class="w-3 h-3 text-gray-400" />
         </button>
         <div v-if="openDropdown === 'role'" class="absolute left-0 mt-1 w-44 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-20 text-[11px]">
           <button 
             v-for="r in roles" 
             :key="r" 
             @click.stop="selectFilter('role', r)"
-            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700"
+            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700 flex items-center justify-between"
             :class="{ 'text-[#165A31] font-bold bg-[#eefcf2]/50': selectedRole === r }"
           >
-            {{ r }}
+            <span>{{ r }}</span>
+            <Check v-if="selectedRole === r" class="w-3.5 h-3.5 text-[#165A31]" />
           </button>
         </div>
       </div>
@@ -142,21 +157,22 @@ const editUser = (user) => {
       <div class="relative">
         <button 
           @click.stop="toggleDropdown('branch')"
-          class="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shadow-sm transition-colors"
+          class="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shadow-sm transition-colors cursor-pointer"
           :class="{ 'border-[#165A31] text-[#165A31] bg-[#eefcf2]/30': selectedBranch !== 'All Branches' }"
         >
           <span>{{ selectedBranch }}</span>
-          <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          <ChevronDown class="w-3 h-3 text-gray-400" />
         </button>
         <div v-if="openDropdown === 'branch'" class="absolute left-0 mt-1 w-40 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-20 text-[11px]">
           <button 
             v-for="b in branches" 
             :key="b" 
             @click.stop="selectFilter('branch', b)"
-            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700"
+            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700 flex items-center justify-between"
             :class="{ 'text-[#165A31] font-bold bg-[#eefcf2]/50': selectedBranch === b }"
           >
-            {{ b }}
+            <span>{{ b }}</span>
+            <Check v-if="selectedBranch === b" class="w-3.5 h-3.5 text-[#165A31]" />
           </button>
         </div>
       </div>
@@ -165,21 +181,22 @@ const editUser = (user) => {
       <div class="relative">
         <button 
           @click.stop="toggleDropdown('status')"
-          class="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shadow-sm transition-colors"
+          class="flex items-center gap-1.5 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shadow-sm transition-colors cursor-pointer"
           :class="{ 'border-[#165A31] text-[#165A31] bg-[#eefcf2]/30': selectedStatus !== 'All Statuses' }"
         >
           <span>{{ selectedStatus }}</span>
-          <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          <ChevronDown class="w-3 h-3 text-gray-400" />
         </button>
         <div v-if="openDropdown === 'status'" class="absolute left-0 mt-1 w-36 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-20 text-[11px]">
           <button 
             v-for="s in statuses" 
             :key="s" 
             @click.stop="selectFilter('status', s)"
-            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700"
+            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700 flex items-center justify-between"
             :class="{ 'text-[#165A31] font-bold bg-[#eefcf2]/50': selectedStatus === s }"
           >
-            {{ s }}
+            <span>{{ s }}</span>
+            <Check v-if="selectedStatus === s" class="w-3.5 h-3.5 text-[#165A31]" />
           </button>
         </div>
       </div>
@@ -200,7 +217,7 @@ const editUser = (user) => {
         <span class="text-[11px] text-gray-400 font-medium">Showing {{ filteredUsers.length }} users</span>
       </div>
       <div class="overflow-x-auto">
-        <div class="w-full overflow-x-auto"><table class="w-full text-left">
+        <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
               <th class="px-6 py-3">User</th>
@@ -228,12 +245,13 @@ const editUser = (user) => {
                 </span>
               </td>
               <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-1 text-gray-400 font-medium">
-                  <button @click="$router.push('/organisation/users/detail')" class="hover:text-gray-900 transition-colors cursor-pointer" title="Open"><Eye class="w-4 h-4" /></button>
-                  <span>&middot;</span>
-                  <button @click="editUser(user)" class="hover:text-gray-900 transition-colors cursor-pointer" title="Edit"><Pencil class="w-4 h-4" /></button>
-                  <span>&middot;</span>
-                  <button class="hover:text-gray-900 transition-colors cursor-pointer">...</button>
+                <div class="flex items-center justify-end gap-3 text-gray-400">
+                  <button @click="$router.push('/organisation/users/detail')" class="hover:text-[#165A31] transition-colors cursor-pointer" title="View Details">
+                    <Eye class="w-4 h-4" />
+                  </button>
+                  <button @click="editUser(user)" class="hover:text-[#165A31] transition-colors cursor-pointer" title="Edit User">
+                    <Pencil class="w-4 h-4" />
+                  </button>
                 </div>
               </td>
             </tr>
@@ -243,16 +261,33 @@ const editUser = (user) => {
                   <span class="text-2xl mb-2">🔍</span>
                   <p class="text-sm font-semibold text-gray-700">No users found</p>
                   <p class="text-xs text-gray-400 mt-1">Try adjusting your filters or search query</p>
-                  <button @click="resetFilters" class="mt-3 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors">
+                  <button @click="resetFilters" class="mt-3 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer">
                     Reset filters
                   </button>
                 </div>
               </td>
             </tr>
           </tbody>
-        </table></div>
+        </table>
       </div>
     </div>
+
+    <!-- Create User Modal -->
+    <CreateUser 
+      v-if="showCreateModal" 
+      :is-modal="true" 
+      @close="showCreateModal = false" 
+      @created="handleUserCreated" 
+    />
+
+    <!-- Edit User Modal (Preloaded) -->
+    <EditUser 
+      v-if="showEditModal" 
+      :is-modal="true" 
+      :user="selectedUserToEdit" 
+      @close="showEditModal = false" 
+      @updated="handleUserUpdated" 
+    />
   </div>
 
   <router-view />

@@ -10,44 +10,53 @@ import { store } from '@/store.js'
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const dashboardTitle = computed(() => {
-  if (isBranchUser.value) {
-    return `${user.value.branchName} Branch Dashboard`
-  }
-  return 'Super Admin Dashboard'
-})
+// --- Branch Manager Specific Data ---
+const branchManagerKpis = [
+  { label: "Today's Sales", value: 'PKR 842K', change: '+12.4%' },
+  { label: 'Units Sold', value: '7', change: '+2 vs yesterday' },
+  { label: 'Payments Collected', value: 'PKR 710K', change: '84%' },
+  { label: 'Expenses', value: 'PKR 42K', change: 'Today' }
+]
 
-const dashboardSubtitle = computed(() => {
-  if (isBranchUser.value) {
-    return `Branch command center & operations overview for ${user.value.branchName} (${user.value.branchCode}).`
-  }
-  return 'Company-wide command center across every AJ ECODRIVE branch.'
-})
+const branchSnapshot = [
+  { label: 'Open Orders', value: '14' },
+  { label: 'Available Stock', value: '48' },
+  { label: 'Reserved', value: '7' },
+  { label: 'Incoming', value: '8' },
+  { label: 'Low Stock', value: '6 products' },
+  { label: 'Service Cases', value: '4 open' }
+]
 
-const kpis = computed(() => {
-  if (isBranchUser.value && user.value.branchName === 'Peshawar') {
-    return [
-      { label: 'Net Sales', value: 'PKR 9.8M', change: '+14.2%', positive: true },
-      { label: 'Units Sold', value: '64', change: '+9.1%', positive: true },
-      { label: 'Purchases', value: 'PKR 4.8M', change: '+3.5%', positive: true },
-      { label: 'Operating Expenses', value: 'PKR 1.0M', change: '-1.8%', positive: true },
-      { label: 'Gross Profit', value: 'PKR 2.4M', change: '+16.5%', positive: true },
-      { label: 'Net Operating Profit', value: 'PKR 1.4M', change: '+22.0%', positive: true },
-      { label: 'Inventory Value', value: 'PKR 14.2M', subtitle: '108 units', positive: null },
-      { label: 'Receivables', value: 'PKR 850K', subtitle: '4 overdue', positive: false }
-    ]
+const actionRequiredItems = [
+  {
+    priority: 'High / Med',
+    priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+    item: 'Incoming stock to receive • Transfer to dispatch • Low stock / request stock • Unpaid or partially paid order • Overdue customer follow-up',
+    record: 'TR / PO / SKU / ORD / LD',
+    status: 'Priority actions',
+    statusClass: 'bg-[#fef3c7] text-[#b45309]'
+  },
+  {
+    priority: 'Med / High',
+    priorityClass: 'bg-[#fef3c7] text-[#b45309]',
+    item: 'Expense correction • Return pending inspection • Warranty / service task • Management task from Super Admin',
+    record: 'EXP / RET / SC / TASK',
+    status: 'Due / overdue',
+    statusClass: 'bg-[#dbeafe] text-[#1d4ed8]'
   }
-  return [
-    { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
-    { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
-    { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true },
-    { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true },
-    { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true },
-    { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true },
-    { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null },
-    { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false }
-  ]
-})
+]
+
+// --- Super Admin Specific Data ---
+const superAdminKpis = [
+  { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
+  { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
+  { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true },
+  { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true },
+  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true },
+  { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true },
+  { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null },
+  { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false }
+]
 
 const branchPerformance = [
   { name: 'Peshawar', value: 92 },
@@ -66,19 +75,112 @@ const expenseSummary = [
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+    <!-- Breadcrumb & Header -->
+    <div>
+      <div class="text-[11px] text-gray-400 mb-1">
+        Branch Manager / Dashboard / <span class="font-medium text-gray-600">Branch Manager Dashboard</span>
+      </div>
+      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Branch Manager Dashboard</h1>
+      <p class="text-xs text-gray-500 mt-1">{{ user.branchName }} Branch operational overview and priorities.</p>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-for="(kpi, index) in branchManagerKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+        <div>
+          <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
+          <div class="text-[11px] font-bold text-[#209249] mt-1">{{ kpi.change }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Row: Sales Trend & Branch Snapshot -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <!-- Sales Trend -->
+      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-7 flex flex-col justify-between min-h-[260px]">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">Sales Trend</h3>
+        <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-xl flex items-end justify-center gap-6 pt-8 pb-4 px-6">
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 45%;"></div>
+          <div class="w-10 bg-[#6ee7b7] rounded-t-md" style="height: 70%;"></div>
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 55%;"></div>
+          <div class="w-10 bg-[#34d399] rounded-t-md" style="height: 90%;"></div>
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 75%;"></div>
+        </div>
+      </div>
+
+      <!-- Branch Snapshot -->
+      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-5 flex flex-col">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">Branch Snapshot</h3>
+        <div class="grid grid-cols-2 gap-3 flex-1">
+          <div v-for="(item, idx) in branchSnapshot" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
+            <span class="text-sm font-bold text-gray-900 mt-1">{{ item.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Required Table -->
+    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+      <h3 class="text-sm font-bold text-gray-900 mb-5">Action Required</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="text-[10px] font-bold text-gray-400 border-b border-gray-100 pb-3 uppercase tracking-wider">
+              <th class="pb-3 font-semibold w-28">Priority</th>
+              <th class="pb-3 font-semibold">Item</th>
+              <th class="pb-3 font-semibold w-56">Record</th>
+              <th class="pb-3 font-semibold w-40">Status</th>
+              <th class="pb-3 font-semibold w-16 text-right"></th>
+            </tr>
+          </thead>
+          <tbody class="text-xs divide-y divide-gray-50">
+            <tr v-for="(action, index) in actionRequiredItems" :key="index" class="hover:bg-gray-50/50 transition-colors">
+              <td class="py-4 align-top">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap" :class="action.priorityClass">
+                  {{ action.priority }}
+                </span>
+              </td>
+              <td class="py-4 pr-4 align-top text-gray-700 leading-relaxed font-medium">
+                {{ action.item }}
+              </td>
+              <td class="py-4 align-top text-gray-600 font-medium whitespace-nowrap">
+                {{ action.record }}
+              </td>
+              <td class="py-4 align-top">
+                <span class="px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap" :class="action.statusClass">
+                  {{ action.status }}
+                </span>
+              </td>
+              <td class="py-4 align-top text-right whitespace-nowrap">
+                <button class="text-xs font-medium text-gray-400 hover:text-gray-700 cursor-pointer flex items-center justify-end gap-0.5 ml-auto">
+                  Open &rsaquo;
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Breadcrumb & Header -->
     <div>
       <div class="text-[10px] text-gray-500 mb-1">
-        {{ isBranchUser ? user.branchName : 'Super Admin' }} / <span class="font-bold text-gray-800">{{ dashboardTitle }}</span>
+        Super Admin / <span class="font-bold text-gray-800">Super Admin Dashboard</span>
       </div>
-      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">{{ dashboardTitle }}</h1>
-      <p class="text-sm text-gray-500 mt-1">{{ dashboardSubtitle }}</p>
+      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Super Admin Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-1">Company-wide command center across every AJ ECODRIVE branch.</p>
     </div>
 
     <!-- 8 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-for="(kpi, index) in superAdminKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="flex items-end justify-between">
           <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
@@ -96,7 +198,7 @@ const expenseSummary = [
     </div>
 
     <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Sales Performance -->
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col">
         <h3 class="text-xs font-bold text-gray-900 mb-4">Sales Performance</h3>
@@ -125,7 +227,7 @@ const expenseSummary = [
     </div>
 
     <!-- Bottom Grids -->
-    <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Inventory Overview -->
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <h3 class="text-xs font-bold text-gray-900 mb-4">Inventory Overview</h3>
@@ -197,7 +299,7 @@ const expenseSummary = [
     </div>
 
     <!-- Lowest Grids -->
-    <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] md:col-span-2">
         <h3 class="text-xs font-bold text-gray-900 mb-4">Management Communication</h3>
         <div class="space-y-4">
@@ -239,3 +341,4 @@ const expenseSummary = [
     </div>
   </div>
 </template>
+

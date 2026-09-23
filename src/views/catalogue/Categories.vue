@@ -1,7 +1,9 @@
 <script setup>
-import { Eye, Pencil, MoreHorizontal } from 'lucide-vue-next'
+import { Eye, Pencil, MoreHorizontal, Plus } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
+import CreateCategory from './CreateCategory.vue'
 
+const showCreateModal = ref(false)
 const searchQuery = ref('')
 const selectedStatus = ref('All Statuses')
 const openDropdown = ref(null)
@@ -69,8 +71,8 @@ const filteredCategories = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Categories</h1>
         <p class="text-sm text-gray-500 mt-1">Manage BRG category hierarchy, subcategories and specification templates.</p>
       </div>
-      <button @click="$router.push('/catalogue/categories/create')" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + Add Category
+      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <Plus class="w-4 h-4" /> <span>Add Category</span>
       </button>
     </div>
 
@@ -208,6 +210,9 @@ const filteredCategories = computed(() => {
       
     </div>
   </div>
+
+  <!-- Create Category Modal Popup -->
+  <CreateCategory v-if="showCreateModal" @close="showCreateModal = false" />
 
   <router-view />
 </template>

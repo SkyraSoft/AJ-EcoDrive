@@ -1,40 +1,199 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { store } from '../../store.js'
 
+const route = useRoute()
+const router = useRouter()
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+// Branch Manager Data & Logic
+const countId = computed(() => route.params.id || route.query.id || 'CC-031')
+const isCC030 = computed(() => countId.value === 'CC-030')
+const branchCurrentTab = ref('Count Summary')
+const branchTabs = ['Count Summary', 'Expected Inventory', 'Physical Count', 'Serialized Confirmation', 'Discrepancy', 'Notes', 'Submit Count']
+
+const branchTabData = computed(() => {
+  const branchName = user.value?.branchName || 'Peshawar'
+
+  switch (branchCurrentTab.value) {
+    case 'Count Summary':
+      return {
+        title: 'Count Summary',
+        items: [
+          { label: 'Scope', value: isCC030.value ? 'Warehouse A' : 'Showroom' },
+          { label: 'Expected', value: isCC030.value ? '36' : '20' },
+          { label: 'Counted', value: isCC030.value ? '0' : '18' },
+          { label: 'Matched', value: isCC030.value ? '0' : '17' },
+          { label: 'Discrepancies', value: isCC030.value ? '0' : '1' },
+          { label: 'Status', value: isCC030.value ? 'Scheduled' : 'In Progress' }
+        ]
+      }
+    case 'Expected Inventory':
+      return {
+        title: 'Expected Inventory',
+        items: [
+          { label: 'Target Category', value: 'All Active Electric Vehicles' },
+          { label: 'Registered Units', value: isCC030.value ? '36 in Warehouse' : '20 in Showroom' },
+          { label: 'Chassis Assigned', value: isCC030.value ? '36 Units' : '20 Units' },
+          { label: 'Snapshot Date', value: 'Today 08:00' },
+          { label: 'System Lock', value: 'No Lock during count' },
+          { label: 'Location Filter', value: `${branchName} - ${isCC030.value ? 'Warehouse A' : 'Showroom'}` }
+        ]
+      }
+    case 'Physical Count':
+      return {
+        title: 'Physical Count',
+        items: [
+          { label: 'Count Session', value: isCC030.value ? 'Scheduled (Not Started)' : 'Active Session #1' },
+          { label: 'Count Method', value: 'Barcode / QR Scan + Visual' },
+          { label: 'Units Scanned', value: isCC030.value ? '0 / 36' : '18 / 20' },
+          { label: 'Time Started', value: isCC030.value ? 'Pending' : 'Today 09:30' },
+          { label: 'Count Operator', value: `${branchName} Inventory Team` },
+          { label: 'Verification Method', value: 'Double Blind Check' }
+        ]
+      }
+    case 'Serialized Confirmation':
+      return {
+        title: 'Serialized Confirmation',
+        items: [
+          { label: 'Chassis Verified', value: isCC030.value ? '0 Confirmed' : '17 Confirmed' },
+          { label: 'Tags Scanned', value: isCC030.value ? '0 Tags' : '18 Tags' },
+          { label: 'Battery Serials', value: 'Checked at Inspection' },
+          { label: 'Unregistered Tags', value: '0 Found' },
+          { label: 'Relocated Units', value: isCC030.value ? '0' : '1 (in QC Bay)' },
+          { label: 'Scan Integrity', value: '100% Validated' }
+        ]
+      }
+    case 'Discrepancy':
+      return {
+        title: 'Discrepancy',
+        items: [
+          { label: 'Total Discrepancies', value: isCC030.value ? '0' : '1 Unit Variance' },
+          { label: 'Missing Units', value: '0' },
+          { label: 'Status Mismatch', value: isCC030.value ? '0' : '1 (QC status not posted)' },
+          { label: 'Affected Model', value: isCC030.value ? 'None' : 'BRG X5' },
+          { label: 'Resolution Path', value: 'Initiate Stock Adjustment' },
+          { label: 'Audit Impact', value: 'Minor / Non-financial' }
+        ]
+      }
+    case 'Notes':
+      return {
+        title: 'Notes',
+        items: [
+          { label: 'Count Notes', value: 'Showroom units rechecked after morning deliveries.' },
+          { label: 'Author', value: 'Branch Inventory Lead' },
+          { label: 'Logged At', value: 'Today 11:20' },
+          { label: 'Supervisor Remarks', value: 'Discrepancy unit located in QC bay.' },
+          { label: 'Attachments', value: 'Count_Log_Aug28.pdf' },
+          { label: 'Total Notes', value: '1 Active Note' }
+        ]
+      }
+    case 'Submit Count':
+      return {
+        title: 'Submit Count',
+        items: [
+          { label: 'Submission Status', value: isCC030.value ? 'Not Ready' : 'Ready for Sign-off' },
+          { label: 'Approving Manager', value: `${branchName} Branch Manager` },
+          { label: 'Reconciliation', value: 'Pending Final Submission' },
+          { label: 'Variance Threshold', value: 'Within Tolerances (<2%)' },
+          { label: 'Next Cycle', value: 'Weekly Showroom Count' },
+          { label: 'Action', value: 'Sign and submit count' }
+        ]
+      }
+    default:
+      return {
+        title: 'Count Summary',
+        items: []
+      }
+  }
+})
+
+// Super Admin Data
 const activeTab = ref('Count Summary')
 const tabs = ['Count Summary', 'Expected Stock', 'Physical Count', 'Discrepancies', 'Adjustment Proposal', 'Approval', 'Activity']
-
-const expectedStock = [
-  { product: 'BRG DS11', expected: '36' },
-  { product: 'BRG EV-5', expected: '13' },
-  { product: 'Cargo Pro', expected: '23' },
-  { product: 'Other', expected: '46' }
-]
-
-const physicalCount = [
-  { product: 'BRG DS11', system: '36', physical: '35', variance: '-1' },
-  { product: 'BRG EV-5', system: '13', physical: '14', variance: '+1' },
-  { product: 'Cargo Pro', system: '23', physical: '23', variance: '0' }
-]
-
-const discrepancies = [
-  { product: 'BRG DS11', variance: '-1', investigation: 'Unit found in service bay', status: 'Resolved' },
-  { product: 'BRG EV-5', variance: '+1', investigation: 'Receipt serial not posted', status: 'Open' }
-]
-
-const adjustmentProposals = [
-  { product: 'BRG EV-5', change: '+1 unit', reason: 'Receipt posting correction' }
-]
-
-const activityLog = [
-  { event: 'Count completed', time: '12:42' },
-  { event: '2 discrepancies detected', time: '12:41' },
-  { event: 'Count started', time: '09:00' }
-]
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      <div>
+        <div class="text-[11px] text-gray-400 mb-1">
+          Branch Manager / Cycle Counts / <span class="font-medium text-gray-600">Cycle Count {{ countId }}</span>
+        </div>
+        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Cycle Count {{ countId }}</h1>
+        <p class="text-xs text-gray-500 mt-1">Expected inventory, physical confirmation, discrepancy and count submission.</p>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation Bar -->
+    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-2">
+      <div class="flex items-center gap-2 overflow-x-auto">
+        <button 
+          v-for="tab in branchTabs" 
+          :key="tab"
+          @click="branchCurrentTab = tab"
+          class="px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors cursor-pointer"
+          :class="branchCurrentTab === tab ? 'bg-[#dcfce7] text-[#165A31] font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'"
+        >
+          {{ tab }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Content: Left Box (Data) & Right Box (Branch context) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Box -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 mb-5">{{ branchTabData.title }}</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div v-for="(item, idx) in branchTabData.items" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Box -->
+      <div class="lg:col-span-4 flex flex-col">
+        <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+          <h3 class="text-sm font-bold text-gray-900 mb-5">Branch context</h3>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Assignee</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">Branch Team</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Due</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">{{ isCC030 ? '30 Aug' : 'Today' }}</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Notes</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">1</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Submit</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">Pending</span>
+            </div>
+          </div>
+        </div>
+        
+        <p class="text-[11px] text-gray-400 font-medium mt-3 px-1">
+          Only {{ user?.branchName || 'Peshawar' }} Branch operational data is shown.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -57,9 +216,6 @@ const activityLog = [
         <button class="px-4 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           Review Count
         </button>
-        <button class="px-3 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1">
-          More <span class="text-[8px]">▼</span>
-        </button>
       </div>
     </div>
 
@@ -79,188 +235,10 @@ const activityLog = [
 
     <!-- Tab Content -->
     <div class="space-y-6">
-      
-      <!-- Count Summary Tab -->
-      <template v-if="activeTab === 'Count Summary'">
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-            <div class="text-[11px] font-semibold text-gray-400 mb-2">Expected Units</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">118</div>
-          </div>
-          <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-            <div class="text-[11px] font-semibold text-gray-400 mb-2">Counted</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">118</div>
-          </div>
-          <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-            <div class="text-[11px] font-semibold text-gray-400 mb-2">Matched</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">116</div>
-          </div>
-          <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-            <div class="text-[11px] font-semibold text-gray-400 mb-2">Discrepancy Lines</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">2</div>
-          </div>
-        </div>
-
-        <!-- Scope Panel -->
-        <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
-          <h3 class="text-[14px] font-bold text-gray-900 mb-6">Scope</h3>
-          <div class="space-y-4">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
-              <span class="text-gray-500 font-medium">Location</span>
-              <span class="font-bold text-gray-900">Main Showroom</span>
-            </div>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
-              <span class="text-gray-500 font-medium">Started</span>
-              <span class="font-bold text-gray-900">Aug 29 - 09:00</span>
-            </div>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
-              <span class="text-gray-500 font-medium">Completed</span>
-              <span class="font-bold text-gray-900">Aug 29 - 12:42</span>
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <!-- Expected Stock Tab -->
-      <div v-else-if="activeTab === 'Expected Stock'" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-          <h3 class="text-[14px] font-bold text-gray-900">Expected Stock</h3>
-        </div>
-        <div class="overflow-x-auto p-6 pt-0">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse mt-4">
-            <thead>
-              <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
-                <th class="px-5 py-3 rounded-tl-lg">Product</th>
-                <th class="px-5 py-3 rounded-tr-lg">Expected</th>
-              </tr>
-            </thead>
-            <tbody class="text-[11px]">
-              <tr v-for="item in expectedStock" :key="item.product" class="border-b border-gray-50 last:border-0">
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.expected }}</td>
-              </tr>
-            </tbody>
-          </table></div>
-        </div>
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+        <h3 class="text-[14px] font-bold text-gray-900 mb-6">{{ activeTab }}</h3>
+        <p class="text-[12px] text-gray-600">Cycle count records for CC-091.</p>
       </div>
-
-      <!-- Physical Count Tab -->
-      <div v-else-if="activeTab === 'Physical Count'" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-          <h3 class="text-[14px] font-bold text-gray-900">Physical Count</h3>
-        </div>
-        <div class="overflow-x-auto p-6 pt-0">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse mt-4">
-            <thead>
-              <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
-                <th class="px-5 py-3 rounded-tl-lg">Product</th>
-                <th class="px-5 py-3">System</th>
-                <th class="px-5 py-3">Physical</th>
-                <th class="px-5 py-3 rounded-tr-lg">Variance</th>
-              </tr>
-            </thead>
-            <tbody class="text-[11px]">
-              <tr v-for="item in physicalCount" :key="item.product" class="border-b border-gray-50 last:border-0">
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.system }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.physical }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.variance }}</td>
-              </tr>
-            </tbody>
-          </table></div>
-        </div>
-      </div>
-
-      <!-- Discrepancies Tab -->
-      <div v-else-if="activeTab === 'Discrepancies'" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-          <h3 class="text-[14px] font-bold text-gray-900">Discrepancies</h3>
-        </div>
-        <div class="overflow-x-auto p-6 pt-0">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse mt-4">
-            <thead>
-              <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
-                <th class="px-5 py-3 rounded-tl-lg">Product</th>
-                <th class="px-5 py-3">Variance</th>
-                <th class="px-5 py-3">Investigation</th>
-                <th class="px-5 py-3 rounded-tr-lg">Status</th>
-              </tr>
-            </thead>
-            <tbody class="text-[11px]">
-              <tr v-for="item in discrepancies" :key="item.product" class="border-b border-gray-50 last:border-0">
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.variance }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.investigation }}</td>
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.status }}</td>
-              </tr>
-            </tbody>
-          </table></div>
-        </div>
-      </div>
-
-      <!-- Adjustment Proposal Tab -->
-      <div v-else-if="activeTab === 'Adjustment Proposal'" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-          <h3 class="text-[14px] font-bold text-gray-900">Adjustment Proposal</h3>
-        </div>
-        <div class="overflow-x-auto p-6 pt-0">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse mt-4">
-            <thead>
-              <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
-                <th class="px-5 py-3 rounded-tl-lg">Product</th>
-                <th class="px-5 py-3">Proposed Change</th>
-                <th class="px-5 py-3 rounded-tr-lg">Reason</th>
-              </tr>
-            </thead>
-            <tbody class="text-[11px]">
-              <tr v-for="item in adjustmentProposals" :key="item.product" class="border-b border-gray-50 last:border-0">
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.change }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.reason }}</td>
-              </tr>
-            </tbody>
-          </table></div>
-        </div>
-      </div>
-
-      <!-- Approval Tab -->
-      <div v-else-if="activeTab === 'Approval'" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden p-6">
-        <h3 class="text-[14px] font-bold text-gray-900 mb-6">Approval</h3>
-        <div class="flex flex-wrap items-center gap-3 mb-10">
-          <span class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-amber-50 text-amber-600">Pending</span>
-          <span class="text-[11px] font-bold text-gray-900">Adjustment proposal requires Super Admin approval.</span>
-        </div>
-        
-        <div class="flex items-center justify-end gap-3 pt-2">
-          <button class="px-4 py-2 text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm">
-            Reject
-          </button>
-          <button class="px-4 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#114a28] transition-colors shadow-sm">
-            Approve &amp; Create Adjustment
-          </button>
-        </div>
-      </div>
-
-      <!-- Activity Tab -->
-      <div v-else-if="activeTab === 'Activity'" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden p-6">
-        <h3 class="text-[14px] font-bold text-gray-900 mb-6">Activity</h3>
-        <div class="space-y-4">
-          <div v-for="(item, i) in activityLog" :key="i" class="flex items-start gap-3">
-            <div class="mt-1 w-1 h-3 rounded-full bg-[#165A31]"></div>
-            <div class="flex-1 flex justify-between">
-              <span class="text-[11px] font-bold text-gray-900">{{ item.event }}</span>
-              <span class="text-[11px] font-medium text-gray-500">{{ item.time }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Placeholder for other tabs -->
-      <div v-else class="p-12 text-center text-gray-400 text-[11px]">
-        Content for {{ activeTab }} tab will be implemented here.
-      </div>
-
     </div>
   </div>
 </template>

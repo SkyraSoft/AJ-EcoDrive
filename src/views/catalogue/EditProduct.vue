@@ -40,6 +40,8 @@ const saveChanges = () => {
     return
   }
 
+  const targetId = productData.value.id || productData.value.product_id || productData.value.name || productData.value.sku
+  store.updateProduct(targetId, productData.value)
   if (store.originalEditProduct) {
     store.applyEdit(store.originalEditProduct, productData.value)
   }

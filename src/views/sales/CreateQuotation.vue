@@ -1,173 +1,456 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { X } from 'lucide-vue-next'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import { X, Plus, Trash2, Search } from 'lucide-vue-next'
+import CreateCustomerModal from './CreateCustomer.vue'
 
-const emit = defineEmits(['close'])
-
-const quoteData = ref({
-  branch: 'Peshawar Branch',
-  customer: 'Faisal Khan',
-  validUntil: '2026-09-02',
-  product: 'BRG DS11',
-  quantity: '1',
-  sellingPrice: '185K',
-  discount: '0',
-  taxFees: '',
-  total: '185K',
-  notes: 'Quote valid while stock remains available.',
-  deliveryEstimate: ''
-})
-
-const isEditMode = computed(() => !!store.originalEditQuotation)
-const showValidation = ref(false)
-
-onMounted(() => {
-  if (store.originalEditQuotation) {
-    quoteData.value = { ...quoteData.value, ...store.originalEditQuotation }
+const props = defineProps({
+  isModal: {
+    type: Boolean,
+    default: true
+  },
+  quotation: {
+    type: Object,
+    default: null
+  },
+  customer: {
+    type: [Object, String],
+    default: null
   }
 })
+
+const emit = defineEmits(['close', 'created', 'updated'])
+const router = useRouter()
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+const isEditMode = ref(false)
+const showValidation = ref(false)
+
+const form = ref({
+  id: '',
+  quote: '',
+  customer: '',
+  items: [{ product: 'BRG E-125', quantity: 1, sellingPrice: 280000, warranty: '1-Year Standard Service' }],
+  discount: 5000,
+  validity: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  paymentTerms: '100% Advance / Bank Transfer',
+  taxRegFees: 'Included in Quote',
+  deliveryLeadTime: 'Within 3 business days',
+  notes: 'Customer requested delivery within 3 days',
+  status: 'Open',
+  branch: user.value?.branchName || 'Peshawar'
+})
+
+const customerSearch = ref('')
+const showCustomerDropdown = ref(false)
+const showCreateCustomerModal = ref(false)
+const selectedCustomer = ref(null)
+const customerDropdownRef = ref(null)
+let customerBlurTimer = null
+
+const handleClickOutside = (e) => {
+  if (customerDropdownRef.value && !customerDropdownRef.value.contains(e.target)) {
+    showCustomerDropdown.value = false
+  }
+}
+
+const onCustomerBlur = () => {
+  customerBlurTimer = setTimeout(() => {
+    showCustomerDropdown.value = false
+  }, 200)
+}
+
+const filteredCustomers = computed(() => {
+  const q = customerSearch.value.toLowerCase()
+  if (!q) return store.customers
+  return store.customers.filter(c => (c.name && c.name.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q)) || (c.id && c.id.toLowerCase().includes(q)))
+})
+
+const selectCustomer = (customer) => {
+  if (customerBlurTimer) clearTimeout(customerBlurTimer)
+  selectedCustomer.value = customer
+  customerSearch.value = customer.name
+  form.value.customer = customer.name
+  form.value.customer_id = customer.id || customer.customer_id
+  showCustomerDropdown.value = false
+}
+
+const openCreateCustomer = () => {
+  if (customerBlurTimer) clearTimeout(customerBlurTimer)
+  showCustomerDropdown.value = false
+  showCreateCustomerModal.value = true
+}
+
+const handleCustomerCreated = (c) => {
+  const newC = store.addCustomer(c)
+  selectCustomer(newC)
+  showCreateCustomerModal.value = false
+}
+
+const addItem = () => {
+  form.value.items.push({ product: '', quantity: 1, sellingPrice: 0, warranty: '1-Year Standard Service' })
+}
+
+const removeItem = (idx) => {
+  if (form.value.items.length > 1) {
+    form.value.items.splice(idx, 1)
+  }
+}
+
+const loadData = (data) => {
+  if (!data) return
+  isEditMode.value = true
+  
+  if (data.customer) {
+    customerSearch.value = data.customer
+    form.value.customer = data.customer
+  }
+
+  form.value = {
+    ...form.value,
+    id: data.id || data.quote || form.value.id,
+    quote: data.quote || data.id || form.value.quote,
+    customer: data.customer || form.value.customer,
+    items: data.items || form.value.items,
+    discount: data.discount ? parseInt(String(data.discount).replace(/[^0-9]/g, '')) : form.value.discount,
+    validity: data.validity || form.value.validity,
+    paymentTerms: data.paymentTerms || form.value.paymentTerms,
+    taxRegFees: data.taxRegFees || form.value.taxRegFees,
+    deliveryLeadTime: data.deliveryLeadTime || form.value.deliveryLeadTime,
+    notes: data.notes || form.value.notes,
+    status: data.status || form.value.status,
+    branch: data.branch || form.value.branch
+  }
+}
+
+onMounted(() => {
+  if (props.quotation) {
+    loadData(props.quotation)
+  } else if (store.originalEditQuotation) {
+    loadData(store.originalEditQuotation)
+  } else if (props.customer) {
+    const custObj = typeof props.customer === 'string' ? store.customers.find(c => c.name === props.customer) : props.customer
+    if (custObj) {
+      selectCustomer(custObj)
+    } else if (typeof props.customer === 'string') {
+      form.value.customer = props.customer
+      customerSearch.value = props.customer
+    }
+  }
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+  if (customerBlurTimer) clearTimeout(customerBlurTimer)
+})
+
+watch(() => props.quotation, (newVal) => {
+  if (newVal) loadData(newVal)
+}, { immediate: true })
 
 const close = () => {
   store.originalEditQuotation = null
   emit('close')
+  if (router.currentRoute.value.path.includes('/create')) {
+    router.push('/sales/quotations')
+  }
 }
 
-const createQuotation = () => {
-  if (!quoteData.value.branch || !quoteData.value.customer || !quoteData.value.product) {
+const saveAndSend = () => {
+  if (!form.value.customer.trim() || form.value.items.some(i => !i.product.trim())) {
     showValidation.value = true
     return
   }
 
-  if (isEditMode.value) {
-    store.applyEdit(store.originalEditQuotation, quoteData.value)
-    store.originalEditQuotation = null
+  const subtotal = form.value.items.reduce((acc, curr) => acc + (Number(curr.sellingPrice) * Number(curr.quantity)), 0)
+  const discount = Number(form.value.discount) || 0
+  const netTotal = Math.max(0, subtotal - discount)
+
+  const payload = {
+    id: form.value.quote || `QT-${Math.floor(1885 + Math.random() * 100)}`,
+    quote: form.value.quote || `QT-${Math.floor(1885 + Math.random() * 100)}`,
+    quote_id: form.value.quote || `QT-${Math.floor(1885 + Math.random() * 100)}`,
+    customer: form.value.customer,
+    customer_id: selectedCustomer.value?.id || (store.customers.find(c => c.name === form.value.customer)?.id) || 'CUST-101',
+    items: form.value.items,
+    product: form.value.items[0]?.product || 'BRG E-125',
+    product_id: store.getProductById(form.value.items[0]?.product)?.id || 'PROD-001',
+    quantity: form.value.items.reduce((acc, curr) => acc + Number(curr.quantity), 0) + ' units',
+    sellingPrice: `PKR ${subtotal.toLocaleString()}`,
+    subtotal: `PKR ${subtotal.toLocaleString()}`,
+    rawSubtotal: subtotal,
+    discount: `PKR ${discount.toLocaleString()}`,
+    rawDiscount: discount,
+    total: `PKR ${netTotal.toLocaleString()}`,
+    rawTotal: netTotal,
+    value: `PKR ${netTotal.toLocaleString()}`,
+    validity: form.value.validity,
+    validTill: form.value.validity,
+    paymentTerms: form.value.paymentTerms,
+    taxRegFees: form.value.taxRegFees,
+    deliveryLeadTime: form.value.deliveryLeadTime,
+    notes: form.value.notes,
+    status: form.value.status || 'Sent',
+    statusClass: form.value.status === 'Accepted' ? 'bg-[#dcfce7] text-[#165A31]' : 'bg-[#eff6ff] text-[#2563eb]',
+    branch: form.value.branch || user.value?.branchName || 'Peshawar',
+    branch_id: form.value.branch === 'Islamabad' ? 'BR-02' : form.value.branch === 'Lahore' ? 'BR-03' : form.value.branch === 'Rawalpindi' ? 'BR-04' : 'BR-01',
+    date: 'Today'
   }
-  emit('close')
+
+  if (isEditMode.value) {
+    store.updateQuotation(payload.id, payload)
+    emit('updated', payload)
+  } else {
+    store.addQuotation(payload)
+    emit('created', payload)
+  }
+  close()
 }
 </script>
 
 <template>
   <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="close">
-    
     <!-- Close button on top-right of screen overlay -->
     <button @click="close" class="fixed top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-full z-[110] shadow-lg transition-colors cursor-pointer">
       <X class="w-5 h-5" />
     </button>
 
-    <!-- Modal Card -->
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
-      
-      <!-- Scrollable Form Body -->
-      <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
+      <!-- Scrollable Body -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
         <!-- Header -->
-        <div>
-          <div class="text-[10px] text-gray-500 mb-1">
-            Super Admin / Sales & CRM / Quotations / <span class="font-bold text-gray-800">{{ isEditMode ? 'Edit Quotation' : 'Create Quotation' }}</span>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+          <div>
+            <div class="text-[10px] text-gray-500 mb-1">
+              <span v-if="isBranchUser">Branch Manager / Quotations / <span class="font-bold text-gray-800">{{ isEditMode ? 'Edit Quotation' : 'Create Quotation' }}</span></span>
+              <span v-else>Super Admin / Sales / Quotations / <span class="font-bold text-gray-800">{{ isEditMode ? 'Edit Quotation' : 'Create Quotation' }}</span></span>
+            </div>
+            <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900">{{ isEditMode ? 'Edit Quotation' : 'Create Quotation' }}</h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Build a branch quotation using live product availability and permitted pricing.</p>
           </div>
-          <h1 class="text-[32px] tracking-tight font-bold text-gray-900">{{ isEditMode ? 'Edit Quotation' : 'Create Quotation' }}</h1>
-          <p class="text-sm text-gray-500 mt-1">Prepare a customer quotation using current catalogue pricing and branch availability.</p>
         </div>
 
-        <!-- 2-Column Form Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          
-          <!-- 1. Customer & Branch -->
-          <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-            <h3 class="text-[14px] font-bold text-gray-900 mb-4">Customer & Branch</h3>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Branch</label>
-                <input v-model="quoteData.branch" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+        <!-- 2 Column Form Grid -->
+        <form @submit.prevent="saveAndSend" class="space-y-6">
+          <!-- Super Admin Branch Selector -->
+          <div v-if="!isBranchUser" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+            <h3 class="text-sm font-bold text-gray-900 mb-2">Assignment</h3>
+            <div class="max-w-xs">
+              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch</label>
+              <select v-model="form.branch" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                <option>Peshawar</option>
+                <option>Islamabad</option>
+                <option>Lahore</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Card: Customer & Details -->
+            <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+              <h3 class="text-sm font-bold text-gray-900 mb-4">Customer Details</h3>
+              
+              <!-- Customer Autocomplete -->
+              <div ref="customerDropdownRef" class="relative">
+                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Name *</label>
+                <div class="relative">
+                  <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input 
+                    v-model="customerSearch"
+                    @focus="showCustomerDropdown = true"
+                    @blur="onCustomerBlur"
+                    @keydown.escape="showCustomerDropdown = false"
+                    @input="showCustomerDropdown = true; form.customer = customerSearch"
+                    type="text" 
+                    placeholder="Search customer..."
+                    class="w-full pl-9 pr-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
+                    :class="showValidation && !form.customer.trim() ? 'border-red-300 bg-red-50/20' : 'border-gray-200'"
+                  />
+                </div>
+                
+                <div v-if="showCustomerDropdown" class="absolute z-20 w-full mt-1 bg-white border border-gray-100 rounded-lg shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+                  <button 
+                    v-for="c in filteredCustomers" 
+                    :key="c.id"
+                    type="button"
+                    @mousedown.prevent="selectCustomer(c)"
+                    @click="selectCustomer(c)"
+                    class="w-full text-left px-4 py-2 hover:bg-[#eefcf2] flex items-center justify-between border-b border-gray-50 last:border-0 cursor-pointer"
+                  >
+                    <div>
+                      <div class="text-xs font-bold text-gray-800">{{ c.name }}</div>
+                      <div class="text-[10px] text-gray-500">{{ c.phone }}</div>
+                    </div>
+                  </button>
+                  <button 
+                    v-if="filteredCustomers.length === 0" 
+                    type="button"
+                    @mousedown.prevent="openCreateCustomer"
+                    @click="openCreateCustomer"
+                    class="w-full text-left px-4 py-3 bg-[#eefcf2] hover:bg-[#e2f9ea] text-[#165A31] text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Plus class="w-4 h-4" /> Create New Customer
+                  </button>
+                  <button 
+                    v-else
+                    type="button"
+                    @mousedown.prevent="openCreateCustomer"
+                    @click="openCreateCustomer"
+                    class="w-full text-left px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-[11px] font-semibold border-t border-gray-200 cursor-pointer transition-colors text-center"
+                  >
+                    + Add New Customer
+                  </button>
+                </div>
+                <p v-if="showValidation && !form.customer.trim()" class="text-[10px] text-red-500 font-medium mt-1">Customer name is required</p>
+              </div>
+
+              <!-- Selected Customer Preview -->
+              <div v-if="selectedCustomer" class="p-3 bg-gray-50 rounded-lg border border-gray-100 text-[11px]">
+                <div class="font-bold text-gray-800">{{ selectedCustomer.name }}</div>
+                <div class="text-gray-500 mt-0.5">{{ selectedCustomer.phone }} &bull; {{ selectedCustomer.email }}</div>
               </div>
               
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Customer</label>
-                <input v-model="quoteData.customer" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+              <div class="pt-2">
+                <h3 class="text-sm font-bold text-gray-900 mb-4 border-t border-gray-100 pt-4">Pricing & Terms</h3>
+                
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Payment Terms</label>
+                    <select v-model="form.paymentTerms" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                      <option>100% Advance / Bank Transfer</option>
+                      <option>50% Deposit / 50% on Delivery</option>
+                      <option>Corporate 30-Day Credit</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Tax / Registration Fees</label>
+                    <select v-model="form.taxRegFees" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                      <option>Included in Quote</option>
+                      <option>Excluded (Paid Separately)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Delivery Lead Time</label>
+                    <input v-model="form.deliveryLeadTime" type="text" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" placeholder="e.g. Within 3 business days" />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Valid Until</label>
+                    <input v-model="form.validity" type="date" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Card: Line Items -->
+            <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-gray-900">Line Items</h3>
+                <button type="button" @click="addItem" class="text-xs font-bold text-[#165A31] bg-[#eefcf2] px-2 py-1 rounded hover:bg-[#dcfce7] transition-colors cursor-pointer flex items-center gap-1">
+                  <Plus class="w-3 h-3" /> Add Item
+                </button>
+              </div>
+              
+              <div class="space-y-4 flex-1">
+                <div v-for="(item, idx) in form.items" :key="idx" class="p-4 bg-gray-50 border border-gray-100 rounded-xl relative group">
+                  <button v-if="form.items.length > 1" type="button" @click="removeItem(idx)" class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-white rounded cursor-pointer transition-colors">
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+                  
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2">
+                      <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Product *</label>
+                      <select v-model="item.product" class="w-full px-3 py-1.5 bg-white border rounded text-xs focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200'">
+                        <option value="">Select a product...</option>
+                        <option>BRG E-125</option>
+                        <option>BRG X7</option>
+                        <option>BRG M3</option>
+                        <option>BRG DS11</option>
+                        <option>Standard Helmet</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Quantity</label>
+                      <input v-model="item.quantity" type="number" min="1" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                    </div>
+                    
+                    <div>
+                      <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Unit Price (PKR)</label>
+                      <input v-model="item.sellingPrice" type="number" min="0" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                    </div>
+                    
+                    <div class="sm:col-span-2">
+                      <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Warranty Plan</label>
+                      <select v-model="item.warranty" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0">
+                        <option>1-Year Standard Service</option>
+                        <option>2-Year Extended Care</option>
+                        <option>No Warranty (Accessories)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Valid Until</label>
-                <input v-model="quoteData.validUntil" type="date" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors text-gray-800" />
+              <div class="mt-4 pt-4 border-t border-gray-100 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-gray-500">Subtotal</span>
+                  <span class="text-xs font-bold text-gray-800">PKR {{ form.items.reduce((acc, curr) => acc + (Number(curr.sellingPrice) * Number(curr.quantity)), 0).toLocaleString() }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-gray-500">Overall Discount</span>
+                  <input v-model="form.discount" type="number" min="0" class="w-24 px-2 py-1 bg-white border border-gray-200 rounded text-xs text-right focus:border-[#165A31] focus:ring-0" />
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                  <span class="text-sm font-bold text-gray-900">Total</span>
+                  <span class="text-lg font-bold text-[#165A31]">PKR {{ (form.items.reduce((acc, curr) => acc + (Number(curr.sellingPrice) * Number(curr.quantity)), 0) - Number(form.discount)).toLocaleString() }}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 2. Commercial Pricing -->
-          <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-            <h3 class="text-[14px] font-bold text-gray-900 mb-4">Commercial Terms</h3>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Selling Price</label>
-                <input v-model="quoteData.sellingPrice" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Discount</label>
-                  <input v-model="quoteData.discount" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Tax / Fees</label>
-                  <input v-model="quoteData.taxFees" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Total Quote Value</label>
-                <input v-model="quoteData.total" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors font-bold text-gray-900" />
-              </div>
-            </div>
+          <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+            <h3 class="text-sm font-bold text-gray-900 mb-2">Notes & Comments</h3>
+            <textarea 
+              v-model="form.notes"
+              rows="3"
+              placeholder="Special customer remarks or internal notes..."
+              class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors resize-none"
+            ></textarea>
           </div>
 
-          <!-- 3. Product Selection -->
-          <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-            <h3 class="text-[14px] font-bold text-gray-900 mb-4">Product Details</h3>
-            
-            <div class="space-y-4">
-              <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Product</label>
-                <input v-model="quoteData.product" type="text" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Quantity</label>
-                  <input v-model="quoteData.quantity" type="number" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Delivery Estimate</label>
-                  <input v-model="quoteData.deliveryEstimate" type="text" placeholder="e.g. 5 business days" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-                </div>
-              </div>
-            </div>
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button 
+              type="button" 
+              @click="close" 
+              class="px-5 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+            >
+              {{ isEditMode ? 'Update Quotation' : 'Save & Send' }}
+            </button>
           </div>
-
-          <!-- 4. Notes & Terms -->
-          <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-            <h3 class="text-[14px] font-bold text-gray-900 mb-4">Terms & Notes</h3>
-            
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1">Quotation Notes</label>
-              <textarea v-model="quoteData.notes" rows="4" class="w-full px-3 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors"></textarea>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Footer Actions -->
-        <div class="flex items-center justify-end gap-3 pt-2">
-          <button @click="close" class="bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-5 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-sm">
-            Cancel
-          </button>
-          <button @click="createQuotation" class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm">
-            {{ isEditMode ? 'Update Quotation' : 'Create Quotation' }}
-          </button>
-        </div>
+        </form>
       </div>
-
     </div>
+    
+    <Teleport to="body">
+      <CreateCustomerModal 
+        v-if="showCreateCustomerModal" 
+        :isModal="true" 
+        @close="showCreateCustomerModal = false"
+        @created="handleCustomerCreated"
+      />
+    </Teleport>
   </div>
 </template>

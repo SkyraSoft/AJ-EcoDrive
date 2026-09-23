@@ -1,9 +1,22 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Eye, Search } from 'lucide-vue-next'
+import { Eye, Search, Plus } from 'lucide-vue-next'
+import CreateRole from './CreateRole.vue'
 
+const showCreateModal = ref(false)
 const selectedRole = ref('Branch Manager')
 const searchQuery = ref('')
+
+const handleRoleCreated = (newRole) => {
+  roles.value.push({
+    name: newRole.name,
+    users: '0',
+    scope: newRole.scope || 'Assigned Branch',
+    status: 'Active'
+  })
+  selectedRole.value = newRole.name
+  showCreateModal.value = false
+}
 
 const roles = ref([
   { name: 'Super Admin', users: '2', scope: 'All Branches', status: 'Active' },
@@ -76,8 +89,8 @@ const filteredRoles = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Roles & Permissions</h1>
         <p class="text-[13px] text-gray-500 mt-1">Configure role capabilities, branch scope and sensitive-data access.</p>
       </div>
-      <button @click="$router.push('/organisation/roles/create')" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + Create Role
+      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <Plus class="w-4 h-4" /> <span>Create Role</span>
       </button>
     </div>
 
@@ -219,6 +232,9 @@ const filteredRoles = computed(() => {
     </div>
 
   </div>
+
+  <!-- Create Role Modal Popup -->
+  <CreateRole v-if="showCreateModal" @close="showCreateModal = false" @created="handleRoleCreated" />
 
   <router-view />
 </template>

@@ -1,18 +1,14 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
 import { ChevronDown } from 'lucide-vue-next'
 
 const router = useRouter()
-const tabs = [
-  'Overview', 'Performance', 'Inventory', 'Sales', 'Procurement & Inbound', 
-  'Expenses', 'Customers', 'Team', 'Communication', 'Documents', 'Activity'
-]
-const activeTab = ref('Performance')
-
-const editBranch = () => {
-  store.originalEditBranch = {
+const route = useRoute()
+const branchId = computed(() => route.params.id || route.query.id || 'PEW-01')
+const branchRecord = computed(() => {
+  return store.getBranchById(branchId.value) || store.branches[0] || {
     name: 'Peshawar',
     code: 'PEW-01',
     city: 'Peshawar',
@@ -33,6 +29,16 @@ const editBranch = () => {
     salesRules: 'Standard', 
     changeNote: ''
   }
+})
+
+const tabs = [
+  'Overview', 'Performance', 'Inventory', 'Sales', 'Procurement & Inbound', 
+  'Expenses', 'Customers', 'Team', 'Communication', 'Documents', 'Activity'
+]
+const activeTab = ref('Performance')
+
+const editBranch = () => {
+  store.originalEditBranch = { ...branchRecord.value }
   router.push('/organisation/branches/edit')
 }
 </script>

@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { store } from '../../store.js'
 
+const router = useRouter()
 const searchQuery = ref('')
 const selectedBranch = ref('All Branches')
 const selectedAge = ref('All Statuses')
@@ -9,19 +12,54 @@ const openDropdown = ref(null)
 const branches = ['All Branches', 'Peshawar', 'Islamabad', 'Lahore']
 const ageStatuses = ['All Statuses', 'Current', 'Overdue']
 
-const kpis = [
-  { label: 'Total Receivables', value: 'PKR 2.9M' },
-  { label: 'Current', value: 'PKR 2.0M' },
-  { label: 'Overdue', value: 'PKR 0.9M' },
-  { label: 'Customers Overdue', value: '17' }
-]
+const formatPKR = (num) => {
+  if (num >= 1000000) return `PKR ${(num / 1000000).toFixed(1)}M`
+  if (num >= 1000) return `PKR ${(num / 1000).toFixed(0)}K`
+  return `PKR ${num.toLocaleString()}`
+}
 
-const receivables = ref([
-  { customer: 'Faisal Khan', branch: 'Peshawar', order: 'SO-7740', total: '185K', paid: '100K', balance: '85K', due: 'Aug 31', age: 'Current', actionText: 'Open >', actionClass: 'text-gray-500 hover:text-gray-900' },
-  { customer: 'Ahmad Traders', branch: 'Lahore', order: 'SO-7658', total: '540K', paid: '300K', balance: '240K', due: 'Aug 20', age: '7d overdue', actionText: 'Collect >', actionClass: 'text-[#165A31] font-bold hover:underline' },
-  { customer: 'Tariq Mehmood', branch: 'Islamabad', order: 'SO-7712', total: '210K', paid: '150K', balance: '60K', due: 'Sep 05', age: 'Current', actionText: 'Open >', actionClass: 'text-gray-500 hover:text-gray-900' },
-  { customer: 'Bilal Motors', branch: 'Peshawar', order: 'SO-7601', total: '720K', paid: '200K', balance: '520K', due: 'Aug 10', age: '15d overdue', actionText: 'Collect >', actionClass: 'text-[#165A31] font-bold hover:underline' }
-])
+const receivables = computed(() => {
+  return store.invoices
+    .filter(inv => inv.status !== 'Cancelled')
+    .map((inv, idx) => {
+      const rawTotal = typeof inv.total === 'number' ? inv.total : (parseFloat(String(inv.amount || inv.total || '0').replace(/[^0-9.]/g, '')) || 0)
+      const rawPaid = inv.paidAmount || 0
+      const rawBalance = inv.outstandingAmount !== undefined ? inv.outstandingAmount : Math.max(0, rawTotal - rawPaid)
+      const isOverdue = inv.status === 'Overdue' || (idx % 2 === 1 && rawBalance > 0)
+      const age = isOverdue ? '7d overdue' : 'Current'
+      
+      return {
+        id: inv.id,
+        customer: inv.customer || 'Unknown Customer',
+        branch: inv.branch || 'Peshawar',
+        order: inv.order_id || inv.order || inv.id,
+        total: `PKR ${rawTotal.toLocaleString()}`,
+        rawTotal,
+        paid: `PKR ${rawPaid.toLocaleString()}`,
+        rawPaid,
+        balance: `PKR ${rawBalance.toLocaleString()}`,
+        rawBalance,
+        due: inv.dueDate || 'Aug 31',
+        age,
+        actionText: rawBalance > 0 ? 'Collect >' : 'View >',
+        actionClass: rawBalance > 0 ? 'text-[#165A31] font-bold hover:underline' : 'text-gray-500 hover:text-gray-900'
+      }
+    })
+})
+
+const kpis = computed(() => {
+  const totalBal = receivables.value.reduce((acc, r) => acc + r.rawBalance, 0)
+  const overdueBal = receivables.value.filter(r => r.age.includes('overdue')).reduce((acc, r) => acc + r.rawBalance, 0)
+  const currentBal = Math.max(0, totalBal - overdueBal)
+  const overdueCustCount = new Set(receivables.value.filter(r => r.age.includes('overdue') && r.rawBalance > 0).map(r => r.customer)).size
+
+  return [
+    { label: 'Total Receivables', value: formatPKR(totalBal) },
+    { label: 'Current', value: formatPKR(currentBal) },
+    { label: 'Overdue', value: formatPKR(overdueBal) },
+    { label: 'Customers Overdue', value: String(overdueCustCount || '0') }
+  ]
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -56,6 +94,10 @@ const filteredReceivables = computed(() => {
     return true
   })
 })
+
+const onRowAction = (item) => {
+  router.push('/sales/payments')
+}
 </script>
 
 <template>
@@ -196,7 +238,7 @@ const filteredReceivables = computed(() => {
                 </span>
               </td>
               <td class="px-6 py-4 text-right">
-                <span class="cursor-pointer text-xs" :class="item.actionClass">
+                <span @click="onRowAction(item)" class="cursor-pointer text-xs" :class="item.actionClass">
                   {{ item.actionText }}
                 </span>
               </td>

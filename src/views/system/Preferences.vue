@@ -1,45 +1,52 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { CheckCircle2 } from 'lucide-vue-next'
+import { store } from '@/store.js'
 
-const preferences = ref({
-  theme: 'LightDarkSystem',
-  tableDensity: 'Comfortable',
+const isBranchUser = computed(() => store.isBranchUser())
+const user = computed(() => store.currentUser)
+
+const preferencesForm = ref({
+  theme: 'Light',
   language: 'English',
   dateFormat: 'DD MMM YYYY',
-  timezone: 'Asia/Karachi',
-  currencyDisplay: 'PKR 185,000',
-  decimalPrecision: '0 for PKR',
-  defaultDateRange: 'This Month',
-  defaultScope: 'All Branches'
+  tableDensity: 'Comfortable',
+  inventoryAlerts: 'Enabled',
+  salesAlerts: 'Enabled',
+  serviceAlerts: 'Enabled',
+  managementMessages: 'Enabled'
 })
 
-const defaultPreferences = {
-  theme: 'LightDarkSystem',
-  tableDensity: 'Comfortable',
-  language: 'English',
-  dateFormat: 'DD MMM YYYY',
-  timezone: 'Asia/Karachi',
-  currencyDisplay: 'PKR 185,000',
-  decimalPrecision: '0 for PKR',
-  defaultDateRange: 'This Month',
-  defaultScope: 'All Branches'
+const populateFromStore = () => {
+  const sys = store.settings?.system || {}
+  preferencesForm.value.theme = sys.theme || 'Light'
+  preferencesForm.value.language = sys.language || 'English'
+  preferencesForm.value.dateFormat = sys.dateFormat || 'DD MMM YYYY'
+  preferencesForm.value.tableDensity = sys.tableDensity || 'Comfortable'
+  preferencesForm.value.inventoryAlerts = sys.inventoryAlerts || 'Enabled'
+  preferencesForm.value.salesAlerts = sys.salesAlerts || 'Enabled'
+  preferencesForm.value.serviceAlerts = sys.serviceAlerts || 'Enabled'
+  preferencesForm.value.managementMessages = sys.managementMessages || 'Enabled'
 }
+
+onMounted(() => {
+  populateFromStore()
+})
 
 const showToast = ref(false)
 const toastMessage = ref('')
 
 const savePreferences = () => {
-  toastMessage.value = 'Preferences saved successfully!'
-  showToast.value = true
-  setTimeout(() => { showToast.value = false }, 3000)
-}
-
-const resetPreferences = () => {
-  preferences.value = { ...defaultPreferences }
-  toastMessage.value = 'Preferences reset to default values.'
-  showToast.value = true
-  setTimeout(() => { showToast.value = false }, 3000)
+  try {
+    store.updateSettings('system', preferencesForm.value)
+    toastMessage.value = 'Preferences saved successfully!'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3000)
+  } catch (err) {
+    toastMessage.value = `Error: ${err.message}`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3000)
+  }
 }
 </script>
 
@@ -54,142 +61,129 @@ const resetPreferences = () => {
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 
-    <!-- Header & Breadcrumbs -->
-    <div>
-      <div class="text-[10px] text-gray-500 mb-1">
-        Super Admin / System / <span class="font-bold text-gray-800">Preferences</span>
-      </div>
-      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Preferences</h1>
-      <p class="text-sm text-gray-500 mt-1">Configure personal appearance, localization and table behavior.</p>
-    </div>
-
-    <!-- 2x2 Grid of Settings Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-      <!-- 1. Appearance Card -->
-      <div class="bg-white p-6 sm:p-7 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-        <h3 class="text-[13px] font-bold text-gray-900">Appearance</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Theme</label>
-            <input 
-              v-model="preferences.theme"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Table Density</label>
-            <input 
-              v-model="preferences.tableDensity"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
+    <!-- Header & Breadcrumbs (Matching Screenshot 5) -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      <div>
+        <div class="text-[11px] text-gray-400 mb-1">
+          <span v-if="isBranchUser">Branch Manager / Preferences / <span class="font-medium text-gray-600">Preferences</span></span>
+          <span v-else>Super Admin / System / <span class="font-medium text-gray-600">Preferences</span></span>
         </div>
+        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Preferences</h1>
+        <p class="text-xs text-gray-500 mt-1">Personalise display, language, date formats, notifications and table density.</p>
       </div>
 
-      <!-- 2. Localization Card -->
-      <div class="bg-white p-6 sm:p-7 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-        <h3 class="text-[13px] font-bold text-gray-900">Localization</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Language</label>
-            <input 
-              v-model="preferences.language"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Date Format</label>
-            <input 
-              v-model="preferences.dateFormat"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Timezone</label>
-            <input 
-              v-model="preferences.timezone"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Numbers Card -->
-      <div class="bg-white p-6 sm:p-7 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-        <h3 class="text-[13px] font-bold text-gray-900">Numbers</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Currency Display</label>
-            <input 
-              v-model="preferences.currencyDisplay"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Decimal Precision</label>
-            <input 
-              v-model="preferences.decimalPrecision"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Defaults Card -->
-      <div class="bg-white p-6 sm:p-7 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-        <h3 class="text-[13px] font-bold text-gray-900">Defaults</h3>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Default Date Range</label>
-            <input 
-              v-model="preferences.defaultDateRange"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Default Scope</label>
-            <input 
-              v-model="preferences.defaultScope"
-              type="text" 
-              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Actions -->
-    <div class="flex items-center justify-end gap-3 pt-2">
-      <button 
-        @click="resetPreferences"
-        class="bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-sm"
-      >
-        Reset
-      </button>
       <button 
         @click="savePreferences"
-        class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm"
+        class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
         Save Preferences
       </button>
     </div>
 
+    <!-- 2-Card Layout (Matching Screenshot 5) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      
+      <!-- Left Card: Appearance -->
+      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">Appearance & Localization</h3>
+        
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Theme</label>
+          <select 
+            v-model="preferencesForm.theme"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="Light">Light</option>
+            <option value="Dark">Dark</option>
+            <option value="System">System Default</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Language</label>
+          <select 
+            v-model="preferencesForm.language"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="English">English</option>
+            <option value="Urdu">Urdu (اردو)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Date Format</label>
+          <select 
+            v-model="preferencesForm.dateFormat"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="DD MMM YYYY">DD MMM YYYY (e.g. 22 Sep 2026)</option>
+            <option value="YYYY-MM-DD">YYYY-MM-DD (e.g. 2026-09-22)</option>
+            <option value="DD/MM/YYYY">DD/MM/YYYY (e.g. 22/09/2026)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Table Density</label>
+          <select 
+            v-model="preferencesForm.tableDensity"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="Comfortable">Comfortable</option>
+            <option value="Compact">Compact</option>
+            <option value="Dense">Dense</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Right Card: Notifications -->
+      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+        <h3 class="text-sm font-bold text-gray-900 mb-4">Operational Notification Preferences</h3>
+        
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Inventory Alerts</label>
+          <select 
+            v-model="preferencesForm.inventoryAlerts"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="Enabled">Enabled</option>
+            <option value="Disabled">Disabled</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Sales Alerts</label>
+          <select 
+            v-model="preferencesForm.salesAlerts"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="Enabled">Enabled</option>
+            <option value="Disabled">Disabled</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Service Alerts</label>
+          <select 
+            v-model="preferencesForm.serviceAlerts"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="Enabled">Enabled</option>
+            <option value="Disabled">Disabled</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Management Messages</label>
+          <select 
+            v-model="preferencesForm.managementMessages"
+            class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
+          >
+            <option value="Enabled">Enabled</option>
+            <option value="Disabled">Disabled</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>

@@ -1,19 +1,42 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { store } from '@/store.js'
 
+const emit = defineEmits(['close', 'created'])
 const router = useRouter()
 
+const roleName = ref('')
+const scope = ref('Assigned Branch')
+const description = ref('')
+
 const cancel = () => {
-  router.back()
+  emit('close')
+  if (router.currentRoute.value.path.includes('/create')) {
+    router.back()
+  }
+}
+
+const saveRole = () => {
+  if (!roleName.value.trim()) return
+  const newRole = {
+    name: roleName.value.trim(),
+    scope: scope.value.trim() || 'Assigned Branch',
+    description: description.value.trim(),
+    status: 'Active'
+  }
+  store.createRole(newRole)
+  emit('created', newRole)
+  cancel()
 }
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="router.back()">
+  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="cancel">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close button on top right -->
-      <button @click="router.back()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors">
+      <button @click="cancel" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -39,18 +62,18 @@ const cancel = () => {
       <div class="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Role Name</label>
-          <input type="text" placeholder="e.g. Area Manager" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="roleName" type="text" placeholder="e.g. Area Manager" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Scope</label>
-          <input type="text" placeholder="Assigned Branch" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="scope" type="text" placeholder="Assigned Branch" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
       </div>
       
       <div>
         <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Description</label>
-        <textarea rows="2" placeholder="Brief description of the role's responsibilities" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
+        <textarea v-model="description" rows="2" placeholder="Brief description of the role's responsibilities" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
       </div>
     </div>
 
@@ -170,10 +193,10 @@ const cancel = () => {
 
     <!-- Actions -->
     <div class="flex items-center justify-end gap-3 pt-4">
-      <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+      <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
         Cancel
       </button>
-      <button class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+      <button @click="saveRole" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
         Save Role
       </button>
     </div>

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { CheckCircle2, ChevronRight, Info } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-vue-next'
+import { store } from '@/store.js'
 
 const activeTab = ref('Business Profile')
 
@@ -22,27 +23,33 @@ const tabs = [
 
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastType = ref('success')
 
 const tabDescriptions = {
-  'Business Profile': 'Configure business profile.',
-  'Branch Defaults': 'Configure branch defaults.',
-  'Product Master Data': 'Configure product master data.',
-  'Statuses': 'Configure statuses.',
-  'Pricing Rules': 'Configure pricing rules.',
-  'Payment Methods': 'Configure payment methods.',
-  'Expense Categories': 'Configure expense categories.',
-  'Approval Rules': 'Configure approval rules and limits.',
-  'Numbering': 'Configure system numbering and prefix sequences.',
-  'Notifications': 'Configure notification triggers and channels.',
-  'Data Import & Export': 'Manage system data imports and export formats.',
-  'Integrations': 'Configure integrations.',
-  'Security': 'Configure security.'
+  'Business Profile': 'Configure business legal entity, branding, currency, and contact information.',
+  'Branch Defaults': 'Configure operating hours, local expense thresholds, and discount allowances.',
+  'Product Master Data': 'Configure serialized inventory tracking, SKU formatting, and warranty terms.',
+  'Statuses': 'Canonical workflow lifecycle statuses for products, POs, and serialized units.',
+  'Pricing Rules': 'Configure margin targets, pricing strategy, and manager approval discount thresholds.',
+  'Payment Methods': 'Configure accepted payment rails and transaction reference requirements.',
+  'Expense Categories': 'Configure financial categories and authorization hierarchies.',
+  'Approval Rules': 'Configure financial and operational approval rules and limits.',
+  'Numbering': 'Configure system numbering and editable prefix sequences across business documents.',
+  'Notifications': 'Configure notification triggers and distribution channels.',
+  'Data Import & Export': 'Manage system data imports, opening inventory, and export permissions.',
+  'Integrations': 'Manage connected external services and communication webhooks.',
+  'Security': 'Configure authentication policies, session timeouts, and credential constraints.'
 }
 
-// Form Data for various tabs
+// Reactive Form Data for various tabs populated from canonical store.settings
 const businessProfile = ref({
   name: 'AJ EcoDrive Ltd',
   brand: 'BRG Electric Vehicles',
+  email: 'info@ajecodrive.com',
+  phone: '+92 91 588 4000',
+  website: 'https://ecodrive.com.pk',
+  address: 'University Road, Phase 3, Peshawar, Khyber Pakhtunkhwa',
+  taxNumber: 'NTN-7489201-3',
   timezone: 'Asia/Karachi',
   currency: 'PKR'
 })
@@ -83,7 +90,7 @@ const pricingRules = ref({
 const paymentMethods = ref([
   { method: 'Cash', active: 'Yes', requiresReference: 'No' },
   { method: 'Bank Transfer', active: 'Yes', requiresReference: 'Yes' },
-  { method: 'Card', active: 'Yes', requiresReference: 'Yes' }
+  { method: 'Card / POS', active: 'Yes', requiresReference: 'Yes' }
 ])
 
 const expenseCategories = ref([
@@ -101,10 +108,19 @@ const approvalRules = ref([
 ])
 
 const numberingRecords = ref([
-  { record: 'Order', prefix: 'SO-', next: '7741' },
-  { record: 'Quotation', prefix: 'QT-', next: '1109' },
-  { record: 'PO', prefix: 'PO-', next: '2050' },
-  { record: 'Receipt', prefix: 'GR-', next: '992' }
+  { record: 'Sales Order', key: 'orderPrefix', prefix: 'SO-', next: '7741' },
+  { record: 'Quotation', key: 'quotationPrefix', prefix: 'QT-', next: '1109' },
+  { record: 'Purchase Order', key: 'poPrefix', prefix: 'PO-', next: '2050' },
+  { record: 'Goods Receipt (GRN)', key: 'receiptPrefix', prefix: 'GRN-', next: '992' },
+  { record: 'Invoice', key: 'invoicePrefix', prefix: 'INV-', next: '2242' },
+  { record: 'Payment', key: 'paymentPrefix', prefix: 'PAY-', next: '7792' },
+  { record: 'Service Case', key: 'casePrefix', prefix: 'SC-', next: '230' },
+  { record: 'Repair Job', key: 'repairPrefix', prefix: 'RJ-', next: '189' },
+  { record: 'Stock Transfer', key: 'transferPrefix', prefix: 'TR-', next: '225' },
+  { record: 'Stock Request', key: 'stockRequestPrefix', prefix: 'SR-', next: '302' },
+  { record: 'Warranty', key: 'warrantyPrefix', prefix: 'WAR-', next: '100' },
+  { record: 'Delivery Handover', key: 'deliveryPrefix', prefix: 'DEL-', next: '2242' },
+  { record: 'Expense', key: 'expensePrefix', prefix: 'EXP-', next: '400' }
 ])
 
 const notificationRules = ref([
@@ -128,16 +144,142 @@ const integrations = ref([
 
 const securitySettings = ref({
   mfaPolicy: 'Mandatory for Super Admin · Policy-enforceable for Branch Managers',
-  sessionTimeout: '',
-  passwordPolicy: ''
+  sessionTimeout: '60 minutes',
+  passwordPolicy: 'Minimum 8 characters with alphanumeric and special characters'
+})
+
+const populateFromStore = () => {
+  const s = store.settings || {}
+  const c = s.company || {}
+  const f = s.finance || {}
+  const sys = s.system || {}
+  const bd = s.branchDefaults || {}
+  const pmd = s.productMasterData || {}
+  const pr = s.pricingRules || {}
+  const num = s.numbering || {}
+  const sec = s.security || {}
+
+  businessProfile.value = {
+    name: c.name || 'AJ EcoDrive Ltd',
+    brand: c.brand || 'BRG Electric Vehicles',
+    email: c.email || 'info@ajecodrive.com',
+    phone: c.phone || '+92 91 588 4000',
+    website: c.website || 'https://ecodrive.com.pk',
+    address: c.address || 'University Road, Phase 3, Peshawar, Khyber Pakhtunkhwa',
+    taxNumber: c.taxNumber || 'NTN-7489201-3',
+    timezone: sys.timezone || 'Asia/Karachi',
+    currency: f.currency || 'PKR'
+  }
+
+  branchDefaults.value = {
+    openingHours: bd.openingHours || '09:00 AM - 06:00 PM',
+    expenseLimit: bd.expenseLimit || 'PKR 100,000',
+    discountLimit: bd.discountLimit || '10%'
+  }
+
+  productMasterData.value = {
+    tracking: pmd.tracking || 'Serialized where applicable',
+    skuFormat: pmd.skuFormat || 'BRG-[CAT]-[MODEL]-[YEAR]',
+    warrantyDefault: pmd.warrantyDefault || '3-Year Battery & Controller'
+  }
+
+  pricingRules.value = {
+    pricingMode: pr.pricingMode || 'Fixed Selling Price · Cost + Markup',
+    minMargin: pr.minMargin || '15%',
+    discountThreshold: pr.discountThreshold || '8%'
+  }
+
+  numberingRecords.value = [
+    { record: 'Sales Order', key: 'orderPrefix', prefix: num.orderPrefix || 'SO-', next: '7741' },
+    { record: 'Quotation', key: 'quotationPrefix', prefix: num.quotationPrefix || 'QT-', next: '1109' },
+    { record: 'Purchase Order', key: 'poPrefix', prefix: num.poPrefix || 'PO-', next: '2050' },
+    { record: 'Goods Receipt (GRN)', key: 'receiptPrefix', prefix: num.receiptPrefix || 'GRN-', next: '992' },
+    { record: 'Invoice', key: 'invoicePrefix', prefix: num.invoicePrefix || 'INV-', next: '2242' },
+    { record: 'Payment', key: 'paymentPrefix', prefix: num.paymentPrefix || 'PAY-', next: '7792' },
+    { record: 'Service Case', key: 'casePrefix', prefix: num.casePrefix || 'SC-', next: '230' },
+    { record: 'Repair Job', key: 'repairPrefix', prefix: num.repairPrefix || 'RJ-', next: '189' },
+    { record: 'Stock Transfer', key: 'transferPrefix', prefix: num.transferPrefix || 'TR-', next: '225' },
+    { record: 'Stock Request', key: 'stockRequestPrefix', prefix: num.stockRequestPrefix || 'SR-', next: '302' },
+    { record: 'Warranty', key: 'warrantyPrefix', prefix: num.warrantyPrefix || 'WAR-', next: '100' },
+    { record: 'Delivery Handover', key: 'deliveryPrefix', prefix: num.deliveryPrefix || 'DEL-', next: '2242' },
+    { record: 'Expense', key: 'expensePrefix', prefix: num.expensePrefix || 'EXP-', next: '400' }
+  ]
+
+  securitySettings.value = {
+    mfaPolicy: sec.mfaPolicy || 'Mandatory for Super Admin · Policy-enforceable for Branch Managers',
+    sessionTimeout: sec.sessionTimeout || '60 minutes',
+    passwordPolicy: sec.passwordPolicy || 'Minimum 8 characters with alphanumeric and special characters'
+  }
+}
+
+onMounted(() => {
+  populateFromStore()
 })
 
 const saveSettings = () => {
-  toastMessage.value = `${activeTab.value} settings saved successfully!`
-  showToast.value = true
-  setTimeout(() => {
-    showToast.value = false
-  }, 3000)
+  try {
+    if (activeTab.value === 'Business Profile') {
+      if (!businessProfile.value.name || !businessProfile.value.name.trim()) {
+        throw new Error('Business legal name cannot be empty')
+      }
+      if (!businessProfile.value.email || !businessProfile.value.email.includes('@')) {
+        throw new Error('A valid business email address is required')
+      }
+      store.updateSettings('company', {
+        name: businessProfile.value.name.trim(),
+        brand: businessProfile.value.brand.trim(),
+        email: businessProfile.value.email.trim(),
+        phone: businessProfile.value.phone.trim(),
+        website: businessProfile.value.website.trim(),
+        address: businessProfile.value.address.trim(),
+        taxNumber: businessProfile.value.taxNumber.trim()
+      })
+      store.updateSettings('finance', { currency: businessProfile.value.currency.trim() })
+      store.updateSettings('system', { timezone: businessProfile.value.timezone.trim() })
+    } else if (activeTab.value === 'Branch Defaults') {
+      store.updateSettings('branchDefaults', branchDefaults.value)
+    } else if (activeTab.value === 'Product Master Data') {
+      store.updateSettings('productMasterData', productMasterData.value)
+    } else if (activeTab.value === 'Pricing Rules') {
+      store.updateSettings('pricingRules', pricingRules.value)
+    } else if (activeTab.value === 'Numbering') {
+      const numMap = {}
+      numberingRecords.value.forEach(item => {
+        if (item.key && item.prefix) {
+          numMap[item.key] = item.prefix.trim()
+        }
+      })
+      store.updateSettings('numbering', numMap)
+    } else if (activeTab.value === 'Security') {
+      store.updateSettings('security', securitySettings.value)
+    }
+
+    toastMessage.value = `${activeTab.value} settings saved and canonical store updated!`
+    toastType.value = 'success'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  } catch (err) {
+    toastMessage.value = `Error: ${err.message}`
+    toastType.value = 'error'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 4000)
+  }
+}
+
+const restoreDefaults = () => {
+  try {
+    store.resetSettingsToDefault()
+    populateFromStore()
+    toastMessage.value = 'Settings restored to defaults. All transactional business data was preserved!'
+    toastType.value = 'success'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  } catch (err) {
+    toastMessage.value = `Error: ${err.message}`
+    toastType.value = 'error'
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 4000)
+  }
 }
 </script>
 
@@ -146,9 +288,10 @@ const saveSettings = () => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      class="fixed bottom-5 right-5 z-[110] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="toastType === 'error' ? 'bg-red-600' : 'bg-[#165A31]'"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <component :is="toastType === 'error' ? AlertCircle : CheckCircle2" class="w-5 h-5 text-white" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 
@@ -166,16 +309,27 @@ const saveSettings = () => {
       <div>
         <h2 class="text-xl font-bold text-gray-900">System Settings</h2>
         <div class="text-xs text-gray-500 font-medium mt-0.5">
-          Organisation-wide configuration
+          Organisation-wide configuration & canonical shared business state
         </div>
       </div>
 
-      <button 
-        @click="saveSettings"
-        class="bg-[#165A31] text-white text-[11px] font-bold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
-      >
-        Save Changes
-      </button>
+      <div class="flex items-center gap-3">
+        <button 
+          @click="restoreDefaults"
+          type="button"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] font-bold px-4 py-2.5 rounded-lg border border-gray-200 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <RefreshCw class="w-3.5 h-3.5 text-gray-500" />
+          Restore Defaults
+        </button>
+        <button 
+          @click="saveSettings"
+          type="button"
+          class="bg-[#165A31] text-white text-[11px] font-bold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+        >
+          Save Changes
+        </button>
+      </div>
     </div>
 
     <!-- Scrollable Tab Navigation Bar -->
@@ -205,7 +359,7 @@ const saveSettings = () => {
       
       <div class="space-y-4 max-w-4xl">
         <div>
-          <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Business Name</label>
+          <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Business Legal Name</label>
           <input 
             v-model="businessProfile.name"
             type="text" 
@@ -224,24 +378,80 @@ const saveSettings = () => {
           />
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Official Email Address</label>
+            <input 
+              v-model="businessProfile.email"
+              type="email" 
+              placeholder="info@ajecodrive.com"
+              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Contact Phone</label>
+            <input 
+              v-model="businessProfile.phone"
+              type="text" 
+              placeholder="+92 91 588 4000"
+              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Website URL</label>
+            <input 
+              v-model="businessProfile.website"
+              type="text" 
+              placeholder="https://ecodrive.com.pk"
+              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Tax / NTN Registration Number</label>
+            <input 
+              v-model="businessProfile.taxNumber"
+              type="text" 
+              placeholder="NTN-7489201-3"
+              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+            />
+          </div>
+        </div>
+
         <div>
-          <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Timezone</label>
+          <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Head Office Physical Address</label>
           <input 
-            v-model="businessProfile.timezone"
+            v-model="businessProfile.address"
             type="text" 
-            placeholder="Asia/Karachi"
+            placeholder="University Road, Phase 3, Peshawar, Khyber Pakhtunkhwa"
             class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
           />
         </div>
 
-        <div>
-          <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Currency</label>
-          <input 
-            v-model="businessProfile.currency"
-            type="text" 
-            placeholder="PKR"
-            class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
-          />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Timezone</label>
+            <input 
+              v-model="businessProfile.timezone"
+              type="text" 
+              placeholder="Asia/Karachi"
+              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Default System Currency</label>
+            <input 
+              v-model="businessProfile.currency"
+              type="text" 
+              placeholder="PKR"
+              class="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -471,24 +681,40 @@ const saveSettings = () => {
 
     <!-- 9. Numbering Tab -->
     <div v-if="activeTab === 'Numbering'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
-      <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="text-[13px] font-bold text-gray-900">Numbering</h3>
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-[13px] font-bold text-gray-900">Document Numbering & Prefixes</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Customize active document prefix patterns. New records will automatically inherit configured prefixes.</p>
+        </div>
+        <button 
+          @click="saveSettings" 
+          type="button"
+          class="bg-[#165A31] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-lg hover:bg-[#124a28] transition-colors"
+        >
+          Save Numbering
+        </button>
       </div>
       
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-              <th class="px-6 py-3.5">Record</th>
-              <th class="px-6 py-3.5">Prefix</th>
-              <th class="px-6 py-3.5">Next</th>
+              <th class="px-6 py-3.5">Business Document</th>
+              <th class="px-6 py-3.5">Active Prefix</th>
+              <th class="px-6 py-3.5">Next Available ID</th>
             </tr>
           </thead>
           <tbody class="text-[11px]">
             <tr v-for="(num, idx) in numberingRecords" :key="idx" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
               <td class="px-6 py-4 font-semibold text-gray-900">{{ num.record }}</td>
-              <td class="px-6 py-4 text-gray-600 font-medium">{{ num.prefix }}</td>
-              <td class="px-6 py-4 text-gray-600 font-medium">{{ num.next }}</td>
+              <td class="px-6 py-4">
+                <input 
+                  v-model="num.prefix" 
+                  type="text" 
+                  class="w-28 px-2.5 py-1 text-xs font-mono font-bold text-gray-800 border border-gray-200 rounded focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] outline-none"
+                />
+              </td>
+              <td class="px-6 py-4 text-gray-600 font-mono font-medium">{{ num.prefix }}{{ num.next }}</td>
             </tr>
           </tbody>
         </table>

@@ -1,30 +1,32 @@
 <script setup>
-import { Eye, Pencil } from 'lucide-vue-next'
+import { Eye, Pencil, Plus } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import CreateSupplier from './CreateSupplier.vue'
+import EditSupplier from './EditSupplier.vue'
 
 const router = useRouter()
+const showCreateModal = ref(false)
+const showEditModal = ref(false)
 const searchQuery = ref('')
 const selectedStatus = ref('All Statuses')
 const openDropdown = ref(null)
 
 const statuses = ['All Statuses', 'Active', 'Inactive']
 
-const kpis = [
-  { label: 'Suppliers', value: '12' },
-  { label: 'Active', value: '10' },
-  { label: 'Open POs', value: '9' },
-  { label: 'Payables', value: 'PKR 6.1M' }
-]
+const suppliers = computed(() => store.suppliers)
 
-const suppliers = ref([
-  { name: 'BRG Factory', contact: 'Li Wei', products: '48', openPos: '5', purchases: '38.4M', payable: '4.2M', onTime: '92%', status: 'Active' },
-  { name: 'Pak Logistics', contact: 'Usman Shah', products: '—', openPos: '2', purchases: '3.8M', payable: '0.7M', onTime: '88%', status: 'Active' },
-  { name: 'PowerCell Co.', contact: 'Aamir Raza', products: '12', openPos: '2', purchases: '8.6M', payable: '1.2M', onTime: '95%', status: 'Active' },
-  { name: 'GreenDrive Parts', contact: 'Zubair Ahmed', products: '6', openPos: '0', purchases: '1.4M', payable: '0.0M', onTime: '98%', status: 'Active' },
-  { name: 'Volt Battery Tech', contact: 'Chen Dong', products: '15', openPos: '0', purchases: '4.2M', payable: '0.0M', onTime: '82%', status: 'Inactive' }
-])
+const kpis = computed(() => {
+  const total = suppliers.value.length
+  const activeCount = suppliers.value.filter(s => s.status === 'Active').length
+  return [
+    { label: 'Suppliers', value: String(total) },
+    { label: 'Active', value: String(activeCount) },
+    { label: 'Open POs', value: '9' },
+    { label: 'Payables', value: 'PKR 6.1M' }
+  ]
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -45,9 +47,9 @@ const filteredSuppliers = computed(() => {
     if (selectedStatus.value !== 'All Statuses' && item.status !== selectedStatus.value) return false
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
-      const match = item.name.toLowerCase().includes(q) ||
-                    item.contact.toLowerCase().includes(q) ||
-                    item.status.toLowerCase().includes(q)
+      const match = (item.name && item.name.toLowerCase().includes(q)) ||
+                    (item.contact && item.contact.toLowerCase().includes(q)) ||
+                    (item.status && item.status.toLowerCase().includes(q))
       if (!match) return false
     }
     return true
@@ -55,8 +57,9 @@ const filteredSuppliers = computed(() => {
 })
 
 const editSupplier = (supplier) => {
+  selectedSupplierToEdit.value = supplier
   store.originalEditSupplier = supplier
-  router.push('/procurement/suppliers/edit')
+  showEditModal.value = true
 }
 </script>
 
@@ -69,8 +72,8 @@ const editSupplier = (supplier) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Suppliers</h1>
         <p class="text-sm text-gray-500 mt-1">Manage BRG suppliers, procurement relationships and performance.</p>
       </div>
-      <button @click="$router.push('/procurement/suppliers/create')" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-        + Add Supplier
+      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <Plus class="w-4 h-4" /> <span>Add Supplier</span>
       </button>
     </div>
 
@@ -193,6 +196,10 @@ const editSupplier = (supplier) => {
       </div>
     </div>
   </div>
+
+  <!-- Create & Edit Supplier Modal Popups -->
+  <CreateSupplier v-if="showCreateModal" @close="showCreateModal = false" />
+  <EditSupplier v-if="showEditModal" @close="showEditModal = false" />
 
   <router-view />
 </template>

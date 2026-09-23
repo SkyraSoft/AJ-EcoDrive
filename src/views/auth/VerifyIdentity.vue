@@ -1,50 +1,79 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import AuthCard from '@/components/ui/AuthCard.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import OTPInput from '@/components/ui/OTPInput.vue'
+import { verifyResetOtp, generateResetOtp } from '@/auth.js'
 
 const router = useRouter()
+const route = useRoute()
+const email = route.query.email || ''
+
 const otpValue = ref('')
-const isExpired = ref(true) // Set to true to show the expired state for preview
+const errorMessage = ref('')
+const isLoading = ref(false)
+const isResending = ref(false)
 
-const title = computed(() => isExpired.value ? 'Verification code expired' : 'Verify your identity')
-const subtitle = computed(() => isExpired.value ? 'Request a new code or use the configured recovery option.' : 'Enter the verification code from your configured authentication method.')
+const title = 'Verify your identity'
+const subtitle = 'Enter the 6-digit verification code sent to your email.'
 
-const handleAction = () => {
-  if (isExpired.value) {
-    // Reset to normal state on resend
-    isExpired.value = false
+const hasError = computed(() => !!errorMessage.value)
+
+const handleVerify = async () => {
+  if (!email || otpValue.value.length < 6) return
+  
+  isLoading.value = true
+  errorMessage.value = ''
+  try {
+    const tempToken = await verifyResetOtp(email, otpValue.value)
+    router.push({ path: '/create-new-password', query: { email, tempToken } })
+  } catch (err) {
+    errorMessage.value = err.message
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleResend = async () => {
+  if (!email) return
+  isResending.value = true
+  errorMessage.value = ''
+  try {
+    await generateResetOtp(email)
     otpValue.value = ''
-  } else {
-    router.push('/create-new-password')
+  } catch (err) {
+    errorMessage.value = 'Failed to resend code.'
+  } finally {
+    isResending.value = false
   }
 }
 </script>
 
 <template>
   <AuthCard :title="title" :subtitle="subtitle">
-    <form @submit.prevent="handleAction">
-      <BaseInput v-if="!isExpired" label="Authentication Method" modelValue="Authenticator App" readonly class="pointer-events-none opacity-80" />
+    <form @submit.prevent="handleVerify">
       
-      <OTPInput v-model="otpValue" :length="6" :has-error="isExpired" />
+      <OTPInput v-model="otpValue" :length="6" :has-error="hasError" />
 
-      <div v-if="isExpired" class="p-3 mb-6 bg-red-50 border border-red-100 rounded-lg">
-        <p class="text-xs text-red-600 font-medium">This code has expired. Request a new verification code.</p>
+      <div v-if="hasError" class="p-3 mb-6 mt-2 bg-red-50 border border-red-100 rounded-lg">
+        <p class="text-xs text-red-600 font-medium">{{ errorMessage }}</p>
       </div>
 
-      <div v-if="!isExpired" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
-        <span class="text-xs text-gray-500">Code expires shortly</span>
-        <button type="button" @click="isExpired = true" class="text-xs font-semibold text-[#13763A] hover:underline">Resend / Recovery option</button>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mt-4 mb-6">
+        <span class="text-xs text-gray-500">Code expires in 10 minutes</span>
+        <button type="button" @click="handleResend" :disabled="isResending" class="text-xs font-semibold text-[#13763A] hover:underline disabled:opacity-50">
+          {{ isResending ? 'Resending...' : 'Resend Code' }}
+        </button>
       </div>
 
-      <BaseButton type="submit">{{ isExpired ? 'Resend Code' : 'Verify & Continue' }}</BaseButton>
+      <BaseButton type="submit" :disabled="isLoading || otpValue.length < 6">
+        {{ isLoading ? 'Verifying...' : 'Verify & Continue' }}
+      </BaseButton>
 
-      <div v-if="!isExpired" class="mt-6 p-4 bg-[#f2fbfa] rounded-lg">
+      <div class="mt-6 p-4 bg-[#f2fbfa] rounded-lg">
         <p class="text-xs text-gray-500 leading-relaxed">
-          MFA is mandatory for Super Admin. Branch Manager MFA is supported and can be enforced by policy.
+          Check your spam folder if you do not see the email in your inbox.
         </p>
       </div>
     </form>
