@@ -65,6 +65,23 @@
 # DEALERSHIP OWNER'S QUICK NAVIGATION & EXECUTIVE INDEX
 ### "Plain-English Answers for Dealership Investors, Directors & Non-Technical Owners"
 
+> ### 🚀 LIVE PRESENTATION & CLIENT DEMONSTRATION ACCESS
+> **Live Production Deployment URL:** [https://aj-eco-drive.vercel.app](https://aj-eco-drive.vercel.app)  
+> **Source Code & Architecture Repository:** [https://github.com/SkyraSoft/AJ-EcoDrive](https://github.com/SkyraSoft/AJ-EcoDrive)  
+> **Universal Demo Password:** `password123` *(or `password`)*
+>
+> | Presentation Role | Branch / Location Scope | Username / Code | Common Password | Operational Capabilities |
+> | :--- | :--- | :--- | :--- | :--- |
+> | **Super Admin** | **Head Office (All Branches)** | `ADMIN` *(or `admin`)* | `password123` | Nationwide control across all 4 showrooms, procurement, global pricing, user management, and system-wide Action Centre approvals. |
+> | **Branch Manager** | **Peshawar Showroom & Workshop** | `PEW-01` *(or `peshawar`)* | `password123` | Scoped strictly to Peshawar showroom floor inventory, sales orders, walk-in leads, expenses, and workshop repair jobs. |
+> | **Branch Manager** | **Islamabad Showroom** | `ISB-01` *(or `islamabad`)* | `password123` | Scoped strictly to Islamabad showroom floor, local commercial sales, cash registers, and stock requisition. |
+> | **Branch Manager** | **Lahore Showroom** | `LHE-01` *(or `lahore`)* | `password123` | Scoped strictly to Lahore commercial sales, inventory management, customer payments, and local team dispatch. |
+> | **Branch Manager** | **Rawalpindi Showroom** | `RWP-01` *(or `rawalpindi`)* | `password123` | Scoped strictly to Rawalpindi twin-cities operations, local stock receipts, inter-branch transfers, and petty cash. |
+>
+> *Tip: On the live login screen ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), click any role badge to **1-click auto-fill** credentials and log in instantly.*
+
+---
+
 If you are a dealership owner, board member, or business executive who does not write software code, this index is designed specifically for you. Click any question below to jump straight to the exact operational answer:
 
 | Dealership Business Concern | Plain-English Executive Summary | Direct Answer Jump Link |

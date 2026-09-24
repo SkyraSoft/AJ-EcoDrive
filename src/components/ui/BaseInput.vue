@@ -39,19 +39,19 @@ const computedType = computed(() => {
 
 <template>
   <div class="mb-4">
-    <label class="block text-sm font-semibold text-gray-900 mb-1.5">{{ label }}</label>
+    <label class="block text-sm font-semibold text-gray-900 dark:text-slate-200 mb-1.5">{{ label }}</label>
     <div class="relative">
       <input 
         :type="computedType"
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
-        class="w-full px-4 py-3 rounded-lg border focus:outline-none transition-colors placeholder:text-gray-400"
+        class="w-full px-4 py-3 rounded-lg border focus:outline-none transition-colors placeholder:text-gray-400 dark:placeholder:text-slate-500"
         :class="[
           isPasswordType ? 'pr-11' : '',
           hasError 
-            ? 'border-red-200 text-red-900 focus:border-red-400 focus:ring-1 focus:ring-red-400 bg-red-50/10'
-            : 'border-gray-200 focus:border-[#13763A] focus:ring-1 focus:ring-[#13763A] bg-white text-gray-900'
+            ? 'border-red-200 dark:border-red-800 text-red-900 dark:text-red-300 focus:border-red-400 focus:ring-1 focus:ring-red-400 bg-red-50/10 dark:bg-red-950/20'
+            : 'border-gray-200 dark:border-slate-700 focus:border-[#13763A] dark:focus:border-emerald-500 focus:ring-1 focus:ring-[#13763A] dark:focus:ring-emerald-500 bg-white dark:bg-slate-800 text-gray-900 dark:text-white'
         ]"
       />
       <button 
