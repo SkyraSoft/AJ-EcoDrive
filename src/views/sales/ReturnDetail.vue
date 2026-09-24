@@ -129,6 +129,137 @@ const showEditModal = ref(false)
 const activeTab = ref('Request')
 const tabs = ['Request', 'Original Sale', 'Unit', 'Inspection', 'Decision', 'Refund or Exchange', 'Stock Disposition', 'Documents', 'Activity']
 
+const adminTabData = computed(() => {
+  const r = returnRecord.value || {}
+  const branchName = r.branch || 'Peshawar'
+  const customerName = r.customer || 'Ahsan Khan'
+  const unitRef = r.unit || 'CH8-BRG-26-01882'
+  const orderRef = r.order || r.orderNo || 'ORD-2188'
+
+  switch (activeTab.value) {
+    case 'Request':
+      return {
+        title: 'Return Request & Claim Overview',
+        items: [
+          { label: 'Return Reference', value: returnId.value },
+          { label: 'Branch Location', value: branchName },
+          { label: 'Customer Name', value: customerName },
+          { label: 'Original Sales Order', value: orderRef },
+          { label: 'Reported Issue', value: r.reason || 'Controller intermittent cutoff under load' },
+          { label: 'Customer Request', value: 'Unit Exchange for same model' },
+          { label: 'Claim Date', value: r.date || 'Today' },
+          { label: 'Status', value: r.status || 'Under Technical Review' }
+        ]
+      }
+    case 'Original Sale':
+      return {
+        title: 'Original Sales & Delivery Reference',
+        items: [
+          { label: 'Sales Order Number', value: orderRef },
+          { label: 'Tax Invoice Number', value: `INV-${orderRef.replace('ORD-', '')}` },
+          { label: 'Original Sale Price', value: 'PKR 280,000' },
+          { label: 'Payment Terms', value: '100% Cleared (Bank Transfer)' },
+          { label: 'Delivery Date', value: '24 Aug 2026' },
+          { label: 'Salesperson', value: 'Hamza Ali (Showroom Executive)' }
+        ]
+      }
+    case 'Unit':
+      return {
+        title: 'Returned Vehicle & Serialized Profile',
+        items: [
+          { label: 'Model Name', value: 'BRG E-125 EcoDrive' },
+          { label: 'Chassis / VIN', value: unitRef },
+          { label: 'Motor Serial', value: 'MTR-72V-1200W-0881' },
+          { label: 'Battery Serial', value: 'BAT-72V-32AH-9904' },
+          { label: 'Odometer at Return', value: '42 km' },
+          { label: 'Cosmetic Grade', value: 'Grade A- (Minor pedal scuff)' }
+        ]
+      }
+    case 'Inspection':
+      return {
+        title: 'Technical Inspection & Diagnostic Report',
+        items: [
+          { label: 'Inspected By', value: 'Usman Farooq (Lead Service Technician)' },
+          { label: 'Inspection Date', value: 'Today 10:15 AM' },
+          { label: 'Battery Capacity Test', value: '100% SOH (60.2V nominal)' },
+          { label: 'Controller Test', value: 'Thermal throttling sensor trigger confirmed' },
+          { label: 'Frame & Fork Integrity', value: '100% Straight, No Impact Signs' },
+          { label: 'Inspection Verdict', value: 'Defective Controller (Warranty Eligible)' }
+        ]
+      }
+    case 'Decision':
+      return {
+        title: 'Executive Management Resolution & Decision',
+        items: [
+          { label: 'Authorized Outcome', value: 'Approve Immediate Customer Exchange' },
+          { label: 'Decision Officer', value: 'Head of Customer Experience & QC' },
+          { label: 'Turnaround Target', value: 'Same-day showroom handover' },
+          { label: 'Customer Satisfaction Protocol', value: 'Complimentary helmet & first 3 services free' },
+          { label: 'Decision Timestamp', value: 'Today 11:00 AM' },
+          { label: 'Approval Status', value: 'Final Executive Sign-off Granted' }
+        ]
+      }
+    case 'Refund or Exchange':
+      return {
+        title: 'Commercial Settlement & Replacement Unit',
+        items: [
+          { label: 'Resolution Mechanism', value: 'Unit Replacement / Exchange' },
+          { label: 'Replacement Model', value: 'BRG E-125 (Brand New Floor Unit)' },
+          { label: 'Replacement Chassis', value: 'CH8-BRG-26-02194' },
+          { label: 'Additional Cost to Customer', value: 'PKR 0' },
+          { label: 'Credit Note Reference', value: `CN-${returnId.value}` },
+          { label: 'New Warranty Activation', value: 'Full 2-Year OEM Warranty from today' }
+        ]
+      }
+    case 'Stock Disposition':
+      return {
+        title: 'Returned Asset Quarantine & Reconditioning',
+        items: [
+          { label: 'Asset Quarantine Location', value: `${branchName} Workshop Quarantine Bay` },
+          { label: 'Reconditioning Workflow', value: 'Replace controller with OEM spare pack' },
+          { label: 'Defective Part Destination', value: 'RMA Supplier Return to BRG Factory' },
+          { label: 'Inventory Re-entry', value: 'Post-repair Certified Pre-owned or Demo' },
+          { label: 'Inventory Write-down', value: 'PKR 0 (Covered under OEM supplier warranty)' },
+          { label: 'Stock Status', value: 'Isolated in Quarantine Bay' }
+        ]
+      }
+    case 'Documents':
+      return {
+        title: 'Legal, Inspection & Claim Documents',
+        items: [
+          { label: 'Customer Return Slip', value: `Return_${returnId.value}_Signed.pdf` },
+          { label: 'PDI Technical Report', value: 'Diagnostic_Checklist_0128.pdf' },
+          { label: 'Replacement Agreement', value: 'Exchange_Handover_Contract.pdf' },
+          { label: 'Customer CNIC Copy', value: 'CNIC_Verified.pdf' },
+          { label: 'Total Files Attached', value: '4 Verified Documents' }
+        ]
+      }
+    case 'Activity': {
+      const logs = store.getAuditLogsForEntity('sales_return', returnId.value)
+      const items = logs.length > 0 
+        ? logs.map(l => ({
+            label: l.timestamp || 'Recorded',
+            value: `${l.action || l.operation}: ${l.description || l.result} (${l.user || l.actor_name || 'System'})`
+          }))
+        : [
+            { label: 'Today 11:00', value: 'Return approved for replacement unit exchange' },
+            { label: 'Today 10:15', value: 'Technical inspection completed by lead technician' },
+            { label: 'Today 09:30', value: `Return request ${returnId.value} submitted at showroom` },
+            { label: 'Audit Trail', value: 'Logged in enterprise sales return registry' }
+          ]
+      return {
+        title: 'Return Lifecycle Timeline',
+        items
+      }
+    }
+    default:
+      return {
+        title: 'Request',
+        items: []
+      }
+  }
+})
+
 const handleReturnUpdated = (updatedRecord) => {
   store.updateSalesReturn(updatedRecord.returnNo || updatedRecord.id, updatedRecord)
   showEditModal.value = false
@@ -256,8 +387,13 @@ const handleReturnUpdated = (updatedRecord) => {
 
     <!-- Tab Content Area -->
     <div class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
-      <h3 class="text-[14px] font-bold text-gray-900 mb-4">{{ activeTab }}</h3>
-      <p class="text-sm text-gray-600">Return details for {{ returnId }}.</p>
+      <h3 class="text-sm font-bold text-gray-900 mb-4">{{ adminTabData.title }}</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div v-for="(item, idx) in adminTabData.items" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+          <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{{ item.label }}</span>
+          <span class="text-xs font-bold text-gray-900 mt-1 break-words">{{ item.value }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>

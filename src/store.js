@@ -10,6 +10,15 @@ const savedSession = (() => {
   }
 })()
 
+// Load initial theme from storage if available
+const savedTheme = (() => {
+  try {
+    return localStorage.getItem('ecodrive_theme') || 'Light'
+  } catch (e) {
+    return 'Light'
+  }
+})()
+
 export const store = reactive({
   // Active User / Branch Session
   currentUser: savedSession || {
@@ -178,7 +187,7 @@ export const store = reactive({
       timezone: 'Asia/Karachi',
       dateFormat: 'DD MMM YYYY',
       tableDensity: 'Comfortable',
-      theme: 'Light',
+      theme: savedTheme,
       language: 'English',
       inventoryAlerts: 'Enabled',
       salesAlerts: 'Enabled',
@@ -250,6 +259,10 @@ export const store = reactive({
       }
     }
 
+    if (section === 'system' && updatedValues && updatedValues.theme) {
+      this.applyTheme(updatedValues.theme)
+    }
+
     // Audit log
     if (typeof this.addAuditLog === 'function') {
       this.addAuditLog({
@@ -264,6 +277,57 @@ export const store = reactive({
     }
 
     return { success: true, settings: this.settings[section] }
+  },
+
+  // Theme Management Methods
+  applyTheme(theme) {
+    const activeTheme = theme || this.settings?.system?.theme || 'Light'
+    let isDark = false
+    if (activeTheme === 'Dark') {
+      isDark = true
+    } else if (activeTheme === 'System') {
+      isDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    } else {
+      isDark = false
+    }
+
+    if (typeof document !== 'undefined') {
+      if (isDark) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    }
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('ecodrive_theme', activeTheme)
+      }
+    } catch (e) {
+      console.error('Failed to persist theme:', e)
+    }
+
+    if (this.settings?.system) {
+      this.settings.system.theme = activeTheme
+    }
+
+    return isDark
+  },
+
+  toggleTheme() {
+    const current = this.settings?.system?.theme || 'Light'
+    const nextTheme = current === 'Dark' ? 'Light' : 'Dark'
+    this.applyTheme(nextTheme)
+    return nextTheme
+  },
+
+  isDarkMode() {
+    const current = this.settings?.system?.theme || 'Light'
+    if (current === 'Dark') return true
+    if (current === 'System') {
+      return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    return false
   },
 
   // Settings Reset Method (does NOT touch transactional business data)
@@ -430,6 +494,353 @@ export const store = reactive({
     }
 
     return this.currentUser
+  },
+
+  // ==========================================
+  // ACTION CENTRE ENTERPRISE WORKFLOW ENGINE
+  // ==========================================
+  actionQueue: [
+    {
+      id: 'ACT-PRC-1082',
+      flowType: 'commercial_pricing',
+      typeLabel: 'Commercial & Pricing Exception',
+      title: 'Special Fleet Discount for Khyber Courier Service (5x BRG Cargo)',
+      priority: 'Critical',
+      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      branch: 'Peshawar',
+      originBranch: null,
+      initiator: 'Asad Khan (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '24 Sep 2026, 09:30 AM',
+      due: 'Today',
+      recordRef: 'SO-8821',
+      summary: '12% discount waiver requested on 5 BRG Cargo units (gross margin drops from 24.5% to 14.2%)',
+      pricingData: {
+        customerName: 'Khyber Courier & Logistics Ltd',
+        customerContact: '0301-8829104',
+        quotationRef: 'QT-8421',
+        orderRef: 'SO-8821',
+        modelName: 'BRG Cargo Delivery Electric Trike (72V 100Ah)',
+        unitCount: 5,
+        listPricePerUnit: 490000,
+        totalListPrice: 2450000,
+        requestedDiscountPercent: 12,
+        requestedDiscountAmount: 294000,
+        proposedDealValue: 2156000,
+        standardMarginPercent: 24.5,
+        projectedMarginPercent: 14.2,
+        competitorContext: 'RoadPrince EV offered competitor trike at 10% discount. Key fleet trial order with 20 unit potential in Q4.',
+        branchMaxAllowedDiscount: 8
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-STK-2041',
+      flowType: 'stock_reallocation',
+      typeLabel: 'Inter-Branch Stock Reallocation',
+      title: 'Emergency Reallocation of 2x BRG E-125 (Gloss Emerald Green)',
+      priority: 'Critical',
+      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      branch: 'Islamabad',
+      originBranch: 'Lahore',
+      initiator: 'Bilal Ahmed (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '24 Sep 2026, 10:15 AM',
+      due: 'Today',
+      recordRef: 'TR-221',
+      summary: 'Urgent pull of 2 BRG E-125 units from Lahore to Islamabad for diplomat delivery booking',
+      stockData: {
+        originBranch: 'Lahore Central Hub',
+        destinationBranch: 'Islamabad Branch',
+        modelSku: 'BRG-EV-E125-GRN',
+        modelName: 'BRG E-125 Urban High-Speed Scooter',
+        requestedQty: 2,
+        chassisVins: 'VIN-LHE-2026-00411, VIN-LHE-2026-00412',
+        linkedBookingRef: 'SO-7910',
+        requiredByDate: '25 Sep 2026, 05:00 PM',
+        logisticsCarrier: 'TCS Dedicated Inter-Branch Van',
+        urgencyReason: 'Customer deposit received; customer departing on foreign diplomatic mission on Friday. Islamabad showroom has 0 green units in stock.',
+        freightCostEstimate: 36000
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-EXP-3095',
+      flowType: 'operational_expense',
+      typeLabel: 'Emergency Operational Expenditure',
+      title: 'Showroom Emergency Grid Inverter & Generator Fuel Requisition',
+      priority: 'High',
+      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      branch: 'Rawalpindi',
+      originBranch: null,
+      initiator: 'Tariq Mehmood (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '24 Sep 2026, 08:45 AM',
+      due: 'Today',
+      recordRef: 'EXP-221',
+      summary: 'PKR 148,500 emergency backup power diesel & inverter replacement following grid transformer explosion',
+      expenseData: {
+        expenseCategory: 'Utilities & Power Backup',
+        amountPkr: 148500,
+        payeeVendor: 'Rawalpindi Solar & Heavy Generators Ltd',
+        vendorNtn: 'NTN-8812740-2',
+        paymentMethod: 'Direct Vendor Bank Transfer',
+        invoiceRef: 'INV-GEN-9921',
+        operationalEmergencyJustification: 'Grid transformer explosion on Peshawar Road caused complete power blackout. High-voltage showroom chargers and customer delivery bay offline during 40°C heatwave.',
+        delayImpact: 'Showroom unable to charge delivery bikes; customer test rides suspended.'
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-WAR-4018',
+      flowType: 'warranty_escalation',
+      typeLabel: 'Critical Warranty Claim',
+      title: 'High-Voltage Traction Battery Pack Replacement (72V 52Ah Lithium NMC)',
+      priority: 'Critical',
+      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      branch: 'Peshawar',
+      originBranch: null,
+      initiator: 'Farhan Ullah (Lead Diagnostic Technician)',
+      assignedTo: 'Super Admin',
+      createdAt: '24 Sep 2026, 09:10 AM',
+      due: 'Today',
+      recordRef: 'RJ-109',
+      summary: 'Battery cell thermal imbalance (>450mV drift) on Dr. Imran Shah\'s BRG E-125 under 3-year warranty',
+      warrantyData: {
+        customerName: 'Dr. Imran Shah',
+        customerPhone: '0300-5918274',
+        vehicleVin: 'VIN-PK-BRG-2025-00192',
+        modelName: 'BRG E-125 (Purchased Dec 2025)',
+        odometerKm: 6420,
+        defectComponent: 'Main Traction Battery Module 72V 52Ah',
+        diagnosticCode: 'BMS-ERR-042: Cell Bank 4 Voltage Imbalance (>450mV drift)',
+        technicianFindings: 'Battery drops from 80% to 15% under acceleration load. Thermal sensor triggered 62°C safe shutdown. No casing damage or water ingress. Genuine internal cell degradation.',
+        replacementSkuNeeded: 'PART-BAT-7252-NMC',
+        estimatedPartCost: 185000,
+        safetyRiskLevel: 'High (Vehicle shut down on highway; risk of thermal runaway if continued)'
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-GOV-5034',
+      flowType: 'inventory_governance',
+      typeLabel: 'Inventory Governance & Quarantine',
+      title: 'Transit Discrepancy & Quarantine Sign-Off for 3 Inbound BRG DS-11 Units',
+      priority: 'Medium',
+      priorityClass: 'bg-[#fef3c7] text-[#b45309]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      branch: 'Lahore',
+      originBranch: null,
+      initiator: 'Kamran Rafiq (Warehouse Supervisor)',
+      assignedTo: 'Super Admin',
+      createdAt: '23 Sep 2026, 04:30 PM',
+      due: 'Tomorrow',
+      recordRef: 'QA-102',
+      summary: '3 units arrived from port with ruptured transit straps and cracked fairings; quarantined in Bay Q-3 pending insurance write-down',
+      governanceData: {
+        auditDate: '22 Sep 2026',
+        affectedVinOrSku: 'VIN-PK-BRG-2026-00941, 00942, 00943',
+        modelName: 'BRG DS-11 Sports Commuter',
+        systemRecordedQty: 3,
+        physicalFoundQty: 3,
+        discrepancyUnitCount: 3,
+        estimatedVariancePkr: 72000,
+        rootCauseClassification: 'Transit Mishandling by Karachi Port Logistics Transporter',
+        recommendedAction: 'Quarantine Segregation in Bay Q-3 & Insurance Recovery Claim against Port Carrier',
+        incidentDescription: 'Container cargo straps severed during rough transit. Crates tipped over inside container, cracking ABS front fairings and bending right mirrors on 3 units.',
+        managerCertification: 'Certified by Haris Siddiqui (BM Lahore) and Kamran Rafiq (QC Officer)'
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-PRC-1079',
+      flowType: 'commercial_pricing',
+      typeLabel: 'Commercial & Pricing Exception',
+      title: 'Government Employee Promotional Rebate (KPK Police Welfare Order)',
+      priority: 'Medium',
+      priorityClass: 'bg-[#fef3c7] text-[#b45309]',
+      status: 'Approved',
+      statusClass: 'bg-[#dcfce7] text-[#165A31]',
+      branch: 'Peshawar',
+      originBranch: null,
+      initiator: 'Asad Khan (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '22 Sep 2026, 11:20 AM',
+      due: 'Resolved',
+      recordRef: 'SO-8790',
+      summary: 'PKR 85,000 corporate rebate approved by Super Admin for KPK Police Welfare Foundation',
+      pricingData: {
+        customerName: 'KPK Police Welfare Foundation',
+        customerContact: '091-9212000',
+        quotationRef: 'QT-8380',
+        orderRef: 'SO-8790',
+        modelName: 'BRG E-125 Urban High-Speed Scooter',
+        unitCount: 2,
+        listPricePerUnit: 340000,
+        totalListPrice: 680000,
+        requestedDiscountPercent: 12.5,
+        requestedDiscountAmount: 85000,
+        proposedDealValue: 595000,
+        standardMarginPercent: 22.0,
+        projectedMarginPercent: 15.5,
+        competitorContext: 'Institutional fleet MOU agreement',
+        branchMaxAllowedDiscount: 8
+      },
+      resolution: {
+        decision: 'Approved',
+        decisionNotes: 'Approved under Institutional Welfare Program MoU. Margin remains within acceptable 15% threshold.',
+        decidedBy: 'Super Admin',
+        decidedAt: '22 Sep 2026, 02:40 PM',
+        treatmentResult: { discountGranted: '12.5%', effectivePkr: 595000 }
+      }
+    },
+    {
+      id: 'ACT-EXP-3088',
+      flowType: 'operational_expense',
+      typeLabel: 'Emergency Operational Expenditure',
+      title: 'Showroom Glass Facade Structural Repair Voucher',
+      priority: 'Low',
+      priorityClass: 'bg-gray-100 text-gray-700',
+      status: 'Resolved',
+      statusClass: 'bg-[#dcfce7] text-[#165A31]',
+      branch: 'Peshawar',
+      originBranch: null,
+      initiator: 'Asad Khan (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '20 Sep 2026, 03:15 PM',
+      due: 'Resolved',
+      recordRef: 'EXP-198',
+      summary: 'PKR 45,000 paid to Al-Rehman Glass Works for cracked tempered glass replacement',
+      expenseData: {
+        expenseCategory: 'Facilities Repair',
+        amountPkr: 45000,
+        payeeVendor: 'Al-Rehman Glass Works Peshawar',
+        vendorNtn: 'NTN-7391820-1',
+        paymentMethod: 'Cash Petty Reimbursement',
+        invoiceRef: 'INV-GLS-401',
+        operationalEmergencyJustification: 'Tempered glass door cracked during windstorm, posing customer safety hazard.',
+        delayImpact: 'Immediate hazard rectified.'
+      },
+      resolution: {
+        decision: 'Approved & Disbursed',
+        decisionNotes: 'Safety urgent work approved and disbursed from Head Office imprest fund.',
+        decidedBy: 'Super Admin',
+        decidedAt: '20 Sep 2026, 04:30 PM',
+        treatmentResult: { voucherNumber: 'VOUCH-EXP-198', paymentStatus: 'Disbursed' }
+      }
+    }
+  ],
+
+  getActionQueue(branch = null) {
+    if (!branch || branch === 'All Branches') return this.actionQueue
+    return this.actionQueue.filter(item => 
+      item.branch?.toLowerCase() === branch.toLowerCase() || 
+      item.originBranch?.toLowerCase() === branch.toLowerCase() ||
+      item.branch === 'All Branches'
+    )
+  },
+
+  getActionById(id) {
+    if (!id) return null
+    return this.actionQueue.find(a => a.id === id || a.recordRef === id) || null
+  },
+
+  createActionItem(itemData) {
+    const typePrefixMap = {
+      commercial_pricing: 'ACT-PRC-',
+      stock_reallocation: 'ACT-STK-',
+      operational_expense: 'ACT-EXP-',
+      warranty_escalation: 'ACT-WAR-',
+      inventory_governance: 'ACT-GOV-'
+    }
+    const prefix = typePrefixMap[itemData.flowType] || 'ACT-GEN-'
+    const newId = `${prefix}${Math.floor(1000 + Math.random() * 9000)}`
+    
+    const newItem = {
+      id: newId,
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      priorityClass: itemData.priority === 'Critical' ? 'bg-[#fee2e2] text-[#dc2626]' : 
+                     itemData.priority === 'High' ? 'bg-[#fee2e2] text-[#dc2626]' : 
+                     itemData.priority === 'Medium' ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-gray-100 text-gray-700',
+      createdAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      due: itemData.due || 'Today',
+      resolution: null,
+      ...itemData
+    }
+
+    this.actionQueue.unshift(newItem)
+
+    if (typeof this.addAuditLog === 'function') {
+      this.addAuditLog({
+        action: 'Created',
+        event_type: 'ACTION_ITEM_CREATED',
+        entity_type: 'action_item',
+        entity_id: newId,
+        module: 'Action Centre',
+        description: `Action [${newItem.title}] raised under [${newItem.typeLabel}].`,
+        metadata: { flowType: newItem.flowType, priority: newItem.priority, branch: newItem.branch }
+      })
+    }
+
+    return newItem
+  },
+
+  resolveActionItem(id, decisionData) {
+    const item = this.getActionById(id)
+    if (!item) throw new Error('Action item not found')
+
+    item.status = decisionData.status || 'Resolved'
+    if (item.status === 'Approved' || item.status === 'Resolved' || item.status === 'Dispatched') {
+      item.statusClass = 'bg-[#dcfce7] text-[#165A31]'
+    } else if (item.status === 'Countered') {
+      item.statusClass = 'bg-blue-50 text-blue-700'
+    } else if (item.status === 'Rejected' || item.status === 'Declined') {
+      item.statusClass = 'bg-[#fee2e2] text-[#dc2626]'
+    } else {
+      item.statusClass = 'bg-[#fef3c7] text-[#b45309]'
+    }
+
+    item.due = 'Resolved'
+    item.resolution = {
+      decision: decisionData.status,
+      decisionNotes: decisionData.decisionNotes || '',
+      decidedBy: this.currentUser?.name || (this.isBranchUser() ? 'Branch Manager' : 'Super Admin'),
+      decidedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      treatmentResult: decisionData.treatmentResult || {}
+    }
+
+    // Apply side-effects to linked entities if applicable
+    if (item.flowType === 'commercial_pricing' && item.recordRef) {
+      const order = this.orders?.find(o => o.id === item.recordRef)
+      if (order && (decisionData.status === 'Approved' || decisionData.status === 'Countered')) {
+        order.approvalStatus = 'Approved'
+        order.specialDiscountApproved = true
+      }
+    }
+
+    if (typeof this.addAuditLog === 'function') {
+      this.addAuditLog({
+        action: 'Resolved',
+        event_type: 'ACTION_ITEM_RESOLVED',
+        entity_type: 'action_item',
+        entity_id: item.id,
+        module: 'Action Centre',
+        description: `Action [${item.id}] marked as [${item.status}]: ${decisionData.decisionNotes || 'Treatment applied'}.`,
+        metadata: { id: item.id, status: item.status, flowType: item.flowType }
+      })
+    }
+
+    return item
   },
 
   formatCurrency(amount) {
@@ -7999,3 +8410,17 @@ export const store = reactive({
 
 // Initialize inventory reconciliation on prototype load
 store.reconcileInventoryTotals()
+
+// Initialize theme on prototype load
+store.applyTheme(savedTheme)
+
+// Watch for system color scheme changes if set to System
+if (typeof window !== 'undefined' && window.matchMedia) {
+  try {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (store.settings?.system?.theme === 'System') {
+        store.applyTheme('System')
+      }
+    })
+  } catch (e) {}
+}

@@ -214,7 +214,7 @@ const openLinkedRecord = (conv) => {
   } else if (linkedType.includes('order') || linked.startsWith('ORD') || linked.startsWith('SO')) {
     router.push('/sales/orders')
   } else if (linkedType.includes('purchase') || linked.startsWith('PO')) {
-    router.push('/inventory/purchase-orders')
+    router.push('/procurement/purchase-orders')
   } else if (linkedType.includes('transfer') || linked.startsWith('TR')) {
     router.push('/inventory/transfers')
   } else {

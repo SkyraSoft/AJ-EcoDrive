@@ -105,8 +105,8 @@ const commLogs = ref([
         The requested service case could not be located. It may have been resolved, deleted or the link is invalid.
       </p>
       <div class="pt-2">
-        <router-link to="/after-sales/cases" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28] transition-colors">
-          <ArrowLeft class="w-4 h-4" /> Back to Cases
+        <router-link to="/after-sales/warranty" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28] transition-colors">
+          <ArrowLeft class="w-4 h-4" /> Back to Warranty & Cases
         </router-link>
       </div>
     </div>

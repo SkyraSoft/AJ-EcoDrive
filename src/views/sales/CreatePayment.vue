@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
-import { X } from 'lucide-vue-next'
+import { X, Check, ShieldCheck, CreditCard, AlertCircle } from 'lucide-vue-next'
 
 const props = defineProps({
   isModal: {
@@ -34,6 +34,13 @@ const errorMessage = ref('')
 
 const availableInvoices = computed(() => store.invoices.filter(i => i.status !== 'Cancelled'))
 
+const bankAccounts = [
+  'Meezan Bank - Main Dealership Operations (PK02MEZN0012345678901234)',
+  'Bank Alfalah - Commercial Collections (PK34ALFH0098765432109876)',
+  'Habib Bank Limited (HBL) - Escrow / Fleet Clearing',
+  'Showroom Cash Drawer (Vault Petty Cash)'
+]
+
 const form = ref({
   id: '',
   payment: '',
@@ -45,7 +52,7 @@ const form = ref({
   amount: '',
   transactionRef: '',
   date: 'Today',
-  bankAccount: 'Meezan Bank - Main Operations',
+  bankAccount: bankAccounts[0],
   notes: '',
   status: 'Reconciled',
   branch: user.value?.branchName || 'Peshawar'
@@ -67,7 +74,17 @@ const onInvoiceChange = () => {
     )
     form.value.amount = `PKR ${outBal.toLocaleString()}`
     form.value.branch = inv.branch || form.value.branch
-    form.value.notes = `Payment for Invoice ${inv.id}`
+    form.value.notes = `Settlement for Invoice ${inv.id} (${inv.customer})`
+  }
+}
+
+const onAmountInput = (e) => {
+  const val = e.target.value.replace(/[^0-9]/g, '')
+  if (val) {
+    const num = parseInt(val, 10)
+    form.value.amount = `PKR ${num.toLocaleString()}`
+  } else {
+    form.value.amount = ''
   }
 }
 
@@ -98,26 +115,6 @@ onMounted(() => {
     loadData(props.payment)
   } else if (store.originalEditPayment) {
     loadData(store.originalEditPayment)
-  } else {
-    if (props.customer) {
-      const cName = typeof props.customer === 'string' ? props.customer : props.customer.name
-      form.value.customer = cName
-      form.value.customer_id = (typeof props.customer === 'object' && (props.customer.id || props.customer.customer_id)) || 'CUST-101'
-      if (typeof props.customer === 'object' && props.customer.branch) {
-        form.value.branch = props.customer.branch
-      }
-    }
-    if (props.order) {
-      const oId = typeof props.order === 'string' ? props.order : (props.order.id || props.order.order)
-      form.value.order = oId
-    }
-    if (!props.customer && !props.order && availableInvoices.value.length > 0) {
-      const openInv = availableInvoices.value.find(i => (i.outstandingAmount ?? (i.total - (i.paidAmount || 0))) > 0) || availableInvoices.value[0]
-      if (openInv) {
-        form.value.invoice_id = openInv.id
-        onInvoiceChange()
-      }
-    }
   }
 })
 
@@ -135,18 +132,29 @@ const close = () => {
 
 const savePayment = () => {
   errorMessage.value = ''
-  if (!form.value.customer.trim() || !form.value.order.trim() || !form.value.amount.trim()) {
-    showValidation.value = true
+  showValidation.value = true
+
+  if (!form.value.customer.trim()) {
+    errorMessage.value = 'Customer name is required.'
     return
   }
 
-  if (form.value.method === 'Bank Transfer' && !form.value.transactionRef?.trim()) {
-    showValidation.value = true
-    errorMessage.value = 'Transaction reference / ID is required for bank transfer.'
+  if (!form.value.order.trim()) {
+    errorMessage.value = 'Linked Order or Invoice reference is required.'
     return
   }
 
-  const rawAmt = typeof form.value.amount === 'number' ? form.value.amount : (parseFloat(String(form.value.amount || '0').replace(/[^0-9.]/g, '')) || 0)
+  if (!form.value.amount.trim()) {
+    errorMessage.value = 'Payment amount is required.'
+    return
+  }
+
+  if (form.value.method === 'Bank Transfer' && !form.value.transactionRef.trim()) {
+    errorMessage.value = 'Bank Transaction Reference / Deposit Slip No. is required.'
+    return
+  }
+
+  const rawAmt = parseInt(String(form.value.amount).replace(/[^0-9]/g, '') || '0', 10)
   if (rawAmt <= 0) {
     errorMessage.value = 'Payment amount must be greater than zero.'
     return
@@ -222,30 +230,47 @@ const savePayment = () => {
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="close">
+  <div class="fixed inset-0 bg-gray-900/60 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="close">
     <!-- Close button on top-right of screen overlay -->
-    <button @click="close" class="fixed top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-full z-[110] shadow-lg transition-colors cursor-pointer">
+    <button @click="close" class="fixed top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full z-[110] shadow-lg transition-colors cursor-pointer">
       <X class="w-5 h-5" />
     </button>
 
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div class="bg-white dark:bg-[#161d2b] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <!-- Scrollable Body -->
-      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 pb-4 border-b border-gray-100 dark:border-gray-800">
           <div>
-            <div class="text-[10px] text-gray-500 mb-1">
-              <span v-if="isBranchUser">Branch Manager / Payments / <span class="font-bold text-gray-800">{{ isEditMode ? 'Edit Payment' : 'Record Payment' }}</span></span>
-              <span v-else>Super Admin / Sales / Payments / <span class="font-bold text-gray-800">{{ isEditMode ? 'Edit Payment' : 'Record Payment' }}</span></span>
+            <div class="text-[10px] text-gray-400 dark:text-gray-500 mb-1">
+              <span v-if="isBranchUser">Branch Manager / Payments / <span class="font-bold text-gray-700 dark:text-gray-300">{{ isEditMode ? 'Edit Payment' : 'Record Payment' }}</span></span>
+              <span v-else>Super Admin / Sales / Payments / <span class="font-bold text-gray-700 dark:text-gray-300">{{ isEditMode ? 'Edit Payment' : 'Record Payment' }}</span></span>
             </div>
-            <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900">{{ isEditMode ? 'Edit Payment' : 'Record Payment' }}</h1>
-            <p class="text-xs sm:text-sm text-gray-500 mt-1">Record customer collection, payment method, linked order and bank transaction reference.</p>
+            <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900 dark:text-white">{{ isEditMode ? 'Edit Payment' : 'Record Customer Collection' }}</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Record verified customer payments with double-entry ledger allocation and bank deposit tracking.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80">
+              Receiving Branch: {{ form.branch }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Anti-Fraud & Reconciliation Policy Banner -->
+        <div class="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-start gap-3">
+          <ShieldCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+          <div class="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
+            <span class="font-bold">Dealership Cash Rule:</span>
+            Every receipt must link directly to an existing <strong>Sales Invoice</strong> or approved <strong>Sales Order</strong>. Cash collections will update the branch drawer register, while bank transfers update the dealership company ledger upon clearance.
           </div>
         </div>
 
         <!-- Error Banner -->
-        <div v-if="errorMessage" class="p-4 bg-red-50 border border-red-200 rounded-lg text-xs font-semibold text-red-700 flex items-center justify-between">
-          <span>{{ errorMessage }}</span>
+        <div v-if="errorMessage" class="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl text-xs font-semibold text-red-700 dark:text-red-300 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <AlertCircle class="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+            <span>{{ errorMessage }}</span>
+          </div>
           <button @click="errorMessage = ''" type="button" class="text-red-500 hover:text-red-700 ml-3">✕</button>
         </div>
 
@@ -253,17 +278,20 @@ const savePayment = () => {
         <form @submit.prevent="savePayment" class="space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Left Card: Payment Details -->
-            <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
-              <h3 class="text-sm font-bold text-gray-900 mb-2">Payment Details</h3>
+            <div class="bg-gray-50/50 dark:bg-[#1e293b]/50 border border-gray-100 dark:border-gray-800 rounded-xl p-6 space-y-4">
+              <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <CreditCard class="w-4 h-4 text-[#165A31]" />
+                Collection Details
+              </h3>
               
               <div v-if="!isEditMode">
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Select Invoice to Settle</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Select Invoice to Settle</label>
                 <select 
                   v-model="form.invoice_id"
                   @change="onInvoiceChange"
-                  class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
-                  <option value="">-- Direct Payment / Manual Link --</option>
+                  <option value="">-- Direct Payment / Manual Order Reference --</option>
                   <option 
                     v-for="inv in availableInvoices" 
                     :key="inv.id" 
@@ -272,7 +300,7 @@ const savePayment = () => {
                     {{ inv.id }} • {{ inv.customer }} (Bal: PKR {{ ((inv.outstandingAmount !== undefined ? inv.outstandingAmount : (inv.total - (inv.paidAmount || 0)))).toLocaleString() }})
                   </option>
                 </select>
-                <p v-if="selectedInvoice" class="text-[10px] text-emerald-700 font-medium mt-1">
+                <p v-if="selectedInvoice" class="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium mt-1">
                   Total: PKR {{ ((selectedInvoice.total !== undefined ? selectedInvoice.total : (selectedInvoice.outstandingAmount || 0))).toLocaleString() }} | 
                   Paid: PKR {{ (selectedInvoice.paidAmount || 0).toLocaleString() }} | 
                   Outstanding: PKR {{ ((selectedInvoice.outstandingAmount !== undefined ? selectedInvoice.outstandingAmount : (selectedInvoice.total - (selectedInvoice.paidAmount || 0)))).toLocaleString() }}
@@ -280,120 +308,122 @@ const savePayment = () => {
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer *</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Customer Name *</label>
                 <input 
                   v-model="form.customer"
                   type="text" 
                   placeholder="e.g. Ahsan Khan"
-                  class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
-                  :class="showValidation && !form.customer.trim() ? 'border-red-300 bg-red-50/20' : 'border-gray-200'"
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border rounded-lg text-xs text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
+                  :class="showValidation && !form.customer.trim() ? 'border-red-300 bg-red-50/20 dark:border-red-500/50' : 'border-gray-200 dark:border-gray-700'"
                 />
-                <p v-if="showValidation && !form.customer.trim()" class="text-[10px] text-red-500 font-medium mt-1">Customer is required</p>
+                <p v-if="showValidation && !form.customer.trim()" class="text-[10px] text-red-500 font-medium mt-1">Customer name is required</p>
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Linked Order / Invoice *</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Linked Order / Invoice Reference *</label>
                 <input 
                   v-model="form.order"
                   type="text" 
-                  placeholder="e.g. ORD-2241"
-                  class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
-                  :class="showValidation && !form.order.trim() ? 'border-red-300 bg-red-50/20' : 'border-gray-200'"
+                  placeholder="e.g. SO-9723 / INV-0492"
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border rounded-lg text-xs text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors font-mono"
+                  :class="showValidation && !form.order.trim() ? 'border-red-300 bg-red-50/20 dark:border-red-500/50' : 'border-gray-200 dark:border-gray-700'"
                 />
-                <p v-if="showValidation && !form.order.trim()" class="text-[10px] text-red-500 font-medium mt-1">Linked order is required</p>
+                <p v-if="showValidation && !form.order.trim()" class="text-[10px] text-red-500 font-medium mt-1">Linked order reference is required</p>
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Payment Method</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Method</label>
                 <select 
                   v-model="form.method"
-                  class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
-                  <option value="Bank Transfer">Bank Transfer / Online</option>
-                  <option value="Cash">Cash at Counter</option>
-                  <option value="Cheque">Cheque</option>
+                  <option value="Bank Transfer">Bank Transfer / Online Portal</option>
+                  <option value="Cash">Cash at Counter (Physical)</option>
+                  <option value="Cheque">Company / Bank Cheque</option>
                   <option value="Card / POS">Card / POS Terminal</option>
                 </select>
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Amount Collected *</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Amount Collected (PKR) *</label>
                 <input 
-                  v-model="form.amount"
+                  :value="form.amount"
+                  @input="onAmountInput"
                   type="text" 
                   placeholder="e.g. PKR 280,000"
-                  class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors font-bold text-gray-900"
-                  :class="showValidation && !form.amount.trim() ? 'border-red-300 bg-red-50/20' : 'border-gray-200'"
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border rounded-lg text-xs font-bold text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
+                  :class="showValidation && !form.amount.trim() ? 'border-red-300 bg-red-50/20 dark:border-red-500/50' : 'border-gray-200 dark:border-gray-700'"
                 />
                 <p v-if="showValidation && !form.amount.trim()" class="text-[10px] text-red-500 font-medium mt-1">Amount is required</p>
               </div>
             </div>
 
             <!-- Right Card: Allocation & Verification -->
-            <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
-              <h3 class="text-sm font-bold text-gray-900 mb-2">Allocation & Verification</h3>
+            <div class="bg-gray-50/50 dark:bg-[#1e293b]/50 border border-gray-100 dark:border-gray-800 rounded-xl p-6 space-y-4">
+              <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Verification & Reconciliation</h3>
               
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">
-                  Transaction Ref / Slip Number
-                  <span v-if="form.method === 'Bank Transfer'" class="text-red-500 font-bold">* (Required for Bank Transfer)</span>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                  Bank Transaction Reference / Slip Number
+                  <span v-if="form.method === 'Bank Transfer'" class="text-red-500 font-bold">* (Mandatory for Bank Transfer)</span>
                 </label>
                 <input 
                   v-model="form.transactionRef"
                   type="text" 
                   placeholder="e.g. TXN-2241-BANK-01"
-                  class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors font-mono"
-                  :class="showValidation && form.method === 'Bank Transfer' && !form.transactionRef.trim() ? 'border-red-300 bg-red-50/20' : 'border-gray-200'"
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border rounded-lg text-xs text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors font-mono"
+                  :class="showValidation && form.method === 'Bank Transfer' && !form.transactionRef.trim() ? 'border-red-300 bg-red-50/20 dark:border-red-500/50' : 'border-gray-200 dark:border-gray-700'"
                 />
                 <p v-if="showValidation && form.method === 'Bank Transfer' && !form.transactionRef.trim()" class="text-[10px] text-red-500 font-medium mt-1">Transaction reference is required for bank transfer</p>
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Deposit Bank Account</label>
-                <input 
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Deposit Bank Account / Vault</label>
+                <select 
                   v-model="form.bankAccount"
-                  type="text" 
-                  placeholder="e.g. Meezan Bank - Main Operations"
-                  class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
-                />
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
+                >
+                  <option v-for="acct in bankAccounts" :key="acct" :value="acct">{{ acct }}</option>
+                </select>
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Payment Date</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Date</label>
                 <input 
-                  v-model="form.date"
+                  v-model="form.date" 
                   type="text" 
-                  placeholder="e.g. Today"
-                  class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
+                  placeholder="e.g. Today" 
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors" 
                 />
               </div>
 
               <div>
-                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Collector Notes</label>
+                <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Collector & Reconciliation Remarks</label>
                 <textarea 
-                  v-model="form.notes"
-                  rows="3"
-                  placeholder="Reconciliation remarks..."
-                  class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors resize-none"
+                  v-model="form.notes" 
+                  rows="3" 
+                  placeholder="Counter teller notes, customer CNIC match, or installment remarks..." 
+                  class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors resize-none"
                 ></textarea>
               </div>
             </div>
           </div>
 
           <!-- Actions -->
-          <div class="flex items-center justify-end gap-3 pt-2">
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
             <button 
               type="button" 
               @click="close" 
-              class="px-5 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+              class="px-5 py-2.5 text-xs font-bold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+              class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer flex items-center gap-2"
             >
-              {{ isEditMode ? 'Update Payment' : 'Record Payment' }}
+              <Check class="w-4 h-4" />
+              {{ isEditMode ? 'Update Payment Record' : 'Confirm & Record Payment' }}
             </button>
           </div>
         </form>

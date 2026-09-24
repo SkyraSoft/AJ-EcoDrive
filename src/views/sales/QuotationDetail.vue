@@ -17,7 +17,7 @@ const quoteId = computed(() => route.params.id || route.query.id || 'QT-1882')
 const quoteRecord = computed(() => store.getQuotationById(quoteId.value) || (route.query.id ? null : store.quotations[0]))
 
 const branchCurrentTab = ref('Summary')
-const branchTabs = ['Summary', 'Items', 'Customer', 'Price', 'Communication', 'Documents', 'Activity']
+const branchTabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Documents', 'Activity']
 
 const branchTabData = computed(() => {
   const q = quoteRecord.value
@@ -66,6 +66,7 @@ const branchTabData = computed(() => {
         ]
       }
     case 'Price':
+    case 'Pricing':
       return {
         title: 'Price',
         items: [

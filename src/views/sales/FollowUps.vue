@@ -115,8 +115,19 @@ const followUps = computed(() => store.followUps)
 const filteredFollowUps = computed(() => {
   return followUps.value.filter(item => {
     const bucket = item.timeBucket || (item.status === 'Completed' ? 'Completed' : item.status === 'Overdue' ? 'Overdue' : (item.due && item.due.toLowerCase().includes('today')) ? 'Today' : 'Upcoming')
-    if (activeTab.value !== 'All' && bucket.toLowerCase() !== activeTab.value.toLowerCase()) {
-      return false
+    if (activeTab.value !== 'All') {
+      if (activeTab.value === 'Today') {
+        const isToday = bucket.toLowerCase() === 'today' || (item.due && item.due.toLowerCase().includes('today'))
+        if (!isToday) return false
+      } else if (activeTab.value === 'Upcoming') {
+        if (bucket.toLowerCase() !== 'upcoming') return false
+      } else if (activeTab.value === 'Overdue') {
+        if (bucket.toLowerCase() !== 'overdue' && item.status !== 'Overdue') return false
+      } else if (activeTab.value === 'Completed') {
+        if (bucket.toLowerCase() !== 'completed' && item.status !== 'Completed') return false
+      } else if (bucket.toLowerCase() !== activeTab.value.toLowerCase()) {
+        return false
+      }
     }
     if (selectedBranch.value !== 'All Branches' && item.branch !== selectedBranch.value) {
       return false

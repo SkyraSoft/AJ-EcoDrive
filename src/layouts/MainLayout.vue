@@ -4,7 +4,7 @@ import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { 
   Home, Building2, LayoutGrid, FileText, Package, Users, 
   PlusCircle, CircleDollarSign, MessageSquare, PieChart, 
-  Settings, Search, Bell, MessageCircle, Moon, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Menu, X, Lock
+  Settings, Search, Bell, MessageCircle, Moon, Sun, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Menu, X, Lock
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
 
@@ -247,6 +247,23 @@ const handleAlertClick = (alert) => {
 
 const openMessages = () => {
   router.push('/communication/inbox')
+}
+
+const isDark = computed(() => {
+  const current = store.settings?.system?.theme || 'Light'
+  if (current === 'Dark') return true
+  if (current === 'System') {
+    return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  return false
+})
+
+const currentThemeDisplay = computed(() => {
+  return store.settings?.system?.theme || 'Light'
+})
+
+const toggleTheme = () => {
+  store.toggleTheme()
 }
 </script>
 
@@ -529,8 +546,16 @@ const openMessages = () => {
               </div>
             </div>
 
-            <button class="hidden md:flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200">
-              Theme
+            <!-- Theme Toggle Button -->
+            <button 
+              @click="toggleTheme" 
+              class="hidden md:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer shadow-sm"
+              :class="isDark ? 'bg-slate-800 text-amber-300 border-slate-700 hover:bg-slate-700 hover:text-amber-200' : 'bg-gray-50 text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200'"
+              :title="`Current theme: ${currentThemeDisplay}. Click to switch.`"
+            >
+              <Sun v-if="isDark" class="w-3.5 h-3.5 text-amber-400" />
+              <Moon v-else class="w-3.5 h-3.5 text-gray-500" />
+              <span>{{ isDark ? 'Dark' : 'Light' }}</span>
             </button>
             
             <!-- Profile -->
@@ -546,6 +571,13 @@ const openMessages = () => {
                 <button @click="openDropdown = null; router.push('/system/account')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Account</button>
                 <button @click="openDropdown = null; router.push('/system/security')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Security & Sessions</button>
                 <button @click="openDropdown = null; router.push('/system/preferences')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Preferences</button>
+                <button @click="toggleTheme" class="w-full text-left px-4 py-2 text-xs flex items-center justify-between text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">
+                  <span class="flex items-center gap-2">
+                    <component :is="isDark ? Sun : Moon" class="w-3.5 h-3.5" :class="isDark ? 'text-amber-400' : 'text-gray-500'" />
+                    Theme
+                  </span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700">{{ currentThemeDisplay }}</span>
+                </button>
                 <div class="border-t border-gray-50 mt-1 pt-1">
                   <button @click="handleLogout" class="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer font-semibold">
                     Logout

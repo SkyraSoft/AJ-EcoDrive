@@ -176,6 +176,176 @@ const showEditModal = ref(false)
 const activeTab = ref('Summary')
 const tabs = ['Summary', 'Items & Serialized Unit', 'Customer', 'Price & Margin', 'Payments', 'Invoice', 'Delivery', 'Returns', 'Warranty', 'Documents', 'Activity']
 
+const adminTabData = computed(() => {
+  const o = orderRecord.value
+  const c = customerRecord.value
+  const u = unitRecord.value
+  const branchName = o?.branch || 'Peshawar'
+  const customerName = o?.customer || c?.name || 'Ahsan Khan'
+  const productName = o?.product || u?.product || 'BRG E-125'
+  const chassisNo = u?.chassisNumber || u?.chassis || o?.unit || 'CH8-BRG-26-01882'
+  const orderTotal = o?.total || 'PKR 280,000'
+  const paidAmount = o?.paid || (is2238.value ? 'PKR 125,000' : (o?.total || 'PKR 280,000'))
+  const orderStatus = o?.status || 'Ready'
+  const outstandingBal = o?.balance || (is2238.value ? 'PKR 215,000' : 'PKR 0')
+
+  switch (activeTab.value) {
+    case 'Summary':
+      return {
+        title: 'Executive Order Summary',
+        items: [
+          { label: 'Order Reference', value: orderId.value },
+          { label: 'Branch Location', value: branchName },
+          { label: 'Order Status', value: orderStatus },
+          { label: 'Customer', value: customerName },
+          { label: 'Assigned Vehicle', value: `${productName} (${chassisNo})` },
+          { label: 'Order Value', value: orderTotal },
+          { label: 'Total Paid', value: paidAmount },
+          { label: 'Outstanding Balance', value: outstandingBal }
+        ]
+      }
+    case 'Items & Serialized Unit':
+      return {
+        title: 'Vehicle & Serialized Unit Details',
+        items: [
+          { label: 'Product Model', value: productName },
+          { label: 'Chassis / VIN', value: chassisNo },
+          { label: 'Motor Serial', value: u?.motorNumber || 'MTR-72V-1200W-0881' },
+          { label: 'Battery Pack ID', value: u?.batteryNumber || 'BAT-72V-32AH-9904' },
+          { label: 'Color / Variant', value: u?.color || 'Pearl White / Metallic' },
+          { label: 'Floor Location', value: `${branchName} Showroom Bay 2` },
+          { label: 'QC Inspection', value: 'Passed 100% Checklist' },
+          { label: 'PDI Pre-Delivery Status', value: 'Completed & Certified' }
+        ]
+      }
+    case 'Customer':
+      return {
+        title: 'Customer Profile & Commercial Account',
+        items: [
+          { label: 'Full Legal Name', value: customerName },
+          { label: 'CNIC / National ID', value: c?.cnic || '17301-8849201-3' },
+          { label: 'Registered Phone', value: c?.phone || '+92 300 1234567' },
+          { label: 'Email Address', value: c?.email || 'customer@example.com' },
+          { label: 'Residential Address', value: c?.address || `${branchName} City Center` },
+          { label: 'City & Branch', value: `${c?.city || branchName}` },
+          { label: 'Customer Segment', value: 'Retail Individual' },
+          { label: 'Credit Risk / Tier', value: 'Standard (Good Standing)' }
+        ]
+      }
+    case 'Price & Margin':
+      return {
+        title: 'Commercial Terms, Costing & Margin Analysis',
+        items: [
+          { label: 'Catalogue Price', value: orderTotal },
+          { label: 'Approved Discount', value: 'PKR 0 (Standard List Price)' },
+          { label: 'Final Net Price', value: orderTotal },
+          { label: 'Estimated Landed Cost', value: 'PKR 224,000' },
+          { label: 'Gross Profit', value: 'PKR 56,000' },
+          { label: 'Gross Margin %', value: '20.0%' },
+          { label: 'Sales Tax / Levies', value: 'Included (Exempt / Documented)' },
+          { label: 'Price Approval Authority', value: 'Head Office Master Tariff' }
+        ]
+      }
+    case 'Payments':
+      return {
+        title: 'Payment Schedule & Settlement Ledger',
+        items: [
+          { label: 'Total Billed Amount', value: orderTotal },
+          { label: 'Total Received to Date', value: paidAmount },
+          { label: 'Outstanding Balance', value: outstandingBal },
+          { label: 'Settlement Status', value: outstandingBal === 'PKR 0' || outstandingBal === '0' ? 'Fully Settled' : 'Partial Payment' },
+          { label: 'Primary Payment Method', value: 'Bank Direct Deposit / Pay Order' },
+          { label: 'Transaction Reference', value: `TXN-${orderId.value.replace('ORD-', '')}-99` },
+          { label: 'Deposit Clearing Bank', value: 'Meezan Bank (Dealership Ops A/C)' },
+          { label: 'Cashier Verification', value: 'Verified & Reconciled' }
+        ]
+      }
+    case 'Invoice':
+      return {
+        title: 'Tax Invoice & Billing Record',
+        items: [
+          { label: 'Invoice Number', value: `INV-${orderId.value.replace('ORD-', '')}` },
+          { label: 'Billing Date', value: 'Today' },
+          { label: 'Tax Regulatory Status', value: 'FBR POS Integrated / Compliant' },
+          { label: 'Payment Terms', value: 'Due Upon Vehicle Delivery' },
+          { label: 'Invoice PDF Document', value: `INV-${orderId.value.replace('ORD-', '')}.pdf` },
+          { label: 'Commercial Terms', value: 'Ex-Showroom with Warranty' }
+        ]
+      }
+    case 'Delivery':
+      return {
+        title: 'Vehicle Dispatch & Handover Protocol',
+        items: [
+          { label: 'Handover Schedule', value: 'Today 16:00' },
+          { label: 'Delivery Readiness', value: outstandingBal !== 'PKR 0' && outstandingBal !== '0' ? 'Pending Final Payment' : 'Ready for Handover' },
+          { label: 'Handover Executive', value: 'Hamza Ali (Showroom Manager)' },
+          { label: 'Dispatch Location', value: `${branchName} Main Showroom` },
+          { label: 'Gate Pass Status', value: outstandingBal !== 'PKR 0' && outstandingBal !== '0' ? 'Locked (Requires Full Settlement)' : 'Issued & Validated' },
+          { label: 'Tool Kit & Charger Pack', value: 'Verified 100% Present' }
+        ]
+      }
+    case 'Returns':
+      return {
+        title: 'Return, Replacement & Exchange Status',
+        items: [
+          { label: 'Active Return Claims', value: '0 Open Claims' },
+          { label: 'Replacement Policy', value: '7-Day Return / Exchange Warranty' },
+          { label: 'Dispute Status', value: 'Clean Record (No Complaints)' },
+          { label: 'Vehicle Condition', value: 'Brand New (Zero Defects)' },
+          { label: 'Odometer at Dispatch', value: '0.4 km (Pre-Delivery Road Test)' }
+        ]
+      }
+    case 'Warranty':
+      return {
+        title: 'OEM Warranty Registration & Coverage',
+        items: [
+          { label: 'Warranty Policy', value: '2-Year Battery & Controller OEM Warranty' },
+          { label: 'Coverage Scope', value: 'Battery Pack, BLDC Motor & Controller' },
+          { label: 'Effective Start Date', value: 'From Physical Delivery Date' },
+          { label: 'Expiry Date', value: '24 Months Post-Delivery' },
+          { label: 'Free Periodic Services', value: '2 Complimentary Service Vouchers' },
+          { label: 'Authorized Center', value: `${branchName} Authorized Workshop` }
+        ]
+      }
+    case 'Documents':
+      return {
+        title: 'Linked Legal & Transactional Documents',
+        items: [
+          { label: 'Sales Agreement & Booking Contract', value: `${orderId.value}_Contract.pdf` },
+          { label: 'Official Tax Invoice', value: `INV-${orderId.value.replace('ORD-', '')}.pdf` },
+          { label: 'Customer CNIC Identity Copy', value: 'Verified_CNIC_Document.pdf' },
+          { label: 'OEM Warranty Certificate', value: 'Warranty_Card_Registration.pdf' },
+          { label: 'PDI Pre-Delivery Checklist', value: 'PDI_Checklist_Signed.pdf' },
+          { label: 'Gate Pass Clearance Slip', value: 'GatePass_Issued.pdf' }
+        ]
+      }
+    case 'Activity': {
+      const logs = store.getAuditLogsForEntity('sales_order', orderId.value)
+      const items = logs.length > 0 
+        ? logs.map(l => ({
+            label: l.timestamp || 'Recorded',
+            value: `${l.action || l.operation}: ${l.description || l.result} (${l.user || l.actor_name || 'System'})`
+          }))
+        : [
+            { label: '11:20', value: 'Delivery scheduled for Today 16:00' },
+            { label: '10:45', value: `Payment of ${paidAmount} posted to ledger` },
+            { label: '10:15', value: `Unit ${chassisNo} reserved from showroom` },
+            { label: '09:30', value: `Order ${orderId.value} created from quotation` },
+            { label: 'Audit Trail', value: 'Cryptographically logged in enterprise audit table' }
+          ]
+      return {
+        title: 'Audit Log & Change Activity',
+        items
+      }
+    }
+    default:
+      return {
+        title: 'Summary',
+        items: []
+      }
+  }
+})
+
 const editOrder = () => {
   store.originalEditOrder = {
     branch: 'Peshawar Branch',
@@ -344,6 +514,12 @@ const cancelOrder = () => {
       </div>
       <div class="flex items-center gap-2">
         <button 
+          @click="router.push('/sales/orders')" 
+          class="bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          Back to List
+        </button>
+        <button 
           v-if="orderRecord?.status !== 'Cancelled' && orderRecord?.status !== 'Delivered'"
           @click="convertToDelivery" 
           class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
@@ -383,24 +559,34 @@ const cancelOrder = () => {
       </div>
 
       <!-- Tab Contents -->
-      <div class="pt-6">
-        <div class="animate-in fade-in duration-200 space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-              <p class="text-[11px] font-medium text-gray-500 mb-1">Order Total</p>
-              <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.total || 'PKR 280,000' }}</h3>
-            </div>
-            <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-              <p class="text-[11px] font-medium text-gray-500 mb-1">Paid</p>
-              <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.paid || 'PKR 0' }}</h3>
-            </div>
-            <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-              <p class="text-[11px] font-medium text-gray-500 mb-1">Balance</p>
-              <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.balance || 'PKR 0' }}</h3>
-            </div>
-            <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-              <p class="text-[11px] font-medium text-gray-500 mb-1">Status</p>
-              <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.status || 'Ready' }}</h3>
+      <div class="pt-6 space-y-6">
+        <!-- Top KPI Row -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+            <p class="text-[11px] font-medium text-gray-500 mb-1">Order Total</p>
+            <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.total || 'PKR 280,000' }}</h3>
+          </div>
+          <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+            <p class="text-[11px] font-medium text-gray-500 mb-1">Paid</p>
+            <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.paid || 'PKR 0' }}</h3>
+          </div>
+          <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+            <p class="text-[11px] font-medium text-gray-500 mb-1">Balance</p>
+            <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.balance || 'PKR 0' }}</h3>
+          </div>
+          <div class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+            <p class="text-[11px] font-medium text-gray-500 mb-1">Status</p>
+            <h3 class="text-2xl font-bold text-gray-900">{{ orderRecord?.status || 'Ready' }}</h3>
+          </div>
+        </div>
+
+        <!-- Dynamic Panel Content based on activeTab -->
+        <div class="bg-[#fbfcfc] border border-gray-100 rounded-xl p-6">
+          <h3 class="text-sm font-bold text-gray-900 mb-4">{{ adminTabData.title }}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div v-for="(item, idx) in adminTabData.items" :key="idx" class="bg-white border border-gray-100 rounded-lg p-3.5 shadow-sm flex flex-col justify-between">
+              <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{{ item.label }}</span>
+              <span class="text-xs font-bold text-gray-900 mt-1 break-words">{{ item.value }}</span>
             </div>
           </div>
         </div>

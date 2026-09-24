@@ -113,6 +113,108 @@ const branchTabData = computed(() => {
 // Super Admin Data
 const activeTab = ref('Count Summary')
 const tabs = ['Count Summary', 'Expected Stock', 'Physical Count', 'Discrepancies', 'Adjustment Proposal', 'Approval', 'Activity']
+
+const adminTabData = computed(() => {
+  switch (activeTab.value) {
+    case 'Count Summary':
+      return {
+        title: 'Executive Cycle Count Summary',
+        items: [
+          { label: 'Audit Reference', value: countId.value },
+          { label: 'Branch Audit Location', value: 'Peshawar Main Showroom & Yard' },
+          { label: 'Audit Scope', value: isCC030.value ? 'Warehouse Bulk Inventory' : 'Showroom Active Display Units' },
+          { label: 'Total Expected Units', value: isCC030.value ? '36 Units' : '20 Units' },
+          { label: 'Physically Verified', value: isCC030.value ? '0 Units (Scheduled)' : '18 Units Scanned' },
+          { label: 'Exact Serial Matches', value: isCC030.value ? '0' : '17 Units' },
+          { label: 'Discrepancy Count', value: isCC030.value ? '0' : '1 Unit Pending Review' },
+          { label: 'Audit Progress', value: isCC030.value ? 'Scheduled' : '90% Complete' }
+        ]
+      }
+    case 'Expected Stock':
+      return {
+        title: 'System Expected Inventory Baseline',
+        items: [
+          { label: 'Snapshot Timestamp', value: 'Today 08:00 AM' },
+          { label: 'System Freeze', value: 'No Freeze (Live Ledger Audit)' },
+          { label: 'Registered Chassis', value: isCC030.value ? '36 VINs on Ledger' : '20 VINs on Ledger' },
+          { label: 'Product Breakdown', value: '12x E-125, 6x X5, 2x City Mini' },
+          { label: 'Ledger Value', value: 'PKR 5.6M' },
+          { label: 'Active Reservations', value: '3 Units Flagged for Delivery' }
+        ]
+      }
+    case 'Physical Count':
+      return {
+        title: 'Physical Audit Execution & Tally',
+        items: [
+          { label: 'Primary Auditor', value: 'Asim Raza (Senior Inventory Auditor)' },
+          { label: 'Verification Scanner', value: 'Wireless 2D Handheld Barcode Scanner' },
+          { label: 'Chassis Inspected', value: 'Visual Stamp + QR Code Confirmation' },
+          { label: 'Battery Packs Checked', value: 'Serial matched with vehicle pack' },
+          { label: 'Start Time', value: 'Today 09:30 AM' },
+          { label: 'Tally Integrity', value: 'Dual-Sign Count Sheet Completed' }
+        ]
+      }
+    case 'Discrepancies':
+      return {
+        title: 'Variance & Discrepancy Diagnostics',
+        items: [
+          { label: 'Total Variance', value: isCC030.value ? '0 Units' : '1 Unit Location Mismatch' },
+          { label: 'Affected Vehicle', value: isCC030.value ? 'None' : 'BRG X5 (CH8-BRG-26-00401)' },
+          { label: 'Discrepancy Category', value: 'Relocated to Quarantine Bay (Not Sold/Missing)' },
+          { label: 'Financial Impact', value: 'PKR 0 (Physical Unit Found & Verified)' },
+          { label: 'Recommended Action', value: 'Update Bay Location in System' },
+          { label: 'Root Cause', value: 'Transit damage isolation without location transfer posting' }
+        ]
+      }
+    case 'Adjustment Proposal':
+      return {
+        title: 'Proposed Ledger Adjustment & Rebalancing',
+        items: [
+          { label: 'Adjustment Required', value: isCC030.value ? 'No Adjustment Needed' : 'Location Bay Adjustment Only' },
+          { label: 'Quantity Delta', value: '0 Units (Physical inventory matches ledger total)' },
+          { label: 'Value Adjustment', value: 'PKR 0' },
+          { label: 'Proposed GL Account', value: 'Inventory Rebalancing (Internal)' },
+          { label: 'Adjustment Reference', value: `ADJ-PROP-${countId.value}` },
+          { label: 'Status', value: 'Ready for Approving Authority' }
+        ]
+      }
+    case 'Approval':
+      return {
+        title: 'Management Review & Sign-Off Matrix',
+        items: [
+          { label: 'Branch Inventory Lead', value: 'Signed & Submitted (09:45)' },
+          { label: 'Branch Manager', value: 'Verified & Endorsed' },
+          { label: 'Head Office Inventory Auditor', value: 'Review In Progress' },
+          { label: 'Chief Financial Officer', value: 'Threshold Notification Issued' },
+          { label: 'Audit Sign-Off Date', value: 'Pending Final Reconciliation' },
+          { label: 'Approval Status', value: 'Ready for Executive Close' }
+        ]
+      }
+    case 'Activity': {
+      const logs = store.getAuditLogsForEntity('inventory_cycle_count', countId.value)
+      const items = logs.length > 0 
+        ? logs.map(l => ({
+            label: l.timestamp || 'Recorded',
+            value: `${l.action || l.operation}: ${l.description || l.result} (${l.user || l.actor_name || 'System'})`
+          }))
+        : [
+            { label: 'Today 11:20', value: 'Showroom count session completed; 18 units verified' },
+            { label: 'Today 09:30', value: 'Physical cycle count initiated on showroom floor' },
+            { label: 'Today 08:00', value: 'Inventory ledger snapshot generated for CC-031' },
+            { label: 'Audit Seal', value: 'Count recorded in permanent operational log' }
+          ]
+      return {
+        title: 'Audit Trail & Event Log',
+        items
+      }
+    }
+    default:
+      return {
+        title: 'Count Summary',
+        items: []
+      }
+  }
+})
 </script>
 
 <template>
@@ -236,8 +338,13 @@ const tabs = ['Count Summary', 'Expected Stock', 'Physical Count', 'Discrepancie
     <!-- Tab Content -->
     <div class="space-y-6">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
-        <h3 class="text-[14px] font-bold text-gray-900 mb-6">{{ activeTab }}</h3>
-        <p class="text-[12px] text-gray-600">Cycle count records for CC-091.</p>
+        <h3 class="text-sm font-bold text-gray-900 mb-4">{{ adminTabData.title }}</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div v-for="(item, idx) in adminTabData.items" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+            <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{{ item.label }}</span>
+            <span class="text-xs font-bold text-gray-900 mt-1 break-words">{{ item.value }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

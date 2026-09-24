@@ -24,12 +24,24 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager Data
-const branchKpis = computed(() => [
-  { label: 'Open Orders', value: '24', sub: '6 ready' },
-  { label: 'Reserved Units', value: '18', sub: 'Linked to orders' },
-  { label: 'Unpaid / Partial', value: '5', sub: 'Needs follow-up' },
-  { label: 'Completed', value: '31', sub: 'This month' }
-])
+const branchKpis = computed(() => {
+  const activeBranch = store.getActiveBranch().toLowerCase()
+  const orders = store.orders.filter(item => {
+    const itemBranch = (item.branch || '').toLowerCase()
+    return !itemBranch || itemBranch === activeBranch || itemBranch === 'all branches' || itemBranch === 'all'
+  })
+  const openCount = orders.filter(o => o.status !== 'Completed' && o.status !== 'Cancelled' && o.status !== 'Returned').length
+  const readyCount = orders.filter(o => o.status === 'Ready').length
+  const reservedCount = orders.filter(o => o.status === 'Reserved' || (o.unit && o.status !== 'Completed')).length
+  const unpaidCount = orders.filter(o => o.balance && o.balance !== 'PKR 0' && o.balance !== '0').length
+  const completedCount = orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length
+  return [
+    { label: 'Open Orders', value: String(openCount), sub: `${readyCount} ready` },
+    { label: 'Reserved Units', value: String(reservedCount), sub: 'Linked to orders' },
+    { label: 'Unpaid / Partial', value: String(unpaidCount), sub: 'Needs follow-up' },
+    { label: 'Completed', value: String(completedCount), sub: 'This month' }
+  ]
+})
 
 const branchSearchQuery = ref('')
 const branchStatusFilter = ref('All')
@@ -81,8 +93,18 @@ const filteredOrders = computed(() => {
     if (!store.isBranchAllowed(order.branch)) {
       return false
     }
-    if (activeTab.value !== 'All' && order.status.toLowerCase() !== activeTab.value.toLowerCase()) {
-      return false
+    if (activeTab.value !== 'All') {
+      const orderSt = (order.status || '').toLowerCase()
+      const tabSt = activeTab.value.toLowerCase()
+      if (tabSt === 'payment pending') {
+        if (!orderSt.includes('pending') && !orderSt.includes('payment') && (!order.balance || order.balance === 'PKR 0')) return false
+      } else if (tabSt === 'confirmed') {
+        if (orderSt !== 'confirmed' && orderSt !== 'processing') return false
+      } else if (tabSt === 'completed') {
+        if (orderSt !== 'completed' && orderSt !== 'delivered') return false
+      } else if (orderSt !== tabSt) {
+        return false
+      }
     }
     if (selectedBranch.value !== 'All Branches' && order.branch !== selectedBranch.value) {
       return false

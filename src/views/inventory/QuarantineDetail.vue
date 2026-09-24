@@ -92,6 +92,96 @@ const branchTabData = computed(() => {
 // Super Admin Data
 const activeTab = ref('Quarantine Overview')
 const tabs = ['Quarantine Overview', 'Defect Analysis', 'Disposition', 'Supplier Claim', 'Approval', 'Activity']
+
+const adminTabData = computed(() => {
+  switch (activeTab.value) {
+    case 'Quarantine Overview':
+      return {
+        title: 'Executive Quarantine Overview',
+        items: [
+          { label: 'Unit Reference', value: unitId.value },
+          { label: 'Product Model', value: isX5.value ? 'BRG X5 Heavy Scooter' : 'BRG M3 Urban EV' },
+          { label: 'Branch Location', value: 'Peshawar Central Showroom' },
+          { label: 'Chassis / Serial', value: `CH8-PK-2026-${unitId.value}` },
+          { label: 'Current State', value: 'Quarantine Hold Active' },
+          { label: 'Source Event', value: isX5.value ? 'Inbound Container INB-083' : 'Branch Transfer TR-221' },
+          { label: 'Estimated Unit Cost', value: 'PKR 142,000' },
+          { label: 'Floor Isolation', value: 'Bay 2 (Restricted Secure Area)' }
+        ]
+      }
+    case 'Defect Analysis':
+      return {
+        title: 'Technical Defect Inspection & Diagnostics',
+        items: [
+          { label: 'Defect Category', value: isX5.value ? 'Cosmetic Panel Dent & Scratch' : 'Transit Casing & Outer Cracking' },
+          { label: 'Severity Rating', value: 'Moderate - Non-Structural' },
+          { label: 'Battery Integrity Test', value: 'Passed 100% (No Cell Damage)' },
+          { label: 'Electrical Diagnostics', value: 'Passed (Controller & Wiring Intact)' },
+          { label: 'Inspection Specialist', value: 'Tariq Mehmood (Senior QC Engineer)' },
+          { label: 'Photographic Evidence', value: '4 High-Res Images Logged' }
+        ]
+      }
+    case 'Disposition':
+      return {
+        title: 'Proposed & Approved Disposition Workflow',
+        items: [
+          { label: 'Recommended Action', value: isX5.value ? 'Supplier Return & RMA Replacement' : 'Internal Workshop Reconditioning' },
+          { label: 'Estimated Repair Cost', value: isX5.value ? 'PKR 0 (Supplier Liability)' : 'PKR 12,500 (Parts & Labour)' },
+          { label: 'Target Completion', value: 'Within 3 Business Days' },
+          { label: 'Re-entry Target', value: 'Refurbished Grade A Showroom Stock' },
+          { label: 'Disposition Authority', value: 'Central Technical Director' },
+          { label: 'Insurance Notification', value: 'Not Required (Under Threshold)' }
+        ]
+      }
+    case 'Supplier Claim':
+      return {
+        title: 'Supplier Warranty & Transit Claim Tracking',
+        items: [
+          { label: 'Supplier Name', value: 'BRG Electric Vehicles Ltd.' },
+          { label: 'RMA Case Reference', value: `RMA-${unitId.value}-2026` },
+          { label: 'Claim Amount', value: 'PKR 142,000 (Full Inbound Credit)' },
+          { label: 'Carrier Transit Slip', value: 'BL-EXP-088192-KHI' },
+          { label: 'Supplier Response SLA', value: '48 Hours' },
+          { label: 'Debit Note Reference', value: 'DN-2026-0041' }
+        ]
+      }
+    case 'Approval':
+      return {
+        title: 'Management Approval & Sign-Off Matrix',
+        items: [
+          { label: 'Showroom QC Lead', value: 'Approved (Inspection Confirmed)' },
+          { label: 'Branch Manager Sign-off', value: 'Approved & Isolated' },
+          { label: 'Central Inventory Controller', value: 'Pending Final Disposition Review' },
+          { label: 'Head of Operations', value: 'Notification Dispatched' },
+          { label: 'Financial Write-down', value: 'Zero Loss Anticipated (Recoverable)' },
+          { label: 'Approval Status', value: 'Under Executive Review' }
+        ]
+      }
+    case 'Activity': {
+      const logs = store.getAuditLogsForEntity('inventory_quarantine', unitId.value)
+      const items = logs.length > 0 
+        ? logs.map(l => ({
+            label: l.timestamp || 'Recorded',
+            value: `${l.action || l.operation}: ${l.description || l.result} (${l.user || l.actor_name || 'System'})`
+          }))
+        : [
+            { label: 'Today 11:00', value: 'Unit physical inspection report signed by QC engineer' },
+            { label: 'Today 10:45', value: 'Quarantine lock and serial tag QR-HOLD applied to vehicle' },
+            { label: 'Today 09:30', value: 'Unit received with transit packaging defects from delivery receipt' },
+            { label: 'Security Stamp', value: 'Physical tag attached to handlebar & battery compartment' }
+          ]
+      return {
+        title: 'Quarantine Event Audit History',
+        items
+      }
+    }
+    default:
+      return {
+        title: 'Summary',
+        items: []
+      }
+  }
+})
 </script>
 
 <template>
@@ -228,8 +318,13 @@ const tabs = ['Quarantine Overview', 'Defect Analysis', 'Disposition', 'Supplier
 
     <!-- Tab Content -->
     <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
-      <h3 class="text-[14px] font-bold text-gray-900 mb-6">{{ activeTab }}</h3>
-      <p class="text-[12px] text-gray-600">Quarantine disposition and details for unit {{ unitId }}.</p>
+      <h3 class="text-sm font-bold text-gray-900 mb-4">{{ adminTabData.title }}</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div v-for="(item, idx) in adminTabData.items" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+          <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{{ item.label }}</span>
+          <span class="text-xs font-bold text-gray-900 mt-1 break-words">{{ item.value }}</span>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -166,8 +166,22 @@ const filteredLeads = computed(() => {
     if (!store.isBranchAllowed(lead.branch)) {
       return false
     }
-    if (activeTab.value !== 'All' && lead.stage.toLowerCase() !== activeTab.value.toLowerCase()) {
-      return false
+    if (activeTab.value !== 'All') {
+      const stage = (lead.stage || lead.status || '').toLowerCase()
+      const tab = activeTab.value.toLowerCase()
+      if (tab === 'new') {
+        if (stage !== 'new' && stage !== 'inquiry' && stage !== 'open') return false
+      } else if (tab === 'contacted') {
+        if (stage !== 'contacted' && stage !== 'in progress') return false
+      } else if (tab === 'qualified') {
+        if (stage !== 'qualified' && stage !== 'interested') return false
+      } else if (tab === 'quoted') {
+        if (stage !== 'quoted' && stage !== 'proposal') return false
+      } else if (tab === 'converted') {
+        if (stage !== 'converted' && stage !== 'won') return false
+      } else if (stage !== tab) {
+        return false
+      }
     }
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()

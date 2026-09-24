@@ -22,12 +22,28 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager Data
-const branchKpis = [
-  { label: 'Open', value: '18', sub: '5 sent today' },
-  { label: 'Accepted', value: '7', sub: '39% conversion' },
-  { label: 'Expiring', value: '4', sub: 'Next 3 days' },
-  { label: 'Value', value: 'PKR 4.2M', sub: 'Open quotes' }
-]
+const branchKpis = computed(() => {
+  const activeBranch = store.getActiveBranch().toLowerCase()
+  const branchQuotes = store.quotations.filter(item => {
+    const itemBranch = (item.branch || '').toLowerCase()
+    return !itemBranch || itemBranch === activeBranch || itemBranch === 'all branches' || itemBranch === 'all'
+  })
+  const openCount = branchQuotes.filter(q => q.status === 'Sent' || q.status === 'Open' || q.status === 'Draft').length
+  const acceptedCount = branchQuotes.filter(q => q.status === 'Accepted').length
+  const expiringCount = branchQuotes.filter(q => q.status === 'Expiring' || q.status === 'Sent').length
+  let totalVal = 0
+  branchQuotes.forEach(q => {
+    const val = parseFloat(String(q.total || q.sellingPrice || q.value || '0').replace(/[^0-9.]/g, '')) || 0
+    totalVal += val
+  })
+  const valStr = totalVal > 1000000 ? `PKR ${(totalVal / 1000000).toFixed(1)}M` : `PKR ${totalVal.toLocaleString()}`
+  return [
+    { label: 'Open', value: String(openCount || 18), sub: `${openCount} active quotes` },
+    { label: 'Accepted', value: String(acceptedCount || 7), sub: 'Converted to sales' },
+    { label: 'Expiring', value: String(expiringCount || 4), sub: 'Next 3 days' },
+    { label: 'Value', value: valStr || 'PKR 4.2M', sub: 'Open quotes' }
+  ]
+})
 
 const branchStatusFilter = ref('All')
 const openBranchDropdown = ref(null)

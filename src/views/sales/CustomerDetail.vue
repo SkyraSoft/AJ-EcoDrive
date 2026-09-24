@@ -1000,7 +1000,7 @@ const totalUnitsCount = computed(() => {
                 <p class="text-[11px] text-gray-500 mt-0.5">Assigned to Unit: {{ war.unit_id }} · Valid through: {{ war.expiryDate || '2028' }}</p>
               </div>
               <button 
-                @click="router.push(`/after-sales/warranties`)"
+                @click="router.push(`/after-sales/warranty`)"
                 class="px-3 py-1.5 text-xs font-bold text-[#165A31] bg-white border border-emerald-200 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer"
               >
                 Warranty Certificate ›

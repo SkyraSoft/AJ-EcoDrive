@@ -456,6 +456,10 @@ const router = createRouter({
           meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
         },
         {
+          path: 'inventory/purchase-orders',
+          redirect: '/procurement/purchase-orders'
+        },
+        {
           path: 'inventory/transfers',
           name: 'inventory-transfers',
           component: () => import('@/views/inventory/Transfers.vue'),
@@ -926,6 +930,14 @@ const router = createRouter({
           name: 'after-sales-case-detail-canonical',
           component: () => import('@/views/after-sales/CaseDetail.vue'),
           meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+        },
+        {
+          path: 'after-sales/cases',
+          redirect: '/after-sales/warranty'
+        },
+        {
+          path: 'after-sales/warranties',
+          redirect: '/after-sales/warranty'
         },
         {
           path: 'after-sales/repairs',

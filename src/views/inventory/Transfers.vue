@@ -132,7 +132,23 @@ const resetFilters = () => {
 
 const filteredTransfers = computed(() => {
   return transfers.value.filter(item => {
-    if (activeTab.value !== 'All' && item.status.toLowerCase() !== activeTab.value.toLowerCase()) return false
+    if (activeTab.value !== 'All') {
+      const st = (item.status || '').toLowerCase()
+      const tab = activeTab.value.toLowerCase()
+      if (tab === 'requested') {
+        if (st !== 'requested' && st !== 'pending' && st !== 'draft') return false
+      } else if (tab === 'approved') {
+        if (st !== 'approved') return false
+      } else if (tab === 'picking') {
+        if (st !== 'picking' && st !== 'preparing') return false
+      } else if (tab === 'in transit') {
+        if (st !== 'in transit' && st !== 'dispatched') return false
+      } else if (tab === 'received') {
+        if (st !== 'received' && st !== 'completed') return false
+      } else if (st !== tab) {
+        return false
+      }
+    }
     if (selectedBranch.value !== 'All Branches' && item.from !== selectedBranch.value && item.to !== selectedBranch.value) return false
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()

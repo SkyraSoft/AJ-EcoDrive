@@ -237,7 +237,21 @@ const resetFilters = () => {
 
 const filteredDeliveries = computed(() => {
   return deliveries.value.filter(item => {
-    if (activeTab.value !== 'All' && item.status.toLowerCase() !== activeTab.value.toLowerCase()) return false
+    if (activeTab.value !== 'All') {
+      const st = (item.status || '').toLowerCase()
+      const tab = activeTab.value.toLowerCase()
+      if (tab === 'scheduled') {
+        if (st !== 'scheduled' && st !== 'awaiting receive' && st !== 'pending') return false
+      } else if (tab === 'in transit') {
+        if (st !== 'in transit') return false
+      } else if (tab === 'received') {
+        if (st !== 'received' && st !== 'completed') return false
+      } else if (tab === 'discrepancy') {
+        if (st !== 'discrepancy' && st !== 'issue') return false
+      } else if (st !== tab) {
+        return false
+      }
+    }
     if (selectedBranch.value !== 'All Branches' && item.branch !== selectedBranch.value) return false
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
