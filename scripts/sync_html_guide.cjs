@@ -3,7 +3,17 @@ const path = require('path');
 const { marked } = require('marked');
 
 const mdPath = path.join(__dirname, '..', 'AJ_ECODRIVE_COMPLETE_CLIENT_GUIDE_QA.md');
-const mdContent = fs.readFileSync(mdPath, 'utf8');
+let mdContent = fs.readFileSync(mdPath, 'utf8');
+
+// Strip redundant first header block and static Table of Contents from markdown body
+// (since the interactive sidebar and top hero card handle them cleanly)
+const tocIndex = mdContent.indexOf('# TABLE OF CONTENTS');
+const execIndex = mdContent.indexOf("# DEALERSHIP OWNER'S QUICK NAVIGATION & EXECUTIVE INDEX");
+
+if (tocIndex !== -1 && execIndex !== -1) {
+    // Keep from Executive Index onwards
+    mdContent = mdContent.substring(execIndex);
+}
 
 // Configure marked options
 marked.setOptions({
@@ -30,11 +40,11 @@ renderer.heading = function({ tokens, depth, raw }) {
         <div class="qa-card-anchor" id="${anchorId}"></div>
         <div class="qa-card" data-qid="${qid}">
             <div class="qa-header">
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
                     <span class="qid-badge">${qid}</span>
                     <h4 class="qa-title mb-0">${titleText}</h4>
                 </div>
-                <button class="btn btn-sm btn-link copy-link-btn text-muted p-0" onclick="copyCardLink('${anchorId}')" title="Copy direct link to ${qid}">
+                <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('${anchorId}')" title="Copy direct link to ${qid}">
                     <i class="fas fa-link"></i>
                 </button>
             </div>
@@ -44,7 +54,7 @@ renderer.heading = function({ tokens, depth, raw }) {
 
     // SECTION Banner
     if (raw.toUpperCase().includes('SECTION ') && depth <= 3) {
-        return `<div class="section-banner" id="${id}"><div class="section-tag">SECTION ARCHITECTURE</div><h3 class="mb-0">${text}</h3></div>`;
+        return `<div class="section-banner" id="${id}"><div class="section-tag"><i class="fas fa-layer-group me-1"></i> SECTION ARCHITECTURE</div><h3 class="mb-0">${text}</h3></div>`;
     }
 
     // PART Banner
@@ -55,6 +65,11 @@ renderer.heading = function({ tokens, depth, raw }) {
     // APPENDIX Banner
     if (raw.toUpperCase().includes('APPENDIX') && depth <= 3) {
         return `<div class="appendix-banner" id="${id}"><div class="appendix-pill"><i class="fas fa-bookmark me-1"></i> ARCHITECTURAL APPENDIX</div><h3 class="appendix-title mb-0">${text}</h3></div>`;
+    }
+
+    // Executive Index Main Heading
+    if (raw.includes("DEALERSHIP OWNER'S QUICK NAVIGATION")) {
+        return `<div class="exec-nav-banner mb-4" id="${id}"><div class="badge bg-warning text-dark fw-bold mb-1">EXECUTIVE INDEX</div><h2 class="exec-title mb-1">${text}</h2><p class="text-muted small mb-0">Plain-English Answers for Dealership Investors, Directors &amp; Non-Technical Owners</p></div>`;
     }
 
     // Main document headings
@@ -107,8 +122,15 @@ renderer.hr = function() {
 // Parse Markdown content to HTML using marked
 const rawHtml = marked(mdContent, { renderer });
 
-// Extract Table of Contents items for Sidebar
+// Table of Contents for Sidebar
 const tocSections = [
+    {
+        title: "Executive Index",
+        id: "dealership-owners-quick-navigation-executive-index",
+        parts: [
+            { id: "dealership-owners-quick-navigation-executive-index", title: "Executive Index & Jump Matrix" }
+        ]
+    },
     {
         title: "SECTION I: Foundations & Getting Started",
         id: "section-i-foundations-getting-started",
@@ -199,7 +221,7 @@ tocSections.forEach(sec => {
         <ul class="sidebar-nav-list list-unstyled mb-0">
     `;
     sec.parts.forEach(p => {
-        sidebarNavHtml += `<li><a href="#${p.id}" class="sidebar-nav-link">${p.title}</a></li>`;
+        sidebarNavHtml += `<li><a href="#${p.id}" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">${p.title}</a></li>`;
     });
     sidebarNavHtml += `</ul></div>`;
 });
@@ -238,10 +260,15 @@ const fullHtml = `<!DOCTYPE html>
             --brand-text-muted: #64748b;
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
+            --sidebar-width: 320px;
         }
 
         * {
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -250,6 +277,7 @@ const fullHtml = `<!DOCTYPE html>
             color: var(--brand-text-main);
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         /* Top Sticky Navbar */
@@ -259,7 +287,7 @@ const fullHtml = `<!DOCTYPE html>
             position: sticky;
             top: 0;
             z-index: 1040;
-            padding: 12px 24px;
+            padding: 10px 24px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         }
 
@@ -296,7 +324,7 @@ const fullHtml = `<!DOCTYPE html>
         /* Search Box */
         .search-wrapper {
             position: relative;
-            max-width: 460px;
+            max-width: 440px;
             width: 100%;
         }
 
@@ -304,9 +332,9 @@ const fullHtml = `<!DOCTYPE html>
             background: #1e293b;
             border: 1px solid #334155;
             color: #ffffff;
-            padding: 8px 16px 8px 38px;
+            padding: 7px 16px 7px 36px;
             border-radius: 30px;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             width: 100%;
             transition: all 0.2s ease;
         }
@@ -320,48 +348,88 @@ const fullHtml = `<!DOCTYPE html>
 
         .search-wrapper i {
             position: absolute;
-            left: 14px;
+            left: 13px;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
-        /* Layout Structure: Sidebar + Main Content */
+        /* Sidebar Toggle Trigger in Header */
+        .sidebar-toggle-btn {
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid #334155;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: var(--brand-gold);
+            color: var(--brand-dark);
+            border-color: var(--brand-gold);
+        }
+
+        /* Master Layout Container */
         .layout-container {
             display: flex;
-            max-width: 1540px;
-            margin: 0 auto;
-            min-height: calc(100vh - 65px);
+            width: 100%;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Left Navigation Sidebar */
         .sidebar-left {
-            width: 320px;
+            width: var(--sidebar-width);
             flex-shrink: 0;
             background: #ffffff;
             border-right: 1px solid var(--brand-border);
             position: sticky;
-            top: 65px;
-            height: calc(100vh - 65px);
+            top: 57px;
+            height: calc(100vh - 57px);
             overflow-y: auto;
             padding: 20px 16px 40px;
             scrollbar-width: thin;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1020;
+        }
+
+        /* Collapsed Sidebar State */
+        .layout-container.sidebar-collapsed .sidebar-left {
+            margin-left: calc(-1 * var(--sidebar-width));
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px 12px;
+            border-bottom: 1px solid var(--brand-border-subtle);
+            margin-bottom: 14px;
         }
 
         .sidebar-section-title {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             color: var(--brand-text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             padding-left: 8px;
         }
 
         .sidebar-nav-link {
             display: block;
-            padding: 5px 10px;
+            padding: 6px 10px;
             font-size: 0.82rem;
             color: #334155;
             text-decoration: none;
@@ -378,11 +446,47 @@ const fullHtml = `<!DOCTYPE html>
             padding-left: 14px;
         }
 
-        /* Main Content Viewport */
-        .main-content {
+        /* Floating / Docked Persistent Toggle Widget */
+        .docked-index-widget {
+            position: fixed;
+            bottom: 24px;
+            left: 20px;
+            background: var(--brand-dark);
+            color: #ffffff;
+            border: 2px solid var(--brand-gold);
+            padding: 9px 16px;
+            border-radius: 30px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            z-index: 1030;
+            transition: all 0.2s ease;
+        }
+
+        .docked-index-widget:hover {
+            background: var(--brand-gold);
+            color: var(--brand-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Main Content Viewport & Proportional Centering */
+        .main-content-wrapper {
             flex-grow: 1;
-            padding: 32px 40px 100px;
-            max-width: 1220px;
+            display: flex;
+            justify-content: center;
+            padding: 32px 36px 100px;
+            min-width: 0;
+            transition: all 0.3s ease;
+        }
+
+        .main-content-inner {
+            width: 100%;
+            max-width: 1040px;
         }
 
         /* Hero Card */
@@ -391,7 +495,7 @@ const fullHtml = `<!DOCTYPE html>
             color: #ffffff;
             border-radius: 16px;
             padding: 32px 36px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
             box-shadow: 0 10px 30px rgba(9, 13, 22, 0.15);
             border: 1px solid rgba(245, 158, 11, 0.25);
             position: relative;
@@ -410,7 +514,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .hero-guide-card h1 {
-            font-size: 1.75rem;
+            font-size: 1.7rem;
             font-weight: 800;
             line-height: 1.25;
             letter-spacing: -0.02em;
@@ -424,13 +528,13 @@ const fullHtml = `<!DOCTYPE html>
             border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 12px;
             padding: 16px 20px;
-            margin-top: 22px;
+            margin-top: 20px;
         }
 
         .cred-pill {
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 6px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
@@ -438,7 +542,7 @@ const fullHtml = `<!DOCTYPE html>
             font-weight: 700;
         }
 
-        /* Stats Strip */
+        /* Metric Badges Strip */
         .metric-badges-strip {
             display: flex;
             flex-wrap: wrap;
@@ -454,10 +558,28 @@ const fullHtml = `<!DOCTYPE html>
             font-size: 0.82rem;
             font-weight: 700;
             color: var(--brand-text-main);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
             display: inline-flex;
             align-items: center;
             gap: 7px;
+        }
+
+        /* Executive Navigation Banner */
+        .exec-nav-banner {
+            background: #ffffff;
+            border: 1px solid var(--brand-border);
+            border-left: 5px solid var(--brand-gold);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 32px 0 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .exec-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--brand-dark);
+            letter-spacing: -0.01em;
         }
 
         /* Section Banners */
@@ -466,7 +588,7 @@ const fullHtml = `<!DOCTYPE html>
             color: #ffffff;
             border-radius: 12px;
             padding: 18px 24px;
-            margin: 48px 0 20px;
+            margin: 44px 0 18px;
             border-left: 6px solid var(--brand-gold);
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
@@ -493,7 +615,7 @@ const fullHtml = `<!DOCTYPE html>
             border-left: 5px solid var(--brand-green-primary);
             border-radius: 10px;
             padding: 14px 20px;
-            margin: 32px 0 16px;
+            margin: 30px 0 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
@@ -507,7 +629,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .part-title {
-            font-size: 1.08rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: var(--brand-dark);
         }
@@ -519,7 +641,7 @@ const fullHtml = `<!DOCTYPE html>
             border-left: 5px solid var(--brand-gold);
             border-radius: 10px;
             padding: 14px 20px;
-            margin: 32px 0 16px;
+            margin: 30px 0 16px;
         }
 
         .appendix-pill {
@@ -532,7 +654,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .appendix-title {
-            font-size: 1.08rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: #78350f;
         }
@@ -548,15 +670,15 @@ const fullHtml = `<!DOCTYPE html>
             background: #ffffff;
             border: 1px solid var(--brand-border);
             border-radius: 12px;
-            margin-bottom: 18px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
             transition: all 0.2s ease;
             overflow: hidden;
         }
 
         .qa-card:hover {
             border-color: #cbd5e1;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
         }
 
         .qa-header {
@@ -582,7 +704,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .qa-title {
-            font-size: 0.96rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--brand-dark);
             line-height: 1.4;
@@ -600,7 +722,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .qa-body {
-            padding: 18px 20px;
+            padding: 16px 20px;
             font-size: 0.92rem;
             color: #334155;
             line-height: 1.7;
@@ -630,7 +752,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .qa-divider {
-            height: 6px;
+            height: 4px;
         }
 
         /* Custom Tables */
@@ -743,12 +865,40 @@ const fullHtml = `<!DOCTYPE html>
             display: none;
         }
 
+        /* Mobile Offcanvas Drawer Backdrop */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1015;
+            backdrop-filter: blur(2px);
+        }
+
         /* Responsive Breakpoints */
         @media (max-width: 1024px) {
             .sidebar-left {
-                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
             }
-            .main-content {
+            .layout-container.sidebar-mobile-open .sidebar-left {
+                transform: translateX(0);
+                margin-left: 0 !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            .layout-container.sidebar-mobile-open .sidebar-backdrop {
+                display: block;
+            }
+            .main-content-wrapper {
                 padding: 20px 16px 80px;
             }
             .hero-guide-card {
@@ -765,11 +915,18 @@ const fullHtml = `<!DOCTYPE html>
     <!-- Sticky Navigation Header -->
     <header class="top-navbar">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <a href="https://aj-eco-drive.vercel.app" target="_blank" class="brand-logo-area">
-                <i class="fas fa-bolt text-warning fs-5"></i>
-                <span class="brand-text-main">AJ <span class="brand-text-accent">EcoDrive</span></span>
-                <span class="badge-manual-version d-none d-sm-inline">CLIENT GUIDE V3.0</span>
-            </a>
+            <div class="d-flex align-items-center gap-2">
+                <button class="sidebar-toggle-btn" id="headerToggleBtn" onclick="toggleSidebar()" title="Toggle Operational Index Sidebar">
+                    <i class="fas fa-bars-staggered"></i>
+                    <span class="d-none d-md-inline" id="headerToggleText">Index</span>
+                </button>
+
+                <a href="https://aj-eco-drive.vercel.app" target="_blank" class="brand-logo-area">
+                    <i class="fas fa-bolt text-warning fs-5"></i>
+                    <span class="brand-text-main">AJ <span class="brand-text-accent">EcoDrive</span></span>
+                    <span class="badge-manual-version d-none d-sm-inline">CLIENT GUIDE V3.0</span>
+                </a>
+            </div>
 
             <div class="search-wrapper">
                 <i class="fas fa-search"></i>
@@ -787,74 +944,90 @@ const fullHtml = `<!DOCTYPE html>
         </div>
     </header>
 
-    <!-- Master Layout: Sidebar + Reading Canvas -->
-    <div class="layout-container">
+    <!-- Master Layout: Sidebar + Proportional Reading Canvas -->
+    <div class="layout-container" id="mainLayoutContainer">
         
+        <!-- Mobile Backdrop -->
+        <div class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
         <!-- Left Navigation Sidebar -->
-        <aside class="sidebar-left">
-            <div class="d-flex align-items-center justify-content-between mb-3 px-2">
-                <span class="fw-bold text-dark small"><i class="fas fa-list-check text-warning me-1"></i> OPERATIONAL INDEX</span>
-                <span class="badge bg-light text-secondary border font-monospace">400+ Q&As</span>
+        <aside class="sidebar-left" id="sidebarNav">
+            <div class="sidebar-header-row">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-list-check text-warning"></i>
+                    <span class="fw-bold text-dark small">OPERATIONAL INDEX</span>
+                </div>
+                <button class="btn btn-sm btn-light border p-1 rounded" onclick="toggleSidebar()" title="Collapse Sidebar">
+                    <i class="fas fa-angles-left text-muted"></i>
+                </button>
             </div>
             ${sidebarNavHtml}
         </aside>
 
         <!-- Main Reading Content Canvas -->
-        <main class="main-content">
-            
-            <!-- Hero Header Banner -->
-            <div class="hero-guide-card">
-                <div class="badge bg-warning text-dark fw-bold mb-2">MASTER CLIENT SPECIFICATION — V3.0</div>
-                <h1>AJ EcoDrive — Client Operations Guide &amp; Systems Architecture QA</h1>
-                <p class="mb-0 text-white-50 small">
-                    Comprehensive Operational Manual, Non-Technical Leadership Guide &amp; Master System Specification for Dealership Owners, Board Members, Head Office Executives, and Branch Managers.
-                </p>
+        <div class="main-content-wrapper">
+            <main class="main-content-inner">
+                
+                <!-- Hero Header Banner -->
+                <div class="hero-guide-card">
+                    <div class="badge bg-warning text-dark fw-bold mb-2">MASTER CLIENT SPECIFICATION — V3.0</div>
+                    <h1>AJ EcoDrive — Client Operations Guide &amp; Systems Architecture QA</h1>
+                    <p class="mb-0 text-white-50 small">
+                        Comprehensive Operational Manual, Non-Technical Leadership Guide &amp; Master System Specification for Dealership Owners, Board Members, Head Office Executives, and Branch Managers.
+                    </p>
 
-                <!-- Live Access Demo Credentials Card -->
-                <div class="demo-credentials-card">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-3 col-sm-6">
-                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-globe me-1"></i> Production URL</div>
-                            <a href="https://aj-eco-drive.vercel.app" target="_blank" class="text-white text-decoration-none fw-semibold small">aj-eco-drive.vercel.app</a>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-key me-1"></i> Universal Demo Password</div>
-                            <span class="cred-pill">password123</span>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-user-shield me-1"></i> Head Office (Super Admin)</div>
-                            <span class="cred-pill">ADMIN</span>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-store me-1"></i> Showroom Branches</div>
-                            <span class="text-white small fw-bold font-monospace">PEW-01, ISB-01, LHE-01, RWP-01</span>
+                    <!-- Live Access Demo Credentials Card -->
+                    <div class="demo-credentials-card">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-3 col-sm-6">
+                                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-globe me-1"></i> Production URL</div>
+                                <a href="https://aj-eco-drive.vercel.app" target="_blank" class="text-white text-decoration-none fw-semibold small">aj-eco-drive.vercel.app</a>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-key me-1"></i> Universal Demo Password</div>
+                                <span class="cred-pill">password123</span>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-user-shield me-1"></i> Head Office (Super Admin)</div>
+                                <span class="cred-pill">ADMIN</span>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-store me-1"></i> Showroom Branches</div>
+                                <span class="text-white small fw-bold font-monospace">PEW-01, ISB-01, LHE-01, RWP-01</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Metric Badges Strip -->
-            <div class="metric-badges-strip">
-                <span class="metric-badge-item"><i class="fas fa-clipboard-check text-success"></i> 400+ Standard Q&amp;A Answers</span>
-                <span class="metric-badge-item"><i class="fas fa-bolt text-warning"></i> 9 Instant In-Context Quick Action Modals</span>
-                <span class="metric-badge-item"><i class="fas fa-sitemap text-info"></i> 5 Enterprise Action Centre Flows</span>
-                <span class="metric-badge-item"><i class="fas fa-building text-primary"></i> 4 Nationwide Dealership Showrooms</span>
-                <span class="metric-badge-item"><i class="fas fa-wifi text-secondary"></i> Offline Local Durability Ready</span>
-            </div>
+                <!-- Metric Badges Strip -->
+                <div class="metric-badges-strip">
+                    <span class="metric-badge-item"><i class="fas fa-clipboard-check text-success"></i> 400+ Standard Q&amp;A Answers</span>
+                    <span class="metric-badge-item"><i class="fas fa-bolt text-warning"></i> 9 Instant In-Context Quick Action Modals</span>
+                    <span class="metric-badge-item"><i class="fas fa-sitemap text-info"></i> 5 Enterprise Action Centre Flows</span>
+                    <span class="metric-badge-item"><i class="fas fa-building text-primary"></i> 4 Nationwide Dealership Showrooms</span>
+                    <span class="metric-badge-item"><i class="fas fa-wifi text-secondary"></i> Offline Local Durability Ready</span>
+                </div>
 
-            <!-- Search Status Pill (Shows matching count when filtering) -->
-            <div id="searchStatsPill" class="alert alert-info py-2 px-3 small d-none align-items-center justify-content-between mb-3">
-                <span><i class="fas fa-filter me-1"></i> Showing <strong id="matchCountNum">0</strong> matching questions</span>
-                <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="resetSearch()">Clear Filter</button>
-            </div>
+                <!-- Search Status Pill (Shows matching count when filtering) -->
+                <div id="searchStatsPill" class="alert alert-info py-2 px-3 small d-none align-items-center justify-content-between mb-3">
+                    <span><i class="fas fa-filter me-1"></i> Showing <strong id="matchCountNum">0</strong> matching questions</span>
+                    <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="resetSearch()">Clear Filter</button>
+                </div>
 
-            <!-- Parsed Content Body -->
-            <div id="qaContentWrapper">
-                ${rawHtml}
-            </div>
+                <!-- Parsed Content Body -->
+                <div id="qaContentWrapper">
+                    ${rawHtml}
+                </div>
 
-        </main>
+            </main>
+        </div>
     </div>
+
+    <!-- Permanent Floating / Docked Index Widget -->
+    <button class="docked-index-widget" id="dockedIndexWidget" onclick="toggleSidebar()" title="Toggle Operational Index Drawer">
+        <i class="fas fa-book-open"></i>
+        <span id="dockedIndexLabel">Operational Index</span>
+    </button>
 
     <!-- Floating Back to Top Button -->
     <a href="#" class="floating-top-btn" title="Back to Top">
@@ -869,6 +1042,35 @@ const fullHtml = `<!DOCTYPE html>
     <!-- Bootstrap 5 Scripts & Interactive Filtering -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Toggle Sidebar Drawer / Collapse
+        function toggleSidebar() {
+            const layout = document.getElementById('mainLayoutContainer');
+            const isMobile = window.innerWidth <= 1024;
+            
+            if (isMobile) {
+                layout.classList.toggle('sidebar-mobile-open');
+            } else {
+                layout.classList.toggle('sidebar-collapsed');
+                const isCollapsed = layout.classList.contains('sidebar-collapsed');
+                localStorage.setItem('aj_guide_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+                updateToggleLabels(isCollapsed);
+            }
+        }
+
+        function handleSidebarLinkClick() {
+            if (window.innerWidth <= 1024) {
+                const layout = document.getElementById('mainLayoutContainer');
+                layout.classList.remove('sidebar-mobile-open');
+            }
+        }
+
+        function updateToggleLabels(isCollapsed) {
+            const headerText = document.getElementById('headerToggleText');
+            const dockedLabel = document.getElementById('dockedIndexLabel');
+            if (headerText) headerText.innerText = isCollapsed ? 'Show Index' : 'Index';
+            if (dockedLabel) dockedLabel.innerText = isCollapsed ? 'Open Index' : 'Operational Index';
+        }
+
         // Copy direct link to clipboard
         function copyCardLink(anchorId) {
             const url = window.location.origin + window.location.pathname + '#' + anchorId;
@@ -889,6 +1091,14 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Restore sidebar state
+            const savedState = localStorage.getItem('aj_guide_sidebar_collapsed');
+            const layout = document.getElementById('mainLayoutContainer');
+            if (savedState === 'true' && window.innerWidth > 1024) {
+                layout.classList.add('sidebar-collapsed');
+                updateToggleLabels(true);
+            }
+
             const searchInput = document.getElementById('guideSearchInput');
             const qaCards = document.querySelectorAll('.qa-card');
             const searchStats = document.getElementById('searchStatsPill');
