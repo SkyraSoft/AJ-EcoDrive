@@ -1,248 +1,243 @@
 const fs = require('fs');
 const path = require('path');
+const { marked } = require('marked');
 
 const mdPath = path.join(__dirname, '..', 'AJ_ECODRIVE_COMPLETE_CLIENT_GUIDE_QA.md');
 const mdContent = fs.readFileSync(mdPath, 'utf8');
 
-// Helper to convert inline markdown to HTML
-function formatInline(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-}
+// Configure marked options
+marked.setOptions({
+    gfm: true,
+    breaks: true
+});
 
-// Helper to parse markdown tables
-function renderTable(tableLines) {
-    if (tableLines.length < 2) return '';
-    const headerLine = tableLines[0];
-    const rows = tableLines.slice(2); // skip separator
+// Custom marked renderer for clean, professional executive styling
+const renderer = new marked.Renderer();
 
-    const parseRow = (line) => {
-        return line.split('|')
-            .map(c => c.trim())
-            .filter((c, i, arr) => i > 0 && i < arr.length - 1);
-    };
+// Custom Heading Renderer
+renderer.heading = function({ tokens, depth, raw }) {
+    const text = this.parser.parseInline(tokens);
+    const plainText = raw.replace(/[^\w\s-]/g, '').trim();
+    const id = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-    const headers = parseRow(headerLine);
-    let html = '<div class="table-responsive my-3"><table class="table table-bordered table-striped custom-table">\n<thead><tr>';
-    headers.forEach(h => {
-        html += `<th>${formatInline(h)}</th>`;
-    });
-    html += '</tr></thead>\n<tbody>';
-
-    rows.forEach(r => {
-        if (!r.trim()) return;
-        const cells = parseRow(r);
-        html += '<tr>';
-        cells.forEach(c => {
-            html += `<td>${formatInline(c)}</td>`;
-        });
-        html += '</tr>';
-    });
-
-    html += '</tbody></table></div>\n';
-    return html;
-}
-
-// Convert markdown blocks to HTML
-function markdownToHtml(md) {
-    const lines = md.split('\n');
-    let html = '';
-    let inTable = false;
-    let tableLines = [];
-    let inList = false;
-    let listType = 'ul';
-
-    const closeList = () => {
-        if (inList) {
-            html += listType === 'ul' ? '</ul>\n' : '</ol>\n';
-            inList = false;
-        }
-    };
-
-    const closeTable = () => {
-        if (inTable) {
-            html += renderTable(tableLines);
-            inTable = false;
-            tableLines = [];
-        }
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const trimmed = line.trim();
-
-        // Table line detection
-        if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
-            closeList();
-            inTable = true;
-            tableLines.push(trimmed);
-            continue;
-        } else {
-            closeTable();
-        }
-
-        // Section / Part Header detection
-        if (trimmed.startsWith('# ')) {
-            closeList();
-            const title = trimmed.replace('# ', '');
-            html += `<div class="main-section-heading" id="${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}"><h2>${formatInline(title)}</h2></div>\n`;
-            continue;
-        }
-
-        if (trimmed.startsWith('### SECTION') || trimmed.startsWith('## SECTION')) {
-            closeList();
-            const title = trimmed.replace(/^#+\s*/, '');
-            html += `<div class="section-banner" id="${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}"><h3><i class="fas fa-layer-group me-2"></i>${formatInline(title)}</h3></div>\n`;
-            continue;
-        }
-
-        if (trimmed.startsWith('### PART') || trimmed.startsWith('## PART')) {
-            closeList();
-            const title = trimmed.replace(/^#+\s*/, '');
-            html += `<div class="part-banner" id="${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}"><h4><i class="fas fa-folder-open me-2 text-warning"></i>${formatInline(title)}</h4></div>\n`;
-            continue;
-        }
-
-        if (trimmed.startsWith('### APPENDIX') || trimmed.startsWith('## APPENDIX')) {
-            closeList();
-            const title = trimmed.replace(/^#+\s*/, '');
-            html += `<div class="appendix-banner" id="${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}"><h4><i class="fas fa-book-bookmark me-2 text-warning"></i>${formatInline(title)}</h4></div>\n`;
-            continue;
-        }
-
-        // Q&A Question Detection
-        if (trimmed.startsWith('### Q') || trimmed.startsWith('#### Q') || trimmed.startsWith('### **Q')) {
-            closeList();
-            const qMatch = trimmed.match(/^#+\s*\*?\*?(Q[0-9A-Za-z_-]+):?\*?\*?\s*(.*)/i);
-            if (qMatch) {
-                const qid = qMatch[1].toUpperCase();
-                const qText = qMatch[2].replace(/^\*+/, '').replace(/\*+$/, '').trim();
-                const anchorId = qid.toLowerCase();
-                html += `
-                <div class="qa-card" id="${anchorId}" data-qid="${qid}">
-                    <div class="qa-header">
-                        <span class="badge bg-gold text-dark fw-bold qid-badge">${qid}</span>
-                        <span class="qa-title">${formatInline(qText)}</span>
-                        <a href="#${anchorId}" class="permalink-icon text-muted ms-auto" title="Copy Direct Link"><i class="fas fa-link"></i></a>
-                    </div>
-                    <div class="qa-body">
-                `;
-                continue;
-            }
-        }
-
-        // Q&A Answer Start
-        if (trimmed.startsWith('**Answer:**')) {
-            const ansContent = trimmed.replace('**Answer:**', '').trim();
-            html += `<p class="ans-lead"><strong>Answer:</strong> ${formatInline(ansContent)}</p>\n`;
-            continue;
-        }
-
-        // Close Q&A item on divider
-        if (trimmed === '---' || trimmed === '___') {
-            closeList();
-            if (html.lastIndexOf('<div class="qa-body">') > html.lastIndexOf('</div>\n                </div>')) {
-                html += `</div>\n</div>\n`;
-            } else {
-                html += `<hr class="my-4 border-secondary opacity-25">\n`;
-            }
-            continue;
-        }
-
-        // Callouts / Blockquotes
-        if (trimmed.startsWith('>')) {
-            closeList();
-            const calloutText = trimmed.replace(/^>\s*/, '');
-            html += `<blockquote class="callout-box"><i class="fas fa-info-circle text-warning me-2"></i>${formatInline(calloutText)}</blockquote>\n`;
-            continue;
-        }
-
-        // Unordered lists
-        if (trimmed.startsWith('* ') || trimmed.startsWith('- ') || trimmed.startsWith('+ ')) {
-            if (!inList || listType !== 'ul') {
-                closeList();
-                inList = true;
-                listType = 'ul';
-                html += '<ul class="qa-list">\n';
-            }
-            const itemText = trimmed.replace(/^[*+-]\s*/, '');
-            html += `<li>${formatInline(itemText)}</li>\n`;
-            continue;
-        }
-
-        // Ordered lists
-        const olMatch = trimmed.match(/^(\d+)\.\s*(.*)/);
-        if (olMatch) {
-            if (!inList || listType !== 'ol') {
-                closeList();
-                listType = 'ol';
-                html += '<ol class="qa-list">\n';
-            }
-            html += `<li>${formatInline(olMatch[2])}</li>\n`;
-            continue;
-        }
-
-        // Close list if normal line encountered
-        if (trimmed === '') {
-            closeList();
-            continue;
-        }
-
-        // Subheaders within answers
-        if (trimmed.startsWith('#### ') || trimmed.startsWith('##### ')) {
-            closeList();
-            const subTitle = trimmed.replace(/^#+\s*/, '');
-            html += `<h5 class="sub-qa-heading mt-3 mb-2 text-primary-dark">${formatInline(subTitle)}</h5>\n`;
-            continue;
-        }
-
-        // Normal paragraph
-        closeList();
-        html += `<p class="qa-p">${formatInline(trimmed)}</p>\n`;
+    // Q&A Question Detection (depth 3, e.g. ### Q27: What is...)
+    const qMatch = raw.match(/^Q([0-9A-Za-z_-]+):?\s*(.*)/i);
+    if (depth === 3 && qMatch) {
+        const qid = ('Q' + qMatch[1]).toUpperCase();
+        const titleText = qMatch[2] || plainText;
+        const anchorId = qid.toLowerCase();
+        return `
+        <div class="qa-card-anchor" id="${anchorId}"></div>
+        <div class="qa-card" data-qid="${qid}">
+            <div class="qa-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="qid-badge">${qid}</span>
+                    <h4 class="qa-title mb-0">${titleText}</h4>
+                </div>
+                <button class="btn btn-sm btn-link copy-link-btn text-muted p-0" onclick="copyCardLink('${anchorId}')" title="Copy direct link to ${qid}">
+                    <i class="fas fa-link"></i>
+                </button>
+            </div>
+            <div class="qa-body">
+        `;
     }
 
-    closeList();
-    closeTable();
-    return html;
-}
+    // SECTION Banner
+    if (raw.toUpperCase().includes('SECTION ') && depth <= 3) {
+        return `<div class="section-banner" id="${id}"><div class="section-tag">SECTION ARCHITECTURE</div><h3 class="mb-0">${text}</h3></div>`;
+    }
 
-const parsedBody = markdownToHtml(mdContent);
+    // PART Banner
+    if (raw.toUpperCase().includes('PART ') && depth <= 3) {
+        return `<div class="part-banner" id="${id}"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">${text}</h3></div>`;
+    }
 
-const fullHtmlTemplate = `<!DOCTYPE html>
+    // APPENDIX Banner
+    if (raw.toUpperCase().includes('APPENDIX') && depth <= 3) {
+        return `<div class="appendix-banner" id="${id}"><div class="appendix-pill"><i class="fas fa-bookmark me-1"></i> ARCHITECTURAL APPENDIX</div><h3 class="appendix-title mb-0">${text}</h3></div>`;
+    }
+
+    // Main document headings
+    if (depth === 1) {
+        return `<h1 class="doc-main-title mt-4 mb-3" id="${id}">${text}</h1>`;
+    }
+    if (depth === 2) {
+        return `<h2 class="doc-section-title mt-4 mb-2 pb-2 border-bottom" id="${id}">${text}</h2>`;
+    }
+    return `<h${depth} class="doc-sub-heading mt-3 mb-2" id="${id}">${text}</h${depth}>`;
+};
+
+// Custom Table Renderer
+renderer.table = function(token) {
+    let headerHtml = '';
+    token.header.forEach(cell => {
+        headerHtml += `<th>${this.parser.parseInline(cell.tokens)}</th>`;
+    });
+
+    let bodyHtml = '';
+    token.rows.forEach(row => {
+        bodyHtml += '<tr>';
+        row.forEach(cell => {
+            bodyHtml += `<td>${this.parser.parseInline(cell.tokens)}</td>`;
+        });
+        bodyHtml += '</tr>';
+    });
+
+    return `
+    <div class="table-responsive my-3 custom-table-wrapper">
+        <table class="table table-hover custom-table mb-0 align-middle">
+            <thead><tr>${headerHtml}</tr></thead>
+            <tbody>${bodyHtml}</tbody>
+        </table>
+    </div>
+    `;
+};
+
+// Custom Blockquote Renderer
+renderer.blockquote = function(token) {
+    const quoteContent = this.parser.parse(token.tokens);
+    return `<div class="executive-callout my-3"><i class="fas fa-shield-halved callout-icon"></i><div class="callout-content">${quoteContent}</div></div>`;
+};
+
+// Custom Horizontal Rule (closes QA card if open)
+renderer.hr = function() {
+    return `</div></div><div class="qa-divider"></div>`;
+};
+
+// Parse Markdown content to HTML using marked
+const rawHtml = marked(mdContent, { renderer });
+
+// Extract Table of Contents items for Sidebar
+const tocSections = [
+    {
+        title: "SECTION I: Foundations & Getting Started",
+        id: "section-i-foundations-getting-started",
+        parts: [
+            { id: "part-1-understanding-aj-ecodrive-the-ev-dealership-model-q1-q12", title: "Part 1: Understanding AJ EcoDrive (Q1–Q12)" },
+            { id: "part-2-workstation-platforms-user-login-categories-q13-q24", title: "Part 2: Workstation Platforms & Logins (Q13–Q24)" },
+            { id: "part-3-morning-showroom-opening-system-daily-start-q25-q36", title: "Part 3: Showroom Daily Opening (Q25–Q36)" }
+        ]
+    },
+    {
+        title: "SECTION II: Central Command & Action Centre",
+        id: "section-ii-central-command-collaboration-the-action-centre",
+        parts: [
+            { id: "part-4-the-dealership-action-centre-the-command-bridge-q37-q52", title: "Part 4: Action Centre Command Bridge (Q37–Q52)" },
+            { id: "part-5-the-5-standard-enterprise-action-flows-q53-q68", title: "Part 5: 5 Standard Enterprise Flows (Q53–Q68)" },
+            { id: "part-6-the-action-creation-wizard-decision-treatment-drawer-q69-q84", title: "Part 6: Creation Wizard & Decision Drawer (Q69–Q84)" }
+        ]
+    },
+    {
+        title: "SECTION III: Showroom Sales Lifecycle",
+        id: "section-iii-the-showroom-sales-lifecycle-walk-in-to-delivery",
+        parts: [
+            { id: "part-7-walk-in-customers-capturing-sales-leads-q85-q98", title: "Part 7: Walk-In Customers & Leads (Q85–Q98)" },
+            { id: "part-8-customer-registration-cnic-verification-kyc-q99-q112", title: "Part 8: CNIC Registration & KYC (Q99–Q112)" },
+            { id: "part-9-formal-pricing-customer-quotations-q113-q128", title: "Part 9: Pricing & Customer Quotations (Q113–Q128)" },
+            { id: "part-10-instant-point-of-sale-pos-sales-order-confirmation-q129-q144", title: "Part 10: Point of Sale (POS) vs Orders (Q129–Q144)" },
+            { id: "part-11-invoicing-deposits-customer-money-collections-q145-q158", title: "Part 11: Invoicing & Money Collections (Q145–Q158)" },
+            { id: "part-12-pre-delivery-inspection-pdi-official-gate-pass-handover-q159-q174", title: "Part 12: PDI Checklist & Gate Pass (Q159–Q174)" }
+        ]
+    },
+    {
+        title: "SECTION IV: Workshop, Service & Battery Warranty",
+        id: "section-iv-after-sales-service-workshop-warranty-ownership-journey",
+        parts: [
+            { id: "part-13-workshop-intake-opening-service-cases-q175-q188", title: "Part 13: Service Intake & Cases (Q175–Q188)" },
+            { id: "part-14-workshop-repair-execution-mechanic-job-cards-q189-q202", title: "Part 14: Repair Execution & Job Cards (Q189–Q202)" },
+            { id: "part-15-lithium-battery-warranties-bms-diagnostics-q203-q218", title: "Part 15: Lithium Battery & BMS Warranty (Q203–Q218)" },
+            { id: "part-16-vehicle-cancellations-returns-customer-refund-settlement-q219-q232", title: "Part 16: Cancellations & Returns (Q219–Q232)" }
+        ]
+    },
+    {
+        title: "SECTION V: Inventory, Transfers & Quality",
+        id: "section-v-showroom-inventory-transfers-quality-control",
+        parts: [
+            { id: "part-17-showroom-inventory-serialized-unit-management-q233-q246", title: "Part 17: Serialized Floor Units (Q233–Q246)" },
+            { id: "part-18-showroom-stock-replenishment-requisitions-q247-q258", title: "Part 18: Stock Replenishment Requisitions (Q247–Q258)" },
+            { id: "part-19-inter-branch-stock-transfers-in-transit-custody-q259-q272", title: "Part 19: Inter-Branch Stock Transfers (Q259–Q272)" },
+            { id: "part-20-inbound-delivery-receiving-transit-discrepancies-q273-q286", title: "Part 20: Inbound Delivery Receiving (Q273–Q286)" },
+            { id: "part-21-blind-physical-cycle-counts-inventory-audits-q287-q300", title: "Part 21: Blind Physical Cycle Counts (Q287–Q300)" },
+            { id: "part-22-quality-quarantine-defective-stock-isolation-q301-q314", title: "Part 22: Quality Quarantine Isolation (Q301–Q314)" }
+        ]
+    },
+    {
+        title: "SECTION VI: Cash Controls, Expenses & Day-End",
+        id: "section-vi-cash-protection-expenses-day-end-reconciliation",
+        parts: [
+            { id: "part-23-showroom-operating-expenses-petty-cash-q315-q328", title: "Part 23: Showroom Expenses & Petty Cash (Q315–Q328)" },
+            { id: "part-24-day-end-closing-reconciliation-daily-z-report-q329-q342", title: "Part 24: Day-End Closing & Z-Report (Q329–Q342)" }
+        ]
+    },
+    {
+        title: "SECTION VII: Head Office Procurement & Administration",
+        id: "section-vii-head-office-governance-procurement-network-administration",
+        parts: [
+            { id: "part-25-sea-container-imports-procurement-supplier-management-q343-q358", title: "Part 25: Sea Container Procurement (Q343–Q358)" },
+            { id: "part-26-showroom-branches-user-accounts-security-permissions-q359-q374", title: "Part 26: Showroom Branches & Security (Q359–Q374)" }
+        ]
+    },
+    {
+        title: "SECTION VIII: Collaboration Matrix & Appendices",
+        id: "section-viii-collaboration-matrix-architecture-appendices",
+        parts: [
+            { id: "part-27-super-admin-branch-manager-10-master-touchpoints-collaboration-matrix-q375-q390", title: "Part 27: 10 Master Touchpoints Matrix (Q375–Q390)" },
+            { id: "part-28-offline-continuity-synchronization-local-workstation-architecture-q391-q405", title: "Part 28: Offline Continuity & Local DB (Q391–Q405)" },
+            { id: "appendix-a-policy-summary-operational-continuity-synchronization", title: "Appendix A: Operational Continuity Policy" },
+            { id: "appendix-b-target-production-topology-blueprint", title: "Appendix B: Target Production Topology" },
+            { id: "appendix-e-failure-recovery-scenarios-matrix-18-critical-events", title: "Appendix E: 18 Failure Recovery Scenarios" },
+            { id: "appendix-h-core-production-acceptance-criteria", title: "Appendix H: Acceptance Criteria" }
+        ]
+    }
+];
+
+let sidebarNavHtml = '';
+tocSections.forEach(sec => {
+    sidebarNavHtml += `
+    <div class="sidebar-section-group mb-3">
+        <div class="sidebar-section-title">${sec.title}</div>
+        <ul class="sidebar-nav-list list-unstyled mb-0">
+    `;
+    sec.parts.forEach(p => {
+        sidebarNavHtml += `<li><a href="#${p.id}" class="sidebar-nav-link">${p.title}</a></li>`;
+    });
+    sidebarNavHtml += `</ul></div>`;
+});
+
+const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ EcoDrive — Comprehensive Client Operations & Systems Architecture Guide (Q&A Manual)</title>
+    <title>AJ EcoDrive — Client Operations Guide & Complete Architecture Manual (400+ Q&A)</title>
     
     <!-- Google Fonts & Favicon -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-    <!-- Bootstrap 5 & FontAwesome 6 -->
+    <!-- Bootstrap 5.3 & FontAwesome 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
     <style>
         :root {
+            --brand-green-primary: #165A31;
+            --brand-green-dark: #0f3d21;
+            --brand-green-light: #eefcf2;
+            --brand-emerald: #10b981;
             --brand-gold: #f59e0b;
             --brand-gold-soft: #fef3c7;
-            --brand-dark: #0f172a;
-            --brand-dark-soft: #1e293b;
-            --brand-green: #10b981;
+            --brand-dark: #090d16;
+            --brand-slate: #0f172a;
+            --brand-slate-light: #1e293b;
             --brand-border: #e2e8f0;
-            --brand-text: #1e293b;
-            --brand-muted: #64748b;
-            --bg-page: #f8fafc;
+            --brand-border-subtle: #f1f5f9;
+            --brand-text-main: #1e293b;
+            --brand-text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
         }
 
         * {
@@ -251,235 +246,368 @@ const fullHtmlTemplate = `<!DOCTYPE html>
 
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-page);
-            color: var(--brand-text);
+            background-color: var(--bg-body);
+            color: var(--brand-text-main);
             line-height: 1.65;
-            padding-bottom: 80px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Top Sticky Banner */
-        .top-nav-bar {
+        /* Top Sticky Navbar */
+        .top-navbar {
             background: linear-gradient(135deg, #090d16 0%, #0f172a 100%);
-            border-bottom: 4px solid var(--brand-gold);
-            color: #ffffff;
-            padding: 16px 24px;
+            border-bottom: 3px solid var(--brand-gold);
             position: sticky;
             top: 0;
-            z-index: 1050;
+            z-index: 1040;
+            padding: 12px 24px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         }
 
-        .brand-title {
-            font-weight: 800;
-            font-size: 1.35rem;
-            letter-spacing: -0.02em;
+        .brand-logo-area {
             display: flex;
             align-items: center;
             gap: 10px;
+            text-decoration: none;
         }
 
-        .brand-title .accent {
+        .brand-text-main {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text-accent {
             color: var(--brand-gold);
         }
 
-        .guide-badge {
+        .badge-manual-version {
             background: rgba(245, 158, 11, 0.15);
             border: 1px solid var(--brand-gold);
             color: var(--brand-gold);
-            font-size: 0.75rem;
-            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 8px;
             border-radius: 999px;
-            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        /* Search & Filter Toolbar */
-        .search-container {
+        /* Search Box */
+        .search-wrapper {
             position: relative;
-            max-width: 420px;
+            max-width: 460px;
             width: 100%;
         }
 
-        .search-container input {
+        .search-wrapper input {
             background: #1e293b;
             border: 1px solid #334155;
             color: #ffffff;
-            padding: 9px 16px 9px 40px;
+            padding: 8px 16px 8px 38px;
             border-radius: 30px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             width: 100%;
             transition: all 0.2s ease;
         }
 
-        .search-container input:focus {
+        .search-wrapper input:focus {
             outline: none;
+            background: #090d16;
             border-color: var(--brand-gold);
-            background: #0f172a;
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
         }
 
-        .search-container i {
+        .search-wrapper i {
             position: absolute;
-            left: 15px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
             font-size: 0.85rem;
         }
 
-        /* Hero Header Section */
-        .hero-banner {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: white;
+        /* Layout Structure: Sidebar + Main Content */
+        .layout-container {
+            display: flex;
+            max-width: 1540px;
+            margin: 0 auto;
+            min-height: calc(100vh - 65px);
+        }
+
+        /* Left Navigation Sidebar */
+        .sidebar-left {
+            width: 320px;
+            flex-shrink: 0;
+            background: #ffffff;
+            border-right: 1px solid var(--brand-border);
+            position: sticky;
+            top: 65px;
+            height: calc(100vh - 65px);
+            overflow-y: auto;
+            padding: 20px 16px 40px;
+            scrollbar-width: thin;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--brand-text-muted);
+            margin-bottom: 6px;
+            padding-left: 8px;
+        }
+
+        .sidebar-nav-link {
+            display: block;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            color: #334155;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-nav-link:hover {
+            background: var(--brand-green-light);
+            color: var(--brand-green-primary);
+            font-weight: 600;
+            padding-left: 14px;
+        }
+
+        /* Main Content Viewport */
+        .main-content {
+            flex-grow: 1;
+            padding: 32px 40px 100px;
+            max-width: 1220px;
+        }
+
+        /* Hero Card */
+        .hero-guide-card {
+            background: linear-gradient(135deg, #090d16 0%, #165A31 100%);
+            color: #ffffff;
             border-radius: 16px;
             padding: 32px 36px;
-            margin: 28px 0;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
-            border: 1px solid #334155;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(9, 13, 22, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            position: relative;
+            overflow: hidden;
         }
 
-        .hero-banner h1 {
-            font-size: 1.85rem;
+        .hero-guide-card::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            bottom: -30px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-guide-card h1 {
+            font-size: 1.75rem;
             font-weight: 800;
-            line-height: 1.3;
-            margin-bottom: 12px;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
         }
 
-        /* Live Access Presentation Pill Grid */
-        .demo-access-card {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+        /* Presentation Live Access Credentials Card */
+        .demo-credentials-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 12px;
             padding: 16px 20px;
-            margin-top: 20px;
+            margin-top: 22px;
         }
 
-        /* Section & Part Banners */
-        .main-section-heading {
-            margin: 40px 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--brand-gold);
+        .cred-pill {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #fef08a;
+            font-weight: 700;
         }
 
-        .main-section-heading h2 {
-            font-weight: 800;
-            color: var(--brand-dark);
-            font-size: 1.5rem;
+        /* Stats Strip */
+        .metric-badges-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 28px;
         }
 
+        .metric-badge-item {
+            background: #ffffff;
+            border: 1px solid var(--brand-border);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--brand-text-main);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        /* Section Banners */
         .section-banner {
-            background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
-            color: white;
-            padding: 14px 20px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin: 48px 0 20px;
             border-left: 6px solid var(--brand-gold);
-            margin: 32px 0 18px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-tag {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--brand-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
         }
 
         .section-banner h3 {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
         }
 
+        /* Part Banners */
         .part-banner {
             background: #ffffff;
             border: 1px solid var(--brand-border);
-            border-left: 5px solid var(--brand-gold);
-            border-radius: 8px;
-            padding: 12px 18px;
-            margin: 24px 0 14px;
+            border-left: 5px solid var(--brand-green-primary);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 32px 0 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
-        .part-banner h4 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--brand-dark);
-            margin: 0;
+        .part-pill {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--brand-green-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
         }
 
+        .part-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--brand-dark);
+        }
+
+        /* Appendix Banner */
         .appendix-banner {
             background: #fffbeb;
             border: 1px solid #fde68a;
             border-left: 5px solid var(--brand-gold);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 14px 20px;
-            margin: 28px 0 16px;
+            margin: 32px 0 16px;
         }
 
-        .appendix-banner h4 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #92400e;
-            margin: 0;
+        .appendix-pill {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #b45309;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
+        }
+
+        .appendix-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: #78350f;
         }
 
         /* Q&A Cards */
+        .qa-card-anchor {
+            position: relative;
+            top: -85px;
+            visibility: hidden;
+        }
+
         .qa-card {
             background: #ffffff;
             border: 1px solid var(--brand-border);
             border-radius: 12px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
             overflow: hidden;
         }
 
         .qa-card:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
             border-color: #cbd5e1;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
         }
 
         .qa-header {
             background: #f8fafc;
             border-bottom: 1px solid var(--brand-border);
-            padding: 14px 18px;
+            padding: 12px 18px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
         }
 
         .qid-badge {
-            background: var(--brand-dark) !important;
-            color: var(--brand-gold) !important;
+            background: var(--brand-dark);
+            color: var(--brand-gold);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 4px 8px;
             border-radius: 6px;
             flex-shrink: 0;
+            letter-spacing: 0.02em;
         }
 
         .qa-title {
+            font-size: 0.96rem;
             font-weight: 700;
             color: var(--brand-dark);
-            font-size: 0.98rem;
-            flex-grow: 1;
             line-height: 1.4;
         }
 
-        .permalink-icon {
+        .copy-link-btn {
             opacity: 0.3;
-            transition: opacity 0.2s;
+            transition: opacity 0.2s ease;
             text-decoration: none;
+            cursor: pointer;
         }
 
-        .qa-card:hover .permalink-icon {
-            opacity: 0.8;
+        .qa-card:hover .copy-link-btn {
+            opacity: 0.9;
         }
 
         .qa-body {
             padding: 18px 20px;
-            font-size: 0.94rem;
+            font-size: 0.92rem;
             color: #334155;
             line-height: 1.7;
         }
 
-        .qa-body p.ans-lead {
-            font-size: 0.96rem;
-            color: #1e293b;
-            margin-bottom: 10px;
+        .qa-body p:last-child {
+            margin-bottom: 0;
         }
 
         .qa-body code {
@@ -488,57 +616,88 @@ const fullHtmlTemplate = `<!DOCTYPE html>
             color: #0f766e;
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.85em;
+            font-size: 0.84em;
         }
 
-        .qa-list {
+        .qa-body ul, .qa-body ol {
             padding-left: 20px;
             margin-top: 8px;
             margin-bottom: 12px;
         }
 
-        .qa-list li {
-            margin-bottom: 5px;
+        .qa-body li {
+            margin-bottom: 4px;
+        }
+
+        .qa-divider {
+            height: 6px;
         }
 
         /* Custom Tables */
+        .custom-table-wrapper {
+            border: 1px solid var(--brand-border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
         .custom-table {
-            font-size: 0.88rem;
-            border-color: var(--brand-border);
+            font-size: 0.86rem;
+            margin-bottom: 0;
         }
 
         .custom-table thead th {
-            background: var(--brand-dark);
+            background: #090d16;
             color: var(--brand-gold);
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
-            padding: 10px 14px;
-            border-color: var(--brand-dark);
+            padding: 11px 14px;
+            border-color: #1e293b;
+            white-space: nowrap;
         }
 
         .custom-table tbody td {
-            padding: 9px 14px;
-            vertical-align: middle;
+            padding: 10px 14px;
+            border-color: #f1f5f9;
+            color: #1e293b;
         }
 
-        .custom-table tbody tr:hover {
-            background-color: #f1f5f9;
+        .custom-table tbody tr:nth-child(even) {
+            background-color: #fafbfc;
         }
 
-        /* Callout Blockquote */
-        .callout-box {
+        /* Executive Callouts */
+        .executive-callout {
             background: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin: 12px 0;
-            font-size: 0.92rem;
-            color: #1e40af;
+            border: 1px solid #bfdbfe;
+            border-left: 5px solid #2563eb;
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
         }
 
-        /* Floating Action Buttons */
+        .callout-icon {
+            color: #2563eb;
+            font-size: 1.1rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .callout-content {
+            font-size: 0.9rem;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .callout-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Floating Top Button */
         .floating-top-btn {
             position: fixed;
             bottom: 24px;
@@ -546,15 +705,15 @@ const fullHtmlTemplate = `<!DOCTYPE html>
             background: var(--brand-dark);
             color: var(--brand-gold);
             border: 2px solid var(--brand-gold);
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
             transition: all 0.2s ease;
             z-index: 1000;
             text-decoration: none;
@@ -563,33 +722,40 @@ const fullHtmlTemplate = `<!DOCTYPE html>
         .floating-top-btn:hover {
             background: var(--brand-gold);
             color: var(--brand-dark);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
-        /* Quick Stat Pill */
-        .stat-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #ffffff;
-            color: var(--brand-dark);
-            padding: 6px 14px;
+        /* Toast notification */
+        .toast-copied {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #090d16;
+            color: #ffffff;
+            padding: 8px 18px;
             border-radius: 30px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--brand-border);
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--brand-gold);
+            z-index: 2000;
+            display: none;
         }
 
-        @media (max-width: 768px) {
-            .hero-banner {
-                padding: 20px;
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .sidebar-left {
+                display: none;
             }
-            .hero-banner h1 {
-                font-size: 1.4rem;
+            .main-content {
+                padding: 20px 16px 80px;
             }
-            .top-nav-bar {
-                padding: 12px 16px;
+            .hero-guide-card {
+                padding: 24px 20px;
+            }
+            .hero-guide-card h1 {
+                font-size: 1.35rem;
             }
         }
     </style>
@@ -597,116 +763,170 @@ const fullHtmlTemplate = `<!DOCTYPE html>
 <body>
 
     <!-- Sticky Navigation Header -->
-    <header class="top-nav-bar">
-        <div class="container-xl d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div class="brand-title">
-                <i class="fas fa-bolt text-warning"></i>
-                <span>AJ <span class="accent">EcoDrive</span></span>
-                <span class="guide-badge d-none d-md-inline">Client Operations &amp; Systems Manual</span>
-            </div>
+    <header class="top-navbar">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <a href="https://aj-eco-drive.vercel.app" target="_blank" class="brand-logo-area">
+                <i class="fas fa-bolt text-warning fs-5"></i>
+                <span class="brand-text-main">AJ <span class="brand-text-accent">EcoDrive</span></span>
+                <span class="badge-manual-version d-none d-sm-inline">CLIENT GUIDE V3.0</span>
+            </a>
 
-            <div class="search-container">
+            <div class="search-wrapper">
                 <i class="fas fa-search"></i>
-                <input type="text" id="guideSearchInput" placeholder="Search 400+ questions (e.g., Q27, POS, battery, cash)..." aria-label="Search Guide">
+                <input type="text" id="guideSearchInput" placeholder="Instant Search 400+ Q&As (e.g., Q27, POS, battery, cash)..." aria-label="Search Operations Guide">
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                <a href="https://aj-eco-drive.vercel.app" target="_blank" class="btn btn-sm btn-warning fw-bold">
+                <a href="https://aj-eco-drive.vercel.app" target="_blank" class="btn btn-sm btn-warning fw-bold text-dark px-3 shadow-sm">
                     <i class="fas fa-desktop me-1"></i> Live Demo App
                 </a>
-                <a href="https://github.com/SkyraSoft/AJ-EcoDrive" target="_blank" class="btn btn-sm btn-outline-light">
-                    <i class="fab fa-github me-1"></i> Repo
+                <a href="https://github.com/SkyraSoft/AJ-EcoDrive" target="_blank" class="btn btn-sm btn-outline-light px-3">
+                    <i class="fab fa-github me-1"></i> GitHub
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="container-xl mt-3">
+    <!-- Master Layout: Sidebar + Reading Canvas -->
+    <div class="layout-container">
+        
+        <!-- Left Navigation Sidebar -->
+        <aside class="sidebar-left">
+            <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+                <span class="fw-bold text-dark small"><i class="fas fa-list-check text-warning me-1"></i> OPERATIONAL INDEX</span>
+                <span class="badge bg-light text-secondary border font-monospace">400+ Q&As</span>
+            </div>
+            ${sidebarNavHtml}
+        </aside>
 
-        <!-- Hero Header -->
-        <div class="hero-banner">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                <div>
-                    <span class="badge bg-warning text-dark fw-bold mb-2">MASTER CLIENT SPECIFICATION — V3.0</span>
-                    <h1>AJ EcoDrive — Client Operations Guide &amp; Systems Architecture Manual</h1>
-                    <p class="mb-0 text-light opacity-85">
-                        Comprehensive Operational Manual, Non-Technical Leadership Guide &amp; Master System Specification for Dealership Owners, Board Members, Head Office Executives, and Branch Managers.
-                    </p>
+        <!-- Main Reading Content Canvas -->
+        <main class="main-content">
+            
+            <!-- Hero Header Banner -->
+            <div class="hero-guide-card">
+                <div class="badge bg-warning text-dark fw-bold mb-2">MASTER CLIENT SPECIFICATION — V3.0</div>
+                <h1>AJ EcoDrive — Client Operations Guide &amp; Systems Architecture QA</h1>
+                <p class="mb-0 text-white-50 small">
+                    Comprehensive Operational Manual, Non-Technical Leadership Guide &amp; Master System Specification for Dealership Owners, Board Members, Head Office Executives, and Branch Managers.
+                </p>
+
+                <!-- Live Access Demo Credentials Card -->
+                <div class="demo-credentials-card">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-globe me-1"></i> Production URL</div>
+                            <a href="https://aj-eco-drive.vercel.app" target="_blank" class="text-white text-decoration-none fw-semibold small">aj-eco-drive.vercel.app</a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-key me-1"></i> Universal Demo Password</div>
+                            <span class="cred-pill">password123</span>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-user-shield me-1"></i> Head Office (Super Admin)</div>
+                            <span class="cred-pill">ADMIN</span>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-store me-1"></i> Showroom Branches</div>
+                            <span class="text-white small fw-bold font-monospace">PEW-01, ISB-01, LHE-01, RWP-01</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Live Access Quick Reference Card -->
-            <div class="demo-access-card">
-                <div class="row g-3 align-items-center">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="text-warning fw-bold text-uppercase small mb-1"><i class="fas fa-globe me-1"></i> Production URL</div>
-                        <a href="https://aj-eco-drive.vercel.app" target="_blank" class="text-white text-decoration-none fw-semibold">https://aj-eco-drive.vercel.app</a>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="text-warning fw-bold text-uppercase small mb-1"><i class="fas fa-key me-1"></i> Universal Demo Password</div>
-                        <span class="text-white font-monospace">password123</span> <span class="text-muted small">(or password)</span>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="text-warning fw-bold text-uppercase small mb-1"><i class="fas fa-user-shield me-1"></i> Head Office Login</div>
-                        <span class="text-white font-monospace">ADMIN</span> <span class="badge bg-primary ms-1">Super Admin</span>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="text-warning fw-bold text-uppercase small mb-1"><i class="fas fa-store me-1"></i> Branch Showrooms</div>
-                        <span class="text-white font-monospace">PEW-01</span>, <span class="text-white font-monospace">ISB-01</span>, <span class="text-white font-monospace">LHE-01</span>, <span class="text-white font-monospace">RWP-01</span>
-                    </div>
-                </div>
+            <!-- Metric Badges Strip -->
+            <div class="metric-badges-strip">
+                <span class="metric-badge-item"><i class="fas fa-clipboard-check text-success"></i> 400+ Standard Q&amp;A Answers</span>
+                <span class="metric-badge-item"><i class="fas fa-bolt text-warning"></i> 9 Instant In-Context Quick Action Modals</span>
+                <span class="metric-badge-item"><i class="fas fa-sitemap text-info"></i> 5 Enterprise Action Centre Flows</span>
+                <span class="metric-badge-item"><i class="fas fa-building text-primary"></i> 4 Nationwide Dealership Showrooms</span>
+                <span class="metric-badge-item"><i class="fas fa-wifi text-secondary"></i> Offline Local Durability Ready</span>
             </div>
-        </div>
 
-        <!-- Quick Summary Metrics -->
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <span class="stat-pill"><i class="fas fa-clipboard-check text-success"></i> 400+ Standard Q&amp;A Answers</span>
-            <span class="stat-pill"><i class="fas fa-bolt text-warning"></i> 9 Instant In-Context Quick Action Modals</span>
-            <span class="stat-pill"><i class="fas fa-sitemap text-info"></i> 5 Enterprise Action Centre Flows</span>
-            <span class="stat-pill"><i class="fas fa-building text-primary"></i> 4 Nationwide Dealership Showrooms</span>
-            <span class="stat-pill"><i class="fas fa-wifi text-secondary"></i> Offline Local Durability Ready</span>
-        </div>
+            <!-- Search Status Pill (Shows matching count when filtering) -->
+            <div id="searchStatsPill" class="alert alert-info py-2 px-3 small d-none align-items-center justify-content-between mb-3">
+                <span><i class="fas fa-filter me-1"></i> Showing <strong id="matchCountNum">0</strong> matching questions</span>
+                <button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="resetSearch()">Clear Filter</button>
+            </div>
 
-        <!-- Parsed Markdown Content -->
-        <div id="qaContentWrapper">
-            ${parsedBody}
-        </div>
+            <!-- Parsed Content Body -->
+            <div id="qaContentWrapper">
+                ${rawHtml}
+            </div>
 
-    </main>
+        </main>
+    </div>
 
     <!-- Floating Back to Top Button -->
     <a href="#" class="floating-top-btn" title="Back to Top">
         <i class="fas fa-chevron-up"></i>
     </a>
 
-    <!-- Bootstrap 5 Scripts & Interactive Search Filtering -->
+    <!-- Toast Notification for Copied Link -->
+    <div id="toastCopied" class="toast-copied">
+        <i class="fas fa-check-circle text-warning me-1"></i> Question link copied to clipboard!
+    </div>
+
+    <!-- Bootstrap 5 Scripts & Interactive Filtering -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Copy direct link to clipboard
+        function copyCardLink(anchorId) {
+            const url = window.location.origin + window.location.pathname + '#' + anchorId;
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.getElementById('toastCopied');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2200);
+            });
+        }
+
+        // Reset search filter
+        function resetSearch() {
+            const input = document.getElementById('guideSearchInput');
+            if (input) {
+                input.value = '';
+                input.dispatchEvent(new Event('input'));
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('guideSearchInput');
             const qaCards = document.querySelectorAll('.qa-card');
+            const searchStats = document.getElementById('searchStatsPill');
+            const matchCountNum = document.getElementById('matchCountNum');
 
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
                     const query = e.target.value.toLowerCase().trim();
                     let matchCount = 0;
 
+                    if (!query) {
+                        qaCards.forEach(card => card.style.display = '');
+                        if (searchStats) searchStats.classList.add('d-none');
+                        searchStats.classList.remove('d-flex');
+                        return;
+                    }
+
                     qaCards.forEach(card => {
                         const qid = (card.getAttribute('data-qid') || '').toLowerCase();
                         const text = card.innerText.toLowerCase();
 
-                        if (!query || qid.includes(query) || text.includes(query)) {
+                        if (qid.includes(query) || text.includes(query)) {
                             card.style.display = '';
                             matchCount++;
                         } else {
                             card.style.display = 'none';
                         }
                     });
+
+                    if (searchStats) {
+                        matchCountNum.innerText = matchCount;
+                        searchStats.classList.remove('d-none');
+                        searchStats.classList.add('d-flex');
+                    }
                 });
             }
 
-            // Smooth scrolling to hash anchors
+            // Smooth scrolling for sidebar links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     const targetId = this.getAttribute('href').substring(1);
@@ -715,15 +935,16 @@ const fullHtmlTemplate = `<!DOCTYPE html>
                         e.preventDefault();
                         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         window.history.pushState(null, null, '#' + targetId);
-                        
-                        // Highlight target
-                        if (targetEl.classList.contains('qa-card')) {
-                            targetEl.style.transition = 'all 0.4s ease';
-                            targetEl.style.borderColor = '#f59e0b';
-                            targetEl.style.boxShadow = '0 0 0 4px rgba(245, 158, 11, 0.35)';
+
+                        // If it's a QA card anchor, highlight the card
+                        const card = targetEl.nextElementSibling;
+                        if (card && card.classList.contains('qa-card')) {
+                            card.style.transition = 'all 0.4s ease';
+                            card.style.borderColor = '#f59e0b';
+                            card.style.boxShadow = '0 0 0 4px rgba(245, 158, 11, 0.35)';
                             setTimeout(() => {
-                                targetEl.style.borderColor = '';
-                                targetEl.style.boxShadow = '';
+                                card.style.borderColor = '';
+                                card.style.boxShadow = '';
                             }, 2500);
                         }
                     }
@@ -735,16 +956,16 @@ const fullHtmlTemplate = `<!DOCTYPE html>
 </html>
 `;
 
-// Write to root Complete Guide.html and public/guide.html and public/complete-guide.html
-const rootGuidePath = path.join(__dirname, '..', 'Complete Guide.html');
+// Write to Complete Guide.html, public/guide.html, and public/complete-guide.html
+const rootPath = path.join(__dirname, '..', 'Complete Guide.html');
 const publicGuidePath = path.join(__dirname, '..', 'public', 'guide.html');
 const publicCompleteGuidePath = path.join(__dirname, '..', 'public', 'complete-guide.html');
 
-fs.writeFileSync(rootGuidePath, fullHtmlTemplate, 'utf8');
-fs.writeFileSync(publicGuidePath, fullHtmlTemplate, 'utf8');
-fs.writeFileSync(publicCompleteGuidePath, fullHtmlTemplate, 'utf8');
+fs.writeFileSync(rootPath, fullHtml, 'utf8');
+fs.writeFileSync(publicGuidePath, fullHtml, 'utf8');
+fs.writeFileSync(publicCompleteGuidePath, fullHtml, 'utf8');
 
-console.log('Successfully generated:');
-console.log('1. ' + rootGuidePath + ' (' + fullHtmlTemplate.length + ' bytes)');
+console.log('Successfully generated clean, balanced, executive HTML Guide:');
+console.log('1. ' + rootPath + ' (' + fullHtml.length + ' bytes)');
 console.log('2. ' + publicGuidePath);
 console.log('3. ' + publicCompleteGuidePath);
