@@ -131,82 +131,158 @@ If you are a dealership owner, board member, or business executive who does not 
 # PART 1: Understanding AJ EcoDrive & The EV Dealership Model (Q1 – Q12)
 
 ### Q1: In simple words, what is AJ EcoDrive?
-**Answer:** AJ EcoDrive is an all-in-one dealership management operating system engineered specifically for electric vehicle (EV) businesses. It orchestrates the complete operational lifecycle: importing assembled and CKD electric bikes from overseas factories, managing multi-city showroom floor inventory, tracking every single bike down to its unique chassis number (VIN), negotiating sales quotes, collecting cash and bank payments, issuing legal delivery gate passes, managing workshop repair job cards, and validating lithium-ion battery warranty claims.
+**Answer:** AJ EcoDrive is an enterprise-grade Dealership Management System (DMS) and Operating Platform engineered specifically for electric vehicle (EV) businesses. It acts as the central digital nervous system of the dealership, managing every stage of operations:
+* 📍 **System Navigation Path:** `Main Application Shell` &rarr; `Role-Based Dashboard` (`/dashboard`)
+* **Global Procurement:** Importing CBU (Completely Built Up) and CKD (Completely Knocked Down) containers from international OEM factories with Bill of Lading and shipping container tracking.
+* **Serialized Inventory Control:** Tracking every single electric scooter down to its physical Frame VIN, Lithium Battery Serial Number, and Motor Controller ID across all branch showrooms (Peshawar, Islamabad, Lahore, Rawalpindi).
+* **Commercial Sales Operations:** Seamlessly managing walk-in leads, 7-day binding customer price quotations with automated discount caps, 1-click Point of Sale (POS) checkout, and scheduled customer booking orders.
+* **Financial Protection:** Enforcing double-entry cashier ledger reconciliations, petty cash controls (PKR 15,000 threshold), automated FBR-compliant tax invoicing, and bank IBFT payment verification.
+* **Workshop & Warranty Governance:** Managing repair job cards, technician bay assignments, spare parts consumption, and 3-way serialized lithium battery warranty validation.
 
 ---
 
 ### Q2: Why can't an EV dealership just use a generic accounting tool like QuickBooks or Excel?
-**Answer:** Because generic accounting software treats products as uniform bags of goods. An electric vehicle has three unique, serialized high-voltage components that define its legal identity, road safety, and financial value:
-1. **VIN / Chassis Number:** Stamped onto the steel frame; legally registered with provincial excise and taxation authorities.
-2. **Lithium Battery Pack Serial Number:** Represents 40% to 50% of the entire vehicle's monetary value.
-3. **Electronic Controller / BMS Serial Number:** The brain governing voltage, current cutoff, and motor output.
+**Answer:** Because generic accounting software treats products as interchangeable numeric quantities (like bags of cement or bottles of water). An electric vehicle is a complex, high-voltage asset governed by three distinct, serialized components that dictate legal ownership, road safety, and financial value:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units`)
+1. **VIN / Chassis Number (Stasis Identity):** Stamped permanently onto the steel chassis frame; legally registered with provincial excise, taxation, and traffic police databases.
+2. **Lithium Battery Pack Serial Number (High-Value Asset):** The battery constitutes **40% to 50% of the entire vehicle's monetary worth** (e.g., PKR 110,000 of a PKR 245,000 electric scooter).
+3. **Electronic Controller / Smart BMS Serial Number (Brain):** The micro-controller unit governing voltage discharge, thermal safety limits, and motor wattage output.
 
-In Excel or QuickBooks, an untrained salesperson can accidentally sell the same chassis twice, misplace high-voltage battery packs during inter-branch transfers, or accept fraudulent warranty returns. AJ EcoDrive enforces hardware serialization at every stage, making accidental duplicates or component theft mathematically impossible.
+**The Fatal Flaws of Excel / Generic Software in Dealerships:**
+* In Excel or basic accounting tools, a salesperson can accidentally sell the same chassis number twice to different customers on the same weekend.
+* Mechanics can swap a customer's degraded or burned battery into a showroom display bike without any digital trace.
+* Showroom cashiers can alter past sales records to conceal cash shortages.
+* AJ EcoDrive makes these fraud vectors impossible by mathematically enforcing **3-way serialized hardware binding** and immutable, timestamped audit logs.
 
 ---
 
 ### Q3: Who are the active users of AJ EcoDrive today?
-**Answer:** In the current deployment, the system operates with **two active user login categories**:
-1. **Super Admin (Head Office Management):** Executives, directors, and central finance officers who oversee the entire nationwide network. Super Admins manage international sea-container procurement, approve corporate pricing exceptions, set master catalog list prices, oversee inter-branch transfers, and review company-wide P&L reports.
-2. **Branch Managers (Showroom & Workshop Operations):** Dedicated operators stationed at each individual dealership showroom (Peshawar, Islamabad, Lahore, Rawalpindi). Branch Managers run daily showroom sales, register customer CNICs, issue price quotes, confirm sales orders, collect payments, print delivery gate passes, manage spare parts inventory, and oversee workshop repair job cards.
+**Answer:** In the current production deployment, the platform operates with **two primary operational user tiers**:
+* 📍 **System Navigation Path:** `Login Portal` (`/login`) &rarr; Select `Super Admin` or `Branch Manager` Badge
+1. **Super Admin (Head Office & Executive Leadership):**
+   * **Scope:** Unrestricted nationwide oversight across all 4 branch dealerships (Peshawar, Islamabad, Lahore, Rawalpindi) and Central Distribution Warehouses.
+   * **Key Duties:** Approving commercial discount waivers > 8%, authorizing inter-branch vehicle transfers, releasing high-value OPEX claims > PKR 15,000, managing sea container procurement, setting master catalog prices, and inspecting consolidated P&L balance sheets.
+2. **Branch Managers (Showroom & Workshop Commanders):**
+   * **Scope:** Geographically locked to their assigned physical showroom location.
+   * **Key Duties:** Opening morning cash drawer floats, conducting daily floor VIN audits, executing walk-in sales, generating customer quotations, registering customer CNICs, collecting cash/bank payments, issuing Delivery Gate Passes, dispatching inter-branch transfers, and overseeing workshop repair job cards.
 
-*(In future production phases, individual employee role profiles—such as Sales Executives, Cashiers, Workshop Technicians, and Inventory Clerks—will be provisioned with granular permissions centrally managed by Head Office).*
+*(Underlying RBAC architecture is already primed for individual sub-roles—such as Sales Representatives, Cashiers, Workshop Technicians, and Storekeepers—to be provisioned as branch headcount expands).*
 
 ---
 
 ### Q4: What does "Multi-Branch Architecture" mean for a dealership owner?
-**Answer:** It means all dealership locations run on a single synchronized nervous system. The owner can sit in their Head Office office in Islamabad and view live, second-by-second operations across Peshawar, Lahore, and Rawalpindi: how many bikes were sold today, how much cash was deposited into local bank accounts, which branch is running low on stock, and which workshop has open warranty claims.
+**Answer:** Multi-Branch Architecture means that all geographically separated dealership showrooms, warehouses, and workshop service bays operate in real-time synchronization on a unified master ledger:
+* 📍 **System Navigation Path:** `Super Admin Dashboard` (`/dashboard`) &rarr; `Branch Selector Dropdown` (Upper Header)
+* **Real-Time Executive Visibility:** A dealership owner sitting in Islamabad Head Office can view live, second-by-second operations across Peshawar, Lahore, and Rawalpindi without making phone calls or waiting for end-of-month spreadsheets.
+* **Instant Performance Auditing:** Instantly view how many scooters were sold today in Peshawar, how much cash is physically sitting in the Lahore safe, which branch is running low on battery packs, and which workshop has customer warranty tickets awaiting parts.
+* **Central Policy Enforcement:** When Head Office updates an MSRP list price or issues a safety recall, the rule instantly propagates across all branch workstations nationwide.
 
 ---
 
 ### Q5: Can staff in Peshawar sell a bike that is physically located in Islamabad?
-**Answer:** **No, absolutely not.** AJ EcoDrive enforces strict branch-level custody isolation. A salesperson in Peshawar can only reserve, invoice, and deliver a vehicle that has been officially received and scanned into Peshawar's physical showroom inventory. If an Islamabad bike is promised to a Peshawar customer, an official Inter-Branch Stock Transfer must be executed and physically confirmed by the receiving branch before it can be sold.
+**Answer:** **No. The system strictly prohibits cross-branch phantom selling.**
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Point of Sale (POS)` OR `+ Quick Sale` Modal
+* **Custody Isolation Rule:** A salesperson in Peshawar can only allocate, invoice, and deliver a chassis VIN that currently has a physical status of `Available` within **Peshawar Showroom Inventory**.
+* **Inter-Branch Transfer Protocol:** If a customer in Peshawar urgently demands a Metallic Red scooter that is physically in Islamabad, the Peshawar manager cannot sell it on the spot. They must:
+  1. Launch `+ Inter-Branch Transfer` (`CreateTransferModal`) to request the vehicle.
+  2. Islamabad approves and dispatches the bike via a logistics carrier truck (`Status: In-Transit`).
+  3. When the truck arrives in Peshawar, the manager scans the chassis barcode and confirms intake (`ReceiveTransferModal`).
+  4. Only after intake confirmation does the VIN unlock in Peshawar's sales ledger for customer invoicing.
 
 ---
 
 ### Q6: What is a "Serialized Unit" in the context of electric bikes?
-**Answer:** A serialized unit is an individual, physical vehicle tracked by its unique chassis number (VIN). While the product catalogue lists the general model (e.g., *"BRG E-125 Commuter Scooter"*), the inventory ledger tracks the exact physical machine (e.g., *"VIN-PK-BRG-2026-00812"* in Metallic Blue, equipped with 72V 32Ah Lithium Battery #BAT-99420 and Controller #CTL-77211).
+**Answer:** In AJ EcoDrive, a "Serialized Unit" represents a specific, physical machine with permanent, unalterable hardware identities:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units`)
+* **Catalog Model vs. Serialized Machine:** While the catalog contains the generic product blueprint (e.g., *"Model: BRG E-125 Commuter Scooter, 1500W Brushless Motor"*), the serialized inventory ledger tracks the physical vehicle:
+  * **Chassis Frame VIN:** `PK-BRG-2026-00812` (Stamped into frame)
+  * **Color:** Metallic Cobalt Blue
+  * **Lithium Battery Serial:** `BAT-72V32AH-2026-00812` (NMC Cell Pack)
+  * **Motor Controller Serial:** `CTL-72V1500W-09412` (Sine-wave BMS)
+  * **Physical Location:** Peshawar Showroom Floor — Bay A-2
+  * **Current Status:** `Available`
+* This granular tracking ensures that if a battery is swapped or a frame is inspected, the system knows the exact history of that physical unit from the factory shipping container to the customer's driveway.
 
 ---
 
 ### Q7: What lifecycle stages does an electric bike move through in the system?
-**Answer:** Every vehicle progresses through 7 transparent lifecycle states:
-1. **Available:** Unsold, inspected, and sitting on the showroom floor ready for purchase.
-2. **Reserved:** Earmarked for a specific customer who has placed a confirmed sales order.
-3. **Sold / Invoicing Complete:** Customer has fully paid; vehicle is assigned to the delivery bay for Pre-Delivery Inspection (PDI).
-4. **Delivered / Customer Owned:** Customer has signed the handover sheet and driven the bike out through the showroom gates with an official Gate Pass.
-5. **In Service / Maintenance:** Brought back to the dealership workshop for routine service or accident repairs.
-6. **In-Transit:** Loaded on a logistics carrier truck traveling between showroom branches.
-7. **Quarantine / QC Hold:** Isolated in a secure holding bay due to transit scratches, factory defects, or battery diagnostic warnings.
+**Answer:** Every vehicle progresses through 7 strictly defined lifecycle states, preventing skipped operational steps:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` &rarr; Filter by `Status Tag`
+
+```
+[1. Available (Showroom Floor)]
+              │ (Customer Places Order / POS)
+              ▼
+[2. Reserved (Locked to Customer)] ──► Deposit Captured / Inbound Stock Mapped
+              │ (Full Settlement & PDI Passed)
+              ▼
+[3. Sold / Ready for Handover]
+              │ (Delivery Handover Sheet & Gate Pass)
+              ▼
+[4. Delivered / Customer Owned]
+              │ (Customer Returns for Maintenance)
+              ▼
+[5. In Service / Workshop Bay] ──► Job Card / Warranty Repair
+              ▲
+              │
+[6. In-Transit] ───────────────► Carrier Truck Moving Between Branches
+[7. Quarantine / QC Hold] ─────► Factory Transit Damage / Battery Diagnostic Isolation
+```
 
 ---
 
 ### Q8: What currency and number formats are used across the system?
-**Answer:** The entire platform operates in **Pakistani Rupees (PKR)**. All figures are formatted with standard thousands separators (e.g., `PKR 245,000`), ensuring clean financial reading for business owners, accountants, and bank auditors.
+**Answer:** The entire platform is localized for standard Pakistani commerce and tax compliance:
+* 📍 **System Navigation Path:** Visible globally across all financial cards, invoice printouts, and balance sheets.
+* **Currency Code:** **Pakistani Rupee (PKR)**.
+* **Standard Formatting:** Formatted with standard thousands separators (e.g., `PKR 245,000` or `PKR 1,450,000`).
+* **Decimal Handling:** All cash register and customer receipt totals display zero decimals (rounded to whole Rupees), while bank disbursements and tax withholding computations maintain standard rounding precision.
 
 ---
 
 ### Q9: Does the system track spare parts, tyres, and workshop consumables?
-**Answer:** Yes. The inventory engine manages complete serialized vehicles as well as non-serialized spare parts (e.g., tubeless tyres, brake pads, throttle assemblies, digital LCD instrument meters, headlights, and wiring harnesses). Spare parts are directly linked to workshop repair job cards and deduct automatically from local stock when installed on a customer's bike.
+**Answer:** Yes. AJ EcoDrive includes a specialized **Spare Parts & Workshop Inventory Engine** operating alongside vehicle tracking:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Spare Parts & Accessories` (`/inventory/parts`)
+* **Managed Item Types:**
+  * High-frequency wear parts (Brake pads, tubeless tyres, inner tubes, drive belts).
+  * Electronic components (Throttle assemblies, digital LCD instrument meters, LED headlamp clusters, 12V DC-DC converters).
+  * Workshop consumables (Hydraulic brake fluid, wiring harness looms, high-voltage heat-shrink wraps).
+* **Automatic Job Card Consumption:** When a workshop technician adds *"1x Set Hydraulic Brake Pads (Part #BRK-PAD-01)"* to an active repair ticket, the part automatically deducts from the showroom workshop cabinet inventory and posts to the repair invoice.
 
 ---
 
 ### Q10: How does AJ EcoDrive handle manufacturer warranties?
-**Answer:** Every vehicle sold automatically activates an official OEM Warranty policy (e.g., 2-Year or 30,000 km Warranty on the Lithium Battery, Electric Motor, and Smart BMS Controller). The warranty clock starts on the exact calendar day the customer signs the Delivery Handover certificate. The system automatically tracks remaining months and mileage.
+**Answer:** Every vehicle sold automatically activates an official OEM Digital Warranty Certificate upon delivery:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Warranty Policies` (`/after-sales/warranty`)
+* **Standard Coverage Terms:**
+  * **Lithium-Ion Battery Pack:** 2 Years or 30,000 km (whichever occurs first).
+  * **Electric Hub Motor & Controller:** 2 Years or 25,000 km.
+  * **Vehicle Chassis & Frame:** 3 Years.
+* **Automated Activation:** The warranty period starts on the exact calendar date the customer signs the Delivery Handover certificate. The system tracks remaining warranty months and mileage automatically when the customer returns for periodic checkups.
 
 ---
 
 ### Q11: What happens if a customer visits the workshop with a burned controller under warranty?
-**Answer:** The technician enters the chassis number into the Workshop module. The system confirms the warranty is valid and generates a Repair Job Card:
-* **Controller Replacement Cost:** PKR 8,500
-* **Manufacturer Warranty Coverage:** PKR 8,500 (100% covered)
-* **Customer Payable:** **PKR 0**
-The customer walks out with a brand-new original controller without paying, and the system logs an official warranty reimbursement claim against the OEM factory.
+**Answer:** The workshop receptionist conducts an instant digital warranty intake:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Active Service Cases` (`/after-sales/warranty`) &rarr; Click `+ New Service Intake` (`CreateCaseModal`)
+* **Step 1: Serial Verification:** The receptionist scans the bike's chassis VIN. The system verifies active warranty coverage (e.g., 14 months elapsed, 12,400 km traveled).
+* **Step 2: Component Diagnostic:** The mechanic plugs in the diagnostic harness, confirms controller MOSFET burnout, and opens a warranty claim.
+* **Step 3: Zero-Balance Customer Invoice:**
+  * OEM Smart Controller Replacement: `PKR 8,500`
+  * Manufacturer Warranty Subsidy Credit: `- PKR 8,500`
+  * Net Amount Payable by Customer: **`PKR 0.00`**
+* **Step 4: Factory Reimbursement:** The defective controller is tagged with serial number and quarantined; the system creates a warranty debit memo against the OEM manufacturer.
 
 ---
 
 ### Q12: Can showroom staff secretly sell a bike without registering it in the system?
-**Answer:** No. Showroom security protocols require an official **Delivery Gate Pass** with an automated QR verification code and security watermark. The security guard stationed at the dealership gate is strictly instructed never to let a vehicle exit without verifying the printed Gate Pass, which can only be generated after an invoice is fully settled in AJ EcoDrive.
+**Answer:** **No. Showroom physical security and digital gates prevent unregistered vehicle exits.**
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Delivery Handovers & Gate Passes` (`/sales/deliveries`)
+* **Mandatory Gate Pass Enforcement:** Every dealership branch employs a security guard at the physical compound gate. Security protocol mandates that no electric bike may pass the physical barrier without an original, printed **Delivery Gate Pass**.
+* **Gate Pass Safeguards:**
+  * Can only be printed when the sales invoice has **PKR 0.00 remaining balance** and the 6-point Pre-Delivery Inspection (PDI) checklist is signed off.
+  * Contains an encrypted, time-sensitive **QR Verification Code**, VIN barcode, customer CNIC, and authorizing manager signature.
+  * Attempting to exit with a Quotation, Pro-forma, or manual slip results in immediate gate stoppage and security escalation.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -216,67 +292,110 @@ The customer walks out with a brand-new original controller without paying, and 
 # PART 2: Workstation Platforms & User Login Categories (Q13 – Q24)
 
 ### Q13: What hardware platforms does AJ EcoDrive support?
-**Answer:** AJ EcoDrive is engineered for cross-platform deployment across three distinct environments:
-1. **Windows Desktop Workstations:** Installed on dedicated Dell/HP desktop computers at showroom sales counters, cashier booths, and workshop service reception desks.
-2. **Android Tablets & Handheld Mobility:** Mobile devices used by sales executives walking the showroom floor with customers, or mechanics inspecting battery packs directly inside the workshop service bay.
-3. **Executive Web Companion:** An auxiliary browser portal accessible from laptops or home workstations for directors traveling outside the dealership network.
+**Answer:** AJ EcoDrive is engineered for resilient cross-platform operations across three specialized environments:
+* 📍 **System Navigation Path:** Cross-Device Browser & Local Desktop Shell
+1. **Windows Desktop Workstations:** Installed on dedicated counter PCs (Dell, HP, Lenovo) at showroom sales desks, cashier booths, and workshop reception. Optimized for thermal barcode label printers, 80mm POS receipt printers, and USB barcode guns.
+2. **Android Tablets & Rugged Handhelds:** Mobile touch devices used by sales representatives walking the floor with customers and workshop mechanics inspecting bikes inside service bays.
+3. **Executive Web Companion:** Secure browser portal accessible from laptops or home computers for directors and Head Office executives traveling outside the dealership network.
 
 ---
 
 ### Q14: Does the Mobile / Tablet App have fewer features than the Desktop version?
-**Answer:** **No. The Mobile / Tablet App offers 100% full feature parity.** Every single feature available on the desktop workstation—including Point of Sale order entry, quotation generation, CNIC customer registration, workshop job cards, inter-branch transfers, expense filing, and Action Centre approvals—is available and fully responsive on handheld mobile tablets.
+**Answer:** **No. The Mobile / Tablet App maintains 100% full feature parity.**
+* 📍 **System Navigation Path:** Responsive Layout (Auto-adapts on screens from 360px to 4K displays)
+* Every operational capability on desktop—including Point of Sale transactions, quotation builders, customer CNIC capture, workshop job cards, stock transfer dispatches, petty cash vouchers, and Action Centre decision drawers—is 100% functional on handheld tablets.
+* The UI automatically reflows into high-density touch-optimized cards, expandable bottom sheets, and sticky action buttons for seamless one-handed tablet operation.
 
 ---
 
 ### Q15: Why are mobile tablets particularly valuable on the showroom floor?
-**Answer:** Handheld tablets eliminate the outdated barrier of having a salesperson sit behind a bulky desk. A salesperson can walk side-by-side with a customer around an electric scooter, rotate through color options on screen, enter the customer's CNIC and contact details on the spot, configure financing options, and print a formal quotation wirelessly to the counter receipt printer.
+**Answer:** Mobile tablets transform the customer buying experience and eliminate desk friction:
+* 📍 **System Navigation Path:** Handheld Tablet &rarr; `Dashboard` &rarr; `+ New Walk-In Lead` OR `+ Quick Sale`
+* **Side-by-Side Sales Engagement:** Sales reps walk alongside customers on the showroom floor, presenting technical specifications, battery chemistry benefits, and color options directly on screen.
+* **Instant Digital Quotation:** Sales reps configure accessories (smart helmet, fast charger, rear top box) and financing plans on the spot, emailing or WhatsApping a formal PDF quote to the customer in seconds.
+* **Instant Test-Ride Logging:** The customer's CNIC and driving license are scanned via tablet camera before the customer takes the demo bike onto the road.
 
 ---
 
 ### Q16: How do mechanics benefit from mobile tablet access in the workshop?
-**Answer:** Workshop mechanics do not have clean hands or desktop desks in grease-filled service bays. With a ruggedized Android tablet, a technician can take photos of damaged parts, scan battery QR codes, enter OBD diagnostic trouble codes, and tap checklist items directly while standing next to the disassembled bike.
+**Answer:** Electric vehicle servicing requires mobility around the vehicle chassis and high-voltage battery compartment:
+* 📍 **System Navigation Path:** Handheld Tablet &rarr; `Sidebar: After-Sales & Workshop` &rarr; `Active Service Cases` (`/after-sales/warranty`)
+* **Grease-Free Digital Workbenches:** Ruggedized tablets mounted on mobile tool carts allow technicians to tap inspection checklists without walking back and forth to a front-desk computer.
+* **Photo Damage Evidence:** Mechanics snap high-resolution photos of collision scratches, cracked plastic fairings, or oxidized wire harnesses, attaching them directly to the customer's digital job card.
+* **Live BMS Telemetry & Error Codes:** Technicians enter OBD trouble codes (e.g., `ERR-BMS-04: High Voltage Cell Imbalance`) and log cell voltages directly while testing the battery pack.
 
 ---
 
 ### Q17: What are the two active user login categories in the system today?
-**Answer:** The system currently provides two specialized operational accounts:
-1. **Super Admin Account:** Unrestricted nationwide oversight. Can view, edit, configure, and approve records across all dealership branches.
-2. **Branch Manager Account:** Local operational command. Dedicated to a specific branch showroom (Peshawar, Islamabad, Lahore, or Rawalpindi), restricting view and action permissions to that branch's inventory, staff, cash drawer, and customers.
+**Answer:** AJ EcoDrive operates with two specialized role environments:
+* 📍 **System Navigation Path:** `Login Screen` (`/login`)
+
+| User Category | Assigned Role Scope | Active Demo Credentials | Primary Screen Access |
+| :--- | :--- | :--- | :--- |
+| **Super Admin** | **Head Office Executive** (Nationwide Multi-Branch Scope) | `ADMIN` / `password123` | Master Action Centre, Procurement, Global Pricing, Branch Performance, System Audit Logs |
+| **Branch Manager** | **Dealership Commander** (Scoped to Peshawar, Islamabad, Lahore, or Rawalpindi) | `PEW-01`, `ISB-01`, `LHE-01`, `RWP-01` / `password123` | Branch Dashboard, Floor Stock VINs, Walk-In Leads, POS & Booking, Showroom Petty Cash, Workshop Job Cards |
+
+*On the live demonstration login page ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), clicking any role badge auto-fills the credentials instantly for frictionless demonstration.*
 
 ---
 
 ### Q18: What is the roadmap for individual staff logins in the future?
-**Answer:** While the system is optimized today for Super Admin and Branch Manager roles, the underlying architecture contains complete Role-Based Access Control (RBAC). In future enterprise updates, Head Office can provision individual accounts for Sales Executives, Cashiers, Workshop Technicians, and Storekeepers with tailored permissions.
+**Answer:** The platform's Role-Based Access Control (RBAC) security foundation is fully architected for granular role expansion:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: System Administration` &rarr; `Staff Accounts & Permissions` (`/settings/users`)
+* **Future Specialized Employee Roles:**
+  * **Showroom Sales Executive:** Can capture walk-in leads, build quotations, and initiate sales orders (cannot view branch profit margins or approve discounts > 8%).
+  * **Branch Cashier:** Can record customer payments, print receipts, and manage the daily cash drawer float (cannot alter sales pricing).
+  * **Workshop Technician:** Can view repair job cards, log labour hours, and request replacement spare parts from the storekeeper.
+  * **Inventory Storekeeper:** Can scan inbound delivery shipments, manage spare parts shelves, and conduct monthly blind cycle counts.
 
 ---
 
 ### Q19: How do users switch between Dark and Light display modes?
-**Answer:** Users can click the user profile initials in the top-right header and select **Preferences** (or navigate to `/preferences`). The theme switcher instantly toggles between a clean daytime high-contrast Light Mode and a sleek, glare-reducing Dark Mode. The user's selection is saved locally and persists across computer restarts.
+**Answer:** The interface includes a high-performance theme toggle engine:
+* 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `User Profile Avatar` &rarr; `Theme Preferences` (OR navigate to `/preferences`)
+* **Light Mode:** High-contrast, clean daylight mode optimized for brightly lit showroom sales floors and outdoor delivery bays.
+* **Dark Mode:** Sleek, low-glare dark palette reducing eye fatigue for evening accounting work, dim workshop bays, and executive command centers.
+* **Instant Persistence:** Theme preference is saved to local storage immediately and persists seamlessly across computer reboots and browser refreshes.
 
 ---
 
 ### Q20: What happens if a salesperson leaves their workstation unattended?
-**Answer:** The system features an automatic idle session security lock. If no keyboard or mouse activity is detected for 60 minutes (configurable by Super Admin), the application locks the screen, hiding customer CNICs, cash drawer totals, and profit margins until the authorized user re-enters their password.
+**Answer:** Automatic idle session security prevents unauthorized access:
+* 📍 **System Navigation Path:** `Settings & Security` &rarr; `Session Security Timeout`
+* **60-Minute Idle Lockout:** If no mouse, keyboard, or touch interaction is detected for 60 minutes, the screen automatically locks.
+* **Data Masking:** Customer CNIC numbers, cash drawer financial balances, profit margins, and supplier pricing are instantly blurred behind a secure PIN/password prompt.
+* **Zero Work Disruption:** When the salesperson re-enters their password, their unsubmitted quotation or active POS form is restored exactly as they left it.
 
 ---
 
 ### Q21: What happens if an employee forgets their login password?
-**Answer:** The login screen provides a secure **Forgot Password** recovery workflow. The employee enters their registered corporate email address, receives an automated verification link or one-time token, and securely resets their password adhering to corporate complexity rules (minimum 8 characters with numbers and symbols).
+**Answer:** Secure self-service and managerial reset workflows:
+* 📍 **System Navigation Path:** `Login Screen` &rarr; Click **"Forgot Password?"** Link (`/auth/forgot-password`)
+* **Automated Reset:** The employee inputs their registered corporate email address (`staff@ajecodrive.com`) to receive a cryptographically signed one-time reset link valid for 15 minutes.
+* **Managerial Reset Override:** Branch Managers and Super Admins can also issue an emergency temporary password from the Staff Administration workbench (`/settings/users`), forcing the employee to choose a new password upon their next login.
 
 ---
 
 ### Q22: Can a terminated employee still log into the system?
-**Answer:** No. The moment Super Admin toggles an employee's status to **Inactive**, their authentication token is revoked immediately on the central server. On offline-capable local workstations, deactivation tokens are broadcast during the next synchronization heartbeat, locking any cached credentials.
+**Answer:** **No. Access termination is instant and nationwide.**
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `User Management` (`/settings/users`) &rarr; Select User &rarr; Toggle `Status: Inactive`
+* **Immediate Token Revocation:** The moment Super Admin deactivates an employee account, all active JWT authentication tokens are blacklisted on the central server.
+* **Offline Terminal Invalidation:** For local offline workstations, account deactivation instructions are broadcast during the next synchronization heartbeat, preventing cached logins.
 
 ---
 
 ### Q23: If an employee leaves the company, what happens to their historical sales and invoices?
-**Answer:** All historical records remain 100% intact. Past invoices, quotations, delivery gate passes, and audit trails will permanently display the employee's name and timestamp, ensuring complete forensic traceability for tax and legal audits.
+**Answer:** **All historical records remain 100% immutable and permanent.**
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Audit Trail & Forensic Logs` (`/reports/audit-logs`)
+* Every historical invoice, quotation, receipt, gate pass, and workshop job card permanently preserves the former employee's name, user ID, and exact creation timestamp.
+* Customer relationships are preserved; historical commissions and sales performance remain locked for tax and legal compliance.
 
 ---
 
 ### Q24: How does a user safely log out at the end of their shift?
-**Answer:** By clicking their user profile avatar in the upper right header and selecting **Sign Out**. This immediately purges the active session token, clears temporary memory buffers, and returns the application to the secure login prompt.
+**Answer:** Through the secure session termination protocol:
+* 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `User Profile Dropdown` &rarr; Click **"Sign Out"**
+* **Local Memory Purge:** Clicking Sign Out purges cached user tokens, clears active form state from temporary memory, commits any pending offline outbox items, and redirects the terminal to the secure login prompt.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
