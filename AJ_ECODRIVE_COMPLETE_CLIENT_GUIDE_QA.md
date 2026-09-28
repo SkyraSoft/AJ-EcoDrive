@@ -116,6 +116,7 @@ If you are a dealership owner, board member, or business executive who does not 
 | **Showroom Branches & Roles** | Opening new branch showrooms, provisioning staff accounts, security permissions, and internal chat. | [Jump to Q360 (CreateBranchModal)](#q360-modal-guide--what-is-the-createbranchmodal-createbranchvue-and-what-are-its-exact-fields) & [Q362 (CreateUserModal)](#q362-modal-guide--what-is-the-createusermodal-createuservue-and-what-are-its-exact-fields) |
 | **Branch Dashboard & Snapshot** | Detailed drill-down guide for Branch Snapshot (Open Orders, Available Stock, Reserved, Incoming, Low Stock, Service Cases). | [Jump to Q36A (Branch Snapshot)](#q36a-what-is-the-branch-snapshot-on-the-branch-manager-dashboard-where-does-each-kpi-tile-redirect-and-what-does-it-display) |
 | **Action Required Triage Links** | Complete routing matrix for Action Required table priority items, "Open ›" links, and direct record pills (TR, PO, SKU, ORD, LD, EXP, RET, SC, TASK). | [Jump to Q36B (Action Required)](#q36b-what-is-the-action-required-table-on-the-branch-manager-dashboard-and-where-do-the-open--buttons-and-record-badges-redirect) |
+| **Quick Actions & POS vs Order**| Complete 9-action direct modal suite and the operational difference between Point of Sale (POS) and Sales Order (Booking). | [Jump to Q27 (Quick Actions & POS vs Order)](#q27-what-is-the-quick-actions-bar-on-the-dashboard-and-top-navigation-how-does-it-speed-up-operations-and-what-is-the-difference-between-a-quick-sale-pos-and-a-sales-order) |
 
 
 ---
@@ -304,14 +305,40 @@ The customer walks out with a brand-new original controller without paying, and 
 
 ---
 
-### Q27: What is the Quick Actions bar on the dashboard, and how does it speed up operations?
-**Answer:** The Quick Actions bar is a prominent button strip located at the top of the dashboard. It allows showroom staff to launch essential tasks with a single click without digging through multi-level menus:
-* **+ New Walk-In Lead** (Opens `CreateLeadModal`)
-* **+ New Quotation** (Opens `CreateQuotationModal`)
-* **+ Point of Sale (POS)** (Opens `CreateSaleModal`)
-* **+ Record Payment** (Opens `CreatePaymentModal`)
-* **+ Service Intake** (Opens `CreateCaseModal`)
-* **+ File Expense** (Opens `CreateExpenseModal`)
+### Q27: What is the Quick Actions bar on the dashboard and top navigation, how does it speed up operations, and what is the difference between a Quick Sale (POS) and a Sales Order?
+**Answer:** The Quick Actions suite is engineered to give dealership personnel instant, 1-click execution across all high-frequency dealership operations. It is accessible both globally via the top application header (`+ Quick Sale` button and `Quick Actions ⌄` dropdown) and centrally via the Showroom Dashboard Quick Actions action grid.
+
+Crucially, **every Quick Action launches directly in-context as an active modal overlay**. Staff never lose their current workflow or page context—they simply fill the form, click submit, and receive instant confirmation.
+
+#### 1. Complete Categorized Quick Actions Suite
+* **Sales & Commercial Transactions:**
+  * **+ Quick Sale / Point of Sale (POS)** (Directly launches `CreateSaleModal` in `mode="pos"`): Rapid checkout for ready showroom floor units. Instantly assigns physical VIN, captures full payment (or instant financing), updates unit status to `Sold/Ready for PDI`, and generates the customer invoice.
+  * **+ New Order / Booking** (Directly launches `CreateSaleModal` in `mode="order"`): Advance customer reservation, custom vehicle allocation, or pre-order booking against incoming shipments. Accepts booking deposits, marks stock as `Reserved`, and schedules future delivery milestones.
+  * **+ New Walk-In Lead** (Directly launches `CreateLeadModal`): Rapid capture of showroom walk-in visitors, contact numbers, CNIC, interest tags, assigned sales representative, and test ride scheduling.
+  * **+ New Quotation** (Directly launches `CreateQuotationModal`): Generates binding 7-day customer price quotations with dynamic financing calculators, accessory add-ons, and an automated 8% discount ceiling guard. Converts to a Sales Order in 1 click.
+  * **+ Record Payment** (Directly launches `CreatePaymentModal`): Immediately records customer collections (Cash, Pay Order, Cheque, Online IBFT, Credit Card), generates an official receipt, and reconciles pending invoice balances.
+* **Showroom & Fleet Operations:**
+  * **+ Stock Request** (Directly launches `CreateStockRequestModal`): Initiates formal stock replenishment requisitions to Central Warehouse when showroom floor inventory drops below safety thresholds.
+  * **+ Inter-Branch Transfer** (Directly launches `CreateTransferModal`): Dispatches vehicles between dealership branches (e.g., Peshawar to Islamabad) with carrier driver info, transit custody tracking, and physical VIN handovers.
+  * **+ Log Showroom Expense** (Directly launches `CreateExpenseModal`): Records branch operating expenditures (tea, utility bills, maintenance). Expenses under PKR 15,000 deduct from the petty cash float; expenses exceeding PKR 15,000 route automatically to the CFO via Action Centre.
+  * **+ Service Intake** (Directly launches `CreateCaseModal`): Checks customer electric bikes into the workshop service bay, logging odometer readings, symptoms, technician assignment, and warranty coverage status.
+* **Super Admin Enterprise Actions:**
+  * **+ Purchase Order / Sea Container Intake** (Directly launches `CreatePurchaseOrderModal`): Head Office procurement of CBU/CKD container shipments from international OEM manufacturers with Bill of Lading numbers and batch VIN tracking.
+
+---
+
+#### 2. Critical Operational Difference: Quick Sale (POS) vs. Sales Order (Booking) at Branch Manager Level
+Dealerships operate with two distinct sales motions. Conflating them creates inventory chaos and cash reconciliation errors. AJ EcoDrive enforces a strict architectural and operational boundary between them:
+
+| Dimension | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
+| :--- | :--- | :--- |
+| **Operational Intent** | **Immediate Over-the-Counter Fulfillment.** Customer walks in, selects a scooter physically sitting on the showroom floor, pays in full, and takes delivery today. | **Advance Reservation / Scheduled Fulfillment.** Customer orders a scooter arriving on an upcoming container, books a specific custom color, or pays a partial down payment. |
+| **Inventory Impact** | **Instant VIN Allocation.** The exact physical chassis/VIN on the showroom floor is immediately assigned and moves from `Available` to `Sold` (or `PDI Ready`). | **Reservation Hold.** The model/SKU is marked as `Reserved`. Physical VIN assignment can be attached immediately or mapped to an inbound PO / Transfer truck. |
+| **Payment Status** | **100% Paid or Instant Disbursal.** Invoice is marked `Paid`. Customer receives official Tax Invoice immediately. | **Partial / Deposit.** Accepts token/advance payment (e.g., PKR 25,000 booking deposit). Balance is tracked as `Unpaid` or `Partially Paid`. |
+| **Gate Pass Issuance** | **Immediate Gate Pass Eligible.** Delivery gate pass can be printed immediately upon completion of the 6-point Pre-Delivery Inspection (PDI). | **Gate Pass Blocked.** The system physically locks and prohibits Gate Pass printing until the remaining financial balance reaches PKR 0. |
+| **Workflow Path** | `Walk-In -> POS Modal -> Full Payment -> Instant VIN -> PDI -> Gate Pass` | `Lead/Quote -> Booking Order Modal -> Deposit Payment -> Inbound Stock Allocation -> Final Balance Settlement -> PDI -> Gate Pass` |
+
+---
 
 ---
 

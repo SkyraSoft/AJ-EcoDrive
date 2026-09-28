@@ -4,9 +4,22 @@ import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { 
   Home, Building2, LayoutGrid, FileText, Package, Users, 
   PlusCircle, CircleDollarSign, MessageSquare, PieChart, 
-  Settings, Search, Bell, MessageCircle, Moon, Sun, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Menu, X, Lock
+  Settings, Search, Bell, MessageCircle, Moon, Sun, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Menu, X, Lock,
+  ShoppingCart, Tag, DollarSign, Wrench, Truck, Receipt, UserPlus, FilePlus, Sparkles, CheckCircle2
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
+
+// Quick Action In-Context Modals
+import CreateSaleModal from '@/views/sales/CreateSale.vue'
+import CreateLeadModal from '@/views/sales/CreateLead.vue'
+import CreateQuotationModal from '@/views/sales/CreateQuotation.vue'
+import CreatePaymentModal from '@/views/sales/CreatePayment.vue'
+import CreateCustomerModal from '@/views/sales/CreateCustomer.vue'
+import CreateExpenseModal from '@/views/finance/CreateExpense.vue'
+import CreateStockRequestModal from '@/views/inventory/CreateStockRequest.vue'
+import CreateTransferModal from '@/views/inventory/CreateTransfer.vue'
+import CreateCaseModal from '@/views/after-sales/CreateCase.vue'
+import CreatePurchaseOrderModal from '@/views/procurement/CreatePurchaseOrder.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -265,6 +278,75 @@ const currentThemeDisplay = computed(() => {
 const toggleTheme = () => {
   store.toggleTheme()
 }
+
+// -------------------------------------------------------------
+// IN-CONTEXT QUICK ACTION MODALS STATE & HANDLERS
+// -------------------------------------------------------------
+const showSaleModal = ref(false)
+const saleModalMode = ref('sale') // 'sale' (POS) or 'order' (Booking)
+const showLeadModal = ref(false)
+const showQuotationModal = ref(false)
+const showPaymentModal = ref(false)
+const showCustomerModal = ref(false)
+const showExpenseModal = ref(false)
+const showStockRequestModal = ref(false)
+const showTransferModal = ref(false)
+const showCaseModal = ref(false)
+const showPurchaseOrderModal = ref(false)
+
+const showLayoutToast = ref(false)
+const layoutToastMessage = ref('')
+const triggerLayoutToast = (msg) => {
+  layoutToastMessage.value = msg
+  showLayoutToast.value = true
+  setTimeout(() => { showLayoutToast.value = false }, 3500)
+}
+
+const openQuickAction = (action) => {
+  openDropdown.value = null
+  if (action === 'quickSale' || action === 'sale' || action === 'pos') {
+    saleModalMode.value = 'sale'
+    showSaleModal.value = true
+  } else if (action === 'newOrder' || action === 'order' || action === 'booking') {
+    saleModalMode.value = 'order'
+    showSaleModal.value = true
+  } else if (action === 'lead') {
+    showLeadModal.value = true
+  } else if (action === 'quotation') {
+    showQuotationModal.value = true
+  } else if (action === 'payment') {
+    showPaymentModal.value = true
+  } else if (action === 'customer') {
+    showCustomerModal.value = true
+  } else if (action === 'expense') {
+    showExpenseModal.value = true
+  } else if (action === 'stockRequest') {
+    showStockRequestModal.value = true
+  } else if (action === 'transfer') {
+    showTransferModal.value = true
+  } else if (action === 'case' || action === 'service') {
+    showCaseModal.value = true
+  } else if (action === 'purchaseOrder' || action === 'po') {
+    showPurchaseOrderModal.value = true
+  }
+}
+
+const handleQuickActionCreated = (type, payload) => {
+  const titles = {
+    'sale': 'Point of Sale (POS) completed & invoice generated',
+    'order': 'Sales order booking created & VIN reserved',
+    'lead': 'New walk-in lead registered',
+    'quotation': 'Formal quotation created',
+    'payment': 'Customer payment recorded & invoice updated',
+    'customer': 'Customer registered with CNIC',
+    'expense': 'Showroom expense voucher recorded',
+    'stockRequest': 'Stock replenishment request submitted',
+    'transfer': 'Inter-branch stock transfer initiated',
+    'case': 'Service intake case registered',
+    'po': 'Purchase order created'
+  }
+  triggerLayoutToast(titles[type] || 'Action completed successfully')
+}
 </script>
 
 <template>
@@ -471,36 +553,105 @@ const toggleTheme = () => {
           <!-- Quick Sale / Quick Create Button -->
           <div class="relative">
             <button 
-              @click="isBranchUser ? router.push('/sales/orders') : toggleDropdown('create')" 
+              @click="isBranchUser ? openQuickAction('quickSale') : toggleDropdown('create')" 
               class="bg-[#165A31] text-white text-[11px] font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-1 sm:gap-2 hover:bg-[#124a28] transition-colors shadow-sm whitespace-nowrap cursor-pointer"
+              :title="isBranchUser ? 'Instant Point of Sale (POS)' : 'Quick Create Resource'"
             >
+              <Sparkles class="w-3.5 h-3.5 text-emerald-300" />
               <span>{{ isBranchUser ? '+ Quick Sale' : '+ Quick Create' }}</span>
               <ChevronDown v-if="!isBranchUser" class="w-3.5 h-3.5 opacity-70" />
             </button>
-            <div v-if="openDropdown === 'create' && !isBranchUser" class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
-              <div class="px-4 py-2 text-[10px] font-bold text-gray-900 uppercase tracking-wider border-b border-gray-50 mb-1">Quick Create</div>
-              <button @click="openDropdown = null; router.push('/sales/orders')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-between cursor-pointer">
-                New Sale / POS
-                <span class="text-[10px] text-gray-400">Ctrl+S</span>
-              </button>
-              <button @click="openDropdown = null; router.push('/procurement/purchase-orders')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Purchase Order</button>
-              <button @click="openDropdown = null; router.push('/sales/customers')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Customer</button>
-              <button @click="openDropdown = null; router.push('/inventory/transfers')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Stock Transfer</button>
-              <button @click="openDropdown = null; router.push('/finance/expenses')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Expense</button>
-              <button @click="openDropdown = null; router.push('/after-sales/warranty')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer">Warranty / Service Case</button>
+
+            <!-- Super Admin Quick Create Dropdown -->
+            <div v-if="openDropdown === 'create' && !isBranchUser" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-gray-100 py-2 z-50 divide-y divide-gray-50 text-xs animate-in fade-in zoom-in-95 duration-150">
+              <div class="p-2 space-y-0.5">
+                <div class="px-3 py-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Commercial & Sales</div>
+                <button @click="openQuickAction('quickSale')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center justify-between cursor-pointer">
+                  <span class="flex items-center gap-2 font-semibold">
+                    <ShoppingCart class="w-3.5 h-3.5 text-[#165A31]" /> Point of Sale (POS)
+                  </span>
+                  <span class="text-[9px] px-1.5 py-0.5 bg-emerald-100 text-[#165A31] font-bold rounded">Instant</span>
+                </button>
+                <button @click="openQuickAction('newOrder')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <FilePlus class="w-3.5 h-3.5 text-blue-600" /> New Sales Order / Booking
+                </button>
+                <button @click="openQuickAction('quotation')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Tag class="w-3.5 h-3.5 text-amber-600" /> New Customer Quotation
+                </button>
+                <button @click="openQuickAction('lead')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <UserPlus class="w-3.5 h-3.5 text-purple-600" /> New Walk-In Lead
+                </button>
+                <button @click="openQuickAction('payment')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Receipt class="w-3.5 h-3.5 text-emerald-600" /> Record Customer Payment
+                </button>
+              </div>
+
+              <div class="p-2 space-y-0.5">
+                <div class="px-3 py-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Operations & Procurement</div>
+                <button @click="openQuickAction('purchaseOrder')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Truck class="w-3.5 h-3.5 text-indigo-600" /> Purchase Order (Import)
+                </button>
+                <button @click="openQuickAction('transfer')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Truck class="w-3.5 h-3.5 text-teal-600" /> Inter-Branch Transfer
+                </button>
+                <button @click="openQuickAction('expense')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <DollarSign class="w-3.5 h-3.5 text-rose-600" /> Showroom Expense Voucher
+                </button>
+                <button @click="openQuickAction('case')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Wrench class="w-3.5 h-3.5 text-amber-600" /> Service Intake / Warranty
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Quick Actions dropdown for Branch Manager -->
           <div v-if="isBranchUser" class="relative hidden sm:block">
-            <button @click="toggleDropdown('quickActions')" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 flex items-center gap-1 cursor-pointer">
+            <button 
+              @click="toggleDropdown('quickActions')" 
+              class="px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+            >
               <span>Quick Actions</span>
               <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
             </button>
-            <div v-if="openDropdown === 'quickActions'" class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50 text-xs">
-              <button @click="openDropdown = null; router.push('/sales/orders')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50">New Order</button>
-              <button @click="openDropdown = null; router.push('/inventory/stock-requests')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50">Stock Request</button>
-              <button @click="openDropdown = null; router.push('/finance/expenses')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50">Log Expense</button>
+
+            <div v-if="openDropdown === 'quickActions'" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-gray-100 py-2 z-50 divide-y divide-gray-50 text-xs animate-in fade-in zoom-in-95 duration-150">
+              <div class="p-2 space-y-0.5">
+                <div class="px-3 py-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Sales & Orders</div>
+                <button @click="openQuickAction('quickSale')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center justify-between cursor-pointer">
+                  <span class="flex items-center gap-2 font-semibold">
+                    <ShoppingCart class="w-3.5 h-3.5 text-[#165A31]" /> Point of Sale (POS)
+                  </span>
+                  <span class="text-[9px] px-1.5 py-0.5 bg-emerald-100 text-[#165A31] font-bold rounded">Instant</span>
+                </button>
+                <button @click="openQuickAction('newOrder')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <FilePlus class="w-3.5 h-3.5 text-blue-600" /> New Order / Booking
+                </button>
+                <button @click="openQuickAction('lead')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <UserPlus class="w-3.5 h-3.5 text-purple-600" /> New Walk-In Lead
+                </button>
+                <button @click="openQuickAction('quotation')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Tag class="w-3.5 h-3.5 text-amber-600" /> New Quotation
+                </button>
+                <button @click="openQuickAction('payment')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Receipt class="w-3.5 h-3.5 text-emerald-600" /> Record Payment
+                </button>
+              </div>
+
+              <div class="p-2 space-y-0.5">
+                <div class="px-3 py-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Showroom Operations</div>
+                <button @click="openQuickAction('stockRequest')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Package class="w-3.5 h-3.5 text-indigo-600" /> Stock Replenishment Request
+                </button>
+                <button @click="openQuickAction('transfer')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Truck class="w-3.5 h-3.5 text-teal-600" /> Inter-Branch Transfer
+                </button>
+                <button @click="openQuickAction('expense')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <DollarSign class="w-3.5 h-3.5 text-rose-600" /> Log Expense Voucher
+                </button>
+                <button @click="openQuickAction('case')" class="w-full text-left px-3 py-2 text-gray-700 hover:bg-emerald-50 hover:text-[#165A31] rounded-lg transition-colors flex items-center gap-2 cursor-pointer font-medium">
+                  <Wrench class="w-3.5 h-3.5 text-amber-600" /> Service Intake Case
+                </button>
+              </div>
             </div>
           </div>
           
@@ -659,5 +810,76 @@ const toggleTheme = () => {
         <RouterView />
       </div>
     </main>
+
+    <!-- Global Layout Toast Notification -->
+    <div 
+      v-if="showLayoutToast" 
+      class="fixed bottom-5 right-5 z-[150] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+    >
+      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <span class="text-xs font-bold">{{ layoutToastMessage }}</span>
+    </div>
+
+    <!-- In-Context Quick Action Modals -->
+    <CreateSaleModal 
+      v-if="showSaleModal"
+      :mode="saleModalMode"
+      @close="showSaleModal = false"
+      @created="handleQuickActionCreated(saleModalMode, $event)"
+    />
+
+    <CreateLeadModal 
+      v-if="showLeadModal"
+      @close="showLeadModal = false"
+      @created="handleQuickActionCreated('lead', $event)"
+    />
+
+    <CreateQuotationModal 
+      v-if="showQuotationModal"
+      @close="showQuotationModal = false"
+      @created="handleQuickActionCreated('quotation', $event)"
+    />
+
+    <CreatePaymentModal 
+      v-if="showPaymentModal"
+      @close="showPaymentModal = false"
+      @created="handleQuickActionCreated('payment', $event)"
+    />
+
+    <CreateCustomerModal 
+      v-if="showCustomerModal"
+      @close="showCustomerModal = false"
+      @created="handleQuickActionCreated('customer', $event)"
+    />
+
+    <CreateExpenseModal 
+      v-if="showExpenseModal"
+      @close="showExpenseModal = false"
+      @created="handleQuickActionCreated('expense', $event)"
+    />
+
+    <CreateStockRequestModal 
+      v-if="showStockRequestModal"
+      @close="showStockRequestModal = false"
+      @created="handleQuickActionCreated('stockRequest', $event)"
+    />
+
+    <CreateTransferModal 
+      v-if="showTransferModal"
+      @close="showTransferModal = false"
+      @created="handleQuickActionCreated('transfer', $event)"
+    />
+
+    <CreateCaseModal 
+      v-if="showCaseModal"
+      @close="showCaseModal = false"
+      @created="handleQuickActionCreated('case', $event)"
+    />
+
+    <CreatePurchaseOrderModal 
+      v-if="showPurchaseOrderModal"
+      @close="showPurchaseOrderModal = false"
+      @created="handleQuickActionCreated('po', $event)"
+    />
   </div>
 </template>

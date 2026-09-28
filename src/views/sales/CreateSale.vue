@@ -17,6 +17,10 @@ const props = defineProps({
   customer: {
     type: [Object, String],
     default: null
+  },
+  mode: {
+    type: String, // 'sale' | 'pos' | 'order'
+    default: 'sale'
   }
 })
 
@@ -25,6 +29,18 @@ const emit = defineEmits(['close', 'created', 'updated'])
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const isOrderMode = computed(() => props.mode === 'order' || props.mode === 'booking')
+const modalTitle = computed(() => {
+  if (isEditMode.value) return isOrderMode.value ? 'Edit Sales Order' : 'Edit Sale / POS'
+  return isOrderMode.value ? 'New Vehicle Booking / Sales Order' : 'Point of Sale (POS) / Quick Sale'
+})
+const modalSubtitle = computed(() => {
+  if (isOrderMode.value) {
+    return 'Record advance customer vehicle booking, custom allocation, commercial order, or deposit reservation.'
+  }
+  return 'Instant walk-in showroom floor vehicle sale against physical chassis VIN, customer profile, and instant payment receipt.'
+})
 
 const isEditMode = ref(false)
 const showValidation = ref(false)
@@ -328,11 +344,11 @@ const createOrder = () => {
         <!-- Header -->
         <div>
           <div class="text-[10px] text-gray-500 dark:text-gray-400 mb-1">
-            <span v-if="isBranchUser">Branch Manager / Orders / <span class="font-bold text-gray-800 dark:text-gray-200">{{ isEditMode ? 'Edit Sale / POS' : 'Create Sale / POS' }}</span></span>
-            <span v-else>Super Admin / Sales & CRM / <span class="font-bold text-gray-800 dark:text-gray-200">{{ isEditMode ? 'Edit Sale / POS' : 'Create Sale / POS' }}</span></span>
+            <span v-if="isBranchUser">Branch Manager / Orders / <span class="font-bold text-gray-800 dark:text-gray-200">{{ modalTitle }}</span></span>
+            <span v-else>Super Admin / Sales & CRM / <span class="font-bold text-gray-800 dark:text-gray-200">{{ modalTitle }}</span></span>
           </div>
-          <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900 dark:text-white">{{ isEditMode ? 'Edit Sale / POS' : 'Create Sale / POS' }}</h1>
-          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Book an electric vehicle sale against a physical showroom chassis VIN, customer profile, and payment receipt.</p>
+          <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900 dark:text-white">{{ modalTitle }}</h1>
+          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{{ modalSubtitle }}</p>
         </div>
 
         <!-- 2-Column Grid Layout -->
