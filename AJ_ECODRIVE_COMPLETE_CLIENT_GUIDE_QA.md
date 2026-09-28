@@ -98,26 +98,6 @@ If you are a dealership owner, board member, or business executive who does not 
 | **The 5 Standard Flows** | Deep dive into Commercial, Stock Reallocation, OPEX, Warranty, and Governance flows. | [Jump to Part 5](#part-5-the-5-standard-enterprise-action-flows-q53--q68) |
 | **Action Creation Wizard** | Step-by-step 2-step modal creation flow and Head Office slide-out decision treatment drawer. | [Jump to Part 6](#part-6-the-action-creation-wizard--decision-treatment-drawer-q69--q84) |
 | **10 Master Touchpoints** | The complete operational collaboration manual between Super Admin and Branch Managers. | [Jump to Part 27](#part-27-super-admin--branch-manager-10-master-touchpoints-collaboration-matrix-q375--q390) |
-| **Point of Sale Modal Guide** | Step-by-step Point of Sale (POS) execution, dynamic price engine, and instant VIN reservation. | [Jump to Q132 (CreateSaleModal)](#q132-modal-guide--what-is-the-createsalemodal-createsalevue-and-what-are-its-exact-fields) |
-| **Formal Quotations Guide** | Preparing binding 7-day customer price quotations, 8% discount ceiling, and 1-click order conversion. | [Jump to Q116 (CreateQuotationModal)](#q116-modal-guide--what-is-the-createquotationmodal-createquotationvue-and-what-are-its-exact-fields) |
-| **Expense & Petty Cash Guide** | Showroom expense entry, receipt attachments, and dynamic PKR 15,000 petty cash vs. CFO clearance banner. | [Jump to Q317 (CreateExpenseModal)](#q317-modal-guide--what-is-the-createexpensemodal-createexpensevue-and-what-are-its-exact-fields) |
-| **Inter-Branch Transfer Guide**| Moving vehicles between cities with In-Transit custody, driver contact info, and mandatory physical VIN inspection. | [Jump to Q262 (CreateTransferModal)](#q262-modal-guide--what-is-the-createtransfermodal-createtransfervue-and-what-are-its-exact-fields) |
-| **Inbound Receiving Guide** | Verifying inbound carrier shipments, barcode scanning, transit discrepancy reporting, and stock intake. | [Jump to Q275 (ReceiveTransferModal)](#q275-modal-guide--what-is-the-receivetransfermodal-receivetransfervue-and-what-are-its-exact-fields) |
-| **Customer Payment Guide** | Recording cash collections, IBFT bank deposit reconciliation, and linking every rupee to an official invoice. | [Jump to Q147 (CreatePaymentModal)](#q147-modal-guide--what-is-the-createpaymentmodal-createpaymentvue-and-what-are-its-exact-fields) |
-| **Customer CNIC Registration** | Why 13-digit Pakistani CNIC numbers and verified mobile phones are mandatory for electric bike registration. | [Jump to Q101 (CreateCustomerModal)](#q101-modal-guide--what-is-the-createcustomermodal-createcustomervue-and-what-are-its-exact-fields) |
-| **Walk-In Leads & Pipeline** | Capturing showroom visitors, assigning sales reps, scheduling test rides, and logging call follow-ups. | [Jump to Q90 (CreateLeadModal)](#q90-modal-guide--what-is-the-createleadmodal-createleadvue-and-what-are-its-exact-fields) |
-| **Workshop Intake & Repairs**  | Opening service cases, recording odometer readings, scanning OBD trouble codes, and mechanic job cards. | [Jump to Q177 (CreateCaseModal)](#q177-modal-guide--what-is-the-createcasemodal-createcasevue-and-what-are-its-exact-fields) & [Q191 (CreateRepairJobModal)](#q191-modal-guide--what-is-the-createrepairjobmodal-createrepairjobvue-and-what-are-its-exact-fields) |
-| **Delivery Handover & Gate Pass**| The mandatory 6-point Pre-Delivery Inspection (PDI) checklist and printing the official security gate pass. | [Jump to Q162 (CreateDeliveryHandoverModal)](#q162-modal-guide--what-is-the-createdeliveryhandovermodal-createdeliveryhandovervue-and-what-are-its-exact-fields) |
-| **Vehicle Returns & Refunds** | Handling order cancellations or returns, 10-point return inspection, and calculating net refunds. | [Jump to Q223 (CreateReturnModal)](#q223-modal-guide--what-is-the-createreturnmodal-createreturnvue-and-what-are-its-exact-fields) |
-| **Stock Requisitions** | Requesting inventory replenishment from Central Warehouse when showroom stock hits safety threshold. | [Jump to Q250 (CreateStockRequestModal)](#q250-modal-guide--what-is-the-createstockrequestmodal-createstockrequestvue-and-what-are-its-exact-fields) |
-| **Cycle Counts & Audits** | Conducting blind physical stock-takes, scanning floor chassis barcodes, and auto-locking missing VINs. | [Jump to Q290 (CreateCycleCountModal)](#q290-modal-guide--what-is-the-createcyclecountmodal-createcyclecountvue-and-what-are-its-exact-fields) & [Q293 (CreateAdjustmentRequestModal)](#q293-modal-guide--what-is-the-createadjustmentrequestmodal-createadjustmentrequestvue-and-what-are-its-exact-fields) |
-| **Defective Stock Quarantine** | Isolating factory-damaged bikes, transit scratches, or battery hazards in physical Bay Q-3. | [Jump to Q304 (CreateQuarantineRecordModal)](#q304-modal-guide--what-is-the-createquarantinerecordmodal-createquarantinerecordvue-and-what-are-its-exact-fields) |
-| **Sea Container Imports** | Purchasing CBU/CKD containers from China, tracking Bills of Lading, and batch VIN serialization. | [Jump to Q345 (CreatePurchaseOrderModal)](#q345-modal-guide--what-is-the-createpurchaseordermodal-createpurchaseordervue-and-what-are-its-exact-fields) & [Q347 (ReceivePurchaseModal)](#q347-modal-guide--what-is-the-receivepurchasemodal-receivepurchasevue-and-what-are-its-exact-fields) |
-| **Showroom Branches & Roles** | Opening new branch showrooms, provisioning staff accounts, security permissions, and internal chat. | [Jump to Q360 (CreateBranchModal)](#q360-modal-guide--what-is-the-createbranchmodal-createbranchvue-and-what-are-its-exact-fields) & [Q362 (CreateUserModal)](#q362-modal-guide--what-is-the-createusermodal-createuservue-and-what-are-its-exact-fields) |
-| **Branch Dashboard & Snapshot** | Detailed drill-down guide for Branch Snapshot (Open Orders, Available Stock, Reserved, Incoming, Low Stock, Service Cases). | [Jump to Q36A (Branch Snapshot)](#q36a-what-is-the-branch-snapshot-on-the-branch-manager-dashboard-where-does-each-kpi-tile-redirect-and-what-does-it-display) |
-| **Action Required Triage Links** | Complete routing matrix for Action Required table priority items, "Open ›" links, and direct record pills (TR, PO, SKU, ORD, LD, EXP, RET, SC, TASK). | [Jump to Q36B (Action Required)](#q36b-what-is-the-action-required-table-on-the-branch-manager-dashboard-and-where-do-the-open--buttons-and-record-badges-redirect) |
-| **Quick Actions & POS vs Order**| Complete 9-action direct modal suite and the operational difference between Point of Sale (POS) and Sales Order (Booking). | [Jump to Q27 (Quick Actions & POS vs Order)](#q27-what-is-the-quick-actions-bar-on-the-dashboard-and-top-navigation-how-does-it-speed-up-operations-and-what-is-the-difference-between-a-quick-sale-pos-and-a-sales-order) |
-
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -722,10 +702,6 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 * **1-Click Order Conversion:** When the customer returns within 7 days, clicking **"Convert to Order"** on the quotation screen converts it into an active Sales Order without re-entering customer CNIC, model specs, or discount terms.
 
 ---
-
-
-
----
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
 
 ---
@@ -737,117 +713,160 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 # PART 4: The Dealership Action Centre — The Command Bridge (Q37 – Q52)
 
 ### Q37: What is the Action Centre screen in AJ EcoDrive, and how do dealership staff navigate to it?
-**Answer:** The **Action Centre** is located at `/dashboard/action-centre` and is directly accessible via the primary navigation sidebar under **Dashboard -> Action Centre** (or by clicking the prominent Action Centre banner on the Branch or Super Admin Dashboard).
-* On the **Windows Desktop Application**: It serves as the primary operational command desk where all urgent requests requiring human managerial decision are displayed.
-* On the **Mobile & Tablet App**: It is presented in a high-density, touch-optimized card layout, enabling roaming showroom managers and field executives to review, counter, and approve critical requests from anywhere.
-* On the **Optional Web Companion**: It provides an executive overview for directors traveling outside the dealership network.
+**Answer:** The **Action Centre** is the central operational command desk and decision engine of AJ EcoDrive. Unlike standard email or phone escalations, every managerial decision across all dealership branches is tracked, timed, and audited in a single high-visibility workspace:
+* 📍 **System Navigation Path:**
+  * **Desktop / Web:** `Left Sidebar` &rarr; `Dashboard` &rarr; `Action Centre` (`/dashboard/action-centre`) OR Click the **Action Centre Banner** / **Action Required** table on the Main Dashboard.
+  * **Mobile / Tablet:** Tap `Menu (Hamburger)` &rarr; `Action Centre` (`/dashboard/action-centre`) OR Tap the urgent Action badge in the top navigation header.
+* **On Desktop Workstations:** Operates as a dual-pane command bridge with dynamic work queues on the left and full context decision drawers on the right.
+* **On Mobile & Tablets:** Renders as touch-optimized, high-density priority cards with 1-tap **Approve**, **Review**, or **Decline** buttons for roaming managers.
+* **Executive Web Portal:** Provides remote directors and board members real-time visibility into pending multi-branch approval bottlenecks from anywhere in the world.
 
 ---
 
 ### Q38: What makes the Action Centre fundamentally different from standard Notifications?
-**Answer:** While **Notifications** are passive, informational alerts (such as *"Customer invoice #INV-102 was printed"* or *"Payment received"*), an **Action Centre Item** represents a **high-stakes operational task that requires formal human review, validation, and a binding business decision (Approve, Counter, Authorize, or Reject)** before it can be closed.
-1. **Auditable Decision Gate:** No action item disappears by simply clicking "mark as read". It requires a documented operational treatment (e.g., entering an authorized discount cap, releasing an OEM battery part, or approving an expense voucher).
-2. **Bi-Directional Workflow:** 
-   - **Branch Manager &rarr; Super Admin:** Escalating commercial discounts, requesting emergency vehicle pulls from other cities, requesting expense reimbursements above PKR 15,000, and reporting warranty battery failures.
-   - **Super Admin &rarr; Branch Manager:** Issuing mandatory safety recall directives, assigning nationwide physical cycle count audits, or mandating showroom stock redistribution.
-3. **Automated Enterprise Accounting & Inventory Impact:** When an action is approved in the Action Centre, it automatically updates the underlying business records in the system (e.g., sales orders, quotation discount flags, transfer records, expense ledgers, or repair job cards) and writes an immutable audit trail.
+**Answer:** Notifications are passive alerts, whereas Action Centre items are binding, auditable managerial decision gates:
+* 📍 **System Navigation Path:** `Dashboard` &rarr; `Sidebar: Action Centre` (`/dashboard/action-centre`) vs `Top Header` &rarr; `Notification Bell`
+* **Notifications (Passive Alerts):** Informational messages (e.g. *"Customer receipt #REC-901 printed"* or *"Inbound truck dispatched"*). They can be dismissed or marked as read without taking action.
+* **Action Centre Tasks (Active Decision Gates):** High-stakes business events requiring formal human authorization:
+  1. **Auditable Decision Gate:** Cannot be dismissed without a formal operational treatment (Approve, Counter-Offer, Authorize, or Reject with mandatory notes).
+  2. **Bi-Directional Command:** Facilitates bottom-up requests from Branch Managers to Head Office (discounts > 8%, emergency stock reallocations, OPEX > PKR 15,000, lithium battery warranty replacements) AND top-down directives from Super Admin to branches (safety recalls, nationwide cycle count audits).
+  3. **Automated Ledger Execution:** When approved, the system instantly executes the underlying transaction (e.g., updates invoice discount, unlocks inter-branch transit gate pass, releases petty cash disbursement, or issues OEM warranty replacement credit).
 
 ---
 
 ### Q39: What are the 7 Work Queue Tabs in the Action Centre, and what does each tab filter?
-**Answer:** The Action Centre organizes incoming tasks into 7 dedicated filter tabs:
-1. **All Tasks Queue:** Displays every active and historically resolved action item across all categories.
-2. **Pending Review (Action Required):** Shows only active tasks awaiting a managerial decision (filtered for items in `Pending` or `Under Review` status).
-3. **Commercial & Pricing:** Filters Flow 1 tasks—discount exception waivers, corporate fleet margins, and payment term concessions.
-4. **Stock Reallocation:** Filters Flow 2 tasks—urgent inter-branch vehicle transfers, emergency color pulls, and transit permits.
-5. **High-Value OPEX:** Filters Flow 3 tasks—showroom operating expenditures and facility repairs exceeding the local branch limit (PKR 15,000).
-6. **Technical & Warranty:** Filters Flow 4 tasks—lithium battery failures, BMS fault escalations, motor replacements, and OEM warranty authorizations.
-7. **Inventory Governance:** Filters Flow 5 tasks—cycle count audit variances, container transit damage, and quality quarantine releases.
+**Answer:** The Action Centre organizes incoming tasks into 7 dedicated work queues to allow instant triage:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; `Horizontal Tab Bar`
+
+| Tab Name | Work Queue Focus & Operational Scope | Linked Business Entities |
+| :--- | :--- | :--- |
+| **1. All Tasks** | Master consolidated queue showing every active and resolved task across the network. | All Records (`ACT-PRC`, `ACT-STK`, `ACT-EXP`, `ACT-WRN`, `ACT-GOV`) |
+| **2. Pending Review** | Filters only active requests requiring an immediate managerial decision (`Pending` or `Under Review`). | Critical & High SLA items |
+| **3. Commercial & Pricing** | Pricing waivers, fleet discounts > 8%, payment concession terms, and promotional margin exceptions. | Quotations (`QT-`), Sales Orders (`ORD-`) |
+| **4. Stock Reallocation** | Emergency inter-branch vehicle transfers, showroom color pulls, and factory container allocations. | Inter-Branch Transfers (`TR-`), Serialized Units (`VIN-`) |
+| **5. High-Value OPEX** | Branch operating expenditures and emergency repair bills exceeding local limit (PKR 15,000). | Expense Vouchers (`EXP-`), Cash Ledgers |
+| **6. Technical & Warranty** | High-voltage Lithium battery failures, Smart BMS errors, burnt motors, and OEM warranty authorizations. | Workshop Service Cases (`SC-`), Repair Job Cards (`JOB-`) |
+| **7. Inventory Governance** | Cycle count physical variances, sea container transit damage, and quality quarantine releases. | Cycle Counts (`CC-`), Quarantine Logs (`QR-`) |
 
 ---
 
 ### Q40: What do the 5 Summary KPI Cards at the top of the Action Centre indicate?
-**Answer:** At the top of the Action Centre screen, 5 dynamic metric cards provide real-time operational status:
-* **Active Requests:** Total count of open, unresolved items requiring executive attention across the network.
-* **Commercial Discounts:** Total monetary value (PKR) of requested price waivers currently awaiting margin review.
-* **Emergency OPEX:** Total monetary amount (PKR) of showroom operating expenditure claims awaiting CFO clearance.
-* **Critical Stock Reallocations:** Number of urgent vehicle transfers requested to fulfill locked customer deposits.
-* **Warranty Claims:** Number of high-voltage battery and controller replacements awaiting technical authorization.
+**Answer:** At the top of `/dashboard/action-centre`, 5 interactive KPI counters provide an instant executive summary:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; `Top Metric Cards Row`
+* **Active Requests:** Total count of open, unresolved items currently awaiting executive review across all branches.
+* **Commercial Discounts:** Total monetary value (in PKR) of customer discount waivers currently awaiting gross margin clearance.
+* **Emergency OPEX:** Total value (in PKR) of showroom operational expense claims awaiting CFO payment clearance.
+* **Critical Stock Reallocations:** Number of urgent vehicle pull requests needed to fulfill customer delivery bookings.
+* **Warranty Claims:** Number of high-voltage battery and controller replacements awaiting technical sign-off.
+* *Clicking any KPI card instantly filters the table below to that specific category.*
 
 ---
 
 ### Q41: What are the 4 Visual SLA Urgency Badges, and what do they mean?
-**Answer:** Every item in the Action Centre displays a color-coded Service Level Agreement (SLA) countdown badge based on its business urgency:
-1. **< 2h (Critical - Red Pulse):** Emergency customer walk-in discount or high-priority vehicle handover waiting on the showroom floor.
-2. **< 6h (High - Amber):** Urgent stock reallocation or workshop repair awaiting customer release.
-3. **< 24h (Normal - Blue):** Routine vendor expense reimbursement or next-day delivery reservation.
-4. **Overdue (Deep Crimson):** Request has exceeded company SLA response thresholds and has been escalated to executive directors.
+**Answer:** Every action item displays a real-time countdown badge enforcing dealership Service Level Agreements (SLAs):
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Task Card &rarr; `SLA Countdown Pill`
+1. **< 2h (Critical - Red Pulse):** Emergency walk-in customer waiting at the sales counter or vehicle pending delivery today.
+2. **< 6h (High - Amber):** Same-day inter-branch stock reallocation or workshop repair awaiting customer release.
+3. **< 24h (Normal - Blue):** Routine vendor expense reimbursement or next-week delivery reservation.
+4. **Overdue (Deep Crimson):** Breached company SLA response limits; automatically escalated to National Sales Director / CFO.
 
 ---
 
 ### Q42: Can a Branch Manager approve their own requests in the Action Centre?
-**Answer:** **No.** Strict segregation of duties prevents a Branch Manager from approving their own discount waivers, expense claims, or inventory adjustments. When a Branch Manager submits a request, it is marked as `Pending Head Office Review` and can only be treated by an authorized Super Admin or Central Department Head.
+**Answer:** **No. The system enforces strict separation of operational duties.**
+* 📍 **System Navigation Path:** `Action Centre` (`/dashboard/action-centre`) &rarr; `Treatment Drawer`
+* When a Branch Manager submits an escalation (e.g. requesting a 12% discount on an electric scooter or claiming PKR 28,000 for showroom air-conditioner repair), the system marks the task as `Pending Head Office Review`.
+* The submitting manager's interface displays a read-only tracking view with status badges.
+* Only an authorized **Super Admin** or designated Department Head can execute **Approve**, **Counter-Offer**, or **Decline**.
 
 ---
 
 ### Q43: How does the Action Centre prevent bottlenecks when Head Office directors are busy?
-**Answer:** The Action Centre includes automated SLA escalation rules. If a high-priority request (such as a walk-in customer discount waiver) is not treated within 90 minutes, the system sends an SMS and mobile push alert to the National Sales Director and unlocks an emergency temporary discretionary override.
+**Answer:** Through automated escalation protocols and mobile companion access:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Action Centre Settings` &rarr; `SLA Escalation Rules`
+* **Mobile Push & SMS Alerts:** When a Critical SLA item (< 2h) remains pending for 60 minutes, automated push notifications are dispatched to executive mobile devices.
+* **Emergency Temporary Delegation:** Super Admins can delegate approval authority to Regional Managers during executive travel.
+* **Auto-Rollback Protection:** If a pricing waiver is not treated before the customer quote expires (7 days), the quotation automatically locks at standard list price to protect dealership profitability.
 
 ---
 
 ### Q44: Does the Action Centre support filtering by specific branch showroom?
-**Answer:** Yes. Super Admins can filter the queue by All Branches, Peshawar, Islamabad, Lahore, or Rawalpindi to evaluate local branch performance and identify showrooms experiencing operational delays.
+**Answer:** Yes. The Action Centre provides comprehensive multi-branch filtering:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; `Branch Filter Dropdown`
+* Executives can toggle between **All Branches**, **Peshawar**, **Islamabad**, **Lahore**, and **Rawalpindi** to compare branch responsiveness, audit regional operating expense claims, and track city-specific warranty defect rates.
 
 ---
 
 ### Q45: What information is displayed on each Action Centre task card?
-**Answer:** Each task card provides comprehensive summary information:
-* Unique Reference ID (e.g., `ACT-PRC-1082` or `ACT-STK-2041`)
-* Flow Category Badge (Commercial, Stock, OPEX, Warranty, Governance)
-* Originating Branch & Requesting Officer Name
-* Financial Value (PKR) or Serialized VIN Reference
-* Elapsed Time & SLA Urgency Badge
-* Brief Justification Excerpt
-* Current Status (`Pending`, `Under Review`, `Approved`, `Rejected`)
+**Answer:** Each task card provides complete operational context at a glance:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; `Task Cards List`
+* **Unique Action Code:** Reference ID (e.g., `ACT-PRC-1082`, `ACT-STK-2041`).
+* **Category Badge:** Visual pill indicating Flow 1 (Commercial), Flow 2 (Stock), Flow 3 (OPEX), Flow 4 (Warranty), or Flow 5 (Governance).
+* **Branch & Submitter:** Originating dealership name (e.g., *Peshawar Showroom*) and requesting manager's full name.
+* **Financial Value / Asset Tag:** Monetary impact in PKR (e.g., *PKR 25,000 Discount Waiver*) or Chassis VIN reference.
+* **Elapsed Time & SLA Badge:** Real-time urgency timer (e.g., *Elapsed: 42 mins — SLA: < 2h Critical*).
+* **Justification Excerpt:** First 2 lines of the branch manager's business explanation.
+* **Status Badge:** `Pending`, `Under Review`, `Approved`, `Rejected`, or `Counter-Offered`.
 
 ---
 
 ### Q46: Can staff communicate directly inside an Action Centre item?
-**Answer:** Yes. Every task card includes an interactive **Discussion & Activity Log**. The Super Admin can post questions (e.g., *"Did the customer provide a competitive written quotation from RoadPrince EV?"*) and the Branch Manager receives an instant alert to reply and attach supplementary photos or documents.
+**Answer:** Yes. Every task card includes an interactive **Discussion & Activity Log**:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Click any Task Card &rarr; `Activity & Discussion Tab`
+* **Real-Time Threaded Chat:** Super Admins and Branch Managers can exchange messages directly within the task (e.g., Super Admin: *"Can the customer pay 50% cash today if we approve 10% discount?"* &rarr; Manager: *"Yes, customer has PKR 125,000 cash in hand"*).
+* **Document & Photo Attachments:** Staff can attach competitor price quotes, damaged parts photos, or vendor expense invoices directly into the conversation.
 
 ---
 
 ### Q47: What happens when an action item is officially Approved?
-**Answer:** The system automatically executes the underlying business action without requiring manual re-entry:
-* **Pricing Waivers:** The linked Quotation or Sales Order immediately updates with the approved discount percentage and is marked ready for invoicing.
-* **Stock Transfers:** An official Inter-Branch Dispatch Gate Pass is generated, reserving the specific VINs in origin inventory.
-* **Expense Claims:** An accounting payment voucher is posted to the branch petty cash ledger.
-* **Warranty Claims:** An authorized spare parts issue slip is dispatched to the workshop store.
+**Answer:** The system executes the underlying business transaction automatically and instantaneously:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select Task &rarr; Click **"Approve"** Button
+* **Commercial Pricing:** The linked Quotation or Sales Order updates with the approved discount, recalculates tax, and unlocks official Tax Invoicing.
+* **Stock Reallocation:** An Inter-Branch Dispatch Gate Pass is generated, reserving the physical chassis VIN in origin inventory.
+* **OPEX Claims:** A payment disbursement voucher posts to the branch petty cash ledger, crediting the cashier.
+* **Warranty Replacements:** An authorized replacement parts voucher is dispatched to the workshop parts store, releasing a brand-new component at PKR 0 customer charge.
 
 ---
 
 ### Q48: What happens when an action item is Rejected?
-**Answer:** The system requires the reviewer to input a mandatory **Rejection Justification Note**. The requesting branch receives an immediate alert detailing why the request was denied, and the linked business transaction reverts to standard catalog pricing or original branch allocations.
+**Answer:** The request is formally closed with a mandatory audit record:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select Task &rarr; Click **"Decline / Reject"** Button
+* **Mandatory Rejection Note:** The reviewer must input an operational explanation (e.g., *"Gross margin too low; maximum allowable discount is 5%"*).
+* **Instant Branch Notification:** The requesting branch receives an instant alert with the explanation.
+* **Ledger Rollback:** The underlying quotation or order reverts to standard retail catalog pricing.
 
 ---
 
 ### Q49: How does the Action Centre maintain legal and tax audit compliance?
-**Answer:** Every interaction—creation, view, status change, counter-offer, approval, and rejection—is recorded in an **Immutable Audit Trail**. The log captures the user ID, full name, role, IP address, exact timestamp, and notes, providing foolproof documentation for external financial and tax audits.
+**Answer:** Every action is preserved in an immutable, forensic audit trail:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Audit Logs` (`/reports/audit-logs`)
+* **Captured Metadata:** User ID, role, IP address, device hostname, exact timestamp down to the second, original values, modified values, and full decision notes.
+* **Tamper-Proof:** Audit records cannot be edited or deleted by any user (including Super Admin), ensuring complete transparency during corporate financial audits and FBR tax inspections.
 
 ---
 
 ### Q50: Can a Super Admin delegate an action item to another department?
-**Answer:** Yes. The Action Centre drawer features a **Delegate** action, allowing a Super Admin to assign a technical battery claim directly to the Chief Warranty Engineer, or an inter-city truck request to the National Logistics Manager.
+**Answer:** Yes. The Action Centre includes a built-in **Task Delegation Engine**:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select Task &rarr; Click **"Delegate"** &rarr; Select Department / Officer
+* A Super Admin can route technical Lithium battery warranty claims directly to the **Chief Technical Officer (CTO)** or inter-city vehicle freight logistics to the **Supply Chain Lead**, ensuring specialized review without bottlenecking executive leadership.
 
 ---
 
 ### Q51: How does the Action Centre appear on mobile tablets?
-**Answer:** On mobile tablets, the 7 tabs collapse into a sleek horizontal swipe bar, and task cards expand into full-width cards with large, finger-friendly touch buttons (`Approve`, `Review`, `Decline`), enabling executives to run dealership approvals while walking the showroom floor.
+**Answer:** On mobile tablets, the interface adapts into an ergonomic mobile command console:
+* 📍 **System Navigation Path:** Mobile Tablet &rarr; `/dashboard/action-centre`
+* The 7 queue tabs transform into a swipeable horizontal filter bar.
+* Task cards render with large touch-friendly buttons (`Approve`, `Counter`, `Decline`).
+* Tapping a card opens a smooth slide-over bottom sheet containing the full financial impact analysis and one-touch biometric approval.
 
 ---
 
 ### Q52: What happens if an action item was submitted while the branch was offline?
-**Answer:** When a branch creates an Action Centre item without internet access, it is queued locally in the workstation's Outbox. The moment connectivity is restored, the item is securely pushed to the central server, timestamped with both its local creation time and server receipt time.
+**Answer:** Offline submissions are safeguarded by AJ EcoDrive's **Local Queue Engine**:
+* 📍 **System Navigation Path:** `Top Header` &rarr; `Offline Outbox Indicator` (`/system/outbox`)
+* When submitted without internet connectivity, the task is saved to the local SQLite database with a cryptographic local timestamp.
+* The application continues normal branch workflows.
+* Upon internet restoration, the Outbox automatically syncs the action item to the Head Office central server, preserving chronological audit integrity.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -857,125 +876,169 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 # PART 5: The 5 Standard Enterprise Action Flows (Q53 – Q68)
 
 ### Q53: What are the 5 Standard Enterprise Action Flows in AJ EcoDrive?
-**Answer:** To eliminate operational ambiguity and standardize procedures across all showrooms, AJ EcoDrive structures all managerial escalations into **5 Universal Enterprise Action Flows**:
-1. **Flow 1: Commercial & Pricing Exception** *(Discount Waivers & Margin Governance)*
-2. **Flow 2: Inter-Branch Stock Reallocation & Urgent Dispatch** *(Fleet Movement & Vehicle Transfers)*
-3. **Flow 3: Emergency Operational Expenditure & Branch Reimbursement** *(CapEx, Facilities & OpEx)*
-4. **Flow 4: Critical Warranty Claim & High-Voltage Technical Escalation** *(Battery/Motor/Part Authorization)*
-5. **Flow 5: Inventory Governance, Discrepancy & Quarantine Release Sign-off** *(Audit & Transit Damage)*
+**Answer:** AJ EcoDrive standardizes all dealership operational escalations into **5 Universal Action Flows**:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Click `+ New Action Request` (`CreateActionWizard`)
+
+```
+[Dealership Operational Escalation]
+                │
+  ┌─────────────┼─────────────┬─────────────┬─────────────┐
+  ▼             ▼             ▼             ▼             ▼
+[Flow 1]      [Flow 2]      [Flow 3]      [Flow 4]      [Flow 5]
+Commercial    Stock         High-Value    Technical     Inventory
+& Pricing     Reallocation  OPEX          & Warranty    Governance
+(Discounts)   (Transfers)   (> PKR 15k)   (Batteries)   (Cycle Counts)
+```
+
+1. **Flow 1: Commercial & Pricing Escalations:** Discount approvals > 8%, corporate fleet pricing, and custom payment milestones.
+2. **Flow 2: Stock Reallocation & Emergency Transfers:** Fast-tracking vehicle transfers between cities to fulfill locked customer bookings.
+3. **Flow 3: High-Value Operational Expenses (OPEX):** Approving showroom expenditures, emergency utility repairs, and facility bills exceeding PKR 15,000.
+4. **Flow 4: Technical & Lithium Battery Warranty Claims:** Authorizing OEM replacement of high-voltage batteries, Smart BMS units, and drive motors.
+5. **Flow 5: Inventory Governance & Cycle Count Variances:** Resolving missing floor units, transit shipping damages, and quarantine releases.
 
 ---
 
-### Q54: Flow 1 — What is the business purpose of the "Commercial & Pricing Exception" flow?
-**Answer:** Showroom Branch Managers have a pre-approved discretionary discount limit (up to 8% or PKR 25,000). When a customer or corporate client demands a larger price reduction, the Branch Manager cannot unilaterally reduce the price. They must submit a Commercial Pricing Exception in the Action Centre to protect the company's gross profit margins.
+### Q54: What triggers a Flow 1 (Commercial & Pricing) action item?
+**Answer:** Flow 1 is automatically triggered whenever a quotation or sales order breaches dealership commercial pricing rules:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; Enter Discount > 8%
+* **Trigger Conditions:**
+  * Sales representative enters a cash discount exceeding the branch manager's 8% discretionary ceiling.
+  * Corporate client requests a batch purchase discount on 5+ electric scooters.
+  * Customer requests a deferred payment installment plan without interest surcharges.
+* **System Action:** The quotation status sets to `Pending Commercial Approval` and routes to the Action Centre under `ACT-PRC-XXXX`.
 
 ---
 
-### Q55: Flow 1 — What are the smallest and largest operational scenarios?
-**Answer:**
-* **Smallest Scenario:** A walk-in retail customer bargaining for a 5% discount on an entry-level scooter plus a free helmet and protective jacket waiver (PKR 12,000 total waiver) during an Eid promotional weekend.
-* **Largest Scenario:** An enterprise courier company negotiating a 14% fleet discount waiver on 25 commercial cargo trikes (a PKR 1.4 million discount on a PKR 12.25 million contract).
+### Q55: What financial metrics does the Super Admin see when reviewing a Flow 1 pricing request?
+**Answer:** The decision drawer displays an automated **Deal Profitability & Margin Analysis**:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-PRC` Item &rarr; `Decision Treatment Drawer`
+* **Base MSRP List Price:** Official retail price (e.g., `PKR 245,000`).
+* **Dealer Landing Cost (COGS):** Landed import/assembly cost (e.g., `PKR 185,000`).
+* **Standard Gross Margin:** Normal profit margin (e.g., `PKR 60,000` / `24.5%`).
+* **Requested Discount Amount:** Requested price reduction (e.g., `PKR 25,000` / `10.2%`).
+* **Net Revised Margin:** Resulting profit margin if approved (e.g., `PKR 35,000` / `15.9%`).
+* **Breakeven Guard:** If the requested price falls below dealer landing cost, the system displays a flashing crimson warning: *"ALERT: SALE AT NEGATIVE MARGIN"*.
 
 ---
 
-### Q56: Flow 1 — What dedicated fields and calculators are embedded in this flow?
-**Answer:**
-* Customer / Organization Name & Contact Phone
-* Vehicle Model / Category & Standard Catalogue Price (PKR)
-* Quotation / Sales Order Reference Number (`QT-XXXX` / `SO-XXXX`)
-* Requested Discount Percentage (%) & Live Calculated Discount Value (PKR)
-* **Live Projected Gross Margin Calculator:** Dynamically shows how the discount impacts dealership margin (e.g., dropping from standard 24.5% to 14.2%) with color-coded safety indicators.
-* Competitor Intelligence & Business Justification (e.g., matching competitor written quote).
+### Q56: How does the Counter-Offer feature work in Flow 1?
+**Answer:** If the Super Admin considers the requested discount too aggressive, they can counter-offer:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-PRC` Item &rarr; Click **"Counter-Offer"**
+* Super Admin inputs an approved compromise (e.g. *"Approved at 6% cash discount + free rear storage box worth PKR 4,500"*).
+* The branch manager receives the counter-offer on their sales screen with 1-click **Accept Counter** or **Decline**, allowing rapid closing while protecting margins.
 
 ---
 
-### Q57: Flow 1 — How does Head Office treat and resolve this request?
-**Answer:**
-* **Approve Full Discount:** Approves the requested waiver; system marks quotation as approved and unlocks discounted invoicing at the branch.
-* **Counter-Offer / Cap Discount:** Super Admin sets a binding counter-cap (e.g., *"Capped at 9.5% maximum"*). The quotation updates automatically.
-* **Reject Waiver:** Reverts deal to standard catalogue price list with mandatory explanation notes.
+### Q57: What triggers a Flow 2 (Stock Reallocation) action item?
+**Answer:** Flow 2 is initiated when a branch requires immediate vehicle allocation from another branch or Central Warehouse:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Stock Requests` (`/inventory/stock-requests`) OR `+ Inter-Branch Transfer`
+* **Common Triggers:**
+  * Peshawar has a customer with 100% cash ready for a *Metallic Crimson E-125*, but zero units are in Peshawar stock while Islamabad has 3 available units.
+  * Central Warehouse initiates an emergency stock rebalancing to meet weekend promotional demand in Lahore.
+* **Generated Code:** `ACT-STK-XXXX` with linked chassis VINs, carrier freight estimates, and origin/destination branches.
 
 ---
 
-### Q58: Flow 2 — What is the business purpose of the "Inter-Branch Stock Reallocation" flow?
-**Answer:** Dealerships cannot afford to lose an eager customer sale simply because a specific color or model variant is temporarily out of stock in their local showroom. This flow coordinates the rapid pull and dispatch of vehicles from another showroom branch or central warehouse.
+### Q58: What checks are performed before a Flow 2 Stock Reallocation is approved?
+**Answer:** The system performs automated multi-point inventory checks:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-STK` Item &rarr; `Inventory Impact Panel`
+1. **Physical Availability Check:** Verifies the requested VIN is `Available` in origin inventory and not locked to another customer's sales deposit.
+2. **Buffer Threshold Check:** Warns if dispatching the unit will drop the origin branch below its minimum showroom floor safety buffer.
+3. **Logistics Transit Cost:** Displays estimated freight carrier cost (e.g., PKR 4,500 Islamabad to Peshawar) and carrier transit time (4 hours).
 
 ---
 
-### Q59: Flow 2 — What are the smallest and largest operational scenarios?
-**Answer:**
-* **Smallest Scenario:** Pulling 1 specific Gloss Emerald Green BRG E-125 electric scooter from the Lahore central hub to Islamabad for a customer who placed a full cash deposit and is traveling abroad in 48 hours.
-* **Largest Scenario:** Emergency reallocation of 10 electric commuter bikes from Rawalpindi to Peshawar to fulfill an unexpected corporate employee lease contract.
+### Q59: What triggers a Flow 3 (High-Value OPEX) action item?
+**Answer:** Flow 3 is triggered whenever a branch showroom operating expenditure exceeds the local discretionary limit:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses` (`/finance/expenses`) &rarr; Enter Amount > PKR 15,000
+* **Discretionary Rule:**
+  * **Expenses <= PKR 15,000:** Branch Manager approves locally; deducted directly from cash drawer petty cash.
+  * **Expenses > PKR 15,000:** System automatically locks payment and creates a Flow 3 task (`ACT-EXP-XXXX`) routing to Head Office CFO.
+* **Examples:** Showroom generator overhaul (`PKR 35,000`), commercial display signage repair (`PKR 22,000`), or quarterly facility rent utilities (`PKR 48,000`).
 
 ---
 
-### Q60: Flow 2 — What dedicated fields and carrier tracking are included?
-**Answer:**
-* Origin Source Branch (e.g., Lahore Hub) & Destination Showroom (e.g., Islamabad)
-* Target Model SKU, Color Variant, and Required Units
-* Specific Chassis VINs (if known) or Model Allocation Pool
-* Linked Sales Order / Deposit Receipt Reference (`SO-XXXX`)
-* Required Showroom Floor Arrival Date & SLA Urgency Badge
-* Carrier Logistics Company, Driver Name, Driver CNIC, and Carrier Truck Registration Number.
+### Q60: What documentation is mandatory for a Flow 3 OPEX approval?
+**Answer:** The system enforces strict expense substantiation:
+* 📍 **System Navigation Path:** `CreateExpenseModal` &rarr; `Attachments & Vendor Details`
+* **Mandatory Attachments:** Vendor quotation/invoice photo, vendor NTN/tax number, and written description of work.
+* **CFO Clearance:** The CFO reviews the attached invoice in the Action Centre, selects the debit accounting ledger (*Facility Maintenance / Marketing / Utilities*), and authorizes direct bank transfer or petty cash reimbursement.
 
 ---
 
-### Q61: Flow 3 — What is the business purpose of the "Emergency Operational Expenditure (OPEX)" flow?
-**Answer:** Showrooms require daily operational funds for utility bills, fuel, and facility maintenance. To prevent embezzlement, the system enforces a strict monetary limit:
-* **Expenses Below PKR 15,000:** Branch Manager can approve locally from the showroom petty cash float, provided an official vendor receipt is uploaded.
-* **Expenses Above PKR 15,000:** The system blocks immediate payout and automatically routes the claim through Flow 3 to the Central Chief Financial Officer (CFO) for prior clearance.
+### Q61: What triggers a Flow 4 (Technical & Warranty) action item?
+**Answer:** Flow 4 is triggered when a customer vehicle experiences a major high-voltage component failure covered under warranty:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Service Cases` (`/after-sales/warranty`) &rarr; Select `Warranty Claim`
+* **High-Value Warranty Components:**
+  * Lithium-ion Battery Pack replacement (`Value: PKR 95,000 – PKR 125,000`).
+  * Brushless DC Hub Motor replacement (`Value: PKR 28,000`).
+  * Smart BMS Electronic Controller replacement (`Value: PKR 14,500`).
+* **System Action:** Generates `ACT-WRN-XXXX` and routes to Chief Technical Officer / Super Admin with attached OBD diagnostic logs.
 
 ---
 
-### Q62: Flow 3 — What are the smallest and largest operational scenarios?
-**Answer:**
-* **Smallest Scenario:** Emergency repair of the showroom back-up generator inverter after a sudden electrical surge during peak business hours (PKR 18,500).
-* **Largest Scenario:** Emergency showroom monsoon roof waterproofing, structural ceiling repair, and electrical main panel rewiring (PKR 350,000).
+### Q62: How does Flow 4 prevent fraudulent warranty part swapping?
+**Answer:** Through 3-way serialized hardware binding:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-WRN` Item &rarr; `Diagnostic Hardware Binding Panel`
+* The system cross-references the scanned physical battery serial number against the original factory delivery record for that chassis VIN.
+* If a mechanic attempts to claim warranty on a battery serial number that belongs to a different vehicle, the system flags a crimson alert: *"HARDWARE MISMATCH: BATTERY SERIAL NOT MATCHED TO VEHICLE DELIVERY RECORD"*.
 
 ---
 
-### Q63: Flow 3 — What dedicated fields and financial controls are embedded?
-**Answer:**
-* Expense Category (Showroom Maintenance, Backup Generator Fuel, IT Hardware, Promotional Events)
-* Vendor / Contractor Business Name & Tax NTN
-* Total Claim Amount (PKR) & Local Petty Cash Balance
-* Vendor Quotation / Bill Image Upload (PNG/PDF)
-* Emergency Justification & Impact if Delayed (e.g., *"Showroom in darkness without generator"*).
+### Q63: What triggers a Flow 5 (Inventory Governance) action item?
+**Answer:** Flow 5 is triggered by physical inventory count variances or container transit damage:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts & Audits` (`/inventory/cycle-counts`) OR `Quarantine` (`/inventory/quarantine`)
+* **Trigger Events:**
+  * **Cycle Count Variance:** A physical monthly stock-take finds 18 bikes on the showroom floor when the digital ledger records 19 bikes (missing 1 VIN).
+  * **Container Unloading Damage:** A sea container from OEM factory arrives with 2 scratched or dented scooters.
+  * **Quarantine Release:** Releasing an inspected vehicle from Holding Bay Q-3 back into Available showroom stock.
 
 ---
 
-### Q64: Flow 4 — What is the business purpose of the "Critical Warranty & High-Voltage Escalation" flow?
-**Answer:** The lithium battery pack and motor controller represent up to 50% of an electric vehicle's total cost. To prevent fraudulent battery swapping or unauthorized warranty claims, any claim involving a high-voltage component must be escalated to Head Office technical specialists through Flow 4.
+### Q64: What happens when a missing VIN variance is approved in Flow 5?
+**Answer:** The system executes an official inventory write-off:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-GOV` Item &rarr; Click **"Authorize Inventory Adjustment"**
+* The missing VIN is permanently moved from `Available` to `Missing / Investigation Locked` status.
+* An automatic financial write-off entry posts to the branch P&L balance sheet (*Inventory Shrinkage Expense*).
+* An automated security incident report is logged, documenting the branch manager, auditor name, and timestamp for corporate investigation.
 
 ---
 
-### Q65: Flow 4 — What are the smallest and largest operational scenarios?
-**Answer:**
-* **Smallest Scenario:** Replacement of a defective digital LCD instrument cluster displaying corrupted speedometer readings on a 3-month-old scooter (PKR 7,500 part value).
-* **Largest Scenario:** Complete catastrophic failure of a 72V 45Ah ternary lithium battery pack with BMS thermal cutoff warnings (PKR 185,000 replacement value).
+### Q65: Can an action item transition between different flows?
+**Answer:** Yes. If an operational request expands in scope, it can be re-categorized:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Task Card &rarr; `Action Menu (⋮)` &rarr; `Reclassify Flow`
+* For example, if a routine workshop repair (Flow 4) reveals that the chassis frame was damaged during an inter-branch transfer, the service manager can link it to an Inventory Governance claim (Flow 5).
 
 ---
 
-### Q66: Flow 4 — What diagnostic fields and serial numbers are captured?
-**Answer:**
-* Customer Name, Mobile Phone, and Vehicle Chassis VIN
-* Battery Pack Serial Number & BMS Firmware Version
-* Odometer Reading (km) & Vehicle Delivery Date (Warranty Age)
-* On-Board Diagnostics (OBD) Trouble Codes (e.g., `DTC-BMS-04: Over-Voltage Cutoff`)
-* Measured State of Health (SOH %) and Maximum Cell Voltage Delta (mV)
-* Workshop Mechanic Diagnostic Notes and High-Resolution Multimeter Photos.
+### Q66: How are action item reference IDs formatted across the 5 flows?
+**Answer:** Reference IDs use standardized mnemonic prefixes for instant recognition:
+* 📍 **System Navigation Path:** Visible on all cards, audit tables, and printed vouchers.
+* `ACT-PRC-YYYY-XXXX` &rarr; Flow 1: Commercial & Pricing Waivers
+* `ACT-STK-YYYY-XXXX` &rarr; Flow 2: Stock Reallocation & Transfers
+* `ACT-EXP-YYYY-XXXX` &rarr; Flow 3: High-Value OPEX Claims
+* `ACT-WRN-YYYY-XXXX` &rarr; Flow 4: Technical & Warranty Authorizations
+* `ACT-GOV-YYYY-XXXX` &rarr; Flow 5: Inventory Governance & Cycle Count Adjustments
 
 ---
 
-### Q67: Flow 5 — What is the business purpose of the "Inventory Governance & Quarantine Release" flow?
-**Answer:** This flow manages physical discrepancies, stock count variances, and defective stock isolation. It ensures that no damaged vehicle is sold to a customer, and no missing vehicle is written off without Head Office executive authorization.
+### Q67: What automated email and WhatsApp notifications are triggered by the 5 flows?
+**Answer:** The system features integrated multi-channel alerts:
+* 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Notification Channels`
+* **On Submission:** Super Admin receives instant email + mobile push with summary metrics.
+* **On Approval:** Branch Manager receives real-time desktop pop-up and WhatsApp alert.
+* **On Customer Impact (Flow 1 & 4):** Customer receives an automated SMS: *"Your custom discount / warranty claim has been approved by AJ EcoDrive Head Office"*.
 
 ---
 
-### Q68: Flow 5 — What are the smallest and largest operational scenarios?
-**Answer:**
-* **Smallest Scenario:** Releasing a brand-new bike from temporary Quarantine Bay Q-3 after replacing a cosmetic side-mirror scratched during carrier truck transport (PKR 1,800 part).
-* **Largest Scenario:** Investigating a missing vehicle variance during the monthly physical cycle count audit (1 unit of BRG E-125 unaccounted for on the Peshawar showroom floor, value PKR 280,000).
+### Q68: What is the average resolution SLA target across the 5 flows?
+**Answer:** Corporate SLA performance benchmarks:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `SLA Performance Dashboard` (`/reports/sla-performance`)
+* **Flow 1 (Pricing):** Target <= 30 minutes (to close walk-in showroom deals on the spot).
+* **Flow 2 (Stock Transfer):** Target <= 2 hours.
+* **Flow 3 (OPEX):** Target <= 4 hours.
+* **Flow 4 (Warranty):** Target <= 6 hours.
+* **Flow 5 (Governance):** Target <= 24 hours.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -984,121 +1047,137 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 # PART 6: The Action Creation Wizard & Decision Treatment Drawer (Q69 – Q84)
 
-### Q69: How do staff initiate a new request in the Action Centre?
-**Answer:** Staff click the prominent **+ New Action Request** button on the Action Centre screen (or select it from the Dashboard Quick Actions bar). This launches the **2-Step Action Creation Wizard Modal** (`CreateActionModal.vue`).
+### Q69: What is the Action Creation Wizard in AJ EcoDrive?
+**Answer:** The **Action Creation Wizard** is a streamlined 2-step modal dialog that guides showroom staff and branch managers through creating standardized, audit-compliant escalation requests:
+* 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `Quick Actions ⌄` &rarr; `New Action Request` OR `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Click **"+ Create Action Request"** (`CreateActionWizard`)
+* **Step 1 (Category & Business Entity Selection):** User selects one of the 5 Standard Flows and links the specific customer quotation, order, chassis VIN, repair job card, or expense voucher.
+* **Step 2 (Parameters, Justification & Attachments):** User inputs requested financial figures (discount %, PKR amount), selects SLA urgency, writes business justification, and attaches photos or PDF documents.
 
 ---
 
-### Q70: What happens in Step 1 of the Action Creation Wizard?
-**Answer:** **Step 1: Category & Flow Selection.**
-The modal presents 5 interactive cards representing the 5 Standard Enterprise Flows. Each card displays an intuitive icon, category title, and clear subtitle:
-1. *Commercial & Pricing Exception* (Discounts, margins & fleet terms)
-2. *Inter-Branch Stock Reallocation* (Urgent vehicle pull & transit dispatch)
-3. *High-Value OPEX Clearance* (Expenses exceeding branch limit)
-4. *Critical Warranty Escalation* (Battery, BMS & motor claims)
-5. *Inventory Governance & Quarantine* (Audits, variances & QC release)
-
-The user clicks one card to select the flow and clicks **Continue to Details**.
+### Q70: What validation rules are enforced in Step 1 of the Action Creation Wizard?
+**Answer:** Step 1 enforces strict contextual validation:
+* 📍 **System Navigation Path:** `CreateActionWizard` &rarr; `Step 1: Category & Entity Link`
+* **Mandatory Entity Binding:** A Commercial request *must* link to an existing Quotation ID or Sales Order ID. An Inventory request *must* link to a valid Chassis VIN in the branch's active inventory.
+* **Duplicate Prevention:** The wizard blocks creating duplicate active action items for the same business record.
 
 ---
 
-### Q71: What happens in Step 2 of the Action Creation Wizard?
-**Answer:** **Step 2: Dynamic Flow-Specific Form Fields.**
-The modal dynamically renders specialized input fields tailored specifically to the flow selected in Step 1. If *Commercial & Pricing* was chosen, pricing calculators and margin indicators appear. If *Critical Warranty* was chosen, OBD trouble codes and battery serial inputs appear.
+### Q71: What validation rules are enforced in Step 2 of the Action Creation Wizard?
+**Answer:** Step 2 ensures complete operational justification before submission:
+* 📍 **System Navigation Path:** `CreateActionWizard` &rarr; `Step 2: Justification & Evidence`
+* **Minimum Justification Length:** Requires at least 20 characters explaining the business necessity.
+* **Numeric Boundary Checks:** Ensures discount percentages do not exceed 100% and expense amounts are positive non-zero numbers.
+* **Attachment Mandate:** Enforces at least 1 image attachment for physical damage claims and expense vouchers exceeding PKR 25,000.
 
 ---
 
-### Q72: How does the Action Creation Wizard prevent incomplete submissions?
-**Answer:** The wizard enforces strict field-level validation:
-* Required text fields cannot be blank.
-* Numeric fields (PKR amounts, quantities, percentages) reject negative numbers.
-* Proof attachments (vendor bills for OPEX, diagnostic photos for warranty) are mandatory before the **Submit Request** button is unlocked.
+### Q72: What is the Decision Treatment Drawer in the Action Centre?
+**Answer:** The **Decision Treatment Drawer** is an executive slide-over panel that opens on the right side of `/dashboard/action-centre` when a Super Admin clicks on any task card:
+* 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Click any Task Card &rarr; Slide-over Drawer opens from right
+* **Purpose:** It consolidates all operational data—financial impact analysis, customer profile, VIN history, activity chat, and decision action buttons—into a single focused view without navigating away from the triage list.
 
 ---
 
-### Q73: What is the Decision Treatment Drawer?
-**Answer:** When an authorized executive (Super Admin) clicks on any task in the Action Centre queue, a comprehensive **Decision Treatment Drawer** slides out smoothly from the right side of the screen.
+### Q73: What are the 4 Primary Decision Action Buttons in the Treatment Drawer?
+**Answer:** The treatment drawer provides 4 distinct executive decision tools:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select Task &rarr; Bottom Sticky Action Bar
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                      DECISION ACTION TOOLBAR                           │
+├───────────────┬───────────────────┬──────────────────┬─────────────────┤
+│  [✓ APPROVE]  │  [⚡ COUNTER-OFFER]│  [✕ DECLINE]     │  [↗ DELEGATE]   │
+│  (Green)      │  (Blue)           │  (Crimson)       │  (Purple)       │
+│  Full Consent │  Modify Terms     │  Reject with Note│  Reassign Dept  │
+└───────────────┴───────────────────┴──────────────────┴─────────────────┘
+```
+
+1. **Approve (Emerald Green):** Grants full authorization; executes underlying ledger and status updates immediately.
+2. **Counter-Offer (Royal Blue):** Adjusts requested terms (e.g. lowering a discount from 12% to 7%) and returns to branch.
+3. **Decline (Crimson Red):** Rejects the request with a mandatory documented justification.
+4. **Delegate (Amethyst Purple):** Reassigns the task to a specific department head (Technical, Logistics, Accounts).
 
 ---
 
-### Q74: What information is displayed inside the Decision Treatment Drawer?
-**Answer:** The drawer presents a complete 360-degree operational dossier:
-* Header with Task Reference ID, Status Badge, and SLA Countdown Timer.
-* Originating Branch details, requesting staff member, and submission timestamp.
-* Full narrative business justification.
-* Financial Impact Box (Total PKR amount, margin erosion %, or inventory value).
-* Embedded Document & Photo Previewer (click to inspect full-screen).
-* Historical Activity & Discussion Feed.
+### Q74: What is the "Financial Impact Summary" displayed inside the Decision Drawer?
+**Answer:** An automated dynamic widget that computes the exact balance sheet effect:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select Task &rarr; `Drawer: Financial Impact Tab`
+* Displays Original Gross Margin vs. Post-Approval Margin, Net Cash Impact (PKR), Tax GST adjustments, and branch budget utilization percentage.
 
 ---
 
-### Q75: What are the 5 One-Click Decision Treatment Action Buttons?
-**Answer:** At the bottom of the Decision Treatment Drawer, 5 standardized operational action buttons allow the executive to resolve the item instantly:
-1. **Approve (Green Button):** Unconditionally authorizes the request, updates linked ERP records, and notifies the branch.
-2. **Reject (Red Button):** Denies the request; prompts for mandatory rejection feedback explaining why the proposal was turned down.
-3. **Request More Info (Blue Button):** Bounces the request back to the requesting branch with specific clarification questions.
-4. **Escalate to Board (Purple Button):** Forwards high-value or policy-setting decisions (e.g., contracts exceeding PKR 10 million) to company directors.
-5. **Delegate to Regional Lead (Amber Button):** Assigns the operational review to a designated regional manager or technical specialist.
+### Q75: How does the Treatment Drawer display the Serialized Unit's History in Flow 2 and Flow 4?
+**Answer:** It renders a complete **Lifecycle Timeline**:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-STK` or `ACT-WRN` &rarr; `Drawer: Vehicle Timeline`
+* Shows container import date, Bill of Lading, receiving warehouse, Pre-Delivery Inspection (PDI) score, past workshop visits, and previous warranty claims for that specific chassis VIN.
 
 ---
 
-### Q76: What happens in the system the microsecond "Approve" is clicked on a Discount Waiver?
-**Answer:** 
-1. The Action Item status updates to `Approved`.
-2. The linked Quotation or Sales Order in the Sales module is unlocked and updated with the approved discounted price.
-3. The branch workstation receives an immediate real-time push notification: *"Pricing Waiver ACT-PRC-1082 Approved: You may now issue Invoice."*
-4. An immutable audit record is logged with the approver's name and timestamp.
+### Q76: Can a reviewer view customer credit and payment history inside the drawer?
+**Answer:** Yes. For Commercial and Sales requests, the drawer embeds a **Customer Profile Card**:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select Task &rarr; `Drawer: Customer Insight Panel`
+* Shows customer CNIC verification status, total lifetime electric scooters purchased, past payment punctuality, and open invoice balances across all branches.
 
 ---
 
-### Q77: What happens in the system the microsecond "Approve" is clicked on an OPEX Request?
-**Answer:**
-1. The Action Item status updates to `Approved`.
-2. An authorized payment voucher is posted to the branch accounting ledger.
-3. The Central Finance department is queued to disburse funds to the branch bank account or replenish the local petty cash drawer.
+### Q77: What happens when the reviewer clicks "Counter-Offer"?
+**Answer:** The drawer opens an inline **Counter Negotiation Form**:
+* 📍 **System Navigation Path:** `Treatment Drawer` &rarr; Click **"Counter-Offer"**
+* Reviewer inputs revised discount percentage or authorized budget amount and types a counter note (e.g., *"Approved 6% discount if customer settles remaining balance via instant online IBFT today"*).
+* Clicking **"Send Counter-Offer"** changes status to `Counter-Offered` and notifies the branch sales desk immediately.
 
 ---
 
-### Q78: Can a reviewer provide a partial approval or counter-offer?
-**Answer:** Yes. For Commercial Pricing requests, the drawer provides a **Counter-Offer** option. The Super Admin can adjust the discount cap (e.g., reducing a requested 14% discount down to 9.5%) and click **Approve with Conditions**. The branch receives the approved counter-cap and can finalize the sale within the approved boundary.
+### Q78: How does the branch salesperson accept a Counter-Offer?
+**Answer:** The salesperson receives an instant interactive pop-up on their quotation/order screen:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; Click **"Review Counter-Offer"**
+* Salesperson can click **"Accept Counter-Offer"** (which automatically updates the quotation with the new terms) OR **"Withdraw Request"** if the customer refuses.
 
 ---
 
-### Q79: How does the system handle "Request More Info"?
-**Answer:** The task status changes to `Info Requested` and moves into the Branch Manager's **Action Required** queue. The manager receives an alert detailing the reviewer's query (e.g., *"Please attach photo of battery serial barcode and multimeter voltage reading"*). The manager uploads the requested files and resubmits the task with one click.
+### Q79: What happens when the reviewer clicks "Decline"?
+**Answer:** The system opens a **Decline Confirmation Modal**:
+* 📍 **System Navigation Path:** `Treatment Drawer` &rarr; Click **"Decline / Reject"**
+* Reviewer must select a structured rejection reason code (*Margin Below Floor / Stock Reserved for Existing Booking / Incomplete Diagnostic Data*) and type a detailed explanation.
+* Upon confirmation, the task closes as `Rejected` and logs into the permanent audit trail.
 
 ---
 
-### Q80: How does the Action Centre ensure staff are immediately notified of decisions?
-**Answer:** The system utilizes dual-channel notifications:
-1. **In-App Toast Notification:** A real-time toast banner appears on the branch workstation or mobile tablet.
-2. **Audio Chime:** A discreet notification sound alerts counter staff even if they are looking away from the screen.
+### Q80: How does the Treatment Drawer support multi-attachment document previewing?
+**Answer:** The drawer includes an integrated **Media & Document Lightbox**:
+* 📍 **System Navigation Path:** `Treatment Drawer` &rarr; `Evidence & Documents Section` &rarr; Click any thumbnail
+* Reviewers can zoom into high-resolution photos of damaged parts, preview PDF vendor invoices, and inspect OBD battery scan reports directly within the application without downloading external files.
 
 ---
 
-### Q81: Can historical resolved actions be searched and reviewed later?
-**Answer:** Yes. The **All Tasks** tab contains a searchable archive. Staff can search by Reference ID, Branch Name, Customer CNIC, Vehicle VIN, or Date Range, making past approvals easily reviewable during annual financial audits.
+### Q81: Can a reviewer add private internal notes invisible to the branch manager?
+**Answer:** Yes. The drawer provides dual messaging modes:
+* 📍 **System Navigation Path:** `Treatment Drawer` &rarr; `Discussion Tab` &rarr; Toggle **"Internal Executive Note"**
+* **Public Discussion:** Visible to both Head Office and Branch Manager.
+* **Internal Executive Note (Yellow Shading):** Visible strictly to Super Admins and Executive Directors for confidential margin discussions.
 
 ---
 
-### Q82: Is the Decision Treatment Drawer fully functional on mobile tablets?
-**Answer:** Yes. On mobile tablets, the drawer expands into a full-screen review sheet with clear typography, high-resolution image zoom, and large touch-friendly approval buttons, allowing directors to approve high-value requests while in transit.
+### Q82: How does the Decision Drawer operate on mobile and touchscreen tablets?
+**Answer:** On touch devices, the drawer opens as a full-screen **Slide-Up Modal**:
+* 📍 **System Navigation Path:** Tablet Screen &rarr; Tap Task Card &rarr; Slide-Up Modal
+* Provides large, high-contrast action buttons at the bottom of the screen, full pinch-to-zoom support on damage photos, and biometric touch confirmation.
 
 ---
 
-### Q83: Can a Super Admin reverse an approval once granted?
-**Answer:** Once approved, an action item is permanently locked to maintain accounting and legal integrity. If a transaction must be cancelled due to customer withdrawal, an official Cancellation / Reversal Action Item must be initiated, creating an opposite compensating entry with complete audit traceability.
+### Q83: How is task resolution velocity tracked for managerial KPIs?
+**Answer:** The system calculates exact time-to-decision metrics:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Executive Performance` (`/reports/executive-kpis`)
+* Logs exact minutes elapsed between task submission, first review, and final resolution, generating monthly executive response SLA scorecards.
 
 ---
 
-### Q84: What live demonstration scenario is pre-loaded in the Action Centre for training?
-**Answer:** The system includes pre-loaded live case studies across all 5 flows:
-* `ACT-PRC-1082`: Peshawar Branch 12% discount waiver request for Khyber Courier & Logistics.
-* `ACT-STK-2041`: Urgent stock pull of 1 Emerald Green BRG E-125 from Lahore Hub to Islamabad.
-* `ACT-EXP-3019`: Emergency generator inverter repair (PKR 18,500) for Rawalpindi showroom.
-* `ACT-WRN-4052`: High-voltage lithium battery pack replacement with OBD thermal error code.
-* `ACT-GOV-5011`: Missing rear-view mirror transit damage report for container shipment intake.
-
+### Q84: What happens if two Super Admins open and review the same Action Item simultaneously?
+**Answer:** AJ EcoDrive includes **Concurrent Review Locking**:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; `Task Card Header`
+* When Administrator A opens a task drawer, a blue banner appears on Administrator B's screen: *"Currently being reviewed by [Admin Name]"*.
+* If Administrator A submits a decision, Administrator B's screen updates instantly via live WebSocket synchronization, preventing conflicting duplicate approvals.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1111,104 +1190,117 @@ The modal dynamically renders specialized input fields tailored specifically to 
 
 # PART 7: Walk-In Customers & Capturing Sales Leads (Q85 – Q98)
 
-### Q85: What is a "Sales Lead" in AJ EcoDrive?
-**Answer:** A Sales Lead is a prospective customer who visits the showroom, calls the front desk, or submits an inquiry online. Capturing leads systematically ensures that no potential vehicle sale slips through the cracks, and sales staff are held accountable for follow-ups.
+### Q85: What happens when a prospective customer enters the showroom?
+**Answer:** When a prospective customer enters the dealership, showroom staff initiate the digital sales pipeline:
+* 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `Quick Actions ⌄` &rarr; `New Walk-In Lead` (`CreateLeadModal`) OR `Sidebar: CRM & Leads` &rarr; `Walk-In Leads` (`/sales/leads`) &rarr; Click `+ Add Lead`
+* **Procedure:** The sales representative captures the visitor's core profile—Full Name, Mobile Number (WhatsApp-enabled), City/Area, Interested EV Model (e.g., *BRG E-125 Commuter* or *Sprint Li-72*), Test Ride preference, and assigns an internal Sales Executive ID.
+* **Instant CRM Tagging:** The lead is marked as \`Hot\` (ready to buy this week), \`Warm\` (evaluating budget/financing), or \`Cold\` (general inquiry), triggering automated follow-up scheduling.
 
 ---
 
-### Q86: What is the step-by-step procedure when a walk-in customer enters the showroom?
-**Answer:**
-1. **Showroom Greeting:** The sales executive welcomes the visitor and introduces the dealership's electric bike models.
-2. **Open Mobile Tablet / Counter Workstation:** Staff open the Leads module (`/sales/leads`) or tap **+ New Walk-In Lead** on the Quick Actions bar.
-3. **Capture Initial Inquiry:** Enter the visitor's name, mobile number, preferred bike model, and budget.
-4. **Schedule Test Drive or Follow-up:** Book a 15-minute test ride around the dealership block or schedule a follow-up call.
-5. **Save to Lead Pipeline:** The lead is saved and automatically appears in the branch's daily sales pipeline.
+### Q86: Why is capturing every walk-in lead mandatory in AJ EcoDrive?
+**Answer:** Mandatory lead capture eliminates customer drop-off and tracks showroom footfall ROI:
+* 📍 **System Navigation Path:** `Sidebar: CRM & Leads` &rarr; `Lead Pipeline Workbench` (`/sales/leads`)
+* **Conversion Rate Analytics:** Dealership leadership tracks the exact conversion ratio from Showroom Walk-Ins &rarr; Test Rides &rarr; Quotations &rarr; Invoiced Sales.
+* **Sales Rep Commission Attribution:** Guarantees that the salesperson who initially engaged the customer is credited if the customer returns days later to complete the purchase.
 
 ---
 
-### Q87: What stages does a sales lead move through in the pipeline?
-**Answer:** A lead moves through 5 clear stages:
-* **New / Inquiry:** First contact logged; customer exploring models.
-* **Contacted / Engaged:** Product consultation held; vehicle specifications shared.
-* **Test Drive Scheduled:** Customer booked or completed a physical showroom test ride.
-* **Qualified / Negotiating:** Customer seriously interested; formal price quotation requested.
-* **Won (Converted to Sale) or Lost (Closed with reason):** Lead purchases a bike or declines (e.g., bought competitor bike or budget shortfall).
+### Q87: How does the system record and schedule Customer Test Rides?
+**Answer:** Through the built-in **Test Ride Verification Protocol**:
+* 📍 **System Navigation Path:** `Lead Detail Page` (`/sales/leads/:id`) &rarr; Click **"Schedule Test Ride"**
+* **Pre-Ride Verification Checklist:**
+  1. Captures Customer CNIC / Driving License photo.
+  2. Selects registered Showroom Demo Fleet Bike (e.g. `VIN-DEMO-PEW-01`).
+  3. Records starting odometer reading and battery State of Charge (SOC &ge; 50%).
+  4. Generates an electronic Test Ride Indemnity Slip with customer digital signature.
 
 ---
 
-### Q88: How does the system prevent sales executives from hoarding leads or forgetting follow-ups?
-**Answer:** The Leads screen features an **Aging & Inactive Alert**. If a lead remains in *"New"* or *"Contacted"* status for more than 48 hours without a documented interaction, the system flags the lead in amber and alerts the Branch Manager during the morning review.
+### Q88: What happens after the test ride is completed?
+**Answer:** The salesperson logs immediate customer feedback:
+* 📍 **System Navigation Path:** `Lead Detail Page` &rarr; Click **"Complete Test Ride"**
+* **Post-Ride Data Entry:** Ending odometer reading, customer ride rating (1 to 5 stars), feedback on acceleration/braking/seat comfort, and next commercial step (e.g., *Prepare Financing Quotation*).
 
 ---
 
-### Q89: How does the system prevent duplicate lead entries?
-**Answer:** When staff enter a customer's mobile phone number (`03XX-XXXXXXX`), the system performs an instant real-time deduplication check. If the number already exists, a notification pops up: *"Existing Lead Found: Registered to Salman Khan (Sales Exec: Ahmed Ali). View Existing Record?"* This prevents staff from stealing colleagues' prospects.
+### Q89: How does the system prevent duplicate lead entries for the same customer?
+**Answer:** Automated mobile number and CNIC de-duplication:
+* 📍 **System Navigation Path:** `CreateLeadModal` &rarr; Real-time field validation
+* When entering a mobile number (`03XX-XXXXXXX`) or 13-digit CNIC, the system queries the nationwide database. If a matching record exists, an alert pops up: *"Existing Lead Found: Assigned to [Sales Rep Name] in Peshawar"*, preventing conflicting sales attribution.
 
 ---
 
-### Q90: Modal Guide — What is the CreateLeadModal (`CreateLead.vue`), and what are its exact fields?
-**Answer:** The **`CreateLeadModal`** is the entry gateway for capturing prospective buyers. It contains the following structured fields:
-* **Full Name (Required):** Customer's legal name.
-* **Mobile Phone Number (Required):** 11-digit Pakistani mobile format (`0300-1234567`).
-* **Email Address (Optional):** For emailing brochures and official quotations.
-* **Branch / Showroom (Auto-Selected):** Locks to the active branch (e.g., Peshawar Showroom).
-* **Lead Source (Required Dropdown):** Showroom Walk-in, Social Media (Facebook/Instagram), Billboard / Outdoor Ad, Website Inquiry, or Customer Referral.
-* **Interested Model (Dropdown):** BRG E-125 Commuter, BRG Cargo Trike, Falcon Sport EV, or EcoCity 70.
-* **Budget Range (PKR Dropdown):** Under PKR 200,000, PKR 200,000 – PKR 300,000, or Above PKR 300,000.
-* **Planned Purchase Timeline:** Immediate (This Week), Within 30 Days, or Exploring / Next Quarter.
-* **Assigned Sales Representative:** Staff member responsible for nurturing the prospect.
-* **Consultation Notes:** Free-form notes on customer preferences (e.g., *"Prefers Matte Gunmetal color; wants installment plan"*).
+### Q90: Modal Guide — What is the CreateLeadModal (CreateLead.vue) and what are its exact fields?
+**Answer:** The `CreateLeadModal` is the high-velocity popup used to register walk-in prospects in under 30 seconds:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Walk-In Lead` (`CreateLeadModal`)
+* **Core Form Fields:**
+  * **Customer Full Name** *(Text, Required)*: Primary buyer name.
+  * **Mobile Phone Number** *(11-digit Phone, Required)*: Standard Pakistani format (`03001234567`).
+  * **CNIC / B-Form** *(13-digit Numeric, Optional at Lead stage)*: NADRA citizen ID.
+  * **Target EV Model** *(Dropdown, Required)*: Selects from active catalog models.
+  * **Color Preference** *(Dropdown)*: Metallic Blue, Crimson Red, Pearl White, Matte Black.
+  * **Lead Temperature / Priority** *(Select)*: `Hot (1-3 Days)`, `Warm (1-2 Weeks)`, `Cold (Browsing)`.
+  * **Assigned Sales Representative** *(Dropdown)*: Active dealership staff member.
+  * **Test Ride Requested** *(Toggle)*: Unlocks demo fleet scheduling.
+  * **Source Channel** *(Select)*: Walk-In, Facebook / Instagram Ads, Referral, Outdoor Banner.
 
 ---
 
-### Q91: Modal Guide — What is the CreateFollowUpModal (`CreateFollowUp.vue`), and how does it work?
-**Answer:** The **`CreateFollowUpModal`** schedules and documents customer touchpoints:
-* **Linked Lead / Customer Name:** Displayed prominently at the top.
-* **Follow-Up Type:** Phone Call, WhatsApp Message, Showroom Visit, or Home Test Ride.
-* **Scheduled Date & Time:** Future appointment date with automated calendar reminder.
-* **Call Outcome & Discussion Summary:** Staff logs what transpired (e.g., *"Customer tested bike; satisfied with acceleration; discussing budget with father"*).
-* **Next Action:** Sets the subsequent milestone in the sales pipeline.
+### Q91: How do sales reps view their daily follow-up task queue?
+**Answer:** Through the **My Open Leads & Follow-ups** widget:
+* 📍 **System Navigation Path:** `Sidebar: CRM & Leads` &rarr; `My Follow-ups Tab` (`/sales/leads?view=my-tasks`)
+* Displays due phone calls, pending test ride reminders, and expiring quotations sorted by customer priority score.
 
 ---
 
-### Q92: Can a customer take a test ride without registering a lead?
-**Answer:** **No.** Dealership liability and vehicle insurance policies require the customer's full name, verified mobile number, and a physical inspection of their driver's license before showroom staff can hand over the keys for a test ride.
+### Q92: What automated WhatsApp messages are dispatched upon lead creation?
+**Answer:** The system connects to official WhatsApp Business API:
+* 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Automated Messaging Templates`
+* **Automated Welcome Message:** *"Dear [Customer Name], thank you for visiting AJ EcoDrive Peshawar! Here is the digital brochure for the [Model Name] you explored today: [Brochure Link]"*.
 
 ---
 
-### Q93: How does a sales executive convert a Qualified Lead into a Formal Quotation?
-**Answer:** On the Lead details view, staff click the prominent **Create Quotation** button. The system automatically transfers the customer's name, phone, email, and preferred model directly into the Quotation engine, eliminating repetitive typing.
+### Q93: Can a lead be reassigned to another salesperson?
+**Answer:** Yes. Branch Managers have managerial reassignment permissions:
+* 📍 **System Navigation Path:** `Sidebar: CRM & Leads` &rarr; Select Lead &rarr; Click **"Reassign Lead"**
+* If a sales rep is on sick leave or fails to follow up within 48 hours, the manager reallocates the lead, updating the audit history with justification notes.
 
 ---
 
-### Q94: What happens if a lead decides not to purchase?
-**Answer:** The staff marks the lead as **Lost** and must select a mandatory **Lost Reason**:
-* Price Too High / Budget Constraint
-* Purchased Competitor Petrol Bike (e.g., Honda CD70)
-* Purchased Competitor Electric Bike (e.g., RoadPrince / Yadea)
-* Relocated to Another City
-* Dissatisfied with Vehicle Top Speed / Battery Range
-This data feeds the Super Admin's national Market Intelligence analytics.
+### Q94: How does the system handle corporate fleet inquiries?
+**Answer:** By toggling **Lead Type: Corporate / Commercial**:
+* 📍 **System Navigation Path:** `CreateLeadModal` &rarr; Toggle `Corporate Account`
+* Unlocks fields for Company Name, NTN Tax Number, Fleet Size (e.g. 10 to 50 delivery bikes), and Corporate Procurement Officer contact details.
 
 ---
 
-### Q95: Can leads be imported in bulk from marketing campaigns?
-**Answer:** Yes. The Super Admin portal includes a **Bulk Lead Import** tool (CSV format) that ingests digital leads generated from Facebook Lead Ads or Google campaigns and distributes them evenly across branch showrooms.
+### Q95: How are lost leads recorded and analyzed?
+**Answer:** Leads that choose not to purchase are closed with structured lost reason codes:
+* 📍 **System Navigation Path:** `Lead Detail Page` &rarr; Click **"Mark as Lost"**
+* **Reason Categories:** *Price Too High, Competitor Chosen (RoadPrince/Metro), Lack of Battery Charging Infrastructure, Financing Declined, Delivery Timeline Too Long*.
+* Generates monthly lost-sale analytics for Head Office executive review.
 
 ---
 
-### Q96: Does the system track which marketing channel produces the highest paying customers?
-**Answer:** Yes. The Sales Analytics dashboard generates a **Lead Conversion by Source Report**, showing which channels (e.g., Showroom Walk-in vs Instagram Ads) deliver the highest return on investment.
+### Q96: Can walk-in leads be converted directly into formal quotations in 1 click?
+**Answer:** Yes. Seamless 1-click pipeline progression:
+* 📍 **System Navigation Path:** `Lead Detail Page` &rarr; Click **"Convert to Quotation"**
+* Pre-populates customer name, mobile number, CNIC, and selected model into `CreateQuotationModal` instantly without manual re-typing.
 
 ---
 
-### Q97: How does the Leads module behave when the showroom loses internet connection?
-**Answer:** The Leads module is **Category A: Fully Offline-Capable**. Staff can enter walk-in leads without interruption. All entries save to local workstation memory and sync to the cloud automatically once connectivity restores.
+### Q97: What happens to old, dormant leads?
+**Answer:** Automated archiving and re-engagement campaigns:
+* 📍 **System Navigation Path:** `Sidebar: CRM & Leads` &rarr; `Archived / Dormant Leads`
+* Leads inactive for > 60 days move to Dormant status and are targeted during seasonal promotional discount campaigns (e.g. *Eid Special Cashback Offer*).
 
 ---
 
-### Q98: Can a salesperson delete a lead to hide a lost customer from management?
-**Answer:** **No.** Deletion privileges are strictly restricted to Super Admin. Sales staff can only archive or mark leads as Lost, ensuring complete visibility over showroom footfall.
+### Q98: What performance metrics are tracked for showroom sales representatives?
+**Answer:** The **Sales Rep Performance Scorecard**:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Sales Rep Scorecards` (`/reports/sales-reps`)
+* Tracks Total Leads Captured, Test Rides Conducted, Quotation Conversion %, Average Deal Margin %, and Total PKR Revenue Generated per month.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1217,90 +1309,114 @@ This data feeds the Super Admin's national Market Intelligence analytics.
 
 # PART 8: Customer Registration, CNIC Verification & KYC (Q99 – Q112)
 
-### Q99: Why is formal customer registration and CNIC verification mandatory for electric bikes?
-**Answer:** Unlike small retail goods, an electric motorbike is a licensed motor vehicle that operates on public highways. Formal registration with a 13-digit Pakistani Computerized National Identity Card (CNIC) is required for:
-1. **Government Excise & Taxation Registration:** Issuing the official registration book and license number plate.
-2. **Anti-Theft Tracking:** Registering legal ownership of the stamped steel chassis (VIN).
-3. **High-Voltage Battery Warranty Enforcement:** Linking the 2-year manufacturer battery warranty to the verified legal owner.
-4. **Anti-Money Laundering (AML) Compliance:** Verifying customer identity for cash payments exceeding state thresholds.
+### Q99: Why is formal CNIC registration mandatory before selling an electric vehicle?
+**Answer:** Electric vehicles are motorized transport assets subject to provincial transport authority laws, excise registration, and anti-theft regulations in Pakistan:
+* 📍 **System Navigation Path:** `Sidebar: Customers` &rarr; `Customer Directory` (`/customers`) &rarr; `+ Register Customer` (`CreateCustomerModal`)
+* **Legal & Regulatory Mandates:**
+  1. **Excise & Taxation Registration:** The 13-digit Computerized National Identity Card (CNIC) is legally stamped onto the official vehicle registration book/card.
+  2. **Anti-Theft & Serialized Ownership:** Binds the physical chassis VIN and Lithium Battery serial number to a verified citizen identity.
+  3. **Warranty Protection:** Prevents unauthorized third parties from claiming warranty repairs on stolen or transferred components.
 
 ---
 
-### Q100: What is the exact format of the Pakistani CNIC in AJ EcoDrive?
-**Answer:** The system strictly enforces the official 13-digit National Database and Registration Authority (NADRA) format:
-`XXXXX-XXXXXXX-X` (e.g., `17301-8492019-3`).
-The system validates the digit count automatically, preventing typos or incomplete entries.
+### Q100: How does AJ EcoDrive validate Pakistani CNIC numbers?
+**Answer:** The system enforces standard NADRA 13-digit format validation:
+* 📍 **System Navigation Path:** `CreateCustomerModal` &rarr; `CNIC Input Field`
+* **Format:** `XXXXX-XXXXXXX-X` (e.g., `17301-8492019-3` for Khyber Pakhtunkhwa / Peshawar, `37405-XXXXXXX-X` for Rawalpindi/Islamabad).
+* **Validation Algorithm:** Validates 13 numeric digits, structural hyphens, and gender checksum (odd last digit for males, even for females).
 
 ---
 
-### Q101: Modal Guide — What is the CreateCustomerModal (`CreateCustomer.vue`), and what are its exact fields?
-**Answer:** The **`CreateCustomerModal`** captures the verified legal customer identity:
-* **Customer Category (Radio Selection):** Individual Retail Buyer vs Corporate / Fleet Business.
-* **Full Legal Name (Required):** Exactly as printed on the CNIC card.
-* **Father's / Husband's Name (Required for Individual):** For excise documentation.
-* **CNIC / B-Form Number (Required):** 13-digit validated format.
-* **Primary Mobile Phone (Required):** `03XX-XXXXXXX` with SMS delivery validation.
-* **Secondary / WhatsApp Phone (Optional):** For delivery tracking and service reminders.
-* **Residential / Permanent Address (Required):** House, street, sector/mohalla for vehicle registration.
-* **City & Province (Dropdown):** Khyber Pakhtunkhwa (Peshawar), Islamabad ICT, Punjab (Lahore/Rawalpindi), etc.
-* **Emergency Contact Person & Phone:** Relative or guarantor in case of road accident or recovery.
-* **Tax Status (Filer / Non-Filer):** Determines applicable advance withholding tax under Pakistan tax laws.
-* **Corporate NTN & Company Registration Number (Optional):** Displayed only if *Corporate / Fleet* is selected.
+### Q101: Modal Guide — What is the CreateCustomerModal (CreateCustomer.vue) and what are its exact fields?
+**Answer:** The `CreateCustomerModal` registers verified retail and commercial buyers into the central database:
+* 📍 **System Navigation Path:** `Sidebar: Customers` &rarr; Click `+ Register Customer` OR Inside `CreateSaleModal` click `+ New Customer`
+* **Exact Form Fields:**
+  * **Customer Type** *(Select)*: `Individual Retail` or `Corporate / Commercial Entity`.
+  * **Full Name (as per CNIC)** *(Text, Required)*: Exact legal citizen name.
+  * **Father / Husband Name** *(Text)*: Required for vehicle excise registration forms.
+  * **CNIC Number** *(13-digit Masked Input, Required)*: `XXXXX-XXXXXXX-X`.
+  * **Mobile Number** *(Phone, Required)*: `03XX-XXXXXXX` with SMS/WhatsApp verification toggle.
+  * **Alternate Phone** *(Phone, Optional)*: Secondary family or landline number.
+  * **Residential Address** *(Textarea, Required)*: Permanent legal residence.
+  * **City & District** *(Dropdown, Required)*: Peshawar, Islamabad, Rawalpindi, Lahore, etc.
+  * **CNIC Front & Back Photos** *(File Upload)*: High-resolution scans for digital KYC record.
 
 ---
 
-### Q102: How does the system handle corporate fleet buyers (e.g., courier companies)?
-**Answer:** Selecting *Corporate / Fleet Business* unlocks dedicated business fields: Company Legal Name, National Tax Number (NTN), Sales Tax Registration Number (STRN), Authorized Purchasing Officer Name, and Corporate Billing Address.
+### Q102: How does the system handle corporate clients and fleet buyers during KYC?
+**Answer:** Corporate KYC requires company tax and incorporation data:
+* 📍 **System Navigation Path:** `CreateCustomerModal` &rarr; Select `Customer Type: Corporate`
+* **Corporate Fields:** Company Legal Name, National Tax Number (NTN), Sales Tax Registration Number (STRN), Authorized Purchase Officer Name, and Official Company Stamp/Authorization Letter upload.
 
 ---
 
-### Q103: Can a customer purchase a bike if they only have a NADRA Token (CNIC under renewal)?
-**Answer:** Yes. Staff can select the **NADRA Token / Temporary Slip** option, enter the 15-digit NADRA tracking number, and set a 30-day reminder for the customer to provide their original plastic card before final excise submission.
+### Q103: Can a customer purchase a vehicle on behalf of a family member?
+**Answer:** Yes, via the **Beneficiary / Registered Owner Assignment**:
+* 📍 **System Navigation Path:** `CreateCustomerModal` &rarr; `Beneficiary Details Section`
+* The system records the Payer Details (e.g., Father paying via bank cheque) and the Registered Vehicle Owner Details (e.g., Son whose CNIC will be attached to Excise registration).
 
 ---
 
-### Q104: How does the system protect customer private personal data?
-**Answer:** All customer records are protected with bank-grade encryption (AES-256). Staff cannot export customer phone lists to external USB drives without Super Admin audit authorization.
+### Q104: What happens if a customer has an existing record from another branch?
+**Answer:** The customer profile is synchronized across all dealership locations:
+* 📍 **System Navigation Path:** `Customer Directory` (`/customers`) &rarr; Search by CNIC or Phone
+* If a customer registered in Islamabad walks into the Peshawar showroom, entering their CNIC instantly retrieves their verified KYC record, past vehicle purchase history, and service records.
 
 ---
 
-### Q105: Can a customer's contact details be updated if they change their mobile number?
-**Answer:** Yes. Staff can open the Customer Profile and edit contact information. The system maintains an edit history log showing who modified the phone number and when.
+### Q105: How are customer document scans (CNIC, driving license) stored securely?
+**Answer:** Document attachments are encrypted and stored in secure cloud storage with strict access control:
+* 📍 **System Navigation Path:** `Customer Profile Page` (`/customers/:id`) &rarr; `KYC Documents Tab`
+* Sensitive documents are accessible only to Branch Managers, Compliance Officers, and Super Admins. Data is masked from unauthorized external access.
 
 ---
 
-### Q106: What happens if a customer has bad credit history with the dealership?
-**Answer:** If a customer defaulted on installment payments or issued a bounced cheque in the past, their profile can be flagged with a **Credit Warning / Blacklist Badge**. When staff select this customer on a new sales order, an immediate warning banner appears: *"Customer Has Past Payment Default: Cash-Only Terms Mandatory."*
+### Q106: Can a customer profile be edited after initial creation?
+**Answer:** Yes, with audit logging:
+* 📍 **System Navigation Path:** `Customer Profile Page` &rarr; Click **"Edit Profile"**
+* Address, phone numbers, and email can be updated. Changing a verified CNIC number requires Managerial Authorization and logs a mandatory justification note in the audit trail.
 
 ---
 
-### Q107: Can a customer purchase multiple bikes under a single CNIC?
-**Answer:** Yes. The Customer Profile provides a consolidated **Vehicles Owned** tab listing every electric bike purchased by that customer, including active warranties, chassis numbers, and service histories.
+### Q107: What is the "Customer Loyalty & Vehicle Ownership Summary"?
+**Answer:** An interactive widget on the customer profile page:
+* 📍 **System Navigation Path:** `Customer Profile Page` (`/customers/:id`) &rarr; `Fleet & Purchases Overview`
+* Displays all electric scooters owned by the customer, active warranty statuses, total lifetime rupees spent, and lifetime workshop service visit count.
 
 ---
 
-### Q108: Does the system format customer names properly?
-**Answer:** Yes. The system automatically capitalizes customer names (Title Case) and strips accidental whitespace, ensuring that official printed invoices and registration books look immaculate and professional.
+### Q108: How does the system handle non-Pakistani foreign nationals purchasing EVs?
+**Answer:** By selecting **Identity Type: Passport / POC**:
+* 📍 **System Navigation Path:** `CreateCustomerModal` &rarr; `Identity Type Dropdown` &rarr; `Passport / POC Card`
+* Allows entering foreign passport numbers, visa validity dates, and embassy/workplace verification documents.
 
 ---
 
-### Q109: How does the Customer Registration module behave when the internet is down?
-**Answer:** Customer registration is **Category A: Fully Offline-Capable**. Customers can be registered locally on the showroom workstation or tablet. The record saves to local memory and synchronizes to the national cloud database upon reconnection.
+### Q109: What happens if a customer's CNIC has expired?
+**Answer:** The system flags an alert:
+* 📍 **System Navigation Path:** `CreateCustomerModal` &rarr; `CNIC Expiry Date Field`
+* Warns the salesperson that an expired CNIC will be rejected by provincial Excise & Taxation departments, prompting the customer to provide a NADRA renewal token.
 
 ---
 
-### Q110: Can a sales executive delete a registered customer?
-**Answer:** **No.** Customer records are permanent corporate assets and cannot be deleted by showroom staff. If an entry is duplicate, it can be merged with the primary record via Super Admin tools.
+### Q110: How does AJ EcoDrive support GDPR / Data Privacy compliance?
+**Answer:** Built-in customer data governance:
+* 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Data Privacy & Consent`
+* Captures customer consent for marketing SMS/WhatsApp messages and provides data anonymization options upon formal legal request.
 
 ---
 
-### Q111: How does the system assist with Filer vs Non-Filer tax calculations?
-**Answer:** Based on the customer's selected tax status, the quotation and invoicing engine automatically applies the appropriate provincial advance withholding tax rate according to the current federal budget.
+### Q111: Can showroom staff export customer lists to Excel?
+**Answer:** **Only authorized Super Admins and Branch Managers have export permissions.**
+* 📍 **System Navigation Path:** `Sidebar: Customers` &rarr; `Customer Directory` &rarr; `Export CSV / Excel`
+* Sales representatives cannot export customer databases, preventing customer data theft by departing employees.
 
 ---
 
-### Q112: Is customer KYC information printed on the vehicle delivery documents?
-**Answer:** Yes. The customer's legal name, CNIC number, residential address, and verified phone number are automatically printed on the Sales Invoice, Warranty Certificate, and Delivery Gate Pass.
+### Q112: How does customer registration connect to the FBR Tax Integration?
+**Answer:** Verified customer CNIC/NTN numbers are automatically embedded into official electronic tax invoices:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Invoices` (`/sales/invoices`)
+* Complies with Federal Board of Revenue (FBR) POS invoicing regulations for serialized automotive goods in Pakistan.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1309,97 +1425,133 @@ The system validates the digit count automatically, preventing typos or incomple
 
 # PART 9: Formal Pricing & Customer Quotations (Q113 – Q128)
 
-### Q113: What is the purpose of a formal written quotation in an EV dealership?
-**Answer:** A written quotation provides an official, transparent price breakdown for a prospective buyer. It eliminates verbal misunderstandings regarding base vehicle price, government taxes, registration charges, and optional accessories (such as rear luggage carriers or smart fast chargers).
+### Q113: What is the purpose of a formal Sales Quotation in AJ EcoDrive?
+**Answer:** A Sales Quotation is a binding, professional price estimate issued to prospective buyers:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Quotation` (`CreateQuotationModal`) OR `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; `+ New Quotation`
+* **Key Capabilities:**
+  * Locks base vehicle MSRP, optional add-ons, registration fees, and promotional discounts for a guaranteed **7-day validity period**.
+  * Dynamic financing calculator computing monthly installments, down payments, and bank markup.
+  * Watermarked printable PDF quotation for customer bank loans and corporate procurement approvals.
 
 ---
 
-### Q114: How long is an AJ EcoDrive quotation legally valid?
-**Answer:** Every quotation generated by the system features an automated **7-Day Price Guarantee**. If catalog prices increase or exchange rates fluctuate during this period, the dealership honors the quoted price. After 7 days, the quotation automatically expires.
+### Q114: How long is a Sales Quotation valid?
+**Answer:** Quotations are valid for **7 calendar days** by default:
+* 📍 **System Navigation Path:** `CreateQuotationModal` &rarr; `Validity Period Field`
+* After 7 days, the quote automatically transitions to \`Expired\` status, protecting the dealership from honoring outdated prices if Head Office updates catalog MSRP.
 
 ---
 
-### Q115: What is the Strict 8% Discount Ceiling Rule?
-**Answer:** To protect dealership profit margins, showroom staff are permitted to grant discounts up to a **strict maximum ceiling of 8% (or PKR 25,000)**. If staff attempt to enter a discount higher than 8%, the system locks the submit button and displays a prominent warning:
-> *"Discount Exceeds Showroom Limit (8% Max). This proposal must be submitted to Head Office Action Centre (Flow 1) for executive margin clearance."*
+### Q115: What is the automated 8% Discount Ceiling Guard?
+**Answer:** A built-in gross margin security rule:
+* 📍 **System Navigation Path:** `CreateQuotationModal` &rarr; `Discount Percentage Input`
+* **Rule:** Branch sales staff can grant up to an **8% discretionary discount** (e.g., PKR 19,600 on a PKR 245,000 scooter).
+* **Ceiling Guard:** If a salesperson enters a discount **> 8%** (e.g. 12%), the system blocks immediate quotation printing and creates an Action Centre escalation (\`ACT-PRC-XXXX\`) requiring Head Office Super Admin approval.
 
 ---
 
-### Q116: Modal Guide — What is the CreateQuotationModal (`CreateQuotation.vue`), and what are its exact fields?
-**Answer:** The **`CreateQuotationModal`** is the formal pricing engine:
-* **Customer Selection (Required Dropdown / Search):** Search registered customer by Name, CNIC, or Mobile.
-* **Showroom Branch (Auto-Locked):** Identifies quoting location (e.g., Peshawar Showroom).
-* **Quotation Date & Automated Expiry Date:** Defaults to current date with 7-day validity.
-* **Vehicle Model Selection (Required Dropdown):** Selects model from master catalog (e.g., BRG E-125 Commuter).
-* **Color Variant Selection:** Gloss Black, Metallic Blue, Pearl White, or Matte Gunmetal.
-* **Catalogue Base Price (PKR - Auto-Populated):** Standard MSRP locked from central catalog (e.g., PKR 245,000).
-* **Discount Percentage / Amount Input:** Staff can enter a percentage or flat PKR discount.
-* **Live Calculation Banner:** Dynamically shows Net Vehicle Price after discount.
-* **Optional Add-Ons & Accessories:** Checkboxes for Smart Fast Charger (60V/5A), Heavy-Duty Top Box, Crash Guard, or Spare Helmet.
-* **Official Excise Registration Fee (PKR):** Government road tax and number plate fee.
-* **Total Quotation Amount (PKR - Bold Summary):** Complete customer out-the-door price.
-* **Payment Terms (Dropdown):** 100% Full Advance Cash, 50% Booking Deposit + Balance on Delivery, or Bank Financing.
-* **Terms & Notes:** Pre-printed standard terms (warranty scope, delivery timeline, battery charging instructions).
+### Q116: Modal Guide — What is the CreateQuotationModal (CreateQuotation.vue) and what are its exact fields?
+**Answer:** The `CreateQuotationModal` is the dynamic price calculation workbench:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Quotation` (`CreateQuotationModal`)
+* **Exact Form Fields:**
+  * **Customer Selection** *(Dropdown / Search)*: Selects existing customer or opens `CreateCustomerModal`.
+  * **EV Model Selection** *(Dropdown, Required)*: Base catalog model with live MSRP display.
+  * **Exterior Color** *(Select)*: Available color variants.
+  * **Base MSRP List Price (PKR)** *(Read-Only)*: Auto-filled from master catalog.
+  * **Selected Accessories & Add-Ons** *(Multi-Select Checkboxes)*:
+    * Smart Bluetooth Helmet (`+ PKR 6,500`)
+    * High-Speed Fast Charger (`+ PKR 12,000`)
+    * Rear Heavy-Duty Storage Box (`+ PKR 4,500`)
+    * Anti-Theft GPS Tracker (`+ PKR 8,500`)
+  * **Excise Registration & Number Plate Fee** *(Toggle/Input)*: `+ PKR 15,000`.
+  * **Commercial Discount** *(Input: % or PKR)*: Governed by 8% ceiling guard.
+  * **Payment Plan** *(Select)*: `Full Cash Settlement`, `Bank Lease / Auto Loan`, `In-House Installments`.
+  * **Quotation Notes / Terms** *(Textarea)*: Custom delivery or warranty remarks.
 
 ---
 
-### Q117: What does the customer receive when a quotation is finalized?
-**Answer:** Staff can print an immaculate, professional A4 Quotation Sheet on the counter laser printer or click **Send via WhatsApp / Email**. The sheet features the official dealership header, itemized pricing, warranty terms, and the salesperson's contact card.
+### Q117: How does the built-in Financing & Installment Calculator work?
+**Answer:** Real-time loan amortization computation:
+* 📍 **System Navigation Path:** `CreateQuotationModal` &rarr; `Payment Plan: Financing / Lease`
+* Sales reps input Down Payment (e.g. 30% / PKR 73,500), Loan Tenure (12, 24, or 36 months), and Bank Markup Rate (e.g. 18%).
+* The system instantly computes Monthly Installment (e.g., PKR 16,840/month) and total markup, printing a complete repayment schedule on the quotation.
 
 ---
 
-### Q118: How does staff convert an accepted Quotation into a confirmed Sales Order?
-**Answer:** When the customer agrees to the deal, staff open the quotation in `/sales/quotations` and click the prominent green button: **Convert to Sales Order**. The system transfers all pricing, vehicle specifications, and customer details directly into a Sales Order with a single click.
+### Q118: Does creating a Quotation reserve physical stock on the showroom floor?
+**Answer:** **No. A Quotation does NOT reserve or lock physical inventory.**
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units`)
+* Other showroom salespeople can freely sell that vehicle. Physical inventory allocation only occurs when the quotation is officially converted into a **Sales Order** or **Point of Sale (POS)** transaction with a captured cash deposit.
 
 ---
 
-### Q119: Can a quotation reserve a physical bike from showroom floor stock?
-**Answer:** **No.** A quotation is merely a price offer; it does not reduce showroom inventory. Physical vehicle chassis reservation only occurs when the quotation is converted into a confirmed Sales Order accompanied by an advance deposit.
+### Q119: How does a salesperson convert a Quotation into a confirmed Sales Order?
+**Answer:** Through 1-click order conversion:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; Select Quote &rarr; Click **"Convert to Order"**
+* Copies customer profile, pricing, discount terms, and accessories into `CreateSaleModal` in `order` mode, prompting the cashier to record the booking deposit.
 
 ---
 
-### Q120: What happens if a customer returns on Day 8 with an expired quotation?
-**Answer:** The system marks expired quotations in grey. Staff can click **Re-Validate Quotation**. The system recalculates pricing against the current active catalog price list. If prices have not changed, it issues a renewed 7-day quote.
+### Q120: Can a quotation be printed as an official branded PDF?
+**Answer:** Yes. Professional PDF generation:
+* 📍 **System Navigation Path:** `Quotation Detail Page` &rarr; Click **"Print Quotation PDF"**
+* Generates a branded document featuring dealership logo, branch address, contact numbers, technical specifications, payment terms, and a clear *"PRICE ESTIMATE — NOT AN INVOICE"* legal banner.
 
 ---
 
-### Q121: Can staff apply discounts to government registration or helmet fees?
-**Answer:** No. The discount calculator applies strictly to the base vehicle margin. Government excise fees, third-party insurance, and mandatory delivery charges are fixed pass-through costs that cannot be discounted.
+### Q121: How are quotation discounts tracked in branch financial reports?
+**Answer:** Through the **Discounts & Margins Variance Report**:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Discount Variance Report` (`/reports/discounts`)
+* Audits total rupees discounted per branch, identifying sales reps who consistently discount above company averages.
 
 ---
 
-### Q122: How does the system handle quotations for institutional B2B fleets?
-**Answer:** For commercial fleet inquiries (e.g., 20 delivery trikes), staff enter the quantity in `CreateQuotationModal`. The subtotal, fleet discount tier, and commercial tax deductions scale dynamically.
+### Q122: What happens if Head Office increases catalog prices while a quotation is active?
+**Answer:** Active quotations within their 7-day window are honored:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Quotations`
+* The system respects the price locked on the active quotation until its expiration date, ensuring commercial trust with the customer.
 
 ---
 
-### Q123: What happens if a customer asks for a discount above 8%?
-**Answer:** The staff clicks **Request Pricing Override**. The system automatically packages the deal, calculates projected gross margin erosion, and routes the proposal into the **Action Centre (Flow 1: Commercial & Pricing Exception)** for Super Admin review.
+### Q123: Can a customer request multiple model options on a single quotation?
+**Answer:** Yes, multi-model comparison quotes:
+* 📍 **System Navigation Path:** `CreateQuotationModal` &rarr; Click **"+ Add Model Comparison"**
+* Generates a side-by-side comparison (e.g. *E-125 Lead Acid vs. E-125 Lithium-Ion*) displaying specs, range, charging time, and monthly installments.
 
 ---
 
-### Q124: Does the Quotation screen work when the showroom is offline?
-**Answer:** Yes. Quotation preparation is **Category A: Fully Offline-Capable**. Staff can prepare and print quotations using the locally cached price lists. The quotation synchronizes to the central server when connectivity resumes.
+### Q124: How does the system prevent unauthorized staff from altering approved quotation discounts?
+**Answer:** Cryptographic version hashing:
+* 📍 **System Navigation Path:** `Quotation Detail Page` &rarr; `Version History Tab`
+* Once an Action Centre pricing waiver is approved, the quotation terms are locked. Any attempt to modify the price generates a new revision that restarts the approval process.
 
 ---
 
-### Q125: Can an employee alter the catalogue price in the database?
-**Answer:** **No.** Master catalog pricing is strictly read-only for branch staff. Only Super Admin has authority to modify MSRP in master settings.
+### Q125: How does the system handle trade-in (used petrol bike exchange) valuations?
+**Answer:** Through the **Trade-In / Buyback Module**:
+* 📍 **System Navigation Path:** `CreateQuotationModal` &rarr; `Trade-In Exchange Section`
+* Evaluator inputs used petrol bike details (e.g., *2022 Honda CG-125, Assessed Value: PKR 95,000*), which deducts as a direct credit against the new electric scooter purchase.
 
 ---
 
-### Q126: How are quotations tracked by dealership management?
-**Answer:** The Quotation Pipeline dashboard shows the **Quotation-to-Order Conversion Rate** for each salesperson and branch, highlighting who is effectively closing deals.
+### Q126: Can a quotation be sent directly to customer WhatsApp?
+**Answer:** Yes, 1-click WhatsApp dispatch:
+* 📍 **System Navigation Path:** `Quotation Detail Page` &rarr; Click **"Send via WhatsApp"**
+* Formats a clean WhatsApp summary message with a direct secure link to download the official PDF quotation.
 
 ---
 
-### Q127: Can an expired quotation be converted into an order without manager review?
-**Answer:** No. Attempting to convert an expired quotation prompts for manager authorization to ensure the customer is not given outdated pricing.
+### Q127: How are lost or cancelled quotations tracked?
+**Answer:** Structured quotation cancellation workflow:
+* 📍 **System Navigation Path:** `Quotation Detail Page` &rarr; Click **"Cancel Quotation"**
+* Captures cancellation reason (*Competitor Bought / Budget Cancelled / Financing Rejected*), updating sales pipeline analytics.
 
 ---
 
-### Q128: Are quotation revisions tracked if a customer changes their mind on color or battery size?
-**Answer:** Yes. The system creates a new revision (`QT-1042-R2`), preserving the original quote for historical comparison.
+### Q128: What is the Quotation Conversion Velocity metric?
+**Answer:** Tracks how fast quotes turn into cash:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Sales Pipeline Metrics`
+* Measures average days elapsed between quotation issuance and final sales order conversion across branches (Target: &le; 4.2 days).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1408,107 +1560,145 @@ The system validates the digit count automatically, preventing typos or incomple
 
 # PART 10: Instant Point of Sale (POS) & Sales Order Confirmation (Q129 – Q144)
 
-### Q129: What is the difference between a Formal Quotation and a Point of Sale (POS) Order?
-**Answer:** 
-* A **Quotation** is an exploratory price estimate with zero inventory commitment.
-* A **Point of Sale (POS) Order** is a legally binding sales transaction. It immediately reserves a specific, physical vehicle chassis (VIN) from showroom inventory, establishes customer financial liability, and initiates delivery preparation.
+### Q129: What is the Point of Sale (POS) workbench in AJ EcoDrive?
+**Answer:** The Point of Sale (POS) is the high-velocity showroom counter checkout engine designed for immediate over-the-counter vehicle sales:
+* 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `+ Quick Sale` button (OR `Quick Actions ⌄` &rarr; `Point of Sale (POS)`) OR `Sidebar: Sales & Revenue` &rarr; `Point of Sale` (`/sales/pos`)
+* **Operational Flow:**
+  1. Select walk-in customer.
+  2. Select physical showroom floor unit (scans chassis VIN barcode).
+  3. Capture 100% full payment (Cash, Card, Online IBFT).
+  4. Unit status instantly updates to `Sold / PDI Ready`.
+  5. Official FBR Tax Invoice and Delivery Receipt print in under 60 seconds.
 
 ---
 
-### Q130: What are the two ways a Sales Order is created in AJ EcoDrive?
-**Answer:**
-1. **1-Click Conversion from Accepted Quotation:** The preferred method for customers who negotiated terms beforehand.
-2. **Direct Point of Sale (POS) Entry:** For walk-in customers who inspect a scooter on the floor and decide to buy immediately on the spot.
+### Q130: What is the fundamental difference between Point of Sale (POS) and a Sales Order?
+**Answer:** AJ EcoDrive enforces an absolute operational and financial boundary between them:
+* 📍 **System Navigation Path:** `CreateSaleModal` (`mode="pos"` vs `mode="order"`)
+
+| Dimension | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
+| :--- | :--- | :--- |
+| **Operational Intent** | **Immediate Fulfillment:** Customer takes physical showroom floor bike today. | **Scheduled Fulfillment:** Customer books incoming container stock or custom color. |
+| **Inventory Impact** | **Instant VIN Allocation:** Moves from `Available` to `Sold`. | **Reservation Hold:** Moves from `Available` to `Reserved`. |
+| **Payment Status** | **100% Fully Settled:** Cashier records full invoice amount. | **Partial / Token Deposit:** Records advance (e.g. PKR 25,000); balance remains open. |
+| **Gate Pass Issuance** | **Immediate Gate Pass Eligible** after 6-point PDI. | **Gate Pass Blocked** until remaining balance reaches PKR 0. |
 
 ---
 
-### Q131: What is the Live Dynamic Calculation Engine inside CreateSaleModal?
-**Answer:** The POS sales modal (`CreateSale.vue`) features an instant, reactive calculation engine:
-$$\text{Final Payable Price} = \text{Catalogue MSRP} - \text{Approved Discount} + \text{Accessories} + \text{Excise Registration}$$
-$$\text{Remaining Balance} = \text{Final Payable Price} - \text{Amount Received Today}$$
-As staff type discount amounts or cash received, all figures, tax amounts, and outstanding balance totals update instantaneously in real-time.
+### Q131: What happens if a salesperson tries to sell a vehicle for less than the approved price at POS?
+**Answer:** Hard price floor locking:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Price Override Protection`
+* The POS engine strictly prohibits entering a net sale price below minimum authorized margins. If a discount > 8% was not approved in the Action Centre, the POS checkout button remains physically locked.
 
 ---
 
-### Q132: Modal Guide — What is the CreateSaleModal (`CreateSale.vue`), and what are its exact fields?
-**Answer:** The **`CreateSaleModal`** is the master POS execution screen:
-* **Showroom Branch (Auto-Locked):** Identifies selling branch.
-* **Customer Selection (Required Dropdown / Search):** Selects verified customer with CNIC.
-* **Vehicle Model & Color (Dropdown):** Model from active branch floor stock.
-* **Chassis / VIN Multi-Selector (Required):** Dropdown listing only *Available* physical VINs physically located on that branch's floor.
-* **Catalogue MSRP (PKR - Locked):** Central list price.
-* **Discount Allowed (PKR / %):** Enforces 8% ceiling.
-* **Final Net Price (PKR - Calculated):** Net vehicle price.
-* **Amount Received Now (PKR Input):** Cash or bank transfer collected today.
-* **Remaining Balance (PKR - Calculated):** Outstanding customer payable.
-* **Payment Mode:** Cash, Bank Transfer (IBFT), Cheque / Pay Order, or Split Payment.
-* **Assigned Sales Representative:** Salesperson earning commission.
-* **Estimated Delivery Date:** Scheduled handover date.
-* **Special Delivery Instructions:** e.g., *"Customer requested full charge and red ribbon on handlebar."*
+### Q132: Modal Guide — What is the CreateSaleModal (CreateSale.vue) and what are its exact fields?
+**Answer:** The `CreateSaleModal` is the master commercial execution modal supporting both POS and Booking modes:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `+ Quick Sale` (POS) OR `Quick Actions ⌄` &rarr; `New Order / Booking` (Order)
+* **Exact Form Fields:**
+  * **Sale Mode** *(Internal Toggle)*: `mode="pos"` (Instant POS) or `mode="order"` (Booking Order).
+  * **Customer Selection** *(Search / Dropdown)*: Selects verified customer with CNIC display.
+  * **Product Model** *(Dropdown, Required)*: Active EV model (e.g., *BRG E-125 Lithium*).
+  * **Chassis / VIN Selection** *(Dropdown / Barcode Scanner)*:
+    * In POS Mode: Lists only `Available` physical units on showroom floor.
+    * In Order Mode: Can select Available stock OR assign to Inbound Container PO.
+  * **Battery Serial & Controller Serial** *(Auto-Filled upon VIN selection)*: 3-way hardware binding.
+  * **Base MSRP List Price (PKR)** *(Read-Only)*: Official retail price.
+  * **Accessories & Add-ons** *(Checkboxes)*: Fast charger, smart helmet, tracker.
+  * **Discounts Applied** *(Input)*: Validated against 8% ceiling.
+  * **Excise Registration Fee** *(Input)*: Provincial registration charges.
+  * **Payment Method & Split Tender** *(Select/Input)*:
+    * Cash in Hand (PKR)
+    * Credit / Debit Card (Bank POS Terminal Auth Code)
+    * Online Bank IBFT (Bank Transaction UTR Reference)
+    * Cheque / Pay Order (Cheque Number & Bank Name)
+  * **Initial Amount Paid (PKR)** *(Numeric, Required)*:
+    * POS Mode: Must equal 100% Total Amount.
+    * Order Mode: Accepts partial token deposit (min. PKR 20,000).
 
 ---
 
-### Q133: Why does the system force staff to select a specific Chassis VIN during order creation?
-**Answer:** To eliminate the dangerous showroom practice of selling "ghost bikes". By locking a specific chassis number (e.g., `VIN-PK-BRG-2026-00812`), the system immediately changes that bike's status from **Available** to **Reserved**. No other salesperson can accidentally promise or sell that exact machine to another walk-in customer.
+### Q133: How does the system allocate physical Chassis VIN numbers at POS checkout?
+**Answer:** Direct physical barcode scanning:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Chassis VIN Field` &rarr; Scan with USB Barcode Gun
+* Sales reps scan the physical barcode stamped on the scooter's steering stem. The system instantly verifies that the chassis is physically in local showroom inventory, matches the customer's selected color, and is not locked to another customer.
 
 ---
 
-### Q134: Can a salesperson sell a bike that is currently in Quarantine or In-Transit?
-**Answer:** **No.** The VIN dropdown strictly filters for vehicles with status = `Available` in that specific branch. Bikes marked as `Quarantine`, `In-Transit`, `Reserved`, or `In-Service` do not appear in the selection list.
+### Q134: Can a single sale be split across multiple payment methods (e.g. Cash + Bank IBFT)?
+**Answer:** Yes. **Split-Tender Payment Processing**:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Payment Section` &rarr; Click **"+ Add Payment Method"**
+* Example: Total Invoice PKR 245,000 &rarr; Customer pays **PKR 100,000 Cash** at the counter + **PKR 145,000 via Online Bank IBFT Transfer**. The system records both ledger lines under a single consolidated receipt.
 
 ---
 
-### Q135: What happens when an order is created with only a partial booking deposit?
-**Answer:** The system creates the Sales Order in status **Partially Paid / Reserved**:
-* The vehicle is reserved in the customer's name.
-* The customer receives an official **Booking Deposit Receipt**.
-* The remaining balance is tracked in the Customer Aging Ledger.
-* The system blocks vehicle handover until the remaining balance is paid in full.
+### Q135: What thermal receipt printers are supported at POS checkout?
+**Answer:** Standard POS thermal printers:
+* 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Hardware & POS Peripherals` (`/settings/devices`)
+* Supports standard **80mm and 58mm thermal POS receipt printers** (Epson, Xprinter, Rongta) via USB or LAN, printing high-contrast tax receipts with QR codes in 1.2 seconds.
 
 ---
 
-### Q136: Can an electric bike be delivered if the customer still owes a balance?
-**Answer:** **No. The Zero Balance Rule strictly prohibits this.** The system physically disables the "Generate Gate Pass" button if Remaining Balance > PKR 0. No vehicle can physically exit the showroom doors without full financial settlement.
+### Q136: Why is the Delivery Gate Pass blocked immediately after creating a Sales Order?
+**Answer:** Strict asset leakage prevention:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Delivery Gate Passes` (`/sales/deliveries`)
+* When a Sales Order is booked with a partial deposit, the vehicle status is `Reserved`. The system physically disables and locks the **"Generate Gate Pass"** button until the remaining balance is paid in full (Balance = PKR 0).
 
 ---
 
-### Q137: How does the system handle split payments (e.g., PKR 100,000 cash and PKR 145,000 bank transfer)?
-**Answer:** The POS payment engine supports multi-tender split payments. Staff can log multiple payment lines on the same order, specifying the amount and payment instrument for each portion.
+### Q137: What happens to a Sales Order if a customer requests a color change before delivery?
+**Answer:** Secure VIN re-allocation:
+* 📍 **System Navigation Path:** `Sales Order Detail Page` (`/sales/orders/:id`) &rarr; Click **"Re-allocate VIN / Color"**
+* Manager releases the original reserved chassis (reverts to `Available`) and assigns a new available VIN matching the customer's updated color preference.
 
 ---
 
-### Q138: Does creating a Sales Order generate an automated Commercial Invoice?
-**Answer:** Yes. The microsecond the Sales Order is submitted, the system automatically creates an official, serialized Tax Invoice (`INV-2026-XXXX`) with legal tax calculations and company bank payment details.
+### Q138: How does the system handle corporate Purchase Orders (PO) at sales order entry?
+**Answer:** Corporate Credit Billing:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Payment Method: Corporate PO / Credit`
+* Attaches Corporate PO Number and 30-day payment milestone terms, routing invoice balance to Accounts Receivable aging ledger.
 
 ---
 
-### Q139: Can staff edit the price on a confirmed Sales Order after it has been created?
-**Answer:** **No.** Once confirmed, financial amounts are permanently locked to prevent unauthorized alterations. If a customer changes their order or requests a modification, the change must be processed via an official order amendment requiring manager sign-off.
+### Q139: Can an in-progress POS sale be put "On Hold" if a customer steps out to get cash?
+**Answer:** Yes. **Hold / Resume Cart Engine**:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; Click **"Hold Transaction"**
+* Parks the active transaction in the POS Hold Queue, temporarily holding the VIN for 45 minutes while allowing the cashier to serve other customers.
 
 ---
 
-### Q140: What happens if a customer cancels their booking before delivery?
-**Answer:** Staff initiate an official **Order Cancellation & Return Request** (`CreateReturnModal`). The vehicle reservation is released back to available inventory, and the customer deposit refund is routed for manager approval.
+### Q140: How does the system prevent double-selling the same chassis VIN?
+**Answer:** Instant database row-level locking:
+* 📍 **System Navigation Path:** Database Engine & UI Validation
+* The exact millisecond a salesperson selects a VIN in `CreateSaleModal`, the unit is locked with a temporary reservation mutex. If another salesperson on another tablet attempts to select the same VIN, the system displays: *"VIN Locked: Currently in checkout with Sales Rep [Name]"*.
 
 ---
 
-### Q141: How does the POS system operate when the internet connection drops?
-**Answer:** Sales Order confirmation is **Category B: Restricted Offline-Capable**. Staff can confirm orders for vehicles physically present in the local showroom database. The reservation commits locally and synchronizes to the national cloud server the moment connectivity resumes.
+### Q141: What happens if the customer's bank card payment declines at POS?
+**Answer:** Graceful payment retry:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Payment Verification Step`
+* The transaction is not committed. The cashier can retry the card, switch to Cash/IBFT, or save the transaction as a pending Booking Order.
 
 ---
 
-### Q142: Can a customer trade in their old petrol motorcycle as part payment?
-**Answer:** Yes. The POS engine includes a **Trade-In / Buy-Back Allowance** field. The showroom evaluator inspects the old motorcycle, enters its evaluated valuation (e.g., PKR 65,000), and the system deducts this amount from the EV's final payable price.
+### Q142: How are sales commissions attributed to showroom staff?
+**Answer:** Direct Sales Representative tagging:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Sales Executive Field`
+* The system logs the selling employee's ID, automatically computing monthly commission bonuses based on company margin tiers.
 
 ---
 
-### Q143: Are sales commission records generated automatically for sales staff?
-**Answer:** Yes. Each confirmed Sales Order tags the assigned Sales Representative, feeding the automated **Salesperson Commission & Performance Report**.
+### Q143: Can a completed POS sale be edited after the invoice is generated?
+**Answer:** **No. Invoiced sales are legally immutable.**
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Invoices` (`/sales/invoices`)
+* To correct an error, the branch manager must initiate an official **Sales Return / Credit Note** (`CreateReturnModal`), which requires audit justification and manager sign-off.
 
 ---
 
-### Q144: Can a customer take delivery immediately if they pay 100% cash at the POS counter?
-**Answer:** Yes. If the customer pays 100% cash and the vehicle has passed its Pre-Delivery Inspection (PDI), the system confirms full payment, generates the Tax Invoice, and unlocks the Delivery Gate Pass for immediate release.
+### Q144: What is the Daily Sales Velocity metric on the Branch Dashboard?
+**Answer:** Live daily sales counter:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` (`/dashboard`) &rarr; `Units Sold KPI Card`
+* Displays total units sold today vs daily branch sales target, updating in real time with celebratory visual animations upon target achievement.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1517,98 +1707,116 @@ As staff type discount amounts or cash received, all figures, tax amounts, and o
 
 # PART 11: Invoicing, Deposits & Customer Money Collections (Q145 – Q158)
 
-### Q145: What is the Anti-Fraud Invoicing Rule in AJ EcoDrive?
-**Answer:** To eliminate showroom theft, unrecorded cash collections, and "under-the-table" payments, AJ EcoDrive enforces a strict rule:
-> **"Every single rupee collected from a customer MUST be linked to an official system-generated Invoice Number."**
-Staff cannot enter an unlinked cash receipt. Every payment must reference an active invoice, ensuring that money in the drawer always matches documented vehicle sales and service charges.
+### Q145: How does AJ EcoDrive handle customer money collections and receipts?
+**Answer:** All cash, cheque, and electronic collections are governed by the **Customer Payments Ledger**:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Record Payment` (`CreatePaymentModal`) OR `Sidebar: Finance & Accounts` &rarr; `Customer Payments` (`/sales/payments`) &rarr; Click `+ Record Payment`
+* **Core Rule:** Every single Rupee entering the dealership must be linked directly to a verified customer, an official sales order/invoice ID, and a designated bank or cashier till account.
 
 ---
 
-### Q146: What payment channels does the system support?
-**Answer:** The payment engine supports 4 standardized channels:
-1. **Physical Cash Drawer:** Hard currency notes counted and held in the showroom cash register.
-2. **Inter-Bank Funds Transfer (IBFT):** Direct customer bank transfer into the dealership's corporate bank accounts (e.g., Bank Alfalah, Meezan Bank, or Habib Bank Limited).
-3. **Cheque / Banker's Pay Order:** Instruments requiring clearance before vehicle release.
-4. **POS Card Swiping Machine:** Credit/debit card merchant receipts.
+### Q146: What payment methods are supported in the system?
+**Answer:** Complete multi-tender payment processing:
+* 📍 **System Navigation Path:** `CreatePaymentModal` &rarr; `Payment Method Dropdown`
+1. **Cash in Till:** Physical currency deposited into branch cashier safe.
+2. **Online Bank IBFT (Inter-Bank Fund Transfer):** Direct electronic transfer to corporate bank account (Meezan Bank, HBL, Bank Alfalah).
+3. **Credit / Debit Card (POS Terminal):** Card swipe with terminal authorization slip attachment.
+4. **Cheque / Banker's Pay Order:** Direct clearing with cheque number, issuing bank, and clearing date tracking.
+5. **Bank Auto Financing / Lease Disbursement:** Direct settlement from leasing bank.
 
 ---
 
-### Q147: Modal Guide — What is the CreatePaymentModal (`CreatePayment.vue`), and what are its exact fields?
-**Answer:** The **`CreatePaymentModal`** records financial collections with complete audit integrity:
-* **Showroom Branch (Auto-Locked):** Branch receiving the funds.
-* **Invoice Reference Selector (Required):** Dropdown showing open invoices with outstanding balances.
-* **Customer Legal Name (Auto-Populated):** Verified from invoice.
-* **Payment Date:** Defaults to current date and time.
-* **Total Invoice Amount (PKR - Displayed):** Original billed amount.
-* **Previously Paid Amount (PKR - Displayed):** Sum of past receipts.
-* **Remaining Balance Due (PKR - Displayed):** Balance before this transaction.
-* **Amount Received Today (Required PKR Input):** Exact currency collected.
-* **Payment Mode (Dropdown):** Cash Drawer, Bank Transfer (IBFT), Pay Order / Cheque, or POS Card.
-* **Deposit Bank Account (Required if Bank/IBFT):** Dealership bank account (e.g., *Meezan Bank - A/C #0201010048291*).
-* **Transaction Reference / Cheque Number:** Mandatory bank transaction ID or cheque serial.
-* **Proof Attachment Upload:** Photo upload of customer bank transfer screenshot or cheque scan.
-* **Cashier Notes:** Free-form reconciliation remarks.
+### Q147: Modal Guide — What is the CreatePaymentModal (CreatePayment.vue) and what are its exact fields?
+**Answer:** The `CreatePaymentModal` records money collections and generates official receipts:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Record Payment` (`CreatePaymentModal`)
+* **Exact Form Fields:**
+  * **Customer Selection** *(Search / Dropdown, Required)*: Selects paying customer.
+  * **Linked Invoice / Sales Order** *(Dropdown, Required)*: Shows open orders with outstanding balance.
+  * **Payment Purpose** *(Select)*: `Booking Deposit`, `Milestone Installment`, `Final Balance Settlement`, `Workshop Repair Payment`.
+  * **Payment Method** *(Select, Required)*: Cash, IBFT, Credit Card, Cheque, Pay Order.
+  * **Amount Paid (PKR)** *(Numeric, Required)*: Amount collected today.
+  * **Bank Account Deposited Into** *(Dropdown)*: Branch Cash Safe, Meezan Main Account, HBL Ops Account.
+  * **Bank Transaction Reference / UTR** *(Text)*: Mandatory for online IBFT.
+  * **Cheque Number & Bank Name** *(Text)*: Mandatory for cheque collections.
+  * **Payment Slip / Receipt Photo** *(File Upload)*: Bank deposit slip scan.
+  * **Internal Notes** *(Textarea)*: Cashier audit remarks.
 
 ---
 
-### Q148: What does the customer receive immediately upon making a payment?
-**Answer:** The thermal receipt printer automatically prints an official **Money Receipt Voucher** with:
-* Dealership corporate logo and tax NTN/STRN.
-* Unique Receipt Serial Number (e.g., `REC-2026-0812`).
-* Linked Invoice Number and Vehicle Chassis VIN.
-* Amount Received (in numbers and words: *"PKR Two Hundred Thousand Only"*).
-* Remaining Outstanding Balance.
-* Cashier Signature Stamp & Security QR Code.
+### Q148: What is an official FBR-Compliant Tax Invoice in AJ EcoDrive?
+**Answer:** The official legal commercial invoice generated upon full settlement:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Invoices` (`/sales/invoices/:id`) &rarr; Click **"Print Tax Invoice"**
+* **Invoice Header:** Dealership Legal Name, Branch Address, NTN, STRN, Customer Name, CNIC, and unique Invoice Number (`INV-PEW-2026-XXXX`).
+* **Line Items:** Base EV Model, Chassis VIN, Motor Serial, Battery Serial, Spare Parts, Excise Registration, GST Sales Tax breakdown (18%), and Total Amount Paid (PKR).
 
 ---
 
-### Q149: How does the system handle bank transfer (IBFT) payments to prevent fake screenshot scams?
-**Answer:** Customers frequently present fabricated mobile banking screenshots. When staff select *Bank Transfer (IBFT)*, the system marks the payment status as **Pending Bank Verification**. The Branch Manager must verify that the funds have physically cleared into the online corporate bank statement before approving the payment and releasing the vehicle.
+### Q149: How does the system handle booking token deposits?
+**Answer:** Automated Customer Advance Accounting:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Customer Advance Deposits` (`/finance/advances`)
+* When a customer pays a PKR 25,000 token deposit on an upcoming electric scooter, the system logs a credit to *Customer Advance Liabilities* and issues an official **Booking Deposit Receipt**. The customer's sales order reflects: *Total: PKR 245,000 — Paid: PKR 25,000 — Remaining Balance: PKR 220,000*.
 
 ---
 
-### Q150: What happens if a customer pays with a cheque that bounces?
-**Answer:** The Branch Manager opens the payment record and clicks **Bounce Cheque**. The system automatically reverses the payment entry, restores the outstanding balance on the invoice, adds a penalty fee, and locks vehicle delivery.
+### Q150: What happens when a customer pays the final remaining balance?
+**Answer:** Automatic status reconciliation:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Sales Orders` (`/sales/orders/:id`) &rarr; Click **"Record Final Settlement"**
+* Balance updates to **PKR 0.00**, invoice marks `Fully Paid`, and the vehicle unlocks for **Pre-Delivery Inspection (PDI)** and **Delivery Gate Pass** generation.
 
 ---
 
-### Q151: How does the system prevent cashiers from pocketing cash and voiding invoices later?
-**Answer:** Cashiers do not have permission to void or delete invoices. Once a receipt is printed, it is permanently locked into the daily accounting ledger. Any correction requires an official Credit Note authorized by the Central Finance Officer.
+### Q151: How does the system verify Online Bank IBFT transfers?
+**Answer:** Unique Bank UTR Transaction Reconciliation:
+* 📍 **System Navigation Path:** `CreatePaymentModal` &rarr; `Bank Reference Field`
+* The cashier inputs the 12-digit bank transaction reference from the customer's mobile banking app and attaches a screenshot. Branch Managers cross-verify against the online banking portal before authorizing delivery.
 
 ---
 
-### Q152: Can a customer make payments in installments?
-**Answer:** Yes. The system tracks multiple partial payments against a single invoice. Each installment generates an incremental receipt and updates the remaining balance countdown.
+### Q152: What happens if a customer's cheque bounces?
+**Answer:** Cheque dishonor workflow:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Customer Payments` &rarr; Select Cheque Payment &rarr; Click **"Mark Dishonored / Bounced"**
+* Reverses the payment entry, adds a PKR 1,500 bank penalty surcharge, reverts invoice status to `Unpaid`, and immediately locks vehicle delivery.
 
 ---
 
-### Q153: How does the system reconcile the cash drawer at the end of the day?
-**Answer:** During the Day-End Closing Routine (Part 24), the system sums all payments logged as *Physical Cash Drawer* and compares the total against the physical currency notes counted in the safe.
+### Q153: Can a customer pay in foreign currency (USD / AED)?
+**Answer:** Standard protocol requires conversion to PKR:
+* 📍 **System Navigation Path:** `CreatePaymentModal` &rarr; `Notes Section`
+* Cashier converts foreign currency through authorized exchange and deposits equivalent PKR into the till with attached currency exchange receipt.
 
 ---
 
-### Q154: Are customer payments synchronized to Head Office in real time?
-**Answer:** Yes. Under online conditions, payments synchronize to Head Office immediately, giving executives live visibility over company-wide cash inflow.
+### Q154: How are daily cash collections reconciled against the bank deposit slip?
+**Answer:** Daily Cash Drop Reconciliation:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Daily Cash Reconciliations` (`/finance/cash-drops`)
+* Branch Manager packages physical cash collections, deposits them at the local bank branch, and uploads the stamped bank deposit slip, reconciling cashier till to PKR 0 balance.
 
 ---
 
-### Q155: What happens if a payment is captured while the showroom is offline?
-**Answer:** Payment capture is **Category B: Restricted Offline-Capable**. Staff can log cash collections offline. The workstation generates a local receipt number. When the internet reconnects, the transaction queues to central accounting with verified timestamps.
+### Q155: What safeguards prevent cashier cash theft or skimming?
+**Answer:** Multi-layer financial audit controls:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Cash Audit Logs`
+* System receipts are sequentially numbered with encrypted QR codes. Customer receives an instant SMS verification of amount paid. Unrecorded cash cannot unlock Delivery Gate Passes.
 
 ---
 
-### Q156: Can a customer request an official tax invoice in their company's name for tax deductions?
-**Answer:** Yes. If the customer is a corporate entity, the invoice includes the company's NTN, STRN, and registered corporate address for business expense deductions.
+### Q156: How does the system handle overpayments or excess customer change?
+**Answer:** Customer Credit Balance Ledger:
+* 📍 **System Navigation Path:** `Customer Profile Page` &rarr; `Credit Ledger Tab`
+* Any excess payment is credited to the customer's wallet balance, automatically available for future workshop services or accessories.
 
 ---
 
-### Q157: Does the system alert management to long-overdue unpaid balances?
-**Answer:** Yes. The **Accounts Receivable Aging Report** categorizes unpaid balances into 1–15 days, 16–30 days, and 30+ days, prompting follow-up calls.
+### Q157: Can an official payment receipt be re-printed?
+**Answer:** Yes, with duplicate watermark:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Customer Payments` &rarr; Select Payment &rarr; Click **"Reprint Receipt"**
+* Prints an exact copy watermarked with *"DUPLICATE RECEIPT — ORIGINAL ISSUED ON [DATE]"*.
 
 ---
 
-### Q158: Can a cashier accept foreign currency (e.g., US Dollars or UAE Dirhams)?
-**Answer:** No. Dealership policy mandates Pakistani Rupees (PKR) for all local retail transactions. Foreign buyers must convert currency at authorized exchange houses.
+### Q158: What is the Outstanding Accounts Receivable Aging Report?
+**Answer:** Tracks unpaid customer and corporate balances:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Accounts Receivable Aging` (`/reports/ar-aging`)
+* Categorizes open balances by age: `Current (0-30 Days)`, `Overdue (31-60 Days)`, `Critical (61-90 Days)`, `Default Risk (> 90 Days)`.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1617,121 +1825,150 @@ Staff cannot enter an unlinked cash receipt. Every payment must reference an act
 
 # PART 12: Pre-Delivery Inspection (PDI) & Official Gate Pass Handover (Q159 – Q174)
 
-### Q159: What is the Pre-Delivery Inspection (PDI) in an EV dealership?
-**Answer:** The Pre-Delivery Inspection (PDI) is a rigorous technical quality checklist completed by the workshop technician before any electric vehicle is handed over to a buyer. It guarantees that the vehicle is mechanically sound, electrically safe, and road-ready.
+### Q159: What is Pre-Delivery Inspection (PDI) in AJ EcoDrive?
+**Answer:** Pre-Delivery Inspection (PDI) is the mandatory 6-point technical and safety audit conducted by certified workshop technicians immediately before handing over an electric vehicle to a customer:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Sales Orders` (`/sales/orders/:id`) &rarr; Click **"Start PDI Checklist"** (`CreateDeliveryHandoverModal`)
+* **Core Objective:** Guarantees that every electric scooter leaving the showroom floor is 100% roadworthy, physically pristine, electrically balanced, and safe to ride.
 
 ---
 
-### Q160: What are the 6 mandatory checkpoints in the AJ EcoDrive PDI Protocol?
-**Answer:** The technician must inspect, verify, and digitally check off all 6 points:
-1. **Lithium Battery State of Charge (SOC):** Charged to 100% with healthy cell balance.
-2. **Tyre Pressure & Wheel Torque:** Front 28–30 PSI, Rear 32–34 PSI; axle nuts torqued to specification.
-3. **Braking System:** Front/rear hydraulic disc brake pressure, fluid levels, and regenerative brake cutoff.
-4. **Electrical Systems & Lighting:** High/low beam headlights, brake light, turn indicators, and horn.
-5. **Electronic Throttle & Drive Modes:** Smooth throttle response across Eco, City, and Sport speed modes.
-6. **Smart BMS & ECU Diagnostics:** Zero active diagnostic trouble codes (DTCs) on the digital instrument console.
+### Q160: What are the 6 Mandatory Checkpoints in the PDI Checklist?
+**Answer:** The system enforces a comprehensive technical verification:
+* 📍 **System Navigation Path:** `CreateDeliveryHandoverModal` &rarr; `6-Point PDI Tab`
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   6-POINT PRE-DELIVERY INSPECTION (PDI)                │
+├────────────────────────────────────────────────────────────────────────┤
+│  [✓] 1. Battery State of Charge (SOC): Charged to 100% & Balanced      │
+│  [✓] 2. Smart BMS Diagnostics: 0 Fault Codes & Stable Cell Voltages    │
+│  [✓] 3. Braking & Throttle Safety: Hydraulic Disc Pressure Verified    │
+│  [✓] 4. Electrical System: LED Headlight, Indicators, Horn & LCD Meter │
+│  [✓] 5. Mechanical Integrity: Tyre Pressure (32 PSI) & Torque Checked  │
+│  [✓] 6. Cosmetic & Accessories: Zero Transit Scratches + Charger/Keys  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+1. **Battery State of Charge (SOC):** 100% full charge verified; cell voltages balanced.
+2. **Smart BMS Diagnostics:** OBD scan passes with zero error codes.
+3. **Braking & Throttle Safety:** Front/rear hydraulic disc brake cutoff sensors tested.
+4. **Lighting & Electrical:** High/low beam LED headlight, turn signals, brake light, horn, and LCD instrument cluster verified.
+5. **Tyres & Fasteners:** Front/rear tyre pressure set to 32 PSI; axle nut torque verified.
+6. **Cosmetic & Toolkit Handover:** Body fairings checked for scratches; 2x original keys, 2x remote alarms, and OEM smart charger packed.
 
 ---
 
-### Q161: What is the "Zero Balance Handover Rule"?
-**Answer:** **A vehicle cannot be handed over if a single rupee remains unpaid.** The system hard-locks the delivery screen:
-> **"HANDOVER BLOCKED: Outstanding Balance is PKR 45,000. Customer must clear balance before Delivery Gate Pass can be printed."**
-This protects dealership owners from customers driving away with unpaid balances.
+### Q161: Why can a Gate Pass NEVER be generated if the PDI fails?
+**Answer:** Strict customer safety and liability protection:
+* 📍 **System Navigation Path:** `CreateDeliveryHandoverModal` &rarr; Validation Engine
+* If any PDI item fails (e.g., brake light bulb loose or tyre pressure low), the system blocks gate pass generation. The technician must repair the defect and re-verify before the system unlocks customer handover.
 
 ---
 
-### Q162: Modal Guide — What is the CreateDeliveryHandoverModal (`CreateDeliveryHandover.vue`), and what are its exact fields?
-**Answer:** The **`CreateDeliveryHandoverModal`** executes the legal transfer of the vehicle:
-* **Showroom Branch (Auto-Locked):** Branch performing the delivery.
-* **Sales Order Reference Selector (Required):** Selects fully-paid sales orders awaiting delivery.
-* **Customer Legal Name & CNIC (Auto-Populated):** Verified recipient.
-* **Assigned Chassis / VIN (Auto-Populated):** The physical machine being released.
-* **Battery Serial & Motor Number (Auto-Populated):** Recorded for warranty activation.
-* **6-Point PDI Verification Checklist:** Interactive checkboxes for all 6 technical points.
-* **PDI Inspecting Technician Name:** Mechanic certifying vehicle roadworthiness.
-* **Accessories Handover Checklist:** Checkboxes for 2 Ignition Keys, 2 Remote Alarm Fobs, Smart Fast Charger, Tool Kit, and Owner's Manual.
-* **Customer Odometer Reading:** Initial delivery mileage (typically 1 to 5 km from factory testing).
-* **Customer Signature Confirmation:** Digital checkbox confirming customer inspected vehicle and found no scratches or defects.
-* **Generate Delivery Gate Pass Button:** Unlocks only when all checklist items are certified.
+### Q162: Modal Guide — What is the CreateDeliveryHandoverModal (CreateDeliveryHandover.vue) and what are its exact fields?
+**Answer:** The `CreateDeliveryHandoverModal` executes the PDI checklist and generates the official Delivery Gate Pass:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Sales Orders` &rarr; Click `Deliver Vehicle` (`CreateDeliveryHandoverModal`)
+* **Exact Form Fields:**
+  * **Order Reference** *(Read-Only)*: Linked Sales Order ID and Customer Name.
+  * **Chassis Frame VIN** *(Read-Only)*: Verified physical vehicle chassis number.
+  * **Assigned PDI Technician** *(Dropdown, Required)*: Certified workshop mechanic.
+  * **6-Point PDI Checkbox Matrix** *(Mandatory All Checked)*: Battery, BMS, Brakes, Lights, Tyres, Cosmetics.
+  * **Starting Odometer Reading (km)** *(Numeric, Required)*: Factory testing mileage (typically 1 to 5 km).
+  * **Battery State of Charge (%)** *(Numeric, Required)*: Must be &ge; 95%.
+  * **Handover Checklist Items**: 2x Keys, 2x Remote FOBs, 1x Smart Charger, 1x User Manual & Warranty Card.
+  * **Customer Receiving Signature** *(Digital Signature Canvas)*: Touchscreen signature.
+  * **Authorizing Manager PIN** *(Security PIN)*: Managerial clearance.
 
 ---
 
-### Q163: What is the Official Delivery Gate Pass, and why is it legally essential?
-**Answer:** The **Delivery Gate Pass** is an official legal security document printed on the counter laser printer. It features:
-* Dealership corporate header, tax registration, and branch address.
-* Unique Gate Pass Serial Number (e.g., `GP-2026-0914`).
-* Vehicle Chassis Number (VIN), Motor Number, and Color.
-* Customer Name, CNIC, and Verified Mobile Phone.
-* Automated Security QR Code and Anti-Tamper Security Watermark.
-* Handover Officer Signature & Security Guard Exit Stamp.
+### Q163: What is the Official Delivery Gate Pass, and what security features does it contain?
+**Answer:** The Delivery Gate Pass is the legal security document authorizing physical compound exit:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Delivery Gate Passes` (`/sales/deliveries/:id/gate-pass`)
+* **Security & Forensic Features:**
+  * **Encrypted QR Verification Code:** Scanned by gate security guard to verify authenticity.
+  * **Chassis Frame VIN Barcode:** Matches stamped frame on vehicle.
+  * **Customer CNIC & Full Name:** Verified citizen identity.
+  * **Dealership Security Seal & Timestamp:** Exact time vehicle exited dealership compound.
+  * **Invoice Zero-Balance Certification:** Cryptographically confirms PKR 0 outstanding.
 
 ---
 
-### Q164: What is the strict role of the Security Guard at the showroom exit gate?
-**Answer:** The showroom security guard is instructed never to open the exit gates for a vehicle without a physically signed, stamped Delivery Gate Pass. The guard matches the chassis number stamped on the bike's frame against the printed Gate Pass, signs the guard exit log, and archives the physical gate pass stub.
+### Q164: How does the security guard verify the Gate Pass at the showroom exit?
+**Answer:** Handheld QR verification scan:
+* 📍 **System Navigation Path:** Security Guard Mobile App &rarr; `Scan Gate Pass QR`
+* Security guard scans the QR code on the driver's printed gate pass. The mobile screen flashes **GREEN: AUTHORIZED EXIT** with photo of the vehicle and customer name, unlocking the barrier.
 
 ---
 
-### Q165: What happens in the system the exact moment the Handover is submitted?
-**Answer:**
-1. The vehicle lifecycle status updates from `Reserved` to **`Delivered / Customer Owned`**.
-2. The vehicle is officially removed from active showroom inventory.
-3. The customer's **2-Year / 30,000 km Manufacturer Warranty** is activated in the cloud, locking the start date to today's date.
-4. An automated congratulatory SMS is sent to the customer's mobile phone with emergency roadside assistance contacts and battery care tips.
+### Q165: What happens in the system the exact second the Gate Pass is scanned?
+**Answer:** Final lifecycle state transition:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units`
+* Unit status changes permanently from `Sold / Ready` to **`Delivered / Customer Owned`**.
+* Official **OEM Warranty Period Starts** on this calendar date.
+* Vehicle exits active showroom asset balance sheet.
 
 ---
 
-### Q166: What is the Showroom Delivery Ceremony?
-**Answer:** To build customer loyalty and positive social media presence, staff conduct a ceremonial handover:
-* Presenting the clean, polished electric bike with a ceremonial key.
-* Explaining battery charging best practices (e.g., avoiding overnight overcharging and using original chargers).
-* Taking a customer delivery photograph (with permission) for the dealership's customer hall of fame.
+### Q166: What customer orientation is conducted during vehicle handover?
+**Answer:** The 5-minute **EV Driver Orientation Briefing**:
+* 📍 **System Navigation Path:** `CreateDeliveryHandoverModal` &rarr; `Customer Briefing Checklist`
+* Staff demonstrate: Keyless remote start, Eco/Sport speed mode toggles, Lithium battery charging etiquette (avoiding overnight overcharging), and emergency high-voltage circuit breaker switch.
 
 ---
 
-### Q167: Can a customer take delivery if their registered representative collects the bike?
-**Answer:** Yes, but only with a signed **Letter of Authorization** and an original physical copy of the customer's CNIC and the representative's CNIC, both of which are scanned and archived in the system.
+### Q167: Can a customer take delivery if they forgot their original CNIC?
+**Answer:** **No. Delivery requires physical CNIC presentation.**
+* 📍 **System Navigation Path:** `CreateDeliveryHandoverModal` &rarr; `Identity Verification`
+* Showroom manager must inspect the physical NADRA CNIC card and verify it matches the registered invoice identity before handing over keys.
 
 ---
 
-### Q168: What happens if a scratch or defect is discovered during the PDI?
-**Answer:** If the technician or customer discovers a paint defect, cracked fairing, or loose wire during PDI, the handover is halted. The vehicle is sent to the workshop for immediate rectification, or an alternate vehicle is allocated.
+### Q168: How does the system handle home delivery via flatbed truck?
+**Answer:** Third-Party Carrier Delivery Protocol:
+* 📍 **System Navigation Path:** `CreateDeliveryHandoverModal` &rarr; `Delivery Type: Flatbed / Home Delivery`
+* Records flatbed driver name, truck license plate number, carrier contact number, and destination address. Gate pass authorizes carrier dispatch.
 
 ---
 
-### Q169: Does the system record which technician certified the PDI?
-**Answer:** Yes. The certifying mechanic's name is permanently attached to the vehicle record. If a mechanical issue arises within 48 hours, management can review the original PDI sign-off.
+### Q169: What happens if a customer notices a cosmetic scratch during handover?
+**Answer:** Pre-Delivery Rectification Voucher:
+* 📍 **System Navigation Path:** `CreateDeliveryHandoverModal` &rarr; Click **"Log Delivery Exception"**
+* Records scratch location with photo. If minor, workshop team polishes fairing on the spot; if part requires replacement, a free replacement appointment is scheduled.
 
 ---
 
-### Q170: Can the Delivery Gate Pass be printed twice?
-**Answer:** If a reprint is required (e.g., printer paper jam), the system prints the document with a prominent watermark: **"REPRINT / DUPLICATE COPY"**, logging the reprint reason in the audit trail to prevent gate pass fraud.
+### Q170: Can an expired or previously used Gate Pass be used again?
+**Answer:** **No. Gate Passes are single-use tokens.**
+* 📍 **System Navigation Path:** Security Verification Engine
+* Once scanned at the gate, the pass status updates to `Executed / Closed`. Any subsequent scan triggers a crimson warning: *"FRAUD ALERT: GATE PASS ALREADY EXECUTED ON [DATE/TIME]"*.
 
 ---
 
-### Q171: How does Delivery Handover operate if the internet is down?
-**Answer:** Handover is **Category B: Restricted Offline-Capable**. If the invoice was already 100% paid locally, staff can complete the PDI checklist and print the Gate Pass locally. The warranty activation queues in the Outbox and syncs upon reconnection.
+### Q171: What documentation is handed over to the customer inside the delivery folder?
+**Answer:** The **AJ EcoDrive Official Ownership Welcome Pack**:
+* 📍 **System Navigation Path:** `Sales Order Detail Page` &rarr; Click **"Print Complete Delivery Pack"**
+* Contains: Original Tax Invoice, Payment Receipts, Official Stamped Warranty Certificate, Pre-Delivery Inspection (PDI) Report, Excise Registration Application, and Owner's Manual.
 
 ---
 
-### Q172: Does the system record the charger serial number handed to the customer?
-**Answer:** Yes. The smart charger serial number is recorded in the delivery checklist to ensure only original chargers are accepted during future warranty claims.
+### Q172: How does the system solicit customer satisfaction (CSAT) feedback?
+**Answer:** Automated Post-Delivery Feedback SMS:
+* 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Customer Experience (CSAT)`
+* 2 hours after gate exit, customer receives an automated SMS/WhatsApp: *"How was your delivery experience at AJ EcoDrive? Rate us 1 to 5 stars: [Feedback Link]"*.
 
 ---
 
-### Q173: Can an employee delete a completed delivery handover record?
-**Answer:** **No.** Completed delivery handovers are permanent legal records that cannot be edited or deleted.
+### Q173: Where can Branch Managers audit all past deliveries?
+**Answer:** The **Delivery Handovers Workbench**:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Deliveries & Handovers` (`/sales/deliveries`)
+* Displays chronological delivery log, filterable by date, customer, VIN, and delivering sales executive.
 
 ---
 
-### Q174: What documentation is handed to the customer upon departure?
-**Answer:**
-1. Original Commercial Tax Invoice.
-2. Official Delivery Gate Pass (Customer Copy).
-3. 2-Year Manufacturer Warranty Certificate & Battery Card.
-4. Government Excise Registration Application Form.
-5. Owner's Manual & Emergency Roadside Contact Guide.
-
+### Q174: What is the On-Time Delivery Performance KPI?
+**Answer:** Dealership punctuality score:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Delivery Fulfillment Scorecard`
+* Measures percentage of vehicles delivered exactly on or before the promised customer booking date (Target: &ge; 96.5% on-time delivery across network).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1744,96 +1981,119 @@ This protects dealership owners from customers driving away with unpaid balances
 
 # PART 13: Workshop Intake & Opening Service Cases (Q175 – Q188)
 
-### Q175: What is the purpose of the Workshop Intake process in AJ EcoDrive?
-**Answer:** Workshop Intake is the formal reception procedure when a customer brings their electric bike to the dealership service department. It establishes the vehicle's physical condition upon arrival, logs the customer's specific complaints, checks manufacturer warranty status, and prevents disputes regarding pre-existing scratches or missing accessories.
+### Q175: What is the Workshop Service Intake process in AJ EcoDrive?
+**Answer:** Workshop Service Intake is the formal reception protocol when a customer brings an electric vehicle into the dealership workshop for periodic maintenance, warranty repair, or accident damage:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Service Intake Case` (`CreateCaseModal`) OR `Sidebar: After-Sales & Workshop` &rarr; `Active Service Cases` (`/after-sales/warranty`) &rarr; Click `+ New Service Intake`
+* **Operational Flow:**
+  1. Service receptionist scans vehicle chassis VIN or enters customer mobile number.
+  2. System retrieves verified digital service history and active OEM warranty coverage.
+  3. Receptionist logs customer-reported symptoms, starting odometer reading, and battery SOC.
+  4. Generates an electronic Workshop Intake Job Card with customer signature.
 
 ---
 
-### Q176: What happens during the initial service triage?
-**Answer:** The service advisor conducts a 3-minute physical inspection with the customer:
-1. Verifies the vehicle chassis number (VIN) against the system.
-2. Records current odometer mileage (km).
-3. Notes existing scratches, dents, or loose mirrors on the vehicle intake diagram.
-4. Categorizes the issue: Scheduled Maintenance, Minor Electrical, Brake / Suspension, Major Motor / Controller, or Battery / BMS Fault.
-5. Issues an official **Service Intake Job Slip** to the customer.
+### Q176: What is the difference between a Service Case and a Repair Job Card?
+**Answer:** AJ EcoDrive establishes a clear 2-tier service architecture:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Service Cases` vs `Job Cards`
+* **Service Case (`SC-PEW-XXXX`):** The master customer ticket representing the customer's visit, symptom intake, warranty claim validation, customer communication, and final invoicing.
+* **Repair Job Card (`JOB-PEW-XXXX`):** The internal workshop technical ticket assigned to a specific technician, tracking mechanic labour hours, installed spare parts, and OBD diagnostic checks.
 
 ---
 
-### Q177: Modal Guide — What is the CreateCaseModal (`CreateCase.vue`), and what are its exact fields?
-**Answer:** The **`CreateCaseModal`** initiates a service or warranty complaint:
-* **Customer Search & Selection (Required):** Search by Name, Mobile Phone, or CNIC.
-* **Vehicle Chassis / VIN Selector (Required):** Selects from vehicles owned by that customer.
-* **Current Odometer Mileage (Required km Input):** Mileage for warranty validation.
-* **Issue Category (Dropdown):** Scheduled Routine Maintenance (1,000 km / 5,000 km), Electrical & Lighting, Mechanical & Brakes, Motor & Transmission, Lithium Battery & Charging, or Accident Repair.
-* **Customer Reported Complaint (Required Text Area):** Exact customer description (e.g., *"Bike cuts off power when accelerating uphill; speedometer shows Error Code 04"*).
-* **Preliminary Visual Inspection Notes:** Pre-existing body scratches or damaged fairings.
-* **Priority Level (Dropdown):** Low (Routine Tune-Up), Normal (Standard Repair), or High (Breakdown / VIP Fleet Customer).
-* **Estimated Vehicle Return Date & Time:** Promised completion time.
-* **Vehicle Photo Upload:** Up to 3 photos of physical damage or dashboard error codes.
+### Q177: Modal Guide — What is the CreateCaseModal (CreateCase.vue) and what are its exact fields?
+**Answer:** The `CreateCaseModal` executes the front-desk workshop intake in under 45 seconds:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Service Intake Case` (`CreateCaseModal`)
+* **Exact Form Fields:**
+  * **Customer / Vehicle Lookup** *(Search Input)*: Search by VIN, Customer Phone, or CNIC.
+  * **Vehicle Chassis VIN** *(Auto-Populated)*: Unique serialized chassis identity.
+  * **Current Odometer (km)** *(Numeric, Required)*: Mileage at intake.
+  * **Battery State of Charge (%)** *(Numeric, Required)*: Battery percentage on arrival.
+  * **Service Category** *(Select, Required)*:
+    * `Periodic Maintenance (Free Service Voucher 1, 2, or 3)`
+    * `Warranty Claim (Battery / Motor / Controller)`
+    * `Running Repair (Brakes / Tyres / Electrical)`
+    * `Accident / Bodywork Repair`
+  * **Customer Reported Symptoms** *(Textarea, Required)*: Detailed description of issue.
+  * **Physical Exterior Inspection Checklist**: Marks pre-existing body scratches with interactive vehicle diagram.
+  * **Assigned Lead Technician / Service Advisor** *(Dropdown)*: Workshop staff assignment.
+  * **Promised Completion Date & Time** *(Datetime)*: Delivery commitment to customer.
 
 ---
 
-### Q178: How does the system automatically verify warranty validity during intake?
-**Answer:** The microsecond the vehicle VIN is selected, the system queries the national warranty database:
-* If the delivery date was within the 2-year warranty window and mileage is under 30,000 km, a bright green badge appears: **`WARRANTY ACTIVE (14 Months Remaining)`**.
-* If the warranty has expired, an amber badge appears: **`OUT OF WARRANTY (Standard Paid Rates Apply)`**.
+### Q178: How does the system automatically verify warranty validity at workshop intake?
+**Answer:** Instant cryptographic warranty calculation:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; `Warranty Status Banner`
+* When the chassis VIN is selected, the system calculates time elapsed since initial Delivery Gate Pass date and compares current odometer reading against warranty thresholds (e.g., *Elapsed: 8 months / 6,420 km &rarr; Status: GREEN (ACTIVE 2-YEAR WARRANTY)*).
 
 ---
 
-### Q179: Can a customer open a service case if they purchased the bike from a different branch?
-**Answer:** **Yes.** AJ EcoDrive operates a **Nationwide Warranty Network**. A customer who purchased their electric scooter in Islamabad can receive warranty maintenance at the Peshawar or Lahore service center without issue. The central warranty ledger links all branches.
+### Q179: What are Free Service Vouchers, and how are they redeemed?
+**Answer:** Periodic OEM maintenance vouchers:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; `Service Category: Free Service Voucher`
+* New electric bikes include **3 Free Scheduled Services** (1st Service: 1,000 km, 2nd Service: 5,000 km, 3rd Service: 10,000 km). System validates voucher eligibility and zeros out labour charges automatically.
 
 ---
 
-### Q180: What does the customer receive upon leaving their bike at the workshop?
-**Answer:** The service advisor prints a **Service Intake Claim Slip** with:
-* Unique Service Case Number (e.g., `CAS-2026-0418`).
-* Vehicle VIN, Make, Model, and Current Mileage.
-* Documented Customer Complaints & Pre-Existing Scratch Notes.
-* Promised Delivery Time and Service Advisor Contact Phone.
+### Q180: How does the system record pre-existing vehicle body damage during intake?
+**Answer:** Interactive 2D Vehicle Body Inspection Map:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; `Visual Condition Mapper`
+* Service advisor taps on a 2D diagram of the electric scooter (front mudguard, side fairing, rear lamp) to mark pre-existing scratches or cracks, taking photos via mobile tablet to prevent false customer damage claims upon pickup.
 
 ---
 
-### Q181: How does the intake process protect the dealership from customer false damage claims?
-**Answer:** The Service Intake Claim Slip includes a signed pre-inspection walk-around agreement. If a customer claims their front fender was cracked in the workshop, management refers to the signed intake slip and intake photos proving the scratch was present when the customer dropped off the bike.
+### Q181: What happens if a bike arrives with a completely dead (0% SOC) Lithium Battery?
+**Answer:** Deep Discharge Recovery Protocol:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; `Battery Diagnostic Intake Warning`
+* System flags a deep discharge warning, routing the battery to the workshop **Pulse Recovery Bench** for controlled reactivation before conducting full BMS diagnostic scans.
 
 ---
 
-### Q182: Can a service case be created while the workshop computer is offline?
-**Answer:** Service Case Intake is **Category A: Fully Offline-Capable**. Intake records, odometer readings, and photos save locally to the workstation and sync to the cloud once connectivity resumes.
+### Q182: Can a customer track their repair status online?
+**Answer:** Yes. Real-Time Customer Service Portal:
+* 📍 **System Navigation Path:** Public Web Link sent via SMS/WhatsApp (`https://aj-eco-drive.vercel.app/track-service/:id`)
+* Customer can view real-time repair progress: `Intake Received` &rarr; `In Diagnosis` &rarr; `Parts Replaced` &rarr; `Quality Tested` &rarr; `Ready for Pickup`.
 
 ---
 
-### Q183: How does the system prioritize emergency breakdown cases?
-**Answer:** Marking a case as **High Priority** flags the job card with a pulsating red border on the workshop floor monitor, alerting the head mechanic to assign a technician immediately.
+### Q183: How does the workshop manage customer personal belongings left in vehicle storage?
+**Answer:** Storage Inventory Checklist:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; `Customer Belongings Section`
+* Records items left under the seat (smart charger, rain jacket, documents) and prints an itemized receiving slip for the customer.
 
 ---
 
-### Q184: What happens if an unregistered customer (third-party buyer) brings a bike for service?
-**Answer:** The service advisor enters the chassis number. The system pulls the vehicle history and allows the advisor to register the new owner's contact details as the current primary operator.
+### Q184: What happens if a customer brings a vehicle purchased from another dealership branch?
+**Answer:** Seamless Nationwide Warranty & Service Support:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; Search Nationwide VIN Database
+* A vehicle sold in Islamabad can be serviced in Peshawar with zero friction. The system accesses the master centralized history, honoring all OEM warranty terms.
 
 ---
 
-### Q185: Can a technician start replacing parts before a Service Case is created?
-**Answer:** **No.** The spare parts storekeeper cannot disburse parts from the parts inventory without an active Service Case ID. Every bolt, tyre, and controller must be charged against an authorized case.
+### Q185: How are urgent breakdown / towing intakes prioritized?
+**Answer:** Emergency SLA Tagging:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; Toggle `Priority: Emergency / Roadside Tow`
+* Places the ticket at the top of the workshop triage board with flashing red indicators, assigning the next available diagnostic bay immediately.
 
 ---
 
-### Q186: How does the system handle scheduled routine maintenance intervals?
-**Answer:** The system tracks factory maintenance milestones:
-* **1st Service (1,000 km):** Bolt torque check, brake fluid inspection, electrical harness check, free wash.
-* **2nd Service (5,000 km):** Brake pad check, tyre rotation, steering head bearing lubrication, BMS health scan.
-* **Annual Service (10,000 km):** Full multi-point electrical and mechanical diagnostic certification.
+### Q186: What is the Workshop Receptionist Daily Intake Log?
+**Answer:** Master daily service workbench:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Daily Intake Log` (`/after-sales/intake-log`)
+* Summarizes all vehicles checked in today, categorized by maintenance type, promised handover times, and revenue potential.
 
 ---
 
-### Q187: Can a customer track their repair progress online?
-**Answer:** Yes. The Service Intake Slip includes a QR tracking link. The customer can scan the code on their phone to see live status: *"In Diagnostics &rarr; Parts Awaiting &rarr; In Assembly &rarr; Quality Testing &rarr; Ready for Pickup"*.
+### Q187: How does the system handle customer repair budget authorizations?
+**Answer:** Estimated Repair Cost Ceiling:
+* 📍 **System Navigation Path:** `CreateCaseModal` &rarr; `Customer Authorized Budget Field`
+* If estimated repairs exceed the customer's initial authorized budget (e.g. initial estimate PKR 3,000 vs. actual repair PKR 9,500), the system requires sending an automated WhatsApp budget approval request before proceeding.
 
 ---
 
-### Q188: What happens if an open service case is abandoned by the customer?
-**Answer:** If a vehicle remains unclaimed for more than 14 days after completion, the system flags the case as **Unclaimed Property** and generates automated legal reminder notices.
+### Q188: What is the Average Workshop Intake Time KPI?
+**Answer:** Service desk efficiency metric:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Workshop KPIs`
+* Measures average time elapsed from customer arrival to completed job card issuance (Target: &le; 4 minutes).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1842,95 +2102,122 @@ This protects dealership owners from customers driving away with unpaid balances
 
 # PART 14: Workshop Repair Execution & Mechanic Job Cards (Q189 – Q202)
 
-### Q189: What is a Workshop Repair Job Card in AJ EcoDrive?
-**Answer:** A Repair Job Card (`/workshop/jobs`) is the operational work order executed by the workshop mechanic. It tracks the diagnostic investigation, assigned technician hours, requisitioned spare parts, and final quality control testing.
+### Q189: How are repair jobs executed inside the dealership workshop?
+**Answer:** Workshop operations are managed via the **Technician Job Card Workbench**:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Workshop Job Cards` (`/after-sales/job-cards`) &rarr; Select Job Card (`CreateRepairJobModal`)
+* **Execution Workflow:**
+  1. Lead Mechanic reviews assigned job card on workshop tablet.
+  2. Mechanic runs OBD diagnostic scan and logs component faults.
+  3. Requisitions replacement spare parts from the internal store.
+  4. Performs mechanical/electrical repairs and logs labour hours.
+  5. Conducts post-repair road test and signs off Quality Control (QC).
 
 ---
 
-### Q190: How does a mechanic receive and start a repair job?
-**Answer:** The head mechanic reviews open service cases on the workshop terminal or mobile tablet and clicks **Assign Technician**. The assigned mechanic opens the digital Job Card, taps **Start Diagnostic Clock**, and begins testing the vehicle in the service bay.
+### Q190: What is a Mechanic Job Card, and what data does it track?
+**Answer:** The digital work order for the technician:
+* 📍 **System Navigation Path:** `Job Card Detail Page` (`/after-sales/job-cards/:id`)
+* Tracks assigned mechanic name, repair bay number, start/stop labour timer, consumed spare parts with SKU codes, diagnostic OBD trouble codes, and quality inspection sign-off.
 
 ---
 
-### Q191: Modal Guide — What is the CreateRepairJobModal (`CreateRepairJob.vue`), and what are its exact fields?
-**Answer:** The **`CreateRepairJobModal`** records repair execution and parts consumption:
-* **Linked Service Case Reference (Required):** Selects active intake case.
-* **Assigned Lead Technician (Required Dropdown):** Mechanic performing the work.
-* **Service Bay Number:** Bay 1 (Quick Service), Bay 2 (Mechanical), Bay 3 (High-Voltage EV Specialist).
-* **Diagnostic Findings & Fault Analysis:** Detailed technician report (e.g., *"BMS high-voltage cutoff triggered due to corroded wiring harness connector"*).
-* **Spare Parts Requisition Table:** Multi-line table to add parts from branch inventory:
-  - Part SKU & Description (e.g., `PRT-BRK-01: Front Ceramic Brake Pads`)
-  - Quantity Used
-  - Unit Price (PKR)
-  - Warranty Coverage Toggle (100% Covered vs Customer Payable)
-* **Technician Labor Hours & Labor Rate (PKR):** Billable workshop labor time.
-* **Quality Control Inspection Checklist:** Multi-point post-repair certification.
-* **Technician Certification Sign-off:** Digital signature confirming repair was completed according to OEM safety standards.
+### Q191: Modal Guide — What is the CreateRepairJobModal (CreateRepairJob.vue) and what are its exact fields?
+**Answer:** The `CreateRepairJobModal` assigns work orders to technicians:
+* 📍 **System Navigation Path:** `Service Case Detail Page` &rarr; Click `+ Create Repair Job Card`
+* **Exact Form Fields:**
+  * **Linked Service Case** *(Read-Only)*: Customer and VIN reference.
+  * **Assigned Technician** *(Dropdown, Required)*: Certified EV mechanic.
+  * **Service Bay Number** *(Select)*: Bay 1 (Diagnostics), Bay 2 (Mechanical), Bay 3 (Electrical/Battery).
+  * **Diagnostic Trouble Codes (DTC)** *(Multi-Select / Text)*: `ERR-BMS-02`, `ERR-MTR-01`, `ERR-THROTTLE-04`.
+  * **Required Spare Parts Requisition** *(Search & Multi-Add)*:
+    * Selects parts from workshop store (e.g., Brake Pads, Throttle, Controller).
+  * **Labour Operation Items** *(Checklist / Hours)*:
+    * Brake bleeding & caliper adjustment (0.5 hrs / PKR 500)
+    * Wiring harness continuity repair (1.0 hrs / PKR 1,000)
+    * Motor hall sensor replacement (1.5 hrs / PKR 1,500)
+  * **Technician Notes** *(Textarea)*: Technical observations.
 
 ---
 
-### Q192: How does the Job Card automatically deduct spare parts from branch inventory?
-**Answer:** When the mechanic adds spare parts to the job card and clicks **Issue Parts**, the system instantly decrements the items from the branch's local spare parts inventory ledger. This prevents parts theft and keeps inventory counts 100% accurate.
+### Q192: How do spare parts deduct from inventory when installed during a repair?
+**Answer:** Instant automated stock deduction:
+* 📍 **System Navigation Path:** `CreateRepairJobModal` &rarr; `Spare Parts Section`
+* When the technician adds *"1x Throttle Grip Assembly (SKU: EL-THR-01)"* to an approved job card, the part instantly deducts from the branch workshop parts cabinet inventory and attaches to the customer invoice at retail price (or PKR 0 if covered under warranty).
 
 ---
 
-### Q193: How does the system handle split billing between Warranty and Customer?
-**Answer:** If a repair involves both warranty items and routine wear-and-tear:
-* **Defective Smart Controller (Warranty):** Covered 100% by OEM Warranty &rarr; **Customer Cost = PKR 0**.
-* **Worn Brake Pads (Wear-and-Tear Consumable):** Not covered by warranty &rarr; **Customer Cost = PKR 2,500**.
-* **Technician Labor:** Covered under warranty policy &rarr; **Customer Cost = PKR 0**.
-* **Total Customer Payable:** **PKR 2,500**.
-The invoice cleanly distinguishes warranty coverage from paid customer items.
+### Q193: How does the system track technician labour hours and productivity?
+**Answer:** Interactive Work Timer & Flat-Rate Labour System:
+* 📍 **System Navigation Path:** `Job Card Detail Page` &rarr; Click **"Start Work / Pause / Complete"**
+* Technicians tap Start when commencing work. The system compares actual time spent against standard flat-rate labour benchmarks (e.g. standard brake pad replacement: 30 mins), computing mechanic efficiency ratings.
 
 ---
 
-### Q194: What is the Post-Repair Quality Gate Inspection?
-**Answer:** Before any vehicle is released to the customer, the Workshop Quality Supervisor must test-ride the vehicle and complete the **Quality Gate Checklist**:
-1. Motor power delivery is smooth without hesitation.
-2. Regenerative braking engages correctly.
-3. All lighting, indicators, and horn operate reliably.
-4. Fast charger connects and charges without tripping.
-5. All body fairings are tightly secured.
+### Q194: What is the Post-Repair Quality Control (QC) Sign-Off?
+**Answer:** Mandatory 5-point quality gate:
+* 📍 **System Navigation Path:** `Job Card Detail Page` &rarr; `QC Sign-Off Tab`
+* Workshop Foreman inspects:
+  1. All bolts torqued to manufacturer specs.
+  2. Electronic throttle smooth return spring action.
+  3. Front & rear brake hydraulic pressure.
+  4. Headlight, indicators, and horn operation.
+  5. Clean bodywork with zero grease smudges.
 
 ---
 
-### Q195: Can a mechanic close a job card without supervisor sign-off?
-**Answer:** **No.** The system requires the Quality Supervisor's credentials to certify the Quality Gate. Uncertified job cards cannot be closed, and the vehicle cannot be released at the customer counter.
+### Q195: What happens if a required spare part is out of stock in the branch?
+**Answer:** Emergency Internal Part Requisition:
+* 📍 **System Navigation Path:** `CreateRepairJobModal` &rarr; Click **"Request Out-of-Stock Part"**
+* Launches `CreateStockRequestModal` to requisition the part from Central Warehouse or initiates an emergency local cash purchase voucher (`CreateExpenseModal`).
 
 ---
 
-### Q196: How are workshop technician labor commissions tracked?
-**Answer:** Each completed job card logs the assigned mechanic's ID and billable hours. The **Technician Productivity Report** calculates weekly bonuses based on completed jobs and first-time-fix rates.
+### Q196: Can multiple technicians work on the same electric vehicle?
+**Answer:** Yes. Multi-Technician Job Card Assignment:
+* 📍 **System Navigation Path:** `CreateRepairJobModal` &rarr; `Secondary Technicians Section`
+* Allows assigning an Electrical Specialist for BMS diagnostics and a Mechanical Technician for tyre/suspension repairs, splitting labour credit accurately.
 
 ---
 
-### Q197: What happens if a required spare part is out of stock in the branch?
-**Answer:** The mechanic taps **Requisition Part**. The system flags the job card as **Awaiting Parts** and generates an automated stock requisition to the central warehouse or initiates an urgent Inter-Branch Transfer.
+### Q197: How does the system handle old, replaced defective parts?
+**Answer:** Defective Core Return & Scrap Management:
+* 📍 **System Navigation Path:** `Job Card Detail Page` &rarr; `Scrap & Core Return Protocol`
+* Replaced warranty parts (e.g. defective controllers, motors) are tagged with barcode labels and placed in the **OEM Core Return Bin** for return to Head Office. Non-warranty scrap is offered to the customer or safely recycled.
 
 ---
 
-### Q198: How does the workshop operate if the internet is down?
-**Answer:** Repair Job logging is **Category A: Fully Offline-Capable**. Mechanics can log diagnostic findings, consume spare parts from local inventory, and complete jobs offline. The records synchronize to the central database once connectivity restores.
+### Q198: How are workshop repair invoices calculated?
+**Answer:** Automated Itemized Billing Engine:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Repair Invoices` (`/after-sales/invoices`)
+* Total Bill = `[Installed Spare Parts Total]` + `[Labour Charges Total]` + `[Consumables / Fluid Fee]` - `[Warranty Subsidy Credits]` + `[Sales Tax / GST]`.
 
 ---
 
-### Q199: How does the system prevent mechanics from hoarding new parts and reinstalling old ones?
-**Answer:** For warranty replacements, the system enforces a **Scrap / Core Return Protocol**. To claim a new warranty part, the technician must scan the barcode of the old defective part and place it in the designated scrap return bin for Head Office audit.
+### Q199: Can a customer pay for workshop repairs via cash, card, or bank IBFT?
+**Answer:** Yes. Full multi-tender payment processing:
+* 📍 **System Navigation Path:** `Service Case Detail Page` &rarr; Click **"Collect Payment"** (`CreatePaymentModal`)
+* Same robust cashier reconciliation as vehicle sales, printing thermal POS receipts and FBR-compliant workshop tax invoices.
 
 ---
 
-### Q200: Can a customer request old replaced parts back?
-**Answer:** For customer-paid repairs, customers are entitled to receive their old worn parts (e.g., old tyres or brake pads). The invoice includes a confirmation checkbox: *"Customer Received Replaced Parts"*.
+### Q200: What is a Workshop Re-Work / Comeback, and how is it tracked?
+**Answer:** Service Comeback Audit Flag:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Workshop Comeback Rate`
+* If a customer returns within 14 days with the same symptom, the ticket is flagged as a **Service Comeback**. The original technician is assigned for free rectification, and the incident is recorded in workshop quality scorecards.
 
 ---
 
-### Q201: What happens if a vehicle returns with the exact same fault within 7 days?
-**Answer:** The system flags the new service case with a red alert: **"REPEAT REPAIR / COMEBACK (Case #CAS-0418)"**. The Head Office service director is alerted to investigate technician competence or chronic component defects.
+### Q201: How do workshop mechanics access technical wiring diagrams and repair manuals?
+**Answer:** Integrated **EV Technical Knowledgebase**:
+* 📍 **System Navigation Path:** Workshop Tablet &rarr; `Job Card` &rarr; Click **"View Wiring Schematics"**
+* Mechanics can pull up high-resolution circuit diagrams, BMS pinout charts, motor controller wiring colors, and torque specifications directly on their tablet screen.
 
 ---
 
-### Q202: What documentation does the customer receive upon collecting their repaired bike?
-**Answer:** The customer receives a printed **Workshop Service Invoice & Warranty Certificate** itemizing all completed work, parts installed, warranty coverage amounts, customer payments, and the next recommended service date.
+### Q202: What is the First-Time Fix Rate (FTFR) KPI?
+**Answer:** Workshop diagnostic accuracy metric:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `First-Time Fix Performance`
+* Measures the percentage of electric vehicles resolved successfully on their first workshop visit without repeat complaints (Target: &ge; 94.8% across network).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -1939,116 +2226,144 @@ The invoice cleanly distinguishes warranty coverage from paid customer items.
 
 # PART 15: Lithium Battery Warranties & BMS Diagnostics (Q203 – Q218)
 
-### Q203: Why is lithium battery pack management the most critical technical domain in an EV dealership?
-**Answer:** The lithium-ion battery pack represents **40% to 50% of the entire vehicle's value**. If battery warranties are mismanaged, fraudulent claims can bankrupt a dealership. Conversely, excellent battery support creates unmatched customer trust and brand loyalty.
+### Q203: Why is Lithium Battery warranty governance critical for an EV dealership?
+**Answer:** The Lithium-Ion Battery Pack represents **40% to 50% of the entire monetary value of an electric vehicle** (e.g., PKR 95,000 to PKR 125,000 on a PKR 245,000 scooter):
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Battery Diagnostics & Warranty` (`/after-sales/battery-lab`)
+* Uncontrolled or fraudulent warranty claims can destroy dealership profitability. AJ EcoDrive enforces rigorous scientific, serialized, and telemetry-based battery warranty validation.
 
 ---
 
-### Q204: What battery chemistries are used in AJ EcoDrive electric vehicles?
-**Answer:** The system supports two primary advanced lithium chemistries:
-1. **Lithium Iron Phosphate (LFP / LiFePO4):** Ultra-safe chemistry with 2,000 to 3,000 charge cycles, ideal for daily commercial delivery trikes and heavy commuters.
-2. **Nickel Manganese Cobalt (NMC / Ternary Lithium):** High energy density chemistry offering lightweight construction and superior acceleration for sporty commuter scooters.
+### Q204: What is 3-Way Serialized Hardware Binding in AJ EcoDrive?
+**Answer:** Cryptographic hardware pairing preventing component theft and fraudulent warranty claims:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units/:id`)
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   3-WAY SERIALIZED HARDWARE BINDING                    │
+├────────────────────────────────────────────────────────────────────────┤
+│  [1. Frame VIN] ──────────► PK-BRG-2026-00812 (Chassis Frame)          │
+│         │                                                              │
+│         ├─────────────────► BAT-72V32AH-2026-00812 (Lithium Battery)   │
+│         │                                                              │
+│         └─────────────────► CTL-72V1500W-09412 (Smart BMS Controller)  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+* When a customer brings a bike into the workshop, the technician scans the battery pack's physical QR barcode. The system verifies that the battery serial matches the original factory assembly record for that chassis VIN.
 
 ---
 
-### Q205: What is State of Health (SOH) vs State of Charge (SOC)?
-**Answer:**
-* **State of Charge (SOC %):** The temporary "fuel gauge" showing how much energy is currently stored in the battery (e.g., 85% full today).
-* **State of Health (SOH %):** The permanent battery capacity health compared to when it was brand-new. A new battery has 100% SOH. Over 3 years of driving, SOH gradually declines to 88%, 80%, etc.
+### Q205: What diagnostic parameters are evaluated during a Lithium Battery Health Test?
+**Answer:** Automated 6-point BMS telemetry scan:
+* 📍 **System Navigation Path:** `Battery Diagnostic Lab` &rarr; `Scan BMS Telemetry`
+1. **State of Health (SOH %):** Remaining battery capacity relative to original factory nominal capacity.
+2. **State of Charge (SOC %):** Current stored energy level.
+3. **Individual Cell Voltage Delta (&Delta;V):** Maximum voltage variance between series cells (Threshold: &le; 0.030V; Delta > 0.080V indicates cell imbalance).
+4. **Internal Cell Resistance (m&Omega;):** Impedance testing for degraded cells.
+5. **BMS Thermal Sensor Logs:** Peak recorded temperatures (flags thermal abuse > 60°C).
+6. **Cumulative Charge Cycles:** Total lifetime charge/discharge cycles.
 
 ---
 
-### Q206: What SOH threshold triggers an official manufacturer battery warranty replacement?
-**Answer:** Under AJ EcoDrive warranty policy, if a battery pack's State of Health drops **below 70% within the 2-Year / 30,000 km warranty period**, the customer is legally entitled to a free warranty battery replacement or cell re-balancing.
+### Q206: What constitutes a Valid Lithium Battery Warranty Claim?
+**Answer:** Standard OEM Warranty Criteria:
+* 📍 **System Navigation Path:** `Battery Warranty Policy Guidelines`
+* **Eligible Conditions:**
+  * Battery State of Health (SOH) drops below **70%** within the 2-Year / 30,000 km warranty period under normal usage.
+  * Internal BMS failure with zero external water ingress or collision damage.
+  * Sudden cell drop causing sudden cutoff during normal acceleration.
 
 ---
 
-### Q207: What is Cell Voltage Delta (mV), and why is it dangerous?
-**Answer:** A 72V lithium battery pack contains 20 to 24 individual cell groups in series. Under healthy conditions, all cells charge and discharge at the exact same voltage.
-* **Healthy Delta:** Less than **30 mV (0.03V)** difference between highest and lowest cell.
-* **Warning Delta:** Between **50 mV and 100 mV**.
-* **Defective / Critical Delta:** **Above 150 mV to 180 mV**. This indicates a dead cell block. The Smart BMS cuts off motor power prematurely to prevent thermal runaway or fire.
+### Q207: What constitutes an Invalid / Void Battery Warranty Claim?
+**Answer:** Strict exclusions protecting the dealership:
+* 📍 **System Navigation Path:** `Battery Warranty Policy Guidelines`
+* **Void Conditions:**
+  1. **Water Ingress / Submersion:** Rust or water stains inside battery casing.
+  2. **Physical Collision Damage:** Dented, punctured, or cracked aluminium battery housing.
+  3. **Unauthorized Modification:** Broken tamper-evident warranty seal stickers or non-OEM fast chargers used.
+  4. **Deep Storage Neglect:** Battery left at 0% discharge for > 90 days resulting in cell sulfation.
 
 ---
 
-### Q208: What are On-Board Diagnostics (OBD) Trouble Codes (DTCs) in EV scooters?
-**Answer:** The electronic motor controller and Smart BMS continuously monitor electrical parameters. When a fault occurs, the system logs standardized diagnostic trouble codes:
-* `DTC-BMS-01`: High Cell Temperature Cutoff (>60°C).
-* `DTC-BMS-02`: Low Temperature Charging Prohibited (<0°C).
-* `DTC-BMS-03`: Cell Under-Voltage Deep Discharge (<2.5V).
-* `DTC-BMS-04`: Excessive Cell Voltage Delta Imbalance (>180mV).
-* `DTC-CTL-07`: MOSFET Over-Current Protection.
-* `DTC-MTR-12`: Hall Sensor Communication Failure.
+### Q208: How does the system handle a Battery Warranty Replacement in the Action Centre?
+**Answer:** Automated Flow 4 Escalation:
+* 📍 **System Navigation Path:** `Service Case Detail Page` &rarr; Click **"Submit Battery Warranty Claim"** &rarr; Action Centre (`ACT-WRN-XXXX`)
+* The system attaches the digital BMS diagnostic scan, SOH percentage, photos of casing/seals, and chassis delivery date.
+* Chief Technical Officer (CTO) reviews evidence and clicks **"Authorize OEM Battery Replacement"**.
 
 ---
 
-### Q209: What is the 3-Way Serialized Security Lock, and how does it stop fraudulent battery swapping?
-**Answer:** A common scam in EV workshops involves a dishonest person swapping an old, degraded battery from a friend's bike into a newer bike to claim a free brand-new battery under warranty.
-AJ EcoDrive eliminates this fraud with the **3-Way Hardware Lock**:
-1. **Chassis Stamped VIN**
-2. **Laser-Etched Battery Pack Serial Number**
-3. **Smart BMS Controller Electronic MAC / Serial**
-
-When a battery warranty claim is submitted, the technician must scan the physical battery barcode. If the battery serial does not match the original VIN delivery record in the central cloud, the system immediately **locks the claim and alerts management to suspected fraud**.
-
----
-
-### Q210: How are high-voltage battery claims escalated to Head Office?
-**Answer:** Any claim involving a lithium battery replacement (valued at PKR 120,000 to PKR 185,000) cannot be approved locally by showroom staff. The claim is automatically routed through the **Action Centre (Flow 4: Critical Warranty Claim)** for review by the Chief Technical Officer and OEM factory representative.
+### Q209: What happens when an OEM Battery Replacement is authorized?
+**Answer:** Automated 4-Step Hardware & Accounting Reconciliation:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; `Approve ACT-WRN`
+1. **Zero Customer Charge:** Generates a PKR 0 customer replacement invoice with OEM warranty subsidy credit.
+2. **Hardware Re-Binding:** Replaces old battery serial with brand-new battery serial in the chassis VIN record.
+3. **Defective Core Quarantine:** Defective battery moves to `Quarantine Bay Q-3` with return tag for OEM factory credit.
+4. **Warranty Renewal:** New battery inherits remaining original vehicle warranty period.
 
 ---
 
-### Q211: What physical diagnostic evidence must be uploaded with a battery claim?
-**Answer:**
-1. High-resolution photo of the physical battery serial number label.
-2. Photo of the battery terminal connectors showing no water ingress or tampering.
-3. Digital multimeter readout showing overall pack voltage.
-4. Screenshot of the BMS Diagnostic App showing individual cell voltages and SOH %.
-5. Odometer mileage photo on the scooter dashboard.
+### Q210: What is Cell Balancing, and how does the workshop perform it?
+**Answer:** Active battery pack reconditioning:
+* 📍 **System Navigation Path:** `Battery Lab Workbench` &rarr; `Cell Balancing Protocol`
+* If a battery SOH is healthy but individual cell voltages are drifted (e.g. Cell 1: 3.65V vs Cell 7: 3.42V), the workshop connects the pack to the **Active Equalizer Bench** for 6 hours, restoring full range without replacing the pack.
 
 ---
 
-### Q212: How does the system detect customer negligence (e.g., water submersion or physical impact)?
-**Answer:** The technical intake checklist inspects:
-* Internal moisture indicator stickers (turn red upon water immersion).
-* Physical casing dents or road collision damage.
-* Use of non-OEM fast chargers that burned the charging port.
-If customer negligence is proven, the warranty claim is rejected, and a paid replacement quotation is provided.
+### Q211: How does the system track battery fire and thermal safety compliance?
+**Answer:** High-Voltage Safety Audit Protocol:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Battery Safety Logs`
+* Every battery stored in the workshop is assigned a dedicated fireproof charging locker with automated thermal cutoff sensors.
 
 ---
 
-### Q213: What happens when Head Office approves a battery warranty claim?
-**Answer:**
-1. The Action Centre releases an authorized **Warranty Replacement Part Issue Slip**.
-2. A new, serialized battery pack is dispatched from the Central Warehouse to the branch.
-3. The branch workshop installs the new pack, pairs the new serial number to the customer's chassis in the cloud, and marks the case resolved.
+### Q212: Can a customer purchase an Extended Battery Warranty?
+**Answer:** Yes. **AJ EcoDrive Battery Shield+ Policy**:
+* 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Add-ons: Extended Warranty (Year 3)`
+* Extends battery replacement coverage for a 3rd year (up to 45,000 km) for an additional fee (e.g. PKR 18,500), tracked in the digital warranty certificate.
 
 ---
 
-### Q214: What happens to the old defective battery pack?
-**Answer:** Defective packs are hazardous materials. The system logs the pack into **Quarantine Bay Q-3** under status `Awaiting OEM Factory Return`. Defective packs are packed in fire-retardant crates and shipped back to the central factory for recycling or cell recovery.
+### Q213: How does the system handle Smart BMS Firmware Updates?
+**Answer:** Over-the-Wire (OTW) Diagnostic Flashing:
+* 📍 **System Navigation Path:** `Battery Diagnostic Lab` &rarr; `Flash BMS Firmware`
+* Workshop tablets connect via Bluetooth/CAN-bus to flash updated OEM battery management firmware, improving regenerative braking efficiency and cold-weather range.
 
 ---
 
-### Q215: Can a battery claim be submitted if the vehicle was serviced at an unauthorized roadside shop?
-**Answer:** AJ EcoDrive terms state that opening the battery casing or modifying the wiring harness at an unauthorized roadside mechanic voids the electrical warranty. The technician notes any broken warranty tamper seals on the intake record.
+### Q214: What is the Battery Degradation Curve report?
+**Answer:** Enterprise battery reliability analytics:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Battery Degradation Analytics` (`/reports/battery-health`)
+* Tracks average SOH loss per 10,000 km across different battery cell manufacturers (CATL, Gotion, EVE), identifying superior battery chemistries for future procurement.
 
 ---
 
-### Q216: How does the system help customers maximize battery lifespan?
-**Answer:** The system automatically sends automated seasonal battery care advisories via WhatsApp:
-* Summer: *"Avoid charging immediately after long uphill rides in 45°C heat; allow battery to cool for 30 minutes."*
-* Winter: *"Charge battery indoors during cold winter nights to maintain optimal charging speed."*
+### Q215: What safety labels and barcodes are printed for replacement batteries?
+**Answer:** Serialized High-Voltage Warning Labels:
+* 📍 **System Navigation Path:** `Battery Lab` &rarr; Click **"Print Battery QR Label"**
+* Prints thermal waterproof labels with serial number, nominal voltage (72V), capacity (32Ah), chemistry (LiFePO4 / NMC), and emergency fire safety QR codes.
 
 ---
 
-### Q217: Does the system track battery warranty claims across different battery cell manufacturers?
-**Answer:** Yes. The Super Admin Reliability Dashboard analyzes failure rates by battery supplier (e.g., CATL vs Gotion vs EVE cells), providing crucial leverage during annual factory procurement negotiations.
+### Q216: How are defective Lithium batteries transported back to the OEM factory?
+**Answer:** Hazardous Materials (HAZMAT) Freight Manifest:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` &rarr; `HAZMAT Battery Return Manifest`
+* Generates specialized logistics transport permits with certified fireproof battery transport packaging checklists.
 
 ---
 
-### Q218: Can a customer purchase an Extended Battery Warranty?
-**Answer:** Yes. The system supports a **3rd-Year Extended Battery Warranty Add-On** (PKR 18,500), which can be added to the original sales order or purchased before the standard 2-year warranty expires.
+### Q217: What customer education is provided regarding battery health preservation?
+**Answer:** Automated Battery Care SMS Tips:
+* 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Customer Education Automated Tips`
+* Monthly automated WhatsApp advice sent to owners: Avoiding deep discharges below 15%, parking under shade during extreme summer heat, and recommended charging habits.
+
+---
+
+### Q218: What is the Battery Warranty Claim Ratio KPI?
+**Answer:** Dealership quality benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Warranty Ratio Scorecard`
+* Measures percentage of delivered vehicles experiencing battery warranty claims within 12 months (Target: &le; 1.8% across network).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2057,108 +2372,121 @@ If customer negligence is proven, the warranty claim is rejected, and a paid rep
 
 # PART 16: Vehicle Cancellations, Returns & Customer Refund Settlement (Q219 – Q232)
 
-### Q219: What constitutes an official Vehicle Return or Order Cancellation in AJ EcoDrive?
-**Answer:** A Vehicle Return occurs when a customer cancels an undelivered booking, or returns a physically delivered electric vehicle due to an unresolvable factory defect, legal consumer right, or an authorized management buy-back agreement.
+### Q219: What is the Vehicle Return and Cancellation policy in AJ EcoDrive?
+**Answer:** Formal operational governance for handling customer order cancellations, pre-delivery deposit refunds, and post-delivery returns:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Returns & Refunds` (`/sales/returns`) &rarr; Click `+ New Return / Refund` (`CreateReturnModal`)
+* **Core Rule:** No vehicle can be returned or refund issued via verbal agreement. Every cancellation requires a formal physical inspection, calculated deductions, and managerial sign-off.
 
 ---
 
-### Q220: What are the two types of vehicle returns?
-**Answer:**
-1. **Pre-Delivery Booking Cancellation:** Customer paid a deposit on a reserved bike, but cancels before taking physical delivery.
-2. **Post-Delivery Vehicle Return:** Customer took physical delivery, drove the vehicle on public roads, and returns it within the authorized return window.
+### Q220: What are the two types of Customer Cancellations?
+**Answer:** Distinct operational cancellation paths:
+* 📍 **System Navigation Path:** `CreateReturnModal` &rarr; `Cancellation Type Select`
+1. **Pre-Delivery Order Cancellation:** Customer booked a vehicle with a deposit (e.g. PKR 25,000) but cancels before vehicle handover.
+2. **Post-Delivery Vehicle Return:** Customer took physical delivery with a Gate Pass but returns the vehicle within the allowable 3-day return window due to technical dissatisfaction or legal cooling-off provisions.
 
 ---
 
-### Q221: What is the 10-Point Technical Return Inspection?
-**Answer:** For post-delivery returns, the workshop supervisor must complete the rigorous **10-Point Return Inspection**:
-1. **Chassis & Frame Alignment:** Verifies no structural bend from road accidents.
-2. **Battery Pack Serial & Casing:** Matches delivery serial number; confirms no casing damage.
-3. **BMS Diagnostic Scan:** Confirms healthy cell voltages and zero active short-circuit DTCs.
-4. **Motor Hub & Rim Condition:** Verifies motor operates silently without wheel rim dents.
-5. **Odometer Reading:** Records total kilometers driven since delivery.
-6. **Body Fairings & Paintwork:** Inspects for scratches, cracks, or repainted panels.
-7. **Tyre Tread Depth:** Evaluates tyre wear and tear.
-8. **Braking & Suspension:** Tests disc calipers, brake pads, and front shock absorber seals.
-9. **Accessories & Documentation:** Verifies return of 2 keys, 2 remotes, smart charger, and toolkit.
-10. **Excise Registration Status:** Checks whether government registration papers have been filed.
+### Q221: What deductions apply to a Pre-Delivery Order Cancellation?
+**Answer:** Standard Dealership Administrative Deductions:
+* 📍 **System Navigation Path:** `CreateReturnModal` &rarr; `Refund Calculation Panel`
+* **Standard Policy:**
+  * Deposit Collected: `PKR 25,000`
+  * Order Processing & Re-stocking Deduction: `- PKR 5,000`
+  * Net Refund Payable to Customer: **`PKR 20,000`**
+* Reserved vehicle chassis VIN unlocks and returns to `Available` showroom floor stock immediately.
 
 ---
 
-### Q222: How is the Customer Refund calculated on returned vehicles?
-**Answer:** The system calculates the net refund using an automated financial formula:
-$$\text{Net Refund} = \text{Total Customer Payments Received} - \text{Usage Mileage Depreciation} - \text{Physical Damage Deductions} - \text{Administrative Fee}$$
-* If the bike was driven 350 km and has a scratched side mirror (PKR 2,500 repair), the system deducts the wear-and-tear costs and outputs the precise net refundable amount.
+### Q222: What is the 10-Point Technical Inspection for Post-Delivery Returns?
+**Answer:** Mandatory physical audit before accepting a returned vehicle:
+* 📍 **System Navigation Path:** `CreateReturnModal` &rarr; `10-Point Return Inspection Tab`
+1. Odometer reading verified (Must be &le; 100 km).
+2. Zero collision scratches, dents, or frame damage.
+3. Battery SOH verified at 100% with original matching serial number.
+4. Smart controller and motor electrical integrity intact.
+5. 2x original keys, 2x remote alarms, and OEM smart charger returned.
+6. Original excise documentation and tax invoice returned.
 
 ---
 
-### Q223: Modal Guide — What is the CreateReturnModal (`CreateReturn.vue`), and what are its exact fields?
-**Answer:** The **`CreateReturnModal`** governs returns and customer refund settlement:
-* **Showroom Branch (Auto-Locked):** Branch processing the return.
-* **Original Sales Order / Invoice Reference (Required):** Selects original transaction.
-* **Customer Legal Name & CNIC (Auto-Populated):** Verified buyer.
-* **Vehicle Chassis / VIN Number (Auto-Populated):** The physical unit being returned.
-* **Return Category (Dropdown):** Pre-Delivery Cancellation, Major Manufacturer Defect, Customer Remorse / Cooling-Off Period, or Authorized Buy-Back.
-* **Return Reason & Detailed Description (Required):** Justification narrative.
-* **Vehicle Physical Condition Grade (Dropdown):** Grade A (Like New / Mint), Grade B (Minor Cosmetic Scratches), Grade C (Mechanical Fault / Defective), Grade D (Accident Damage).
-* **Current Odometer Mileage (km):** Mileage driven.
-* **Total Customer Paid to Date (PKR - Locked):** Historical money collected.
-* **Deductions for Mileage & Wear-and-Tear (PKR Input):** Usage penalty.
-* **Deductions for Damaged Parts / Repairs (PKR Input):** Physical repair cost.
-* **Administrative & Restocking Processing Fee (PKR Input):** Handling charge.
-* **Net Refund Payable to Customer (PKR - Bold Calculated):** Final payout amount.
-* **Refund Payment Channel:** Bank Transfer (IBFT) from Corporate Account or Cash Drawer Payout.
-* **Return Stock Destination (Radio Selection):**
-  - *Restock to Available Floor Stock* (for mint condition / cancelled orders).
-  - *Move to Quarantine Bay Q-3* (for defective units requiring factory repair).
+### Q223: Modal Guide — What is the CreateReturnModal (CreateReturn.vue) and what are its exact fields?
+**Answer:** The `CreateReturnModal` executes vehicle cancellations and computes net customer refunds:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Returns & Refunds` &rarr; Click `+ New Return` (`CreateReturnModal`)
+* **Exact Form Fields:**
+  * **Linked Sales Order / Invoice** *(Search / Dropdown, Required)*: Selects active sale.
+  * **Return Classification** *(Select)*: `Pre-Delivery Cancellation` or `Post-Delivery Return`.
+  * **Cancellation Reason** *(Select/Text)*: *Customer Financial Emergency, Color Change Request, Minor Defect, Relocation*.
+  * **Total Amount Originally Paid (PKR)** *(Auto-Filled)*: Gross customer payment.
+  * **Administrative / Restocking Fee (PKR)** *(Numeric)*: Policy deduction.
+  * **Mileage Usage Depreciation (PKR)** *(Numeric)*: For post-delivery returns (PKR 50/km).
+  * **Damaged / Missing Parts Deduction (PKR)** *(Numeric)*: Cosmetic scratch charges.
+  * **Net Refund Payable (PKR)** *(Auto-Calculated)*: Net amount to disburse.
+  * **Refund Disbursement Method** *(Select)*: `Bank IBFT Reversal`, `Crossed Cheque`, `Cashier Till Payout`.
+  * **Authorizing Branch Manager PIN** *(Security PIN)*: Mandatory managerial authorization.
 
 ---
 
-### Q224: Who has the authority to approve a customer vehicle return?
-**Answer:** Because returns involve vehicle title changes and significant cash refunds, **Branch Managers cannot unilaterally issue refunds**. Submitting `CreateReturnModal` routes the dossier into the **Action Centre (Flow 5: Inventory Governance)** for joint approval by the National Sales Director and Chief Financial Officer.
+### Q224: How is a Customer Refund disbursed?
+**Answer:** Secure accounting payout channels:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Disbursements` (`/finance/refunds`)
+* **Standard Protocol:** Refunds exceeding PKR 15,000 are disbursed exclusively via **Crossed Bank Cheque** or **Direct Bank IBFT** to the customer's verified bank account matching their CNIC name, preventing cash drawer depletion.
 
 ---
 
-### Q225: What happens to the customer's legal ownership and warranty upon return?
-**Answer:** The microsecond Head Office approves the return:
-1. The vehicle lifecycle status updates to `Available` (if restocked) or `Quarantine` (if defective).
-2. The active 2-year warranty certificate is officially revoked and deactivated in the cloud.
-3. The customer's invoice balance is credited with an official **Credit Note**.
+### Q225: What happens to the Vehicle Chassis VIN after a return is processed?
+**Answer:** Automated Inventory Quarantine & Re-Certification:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quarantine` (`/inventory/quarantine`)
+* The returned vehicle does NOT immediately go back to the sales floor. It moves to **Holding Bay Q-3 (Returned Stock)** for thorough workshop detailing and battery re-certification before the branch manager can re-list it as `Available`.
 
 ---
 
-### Q226: How does the system handle excise registration if the bike was already registered with the government?
-**Answer:** If the excise registration book has already been issued in the customer's name, the vehicle cannot be restocked as a brand-new bike. The system automatically classifies the unit as **Certified Pre-Owned (CPO) / Dealership Demo Unit** and requires a formal title transfer through the excise department.
+### Q226: How are Credit Notes and Debit Notes generated for returns?
+**Answer:** Automated Tax & Accounting Adjustment Vouchers:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Credit Notes` (`/sales/credit-notes`)
+* The system generates an official FBR-Compliant **Credit Note** linking to the original Tax Invoice, reversing sales revenue and adjusting output GST liability.
 
 ---
 
-### Q227: What happens to a salesperson's sales commission when a sale is returned?
-**Answer:** The system automatically reverses the sales commission previously credited to the sales executive, ensuring company financial statements remain accurate.
+### Q227: Can a customer cancel an order if their vehicle is already registered with Excise & Taxation?
+**Answer:** **Post-Registration returns require official Excise Ownership Transfer.**
+* 📍 **System Navigation Path:** `CreateReturnModal` &rarr; `Excise Registration Warning`
+* If the registration card has been issued in the customer's name, the vehicle is legally second-hand. Return requires executing an official Excise Transfer to the dealership, deducting full excise registration fees and transfer charges from the refund.
 
 ---
 
-### Q228: How is the customer refund paid out safely?
-**Answer:** Company policy strongly discourages large cash payouts from the showroom drawer. Refunds exceeding PKR 25,000 are disbursed via direct **Inter-Bank Funds Transfer (IBFT)** from the Head Office corporate bank account directly into the customer's verified bank account.
+### Q228: How does the system handle accessory refunds?
+**Answer:** Itemized accessory inspection:
+* 📍 **System Navigation Path:** `CreateReturnModal` &rarr; `Accessories Inspection Section`
+* Unopened accessories (smart helmet, tracker) are refunded at 100%. Installed or scratched accessories are deducted or retained by the customer.
 
 ---
 
-### Q229: What happens if a customer returns a bike with missing accessories (e.g., lost smart fast charger)?
-**Answer:** The system deducts the retail replacement cost of the missing accessory (e.g., PKR 12,000 for a 72V Smart Charger) from the net refund balance.
+### Q229: What happens if a customer disputes the refund deduction amount?
+**Answer:** Action Centre Managerial Dispute Escalation:
+* 📍 **System Navigation Path:** `CreateReturnModal` &rarr; Click **"Escalate Dispute to Action Centre"**
+* Generates an Action Centre request (`ACT-PRC-XXXX`) allowing Super Admin / Head of Sales to review customer dispute notes and authorize an exceptional full refund if deemed appropriate for customer goodwill.
 
 ---
 
-### Q230: Can a returned vehicle be sold to another customer at full brand-new list price?
-**Answer:** Only if the vehicle was cancelled prior to delivery and has 0 km on the odometer. If the vehicle was driven on public roads, policy mandates that it be sold at an approved Certified Pre-Owned discount.
+### Q230: How are return transactions preserved in financial audit reports?
+**Answer:** Permanent forensic return ledgers:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Sales Returns Audit Ledger` (`/reports/sales-returns`)
+* Logs original invoice number, customer CNIC, return date, inspection photos, approving manager name, and refund cheque reference for tax auditors.
 
 ---
 
-### Q231: How does the system document the customer's acceptance of the net refund?
-**Answer:** The system generates an official **Settlement & Release Agreement**. The customer signs the document confirming they have received full settlement and relinquish all legal claims to the vehicle.
+### Q231: Can a salesperson delete an order instead of processing a formal cancellation?
+**Answer:** **No. Deleting sales orders or invoices is architecturally impossible.**
+* 📍 **System Navigation Path:** System Security Architecture
+* AJ EcoDrive enforces zero hard-deletions. All cancellations must pass through the auditable `CreateReturnModal` workflow.
 
 ---
 
-### Q232: Can a completed return record be deleted from the database?
-**Answer:** **No.** All return and refund records are permanently archived with associated financial credit notes, audit logs, and inspection sheets for annual tax auditing.
-
+### Q232: What is the Dealership Cancellation & Return Rate KPI?
+**Answer:** Commercial satisfaction metric:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Sales Cancellation Rate`
+* Measures total cancellations as a percentage of booked orders (Target: &le; 2.5% network-wide).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2171,85 +2499,107 @@ $$\text{Net Refund} = \text{Total Customer Payments Received} - \text{Usage Mile
 
 # PART 17: Showroom Inventory & Serialized Unit Management (Q233 – Q246)
 
-### Q233: How does AJ EcoDrive track showroom inventory differently from a retail store?
-**Answer:** In a standard grocery or clothing store, inventory is tracked by simple quantities (e.g., *"50 blue shirts"*). In an electric motorbike dealership, **every single vehicle is an individual serialized asset tracked by its unique stamped VIN (Chassis Number)**. The system never just tracks "10 electric scooters"; it tracks 10 distinct, individually serialized machines with their specific frame numbers, battery serials, motor numbers, and production dates.
+### Q233: How does AJ EcoDrive manage Showroom Floor Inventory?
+**Answer:** Showroom floor inventory is managed via the **Serialized Unit Inventory Workbench**:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units`) OR `Stock by Product` (`/inventory/stock-by-product`)
+* **Core Principle:** Every physical electric bike on the showroom tiles is tracked as an individual serialized asset, bound to its unique Chassis Frame VIN, Lithium Battery Serial Number, Motor Serial Number, and Physical Location (Peshawar Showroom, Bay A-1).
 
 ---
 
-### Q234: What is the difference between Local Showroom Stock and National Network Stock?
-**Answer:**
-* **Local Showroom Stock:** Vehicles physically present on the showroom floor or warehouse of that specific branch (e.g., Peshawar). Branch staff can directly inspect, test-ride, and sell these units immediately.
-* **National Network Stock:** Complete nationwide visibility showing all vehicles across Islamabad, Lahore, Rawalpindi, and the Central Port Warehouse. Branch staff can see that Islamabad has an Emerald Green bike in stock, but they cannot sell it without an approved Inter-Branch Transfer.
+### Q234: What are the 7 Status States of a Serialized Unit?
+**Answer:** Strict operational lifecycle state machine:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` &rarr; Filter by `Status Tag`
+1. **Available (Emerald):** Unsold, pristine condition, ready on showroom floor for immediate POS sale.
+2. **Reserved (Amber):** Locked to a customer booking deposit; cannot be sold to anyone else.
+3. **Sold / Invoicing Complete (Blue):** Fully paid; assigned to workshop delivery bay for 6-point PDI.
+4. **Delivered (Gray):** Handed over to customer with executed Delivery Gate Pass.
+5. **In-Transit (Purple):** Loaded on logistics carrier truck moving between branch dealerships.
+6. **In Service (Teal):** Customer-owned vehicle undergoing maintenance in the workshop.
+7. **Quarantine / QC Hold (Crimson):** Isolated in Bay Q-3 due to transit damage or battery diagnostic alert.
 
 ---
 
-### Q235: How does the system prevent a salesperson in Peshawar from accidentally selling a bike in Islamabad?
-**Answer:** AJ EcoDrive enforces **Strict Branch Custody Isolation**. When staff open the sales or quotation screens in Peshawar, the chassis selection dropdown strictly displays VINs that have been physically received and confirmed in Peshawar's local inventory database. Islamabad's inventory is physically locked and inaccessible to Peshawar's Point of Sale terminal.
+### Q235: How does the system prevent cross-branch stock theft or accidental sales?
+**Answer:** Strict Branch Custody Isolation:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units`
+* A salesperson in Peshawar cannot select or sell a VIN assigned to Islamabad. Attempting to assign an out-of-branch VIN triggers a hard security block: *"ACCESS DENIED: VIN [Number] is in Islamabad Showroom Custody"*.
 
 ---
 
-### Q236: What lifecycle states can an individual vehicle chassis have in the inventory ledger?
-**Answer:** Every chassis VIN is in exactly one of these 7 states at any given moment:
-1. **Available (Green Badge):** Inspected, charged, and sitting on the showroom floor ready for purchase.
-2. **Reserved (Blue Badge):** Customer has confirmed a sales order and placed a deposit; locked against other buyers.
-3. **Sold / Invoicing Complete (Purple Badge):** Fully paid; vehicle assigned to workshop for Pre-Delivery Inspection (PDI).
-4. **Delivered / Customer Owned (Dark Grey Badge):** Handed over to customer with official Gate Pass; removed from floor stock.
-5. **In-Transit (Amber Pulsating Badge):** Loaded on a logistics carrier truck traveling between branches; in dual-custody hold.
-6. **In Service / Maintenance (Cyan Badge):** In workshop for routine maintenance or repair.
-7. **Quarantine / QC Hold (Red Badge):** Isolated in physical Bay Q-3 due to transit scratches, factory defect, or battery fault.
+### Q236: How do staff search for a specific vehicle in inventory?
+**Answer:** Universal Multi-Attribute Inventory Search:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` &rarr; `Search Bar`
+* Staff can search instantly by Chassis Frame VIN (e.g. `00812`), Battery Serial Number, Motor Serial Number, Color, Model Name, or Status.
 
 ---
 
-### Q237: Can a bike be in two places at once in the system?
-**Answer:** **No, mathematically impossible.** The chassis VIN is a unique database primary key. It can only occupy one physical location (Branch ID or In-Transit Carrier ID) at any microsecond.
+### Q237: How are Barcode and QR Code labels generated for showroom vehicles?
+**Answer:** Built-in **Thermal Barcode Label Printing**:
+* 📍 **System Navigation Path:** `Serialized Unit Detail Page` &rarr; Click **"Print VIN Barcode Label"**
+* Generates waterproof thermal barcode stickers affixed to the vehicle's frame and battery cover, readable by standard handheld USB barcode scanners.
 
 ---
 
-### Q238: How do staff use barcode and QR code scanners on the showroom floor?
-**Answer:** Every vehicle arriving at the showroom is tagged with a weather-proof **Showroom Inventory QR Tag** affixed to the handlebar. Staff walking the floor with an Android tablet or wireless handheld barcode scanner can scan the tag to instantly view:
-* Chassis VIN, Motor Serial, and Battery Pack ID.
-* Manufacture Date, Color, and Catalogue List Price.
-* Real-time Status (Available, Reserved for Salman Khan, etc.).
+### Q238: What information is displayed on the Serialized Unit Detail Page?
+**Answer:** Complete 360-degree vehicle identity dossier:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` &rarr; Select Unit (`/inventory/serialized-units/:id`)
+* Displays Frame VIN, Model Name, Color, Battery Chemistry & Serial, Motor Controller Serial, Import Sea Container PO, Landed Cost (PKR), Current Status, Current Branch Bay Location, and Full Chronological Audit Timeline.
 
 ---
 
-### Q239: How does the system handle display demo units used for showroom test drives?
-**Answer:** Dealerships designate specific vehicles as **Showroom Demo Units**. The Branch Manager flags the VIN as `Demo / Test Ride Asset`. The system removes it from the sellable inventory pool and tracks test-ride mileage and battery charging cycles separately.
+### Q239: How does the system manage Showroom Display Bikes vs. Warehouse Storage Units?
+**Answer:** Sub-Location Bay Tagging:
+* 📍 **System Navigation Path:** `Serialized Unit Detail Page` &rarr; `Bay Location Field`
+* Tags exact physical position: `Showroom Display Floor (Main Window)`, `Showroom Floor (Row B)`, `Backroom Storage Warehouse (Crate 4)`, or `Workshop Holding Bay`.
 
 ---
 
-### Q240: What happens if an unauthorized person attempts to tamper with a chassis number in the database?
-**Answer:** Chassis VINs are immutable database records. Once created during container intake, the VIN string cannot be edited by any branch staff. Any VIN modification requires Super Admin database authorization with mandatory audit logging.
+### Q240: What happens if a showroom display bike battery is depleted from customer demonstrations?
+**Answer:** Daily Showroom Battery Maintenance Protocol:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Floor Stock Battery Audit`
+* Showroom staff check display bike battery State of Charge (SOC) daily; display units must maintain &ge; 60% SOC to ensure immediate customer test rides and protect lithium cells from deep-discharge degradation.
 
 ---
 
-### Q241: Can the system alert management when floor stock runs dangerously low?
-**Answer:** Yes. Every branch defines a **Minimum Floor Stock Threshold** (e.g., minimum 5 commuter scooters and 2 cargo trikes). When active inventory drops below this threshold, the system displays an amber warning banner and prompts the manager to generate a Stock Replenishment Request.
+### Q241: Can a serialized unit's specifications (e.g. Color / Battery) be changed in the system?
+**Answer:** Hardware Component Modification with Managerial PIN:
+* 📍 **System Navigation Path:** `Serialized Unit Detail Page` &rarr; Click **"Modify Component Spec"**
+* If a technician swaps a battery pack under warranty, entering Manager PIN and justification logs the new serial number into the permanent VIN history.
 
 ---
 
-### Q242: How does the system track non-serialized spare parts in the branch store?
-**Answer:** Spare parts (tubeless tyres, brake pads, LED indicators, throttles) are tracked by SKU code, physical bin location (e.g., *Shelf B, Bin 04*), minimum reorder level, and real-time piece count.
+### Q242: How does the system handle Non-Serialized Spare Parts inventory?
+**Answer:** Quantity & Bin-Location Warehouse Ledger:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Spare Parts & Accessories` (`/inventory/parts`)
+* Tracks physical quantities, reorder safety thresholds, bin shelf locations (e.g. `Shelf C-4`), unit cost (PKR), and retail price for high-frequency consumable parts.
 
 ---
 
-### Q243: How does the system manage battery storage maintenance for unsold showroom bikes?
-**Answer:** Lithium batteries slowly self-discharge over months of storage. The system features an **Unsold Battery Maintenance Schedule**. If a showroom bike sits unsold for more than 45 days, the system prompts workshop staff to connect it to a slow charger and top up the battery to 60%–70% storage SOC to prevent cell degradation.
+### Q243: What is the Slow-Moving / Aged Inventory Alert?
+**Answer:** Aged Stock Aging Matrix:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Inventory Aging Report` (`/reports/inventory-aging`)
+* Identifies vehicles sitting on the showroom floor for **> 45 days**, alerting the branch manager to initiate promotional discounts or inter-branch transfers to higher-demand cities.
 
 ---
 
-### Q244: What happens if a showroom bike is damaged by a customer during a showroom visit?
-**Answer:** Staff immediately change the vehicle's status to **Quarantine (Bay Q-3)**, log an Incident Report with photos of the damaged panel, and generate a workshop repair order to restore the vehicle before returning it to the showroom floor.
+### Q244: Can a Branch Manager manually adjust stock quantities without an audit?
+**Answer:** **No. Unilateral stock modifications are strictly prohibited.**
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Adjustments`
+* Any stock adjustment requires initiating an official **Cycle Count Variance Request** (`CreateAdjustmentRequestModal`), routing to Head Office via Action Centre Flow 5.
 
 ---
 
-### Q245: Can an investor or board member view total company-wide inventory valuation?
-**Answer:** Yes. The Executive Inventory Dashboard calculates the live **Total Fleet Valuation (PKR)** across all cities, broken down by Model, Status, and Showroom Location.
+### Q245: What is the Total Floor Inventory Valuation (PKR)?
+**Answer:** Live Balance Sheet Asset Valuation:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Inventory Asset Valuation Card`
+* Computes live monetary worth of all available showroom vehicles based on landed dealer import cost.
 
 ---
 
-### Q246: How does Showroom Inventory operate during internet outages?
-**Answer:** Showroom Inventory is **Category A: Fully Offline-Capable**. Local inventory queries, barcode scans, and status checks execute against the local workstation database with zero latency.
+### Q246: What is the Stock Turn Velocity KPI?
+**Answer:** Inventory turnover efficiency metric:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Inventory Turnover Rate`
+* Measures average days taken to sell incoming vehicle shipments (Target: &le; 21 days from container intake to customer delivery).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2258,83 +2608,97 @@ $$\text{Net Refund} = \text{Total Customer Payments Received} - \text{Usage Mile
 
 # PART 18: Showroom Stock Replenishment Requisitions (Q247 – Q258)
 
-### Q247: What is a Showroom Stock Replenishment Requisition?
-**Answer:** A Stock Requisition (`/inventory/requisitions`) is an official internal order submitted by a Branch Manager requesting additional electric vehicles or spare parts from the Head Office Central Port Warehouse or manufacturing hub.
+### Q247: What is a Stock Replenishment Requisition in AJ EcoDrive?
+**Answer:** A Stock Replenishment Requisition is a formal branch inventory request submitted by a Branch Manager to the Central Distribution Warehouse to restock low floor inventory:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Stock Replenishment Request` (`CreateStockRequestModal`) OR `Sidebar: Inventory` &rarr; `Stock Requests` (`/inventory/stock-requests`) &rarr; Click `+ New Requisition`
+* **Operational Intent:** Ensures branch showrooms never run out of high-demand electric scooter models by triggering automated warehouse pick-and-pack dispatches.
 
 ---
 
-### Q248: Why do showrooms need a formal requisition process instead of just calling Head Office?
-**Answer:** Phone calls and WhatsApp messages result in lost requests, forgotten color preferences, and lack of accountability. A digital requisition in AJ EcoDrive establishes a clear audit trail: who requested what, on what date, for what business reason, and who authorized the dispatch.
+### Q248: What are Minimum Reorder Safety Buffers?
+**Answer:** Automated low-stock trigger thresholds:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Stock by Product` &rarr; `Reorder Thresholds`
+* Each branch maintains minimum floor safety buffers (e.g., minimum 3x *BRG E-125* and 2x *Sprint Li-72* in Peshawar). When available units drop to &le; 1, the dashboard triggers a flashing amber **Low Stock Alert**.
 
 ---
 
-### Q249: What triggers a Stock Replenishment Requisition?
-**Answer:**
-1. **Low Stock Threshold Alert:** Showroom floor stock falls below minimum safety levels.
-2. **Locked Customer Sales Order:** A walk-in customer places a deposit on a specific color or model variant not currently in local stock.
-3. **Upcoming Promotional Event:** Anticipated surge in demand for an upcoming holiday or corporate exhibition.
+### Q249: What is the difference between Routine Replenishment and Emergency Requisitions?
+**Answer:** Priority routing in the supply chain:
+* 📍 **System Navigation Path:** `CreateStockRequestModal` &rarr; `Priority Dropdown`
+* **Routine Replenishment:** Weekly planned batch stock delivery via scheduled company freight truck (Target: 3 to 5 business days).
+* **Emergency Requisition:** High-priority pull to fulfill locked, fully-paid customer orders (Target: &le; 24 hours dispatch).
 
 ---
 
-### Q250: Modal Guide — What is the CreateStockRequestModal (`CreateStockRequest.vue`), and what are its exact fields?
-**Answer:** The **`CreateStockRequestModal`** is the formal replenishment order screen:
-* **Requesting Showroom Branch (Auto-Locked):** Identifies requesting location.
-* **Target Delivery Date (Required):** Date by which vehicles must arrive on showroom floor.
-* **Urgency Priority Level (Dropdown):**
-  - *Low:* Routine monthly stock top-up.
-  - *Normal:* Standard weekly replenishment.
-  - *Critical / Stock-Out:* Immediate showroom stock-out or locked customer cash deposit waiting.
-* **Product Catalog Selector (Required Dropdown):** Selects model SKU (e.g., BRG E-125 Commuter).
-* **Color Variant Selection:** Specific color requested (e.g., Pearl White).
-* **Requested Quantity (Units):** Number of vehicles requested.
-* **Current Local Stock Level (Auto-Populated):** Shows how many units the branch currently holds.
-* **Linked Customer Sales Order (Optional):** Attaches customer deposit reference if ordering for an eager buyer.
-* **Business Justification & Market Notes:** Explains reason for demand (e.g., *"Customer paid 50% deposit on white scooter; traveling in 5 days"*).
+### Q250: Modal Guide — What is the CreateStockRequestModal (CreateStockRequest.vue) and what are its exact fields?
+**Answer:** The `CreateStockRequestModal` initiates formal replenishment requests:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Stock Replenishment Request` (`CreateStockRequestModal`)
+* **Exact Form Fields:**
+  * **Requesting Branch** *(Read-Only)*: Originating showroom (e.g., *Peshawar Showroom*).
+  * **Target Fulfill Source** *(Dropdown)*: `Central Warehouse (Islamabad)` or `Regional Hub`.
+  * **Requisition Priority** *(Select)*: `Routine Weekly Restock` or `Emergency Customer Fulfillment`.
+  * **Product Models & Quantities Matrix** *(Multi-Row Item Table)*:
+    * Select Product Model (e.g., *BRG E-125 Commuter*)
+    * Color Preference (e.g., *2x Metallic Blue, 2x Pearl White*)
+    * Quantity Requested (e.g., *4 Units*)
+  * **Current Available Floor Units** *(Auto-Displayed)*: Live local stock count.
+  * **Business Justification & Remarks** *(Textarea, Required)*: Sales demand forecast notes.
 
 ---
 
-### Q251: How does Head Office review and approve Stock Requisitions?
-**Answer:** Stock Requisitions route directly to the **Action Centre (Flow 2: Inter-Branch Stock Reallocation)** or the Central Logistics Supply Chain queue. The National Supply Chain Manager reviews available warehouse stock, checks inbound container shipping manifests, and approves the allocation.
+### Q251: How does Central Warehouse review and approve Stock Requisitions?
+**Answer:** Central Supply Chain Fulfillment Queue:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Inventory` &rarr; `Warehouse Requisitions Queue` (`/inventory/warehouse-queue`)
+* Warehouse Manager reviews available stock in Central Warehouse, confirms vehicle availability, and clicks **"Approve & Create Transfer Manifest"**, which automatically transitions the request into an active **Inter-Branch Stock Transfer**.
 
 ---
 
-### Q252: What happens if the requested model is completely out of stock nationwide?
-**Answer:** Head Office updates the requisition status to **Backordered / In-Transit Container**. The branch receives an estimated arrival date based on the customs clearance schedule of the next sea-freight container arriving at Karachi port.
+### Q252: What happens if Central Warehouse has insufficient stock to fulfill a requisition?
+**Answer:** Partial Fulfillment & Split Dispatch:
+* 📍 **System Navigation Path:** `Warehouse Requisitions Queue` &rarr; Click **"Partial Fulfill"**
+* Warehouse Manager allocates available units (e.g. 2 of 4 requested bikes) and creates an inbound priority backorder for the remaining 2 units against the next incoming OEM sea container.
 
 ---
 
-### Q253: Can a Branch Manager edit a requisition after it has been approved by Head Office?
-**Answer:** No. Once approved, the requisition is locked and transferred to the warehouse picking team to prepare the physical vehicles and generate carrier transit manifests.
+### Q253: Can a branch requisition spare parts along with electric vehicles?
+**Answer:** Yes. Combined Requisition Orders:
+* 📍 **System Navigation Path:** `CreateStockRequestModal` &rarr; `Spare Parts Section`
+* Branch managers can add spare parts boxes (e.g., *10x Brake Pad Sets, 5x Fast Chargers, 2x Smart Helmets*) to the same replenishment manifest.
 
 ---
 
-### Q254: What is the lifecycle of a Stock Requisition?
-**Answer:** A requisition moves through 5 clear stages:
-* **Draft / Submitted:** Created by branch; awaiting Head Office review.
-* **Approved:** Authorized by supply chain management; allocation confirmed.
-* **In Fulfillment / Picking:** Central warehouse staff selecting and inspecting specific chassis VINs.
-* **Dispatched (In-Transit):** Loaded on logistics carrier truck with official Transfer Manifest.
-* **Received & Completed:** Arrived at branch; physical VINs scanned and added to floor stock.
+### Q254: How are freight shipping costs allocated for stock replenishment?
+**Answer:** Central vs Branch Logistics Accounting:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Logistics Freight Expenses`
+* Shipping costs are logged under *Inter-Branch Logistics OPEX*, tracking cost-per-unit freight efficiency across transport routes.
 
 ---
 
-### Q255: Can a branch requisition spare parts and complete vehicles on the same form?
-**Answer:** The system provides dedicated requisitions for **Complete Vehicles (CBU Units)** and **Spare Parts & Consumables**, ensuring spare parts route directly to the parts distribution manager.
+### Q255: What notifications are sent when a stock requisition is dispatched?
+**Answer:** Multi-Channel Dispatch Alert:
+* 📍 **System Navigation Path:** Automated Notification Engine
+* When the warehouse loads the freight carrier, the requesting Branch Manager receives an instant desktop notification, email, and WhatsApp message containing the **Carrier Driver Contact Number** and **Truck License Plate**.
 
 ---
 
-### Q256: How does the system handle urgent stock requests for VIP or fleet buyers?
-**Answer:** Marking a request as **Critical / Stock-Out** triggers high-priority alerts on Head Office executive dashboards, enabling directors to redirect transit containers or prioritize carrier truck dispatches.
+### Q256: Can a Branch Manager cancel a stock requisition after submission?
+**Answer:** Yes, prior to warehouse pick-and-pack:
+* 📍 **System Navigation Path:** `Stock Request Detail Page` &rarr; Click **"Cancel Requisition"**
+* Requisitions in `Pending` status can be cancelled with justification notes. Once marked `Pick & Pack In Progress`, cancellation requires warehouse manager sign-off.
 
 ---
 
-### Q257: How does Stock Requisition operate when the branch is offline?
-**Answer:** Stock Requisition is **Category B: Restricted Offline-Capable**. The branch can prepare and save the requisition locally. It queues in the Outbox and transmits automatically upon internet reconnection.
+### Q257: How does the system prevent over-requisitioning by over-enthusiastic sales managers?
+**Answer:** Maximum Showroom Capacity Floor Limits:
+* 📍 **System Navigation Path:** `CreateStockRequestModal` &rarr; `Showroom Capacity Guard`
+* Each branch has a physical floor capacity cap (e.g., Peshawar: max 25 display/storage units). Requisitions exceeding capacity trigger a managerial warning requiring Head Office justification.
 
 ---
 
-### Q258: Does the system track seasonal demand trends to help managers forecast requisitions?
-**Answer:** Yes. The Sales Intelligence dashboard shows 12-month historical sales trends, highlighting peak demand months (e.g., post-Eid bonuses or college reopening seasons).
+### Q258: What is the Requisition Fulfillment Cycle Time KPI?
+**Answer:** Supply chain responsiveness metric:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Supply Chain Velocity`
+* Measures average hours elapsed from branch requisition submission to physical truck arrival at showroom doors (Target: &le; 36 hours network-wide).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2344,92 +2708,124 @@ $$\text{Net Refund} = \text{Total Customer Payments Received} - \text{Usage Mile
 # PART 19: Inter-Branch Stock Transfers & In-Transit Custody (Q259 – Q272)
 
 ### Q259: What is an Inter-Branch Stock Transfer in AJ EcoDrive?
-**Answer:** An Inter-Branch Stock Transfer (`/inventory/transfers`) is the authorized physical and legal relocation of electric vehicles or spare parts from one dealership location to another (e.g., moving 3 scooters from the Lahore Central Hub to the Islamabad Showroom).
+**Answer:** An Inter-Branch Stock Transfer is the formal logistics and legal custody workflow for moving physical electric vehicles between dealership branches (e.g., Peshawar to Islamabad) or from Central Warehouse to a branch:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Inter-Branch Transfer` (`CreateTransferModal`) OR `Sidebar: Inventory` &rarr; `Transfers` (`/inventory/transfers`) &rarr; Click `+ Dispatch Transfer`
+* **Core Rule:** Physical inventory custody is tracked continuously. During transport, vehicles reside in an immutable **`In-Transit`** state, ensuring accountability for freight drivers, origin dispatchers, and destination receivers.
 
 ---
 
-### Q260: What is the "In-Transit Dual-Custody State", and why is it crucial for asset protection?
-**Answer:** Moving high-value electric vehicles between cities via third-party flatbed trucks or logistics carriers presents significant theft and damage risks. AJ EcoDrive solves this with the **In-Transit Dual-Custody Protocol**:
-1. **Origin Exit:** When the dispatching branch clicks *Dispatch*, the specific chassis VINs are immediately removed from origin showroom stock. They **cannot be sold in Lahore**.
-2. **In-Transit Hold:** The vehicles enter the `In-Transit` state. They are assigned to the carrier truck and driver. They **cannot be sold in Islamabad** yet, because they are physically traveling on the motorway.
-3. **Destination Intake:** Only when the receiving branch physically inspects and scans each chassis barcode does the system add the vehicles to Islamabad's active, sellable floor stock.
-This ensures zero inventory "floats in thin air" or gets double-sold while loaded on a truck.
+### Q260: What are the 4 Stages of an Inter-Branch Stock Transfer?
+**Answer:** Sequential multi-point custody lifecycle:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` &rarr; `Transfer Detail Page`
+
+```
+[1. Transfer Draft / Approval] ──► Action Centre Authorization (Flow 2)
+              │
+              ▼
+[2. Physical VIN Barcode Scan] ──► Verified at Origin Showroom Gate
+              │
+              ▼
+[3. In-Transit Custody State]  ──► Assigned to Carrier Truck / Driver
+              │
+              ▼
+[4. Inbound Destination Scan]  ──► Confirmed & Added to Available Floor Stock
+```
 
 ---
 
-### Q261: Who pays for the transportation freight charges between branches?
-**Answer:** The transfer record specifies the **Freight Billing Entity**: Origin Branch, Destination Branch, or Central Marketing / Logistics Head Office overhead.
+### Q261: Why can a vehicle NEVER be moved between branches without scanning its VIN barcode?
+**Answer:** Elimination of phantom stock errors and vehicle misplacement:
+* 📍 **System Navigation Path:** `CreateTransferModal` &rarr; `Mandatory Barcode Scan Step`
+* Dispatchers must physically scan the stamped chassis VIN barcode on each scooter before loading it onto the carrier truck. The system verifies that every single loaded vehicle matches the transfer manifest down to the exact serial number.
 
 ---
 
-### Q262: Modal Guide — What is the CreateTransferModal (`CreateTransfer.vue`), and what are its exact fields?
-**Answer:** The **`CreateTransferModal`** initiates and documents inter-city vehicle dispatch:
-* **Origin Showroom Branch (Auto-Locked):** Dispatching location.
-* **Destination Showroom Branch (Required Dropdown):** Receiving location (e.g., Islamabad Showroom).
-* **Specific Chassis / VIN Multi-Selector (Required):** Search and select exact VINs from available local floor stock.
-* **Selected Vehicle Summary Display:** Shows Model, Color, VIN, and Battery Serial for each chosen unit.
-* **Logistics Carrier / Transport Company (Required):** Third-party logistics vendor (e.g., *Daewoo Express Cargo, TCS Freight, or Private Truck Fleet*).
-* **Driver Full Name (Required):** Legal name of the carrier truck driver.
-* **Driver Pakistani CNIC (Required):** 13-digit validated CNIC format for security verification.
-* **Driver Mobile Phone (Required):** Direct contact number for en-route tracking.
-* **Carrier Truck Registration Number (Required):** Vehicle registration plate (e.g., `LES-2024-8912`).
-* **Expected Arrival Date & Time (Required):** Scheduled delivery window at destination.
-* **Dispatch Inspection Notes & Bill of Lading Reference:** Notes on tie-down straps, protective foam wrapping, and transport bilti serial.
-* **Generate Dispatch Gate Pass Button:** Prints official logistics gate pass.
+### Q262: Modal Guide — What is the CreateTransferModal (CreateTransfer.vue) and what are its exact fields?
+**Answer:** The `CreateTransferModal` executes vehicle transfer dispatches:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Inter-Branch Transfer` (`CreateTransferModal`)
+* **Exact Form Fields:**
+  * **Origin Branch** *(Read-Only)*: Dispatching showroom (e.g., *Islamabad Showroom*).
+  * **Destination Branch** *(Dropdown, Required)*: Receiving showroom (e.g., *Peshawar Showroom*).
+  * **Transfer Purpose** *(Select)*: `Emergency Customer Booking Fulfillment`, `Routine Stock Rebalancing`, `Quarantine / Repair Transfer`.
+  * **Selected Chassis VINs Matrix** *(Barcode Scanner / Search)*:
+    * Selects available physical units in origin stock.
+    * Auto-displays Frame VIN, Battery Serial, Model, and Color.
+  * **Logistics Carrier / Transport Company** *(Text, Required)*: E.g., *TCS Freight / Bilal Logistics / Dealership Truck*.
+  * **Carrier Driver Full Name** *(Text, Required)*: Authorized transport driver.
+  * **Driver Mobile Number** *(Phone, Required)*: Contact for real-time transit tracking.
+  * **Carrier Truck License Plate** *(Text, Required)*: Vehicle registration (e.g., *ICT-LEA-9412*).
+  * **Estimated Transit Duration (Hours)** *(Numeric)*: Expected travel time.
+  * **Dispatch Security Gate Pass PIN** *(Manager Security PIN)*: Authorizes physical gate exit.
 
 ---
 
-### Q263: What security document is handed to the truck driver upon departure?
-**Answer:** The dispatching branch prints the official **Inter-Branch Transit Gate Pass & Shipping Manifest (Bilti)**. The driver carries this document across provincial checkpoints. It lists:
-* Stamped chassis numbers, motor numbers, and battery serials of all loaded bikes.
-* Dispatching and receiving branch addresses and emergency manager phone numbers.
-* Driver name, CNIC, and truck license plate.
-* Anti-theft verification QR code.
+### Q263: What is an Official Inter-Branch Transfer Dispatch Gate Pass?
+**Answer:** The legal transport document accompanying the carrier truck:
+* 📍 **System Navigation Path:** `Transfer Detail Page` &rarr; Click **"Print Dispatch Gate Pass"**
+* Contains itemized list of all Chassis VINs, Battery Serials, Driver CNIC, Truck Registration, Origin Dispatcher Signature, and Security QR Code for highway transit inspections.
 
 ---
 
-### Q264: Can a salesperson sell a vehicle while it is marked "In-Transit"?
-**Answer:** **No.** The system hard-blocks sales of In-Transit vehicles. If an eager Islamabad customer wants to buy an In-Transit bike, staff can place a conditional reservation, but the system prevents invoicing and delivery until the bike arrives and is scanned in Islamabad.
+### Q264: What happens to the vehicle status the moment the dispatch is executed?
+**Answer:** Instant status transition to **`In-Transit`**:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units`
+* The vehicle leaves Origin `Available` inventory and moves to `In-Transit`. Origin showroom cannot sell it, and Destination showroom cannot sell it until physical intake scan.
 
 ---
 
-### Q265: What happens if a truck breaks down on the motorway between Lahore and Islamabad?
-**Answer:** The logistics coordinator updates the transfer record with an **En-Route Transit Delay Notice**. The estimated arrival time updates automatically across both branch dashboards, keeping sales staff informed.
+### Q265: How does the system handle multi-vehicle batch transfers (e.g. 10 bikes on a flatbed truck)?
+**Answer:** Consolidated Batch Transfer Manifests:
+* 📍 **System Navigation Path:** `CreateTransferModal` &rarr; `Batch Scan Mode`
+* Dispatcher scans 10 consecutive chassis barcodes; system groups them into a single consolidated master manifest (`TR-2026-XXXX`), generating a unified carrier bill of lading.
 
 ---
 
-### Q266: What happens if an accident occurs during transport?
-**Answer:** The driver or carrier files an immediate incident report. The transfer record is updated with police reports and carrier insurance details. Any damaged vehicles are routed directly to **Quarantine (Bay Q-3)** upon arrival rather than showroom stock.
+### Q266: What happens if a carrier truck breaks down en route?
+**Answer:** In-Transit Logistics Exception Logging:
+* 📍 **System Navigation Path:** `Transfer Detail Page` &rarr; Click **"Log Transit Delay / Incident"**
+* Dispatcher logs breakdown location and revised arrival time, notifying destination branch manager automatically.
 
 ---
 
-### Q267: Can a Branch Manager dispatch a transfer without Head Office approval?
-**Answer:** Transfers requested via the Action Centre require prior Head Office authorization. For routine transfers within pre-authorized branch redistribution quotas, the dispatching branch manager can sign off directly.
+### Q267: Can a transfer be cancelled after the truck has departed origin gates?
+**Answer:** **No. Active In-Transit transfers cannot be cancelled unilaterally.**
+* 📍 **System Navigation Path:** Transfer Security Engine
+* Once the carrier exits origin gates, the transfer must proceed to destination or be formally redirected with Super Admin authorization.
 
 ---
 
-### Q268: How does the system prevent a branch from dispatching a bike reserved for a local customer?
-**Answer:** The VIN multi-selector strictly excludes vehicles with status = `Reserved` or `Sold`. Only bikes marked as `Available` can be selected for transfer.
+### Q268: How are inter-branch transfers displayed on the live Dashboard?
+**Answer:** The **Incoming Stock** Snapshot KPI Tile:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` (`/dashboard`) &rarr; `Incoming Tile` (`/inventory/transfers?tab=inbound`)
+* Displays total vehicles currently on carrier trucks en route to this branch, with countdown arrival timers.
 
 ---
 
-### Q269: How are spare parts transferred between branches?
-**Answer:** The transfer modal includes a **Spare Parts Transfer** tab, allowing branches to ship brake pads, chargers, and controllers between cities using the same carrier tracking protocols.
+### Q269: What transit insurance documentation is generated for high-value transfers?
+**Answer:** Commercial Transit Insurance Certificate:
+* 📍 **System Navigation Path:** `Transfer Detail Page` &rarr; Click **"Generate Insurance Transit Slip"**
+* Computes total declared cargo valuation (PKR) and attaches OEM transit insurance policy numbers for highway carrier coverage.
 
 ---
 
-### Q270: How does Inter-Branch Transfer operate if the branch loses internet access?
-**Answer:** Initiating an Inter-Branch Transfer is **Category C: Online-Required**. Because moving stock between cities affects the national inventory balance, central server verification is required to lock the VINs across the network and prevent split-brain inventory conflicts.
+### Q270: How does the system prevent dispatching a vehicle that has an active customer deposit?
+**Answer:** Hard Reservation Interlock:
+* 📍 **System Navigation Path:** `CreateTransferModal` &rarr; `VIN Selection Validation`
+* The transfer engine strictly filters out units in `Reserved` status. A vehicle locked to a Peshawar customer booking cannot be selected for dispatch to Lahore.
 
 ---
 
-### Q271: Can a transfer be cancelled after the truck has departed?
-**Answer:** No. Once the status changes to `In-Transit`, the transfer cannot be cancelled. If the shipment must return, it must be received at the destination and an opposite return transfer initiated.
+### Q271: Where can logistics executives view nationwide vehicle movements?
+**Answer:** The **National Logistics Fleet Map**:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Inventory` &rarr; `National Transfer Map` (`/inventory/transfer-map`)
+* Visual dashboard tracking all carrier trucks moving across the motorway network (Peshawar, Islamabad, Rawalpindi, Lahore).
 
 ---
 
-### Q272: Does the system track carrier transport performance?
-**Answer:** Yes. The Logistics Analytics dashboard evaluates carrier vendors by on-time delivery percentage and zero-damage transit rates, helping management select reliable freight partners.
+### Q272: What is the In-Transit Loss Rate KPI?
+**Answer:** Supply chain security benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Logistics Security KPIs`
+* Measures transit damage or discrepancy rate across all carrier shipments (Target: 0.00% across network).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2438,101 +2834,119 @@ This ensures zero inventory "floats in thin air" or gets double-sold while loade
 
 # PART 20: Inbound Delivery Receiving & Transit Discrepancies (Q273 – Q286)
 
-### Q273: What is the Inbound Delivery Receiving process?
-**Answer:** Inbound Delivery Receiving (`/inventory/transfers/inbound`) is the physical inspection and digital intake procedure when a carrier transport truck arrives at the destination showroom with a shipment of electric vehicles.
+### Q273: What is the Inbound Delivery Receiving process in AJ EcoDrive?
+**Answer:** Inbound Delivery Receiving is the physical verification and digital intake protocol when a logistics carrier truck arrives at a dealership branch:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` &rarr; `Inbound Shipments Tab` (`/inventory/transfers?tab=inbound`) &rarr; Click **"Receive Shipment"** (`ReceiveTransferModal`)
+* **Core Rule:** No vehicle moves into active showroom sales inventory until its chassis barcode is physically scanned at the receiving bay and inspected for transit damage.
 
 ---
 
-### Q274: What is the step-by-step physical receiving protocol?
-**Answer:**
-1. **Truck Arrival & Document Verification:** Manager meets the carrier driver, inspects the physical Bilti / Transit Gate Pass, and matches the driver's CNIC and truck license plate.
-2. **Unloading to Receiving Bay:** Bikes are carefully rolled off the transport truck into the branch staging bay.
-3. **Chassis Barcode Scanning:** Staff scan the stamped VIN barcode on each bike's headstock tube.
-4. **Physical Condition Inspection:** Inspect paintwork, mirrors, battery compartment, and instrument console for transit damage.
-5. **Digital Confirmation:** Staff submit the receiving form. Confirmed bikes immediately join active showroom inventory.
+### Q274: What is the 3-Step Inbound Receiving Protocol?
+**Answer:** Systematic quality and security verification:
+* 📍 **System Navigation Path:** `ReceiveTransferModal` &rarr; `Intake Workflow`
+1. **Carrier Manifest Cross-Verification:** Match carrier driver credentials and truck license plate against digital dispatch record.
+2. **Physical VIN Barcode Scan:** Scan stamped chassis VIN on each unloaded scooter.
+3. **Physical Condition & Cosmetic Inspection:** Check body fairings, mirrors, digital meters, and battery casing for transit scratches or cracks.
 
 ---
 
-### Q275: Modal Guide — What is the ReceiveTransferModal (`ReceiveTransfer.vue`), and what are its exact fields?
-**Answer:** The **`ReceiveTransferModal`** verifies and commits inbound stock:
-* **Transfer Manifest Reference Selector:** Selects pending inbound transfer.
-* **Carrier Logistics Vendor & Driver Information (Displayed):** For identity matching.
-* **Manifest Expected VINs vs Scanned VINs Table:**
-  - Lists every vehicle shipped on the manifest.
-  - Interactive barcode scan box: Staff scan each physical VIN; table turns green as each match is confirmed.
-* **Physical Condition Assessment Checkboxes (per vehicle):**
-  - Paint & Fairings: Clean / Minor Scratch / Heavily Dented.
-  - Electrical & Power On: Battery connects; LCD meter powers on.
-  - Accessories Checklist: 2 Keys, 2 Remotes, Charger Present.
-* **Discrepancy Reporting Section:**
-  - Checkbox: *"Report Damage / Missing Items for Carrier Claim"*.
-  - Discrepancy Type: Missing Vehicle, Physical Scratch/Dent, Broken Mirror, Missing Charger, Wrong Chassis Received.
-  - Photo Evidence Upload: Mandatory photo of damage or scratched panel.
-* **Receiving Officer Digital Sign-off:** Staff member accepting physical custody.
-* **Stock Inward Commitment Button:** Moves accepted units to active showroom stock.
+### Q275: Modal Guide — What is the ReceiveTransferModal (ReceiveTransfer.vue) and what are its exact fields?
+**Answer:** The `ReceiveTransferModal` executes inbound intake and logs transit discrepancies:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` &rarr; Click `Receive Shipment` (`ReceiveTransferModal`)
+* **Exact Form Fields:**
+  * **Transfer Reference** *(Read-Only)*: Linked Transfer ID (`TR-2026-XXXX`).
+  * **Carrier Details** *(Read-Only)*: Driver name and truck license plate.
+  * **Itemized VIN Receiving Matrix** *(Barcode Scan / Interactive Checklist)*:
+    * Frame Chassis VIN
+    * Scanned Status: `Confirmed Matched`
+    * Physical Condition: `Pristine (No Damage)`, `Minor Cosmetic Scratch`, `Severe Transit Damage`.
+    * Battery Tested & Operational: `Yes / No`.
+  * **Discrepancy Reporting Toggle**: Unlocks variance reporting if units are missing or damaged.
+  * **Damage Evidence Photos** *(File Upload)*: Mandatory high-resolution photos for damaged units.
+  * **Receiving Manager Signature / PIN** *(Security PIN)*: Mandatory managerial sign-off.
 
 ---
 
-### Q276: What is a "Transit Discrepancy"?
-**Answer:** A Transit Discrepancy occurs when the physical vehicles unloaded from the truck do not perfectly match the shipping manifest:
-* A bike is missing from the truck.
-* A vehicle has deep paint scratches or cracked fairings from improper tie-down straps.
-* Side mirrors or charger cables were stolen en route.
-* A different chassis VIN was delivered by mistake.
+### Q276: What is a Transit Discrepancy, and what types can occur?
+**Answer:** Any variance between the dispatch manifest and physical goods received:
+* 📍 **System Navigation Path:** `ReceiveTransferModal` &rarr; `Log Discrepancy Section`
+1. **Missing Unit Variance:** Manifest lists 5 bikes, but only 4 bikes were unloaded from the truck.
+2. **Transit Cosmetic Damage:** Body panel scratched or indicator cracked during road transport.
+3. **Hardware Serial Mismatch:** An unloaded bike has a chassis VIN different from the dispatch manifest.
 
 ---
 
-### Q277: How does AJ EcoDrive handle transit damage during receiving?
-**Answer:** When staff report damage on a vehicle during receiving:
-1. The undamaged vehicles are accepted and moved to **Available Floor Stock**.
-2. The damaged vehicle is automatically routed to **Quarantine (Bay Q-3)**.
-3. The system generates an official **Transit Damage & Insurance Claim Docket** containing high-resolution photos, repair cost estimates, and driver CNIC details.
-4. The freight carrier is billed for the repair or part replacement costs.
+### Q277: What happens when a Transit Damage Discrepancy is reported?
+**Answer:** Automated Action Centre Flow 5 Escalation:
+* 📍 **System Navigation Path:** `ReceiveTransferModal` &rarr; Submit with Damage Tag &rarr; Action Centre (`ACT-GOV-XXXX`)
+* The damaged vehicle is immediately routed to **`Quarantine Bay Q-3`** (cannot be sold).
+* An automated transit insurance damage claim is generated against the freight carrier.
+* Undamaged pristine units from the same truck are approved and moved to `Available` stock immediately.
 
 ---
 
-### Q278: What happens if a chassis VIN delivered does not match any VIN on the manifest?
-**Answer:** The system flags the unit as an **"Unmanifested Alien Vehicle"**. The bike cannot be added to showroom stock. It is held in the staging bay, and an automated alert is sent to Head Office logistics to trace which branch dispatched the wrong unit.
+### Q278: What happens when a Missing Unit Discrepancy is reported?
+**Answer:** Immediate Security Lockdown & Investigation:
+* 📍 **System Navigation Path:** `ReceiveTransferModal` &rarr; Submit with Missing Unit Tag
+* The missing VIN remains locked in `In-Transit / Under Investigation` status.
+* Automated emergency security alerts are dispatched to Origin Branch Manager, Logistics Carrier Head, and Super Admin.
 
 ---
 
-### Q279: Can a receiving officer confirm receiving without scanning the physical barcodes?
-**Answer:** System policy requires barcode scanning to eliminate human error and "blind rubber-stamping". Counter staff must scan the barcode on the physical headstock or manually type the full 17-character VIN.
+### Q279: What happens when all units are scanned and verified as Pristine?
+**Answer:** Instant Inventory Activation:
+* 📍 **System Navigation Path:** `ReceiveTransferModal` &rarr; Click **"Confirm Full Clean Receipt"**
+* All vehicles move instantly from `In-Transit` to **`Available Floor Inventory`**.
+* The receiving branch manager receives an instant green confirmation banner; bikes are immediately selectable for POS checkout.
 
 ---
 
-### Q280: What does the truck driver receive as proof of successful delivery?
-**Answer:** The system prints an official **Goods Received Note (GRN) / Delivery Acknowledgment Receipt**. The receiving manager signs and stamps the driver's copy, certifying that the vehicles were received in good condition (or noting documented transit damage).
+### Q280: How does the system generate an Inbound Receiving Goods Note (GRN)?
+**Answer:** Official Goods Received Note (GRN) Generation:
+* 📍 **System Navigation Path:** `Transfer Detail Page` &rarr; Click **"Print Goods Received Note (GRN)"**
+* Generates an official signed legal receipt handed to the carrier driver, confirming clean delivery or itemizing documented damage exceptions.
 
 ---
 
-### Q281: What happens if a shipment arrives after hours when the showroom is closed?
-**Answer:** If delivery occurs after 08:00 PM, the night security guard checks the vehicle into the secure showroom yard, signs the temporary carrier night drop slip, and locks the gates. Full technical intake and system scanning are completed at 08:30 AM the next morning.
+### Q281: Can a receiving manager accept a shipment if the internet is down?
+**Answer:** Yes. **Offline Receiving Mode**:
+* 📍 **System Navigation Path:** Local Desktop Application &rarr; `Inbound Transfers`
+* The local SQLite database allows scanning and verifying cached transfer manifests offline. Intake confirmations queue in the Outbox and sync to Head Office upon connectivity restoration.
 
 ---
 
-### Q282: How does Inbound Receiving operate if the showroom is temporarily offline?
-**Answer:** Inbound Receiving is **Category B: Restricted Offline-Capable**. Staff can verify physical chassis numbers against a locally cached copy of the transfer manifest. The stock updates locally and commits to central inventory when connectivity resumes.
+### Q282: What happens if a carrier truck arrives after regular showroom hours?
+**Answer:** Night-Intake Temporary Staging Protocol:
+* 📍 **System Navigation Path:** `ReceiveTransferModal` &rarr; `Intake Mode: Night Staging`
+* Security guard parks vehicles in the secure internal garage bay; formal VIN inspection and digital intake are completed by the branch manager at 08:50 AM during the morning opening checklist.
 
 ---
 
-### Q283: Who has the authority to sign off on carrier damage settlement claims?
-**Answer:** Damage settlement dockets route to the **Action Centre (Flow 5: Inventory Governance)** for review by the National Logistics Director and corporate legal counsel.
+### Q283: How are carrier driver performance and damage claims tracked?
+**Answer:** Carrier Logistics Reliability Scorecard:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Carrier Performance Scorecards` (`/reports/carriers`)
+* Audits damage claim frequency per logistics vendor (TCS, Bilal Logistics, In-House Fleet), identifying transport vendors with high transit damage rates.
 
 ---
 
-### Q284: What happens if all bikes on the manifest arrive in flawless condition?
-**Answer:** Staff click **Accept Full Delivery (Zero Discrepancies)**. All units instantly transition to `Available`, the transfer manifest closes with a 100% perfect quality rating, and the carrier's on-time scorecard is updated.
+### Q284: Can a damaged vehicle be repaired locally and released from Quarantine?
+**Answer:** Yes, via Workshop Repair & Re-Certification:
+* 📍 **System Navigation Path:** `Quarantine Detail Page` &rarr; Click **"Open Internal Repair Ticket"**
+* Workshop replaces scratched fairing panel. Once QC inspection passes, branch manager submits **Quarantine Release Request** (`ACT-GOV-XXXX`) to restore unit to `Available` stock.
 
 ---
 
-### Q285: Can a receiving record be edited after it has been finalized?
-**Answer:** No. Once the Goods Received Note is generated, the record is permanently locked to prevent retroactively fabricating damage claims against freight carriers.
+### Q285: Where can Branch Managers view the history of all received shipments?
+**Answer:** The **Inbound Receiving Archive**:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` &rarr; `Completed Receiving Tab`
+* Displays chronological archive of all historical incoming transfers with signed GRNs and damage reports.
 
 ---
 
-### Q286: Does the system alert sales staff when an eagerly awaited customer bike arrives?
-**Answer:** Yes. If a received VIN was linked to a waiting customer Sales Order, the system immediately pops up a notification: *"Reserved Vehicle Arrived: Call Customer Salman Khan to Schedule Delivery."*
+### Q286: What is the Inbound Receiving Turnaround Time KPI?
+**Answer:** Warehouse receiving efficiency metric:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Inbound Receiving KPIs`
+* Measures average minutes taken from carrier truck arrival to completed digital GRN intake (Target: &le; 25 minutes for a 10-bike batch).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2541,95 +2955,122 @@ This ensures zero inventory "floats in thin air" or gets double-sold while loade
 
 # PART 21: Blind Physical Cycle Counts & Inventory Audits (Q287 – Q300)
 
-### Q287: What is a "Blind Physical Cycle Count" in AJ EcoDrive?
-**Answer:** A Blind Cycle Count (`/inventory/audits`) is a physical inventory audit where staff conduct a hands-on physical count of all vehicles and parts on the showroom floor **without the system revealing how many units it expects to find**.
+### Q287: What is a Blind Physical Cycle Count in AJ EcoDrive?
+**Answer:** A Blind Physical Cycle Count is an unannounced inventory audit where branch staff or corporate auditors physically scan every vehicle on the showroom floor and storage rooms without seeing the expected system quantities:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts & Audits` (`/inventory/cycle-counts`) &rarr; Click `+ Start Cycle Count` (`CreateCycleCountModal`)
+* **Why "Blind"?** The screen hides system numbers to prevent lazy auditors from checking boxes without physically walking the floor and verifying every stamped chassis VIN.
 
 ---
 
-### Q288: Why does the system keep the expected count "blind" from branch staff?
-**Answer:** If staff know the computer expects 18 scooters, a dishonest or lazy employee will simply count 18 on paper without checking if the bikes on the floor are the correct chassis numbers, or without noticing that one bike was secretly swapped or stolen. A blind audit forces staff to physically inspect and scan every single machine on the floor.
+### Q288: How often are Cycle Counts conducted in AJ EcoDrive?
+**Answer:** Scheduled and surprise audit intervals:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts`
+1. **Daily Morning Walk-Around (08:45 AM):** Visual verification of floor display units.
+2. **Weekly Branch Audit:** Complete scan of all vehicles and high-value battery packs.
+3. **Monthly Corporate Audit:** Surprise blind count conducted by Central Head Office auditors across all branches.
 
 ---
 
-### Q289: How often are physical cycle counts conducted in an EV showroom?
-**Answer:** Dealership operating standards mandate:
-* **Weekly Quick Scan:** 10-minute floor count of complete serialized electric bikes.
-* **Monthly Full Audit:** Complete blind count of all bikes, lithium battery storage packs, and high-value spare parts.
-* **Annual Comprehensive Audit:** Full network-wide stocktake conducted under supervision of external corporate auditors.
+### Q289: What is the 3-Step Cycle Count Workflow?
+**Answer:** Rigorous stock-take procedure:
+* 📍 **System Navigation Path:** `CreateCycleCountModal` &rarr; `Audit Workflow`
+1. **Freeze Inventory Operations:** Temporarily pauses POS checkout and transfer dispatches during counting.
+2. **Barcode Scanning:** Auditor scans physical chassis VIN barcode on every scooter in showroom and warehouse.
+3. **Automated Variance Reconciliation:** System compares scanned VIN list against digital ledger, instantly highlighting Matched, Missing, or Unexpected units.
 
 ---
 
-### Q290: Modal Guide — What is the CreateCycleCountModal (`CreateCycleCount.vue`), and what are its exact fields?
-**Answer:** The **`CreateCycleCountModal`** initiates and logs a physical stock audit:
-* **Showroom Branch (Auto-Locked):** Branch being audited.
-* **Audit Execution Date:** Defaults to current date.
-* **Audit Scope / Category (Dropdown):** Complete Showroom Floor Bikes, Battery Pack Storage Room, or Workshop Spare Parts.
-* **Lead Auditor Name (Required):** Staff member or visiting auditor conducting count.
-* **Physical Barcode Scanning Box (Interactive):** Staff walk the floor and scan each vehicle's chassis QR tag.
-* **Scanned Physical Units List:** Shows scanned VINs with timestamps.
-* **Auditor Inspection Observations:** Notes on floor cleanliness, battery charging status, or storage conditions.
-* **Submit Blind Audit Button:** Submits the physical scan list to the central comparison engine.
+### Q290: Modal Guide — What is the CreateCycleCountModal (CreateCycleCount.vue) and what are its exact fields?
+**Answer:** The `CreateCycleCountModal` initiates a physical stock-take audit session:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts` &rarr; Click `+ Start Count` (`CreateCycleCountModal`)
+* **Exact Form Fields:**
+  * **Audit Session Name** *(Text)*: E.g., *Peshawar End-of-Month Floor Count*.
+  * **Audited Branch / Location** *(Dropdown, Required)*: Showroom location.
+  * **Audit Scope** *(Select)*: `Complete Showroom & Warehouse`, `Serialized Vehicles Only`, `Lithium Battery Packs Only`, `Spare Parts Only`.
+  * **Lead Auditor Name** *(Text, Required)*: Corporate auditor or manager name.
+  * **Barcode Scan Input Terminal** *(Continuous Scan Field)*: Scans chassis VINs continuously.
+  * **Audit Remarks & Notes** *(Textarea)*: Floor condition observations.
 
 ---
 
-### Q291: What happens the microsecond the Blind Count is submitted?
-**Answer:** The central system performs an automated **Variance Comparison**:
-$$\text{Variance} = \text{Physical Scanned Count} - \text{System Expected Ledger}$$
-* **Perfect Match (Variance = 0):** Audit passes with 100% accuracy.
-* **Negative Variance (Missing Units):** System expected 20 bikes, but staff only scanned 19.
-* **Positive Variance (Surplus / Unaccounted Units):** Staff scanned a bike not registered in the branch ledger.
+### Q291: What are the 3 Types of Cycle Count Variances?
+**Answer:** Clear categorization of audit findings:
+* 📍 **System Navigation Path:** `Cycle Count Results Screen` (`/inventory/cycle-counts/:id`)
+1. **Matched Units (Green):** Physical VIN scanned matches digital ledger exactly.
+2. **Missing Units (Red):** Recorded in digital ledger as Available in Peshawar, but physical vehicle was not scanned on the floor.
+3. **Unexpected / Unrecorded Units (Blue):** Physical scooter scanned on the floor, but digital ledger lists it as assigned to Islamabad or Central Warehouse.
 
 ---
 
-### Q292: What immediate security action occurs if a vehicle is missing during an audit?
-**Answer:** The system automatically flags the missing chassis VIN with a **CRITICAL AUDIT LOCK**. The missing VIN is blocked from being sold, transferred, or serviced at any dealership branch nationwide, and an immediate red alert is dispatched to the National Internal Audit Director.
+### Q292: What happens immediately when a Missing Unit is detected?
+**Answer:** Instant Automated Security Lockdown:
+* 📍 **System Navigation Path:** `Cycle Count Reconciliation Engine`
+* The missing chassis VIN is automatically locked in status **`Missing / Investigation Locked`**.
+* The VIN cannot be sold, transferred, or invoiced by any user.
+* An emergency Action Centre escalation (**Flow 5: `ACT-GOV-XXXX`**) is generated for Head Office executive review.
 
 ---
 
-### Q293: Modal Guide — What is the CreateAdjustmentRequestModal (`CreateAdjustmentRequest.vue`), and what are its exact fields?
-**Answer:** When an audit reveals discrepancies, the manager submits an **Adjustment Request**:
-* **Linked Cycle Count Reference (Required):** Selects audit docket.
-* **Discrepancy Variance Table:** Itemizes missing, found, or damaged items.
-* **Root Cause Investigation Findings (Required):** Explains what happened (e.g., *"VIN-0812 was mistakenly placed in workshop paint booth and missed during initial scan"*).
-* **Proposed Inventory Adjustment:** Write-off, found inventory reinstatement, or transfer re-allocation.
-* **Financial Value Impact (PKR):** Monetary cost of the variance.
-* **Branch Manager Justification & Explanation:** Formal statement.
-* **Route to Action Centre (Flow 5) Button:** Forwards to Head Office executive committee.
+### Q293: Modal Guide — What is the CreateAdjustmentRequestModal (CreateAdjustmentRequest.vue) and what are its exact fields?
+**Answer:** The `CreateAdjustmentRequestModal` submits formal inventory variance write-offs or write-ins:
+* 📍 **System Navigation Path:** `Cycle Count Results Screen` &rarr; Click `Request Inventory Adjustment` (`CreateAdjustmentRequestModal`)
+* **Exact Form Fields:**
+  * **Linked Cycle Count Session** *(Read-Only)*: Audit reference ID.
+  * **Chassis Frame VIN** *(Read-Only)*: Serialized unit reference.
+  * **Adjustment Type** *(Select)*: `Write-Off (Missing Unit)`, `Write-In (Found Stock)`, `Serial Correction`.
+  * **Financial Impact (PKR Landed Cost)** *(Auto-Calculated)*: Balance sheet write-off amount.
+  * **Investigation Findings & Justification** *(Textarea, Mandatory &ge; 30 characters)*: Root cause explanation.
+  * **Police FIR / Incident Report Number** *(Text, Optional)*: For suspected theft cases.
+  * **Auditor & Manager Signatures** *(Dual PIN)*: Dual managerial authorization.
 
 ---
 
-### Q294: Who has the authority to write off a missing electric bike?
-**Answer:** **Branch Managers have zero authority to write off inventory.** Writing off a missing vehicle (valued at PKR 200,000 to PKR 350,000) requires formal investigation and joint written sign-off by the Chief Executive Officer (CEO) and Chief Financial Officer (CFO) in the Action Centre.
+### Q294: How does Super Admin approve an Inventory Adjustment in the Action Centre?
+**Answer:** Formal Executive Balance Sheet Write-Off:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; Select `ACT-GOV` Item &rarr; Click **"Authorize Write-Off"**
+* Super Admin reviews investigation notes. Approval posts an automatic accounting entry to *Inventory Shrinkage Expense* and permanently archives the VIN record.
 
 ---
 
-### Q295: What happens if a "missing" bike is found three days later?
-**Answer:** Staff file an **Inventory Reinstatement Docket**. The auditor scans the recovered chassis number, inspects the vehicle for physical integrity, and Head Office removes the audit security lock.
+### Q295: What happens if an Unexpected (foreign branch) unit is scanned on the floor?
+**Answer:** Automatic Custody Correction & Transfer Reconciliation:
+* 📍 **System Navigation Path:** `Cycle Count Results Screen` &rarr; `Unexpected Stock Resolver`
+* System checks recent transfer logs. If the unit was physically delivered from Islamabad but never digitally received, the system prompts the manager to execute a retro-active **Receiving Intake GRN**.
 
 ---
 
-### Q296: How does the system prevent staff from borrowing bikes overnight for personal use?
-**Answer:** Unannounced random cycle counts can be triggered remotely by Head Office at 08:30 AM. If a bike is missing from the morning scan because an employee took it home overnight, the discrepancy is immediately caught and logged as unauthorized vehicle removal.
+### Q296: How does the system audit non-serialized spare parts during cycle counts?
+**Answer:** Quantity Count & Tolerance Variance:
+* 📍 **System Navigation Path:** `CreateCycleCountModal` &rarr; `Scope: Spare Parts`
+* Storekeeper enters physical count per SKU. The system computes variance percentage against ledger. Variances within 2% tolerance are approved locally; variances > 2% require Head Office clearance.
 
 ---
 
-### Q297: Can cycle counts be conducted when the showroom is offline?
-**Answer:** Yes. Physical scanning is **Category A: Fully Offline-Capable**. Staff can scan floor barcodes locally. When the workstation reconnects to the network, the scan batch uploads and generates the comparison report.
+### Q297: Can a cycle count be saved and resumed later?
+**Answer:** Yes. **Multi-Session Audit Suspension**:
+* 📍 **System Navigation Path:** `Cycle Count Workbench` &rarr; Click **"Pause / Save Draft"**
+* Allows pausing counting during showroom lunch breaks or shift handovers, resuming seamlessly without losing scanned VIN buffers.
 
 ---
 
-### Q298: Does the system track which employees conducted each audit?
-**Answer:** Yes. The lead auditor's name, user credentials, and exact scan timestamps are permanently embedded in the audit docket.
+### Q298: How are physical cycle count records preserved for external corporate auditors?
+**Answer:** Immutable Signed Audit Certificates:
+* 📍 **System Navigation Path:** `Cycle Count Detail Page` &rarr; Click **"Print Signed Audit Certificate"**
+* Generates an official signed PDF report detailing all scanned VINs, timestamps, variances, and auditor signatures for external chartered accountants and bank auditors.
 
 ---
 
-### Q299: What is the "Ghost Bike" prevention safeguard?
-**Answer:** A "ghost bike" is a vehicle that physically exists on the floor but is missing from the system (or vice versa). By matching physical chassis numbers against cloud records during monthly cycle counts, ghost inventory is eliminated.
+### Q299: What security measures prevent corrupt staff from borrowing bikes from other shops before an audit?
+**Answer:** Simultaneous Nationwide Freeze & Surprise Audits:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Trigger Global Network Audit`
+* Head Office can trigger a simultaneous nationwide count across all branches at 09:00 AM, preventing movement of vehicles between branches to cover shortages.
 
 ---
 
-### Q300: Are physical audit records shared with external tax authorities?
-**Answer:** Yes. Annual cycle count reconciliation certificates are formatted to standard international accounting standards (IFRS) for inclusion in corporate audited financial statements.
+### Q300: What is the Inventory Accuracy Percentage (IPA) KPI?
+**Answer:** Dealership inventory integrity score:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Inventory Accuracy KPIs`
+* Computes `(Matched Units / Total Units) * 100` (Target: &ge; 99.8% inventory accuracy across all branches).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2638,100 +3079,116 @@ $$\text{Variance} = \text{Physical Scanned Count} - \text{System Expected Ledger
 
 # PART 22: Quality Quarantine & Defective Stock Isolation (Q301 – Q314)
 
-### Q301: What is Quality Quarantine in an EV dealership?
-**Answer:** Quality Quarantine is the strict physical and digital isolation of any electric vehicle, lithium battery pack, or spare part that is damaged, defective, or failing safety standards, preventing it from being sold, delivered, or installed on a customer's bike.
+### Q301: What is the Quality Quarantine module in AJ EcoDrive?
+**Answer:** Quality Quarantine is the security and inventory isolation engine that digitally and physically locks defective, damaged, or uncertified electric vehicles and high-voltage components:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quality Quarantine` (`/inventory/quarantine`) &rarr; Click `+ Quarantine Unit` (`CreateQuarantineRecordModal`)
+* **Core Principle:** Any vehicle in Quarantine is assigned to **Physical Holding Bay Q-3** and is mathematically locked from being selected in Point of Sale (POS), Quotations, or Inter-Branch Transfers.
 
 ---
 
-### Q302: What is "Physical Bay Q-3"?
-**Answer:** In every AJ EcoDrive showroom and workshop, a designated 150-square-foot secure floor area with high-visibility yellow floor markings and lockable chain barriers is established as **Quarantine Bay Q-3**. Any defective or damaged unit must be physically parked inside Bay Q-3 until officially released.
+### Q302: What triggers a vehicle or component to enter Quarantine?
+**Answer:** Multi-channel quality defect triggers:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quarantine Log`
+1. **Transit Freight Damage:** Scratches, dents, or cracked fairings discovered during Inbound Receiving.
+2. **BMS / Battery Diagnostic Warning:** High cell voltage delta or thermal fault during Pre-Delivery Inspection.
+3. **Factory Recall Directive:** Head Office safety recall on a specific manufacturing batch.
+4. **Customer Vehicle Return:** Returned vehicle undergoing workshop re-certification.
 
 ---
 
-### Q303: What conditions mandate placing an electric bike into Quarantine?
-**Answer:**
-1. **Severe Transit Damage:** Deep body dents, cracked structural frame, or broken forks from transport trucks.
-2. **Factory Quality Defect:** Flawed factory wiring harness, defective motor controller, or paint bubbling.
-3. **Lithium Battery Safety Hazard:** Excessive cell voltage delta (>180 mV), swelling battery casing, or high-temperature BMS cutoffs.
-4. **Post-Accident Customer Intake:** Vehicles involved in heavy road accidents awaiting insurance inspection.
-5. **Customer Cancellation Return:** Returned vehicles undergoing diagnostic evaluation.
+### Q303: What is Physical Holding Bay Q-3?
+**Answer:** Dedicated Physical Isolation Area:
+* 📍 **System Navigation Path:** Dealership Workshop Layout & Floor Plan
+* A designated, yellow-striped secure zone in the dealership workshop where quarantined vehicles and defective batteries are physically stored under lock and key, separated from pristine sales stock.
 
 ---
 
-### Q304: Modal Guide — What is the CreateQuarantineRecordModal (`CreateQuarantineRecord.vue`), and what are its exact fields?
-**Answer:** The **`CreateQuarantineRecordModal`** digitally quarantines defective assets:
-* **Showroom Branch (Auto-Locked):** Branch isolating the unit.
-* **Asset Category (Dropdown):** Complete Electric Bike (VIN), Lithium Battery Pack, Smart Controller, or Spare Part.
-* **Chassis VIN / Serial Number Selector (Required):** Selects asset from local inventory.
-* **Quarantine Physical Location:** Defaults to *Showroom Quarantine Bay Q-3*.
-* **Defect / Failure Category (Dropdown):** Structural Frame Defect, High-Voltage Electrical / BMS Error, Motor / Hub Failure, Paint / Cosmetic Transit Damage, or Battery Thermal Anomaly.
-* **Detailed Technical Failure Description (Required):** Technical explanation of fault.
-* **OBD Diagnostic Trouble Code (if electrical):** e.g., `DTC-BMS-04`.
-* **High-Resolution Defect Photo Upload (Mandatory):** Photos of damage or multimeter readings.
-* **Immediate Safety Action Taken (Checkboxes):** Battery Disconnected, Unit Marked with High-Visibility Hazard Tag, Keys Locked in Manager Safe.
-* **Quarantine Officer Name:** Staff member executing isolation.
+### Q304: Modal Guide — What is the CreateQuarantineRecordModal (CreateQuarantineRecord.vue) and what are its exact fields?
+**Answer:** The `CreateQuarantineRecordModal` isolates defective assets:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quality Quarantine` &rarr; Click `+ Quarantine Unit` (`CreateQuarantineRecordModal`)
+* **Exact Form Fields:**
+  * **Asset Category** *(Select)*: `Complete Electric Vehicle (VIN)`, `Lithium Battery Pack`, `Motor Controller`.
+  * **Serialized Reference** *(Search / Dropdown, Required)*: Selects Chassis VIN or Battery Serial.
+  * **Quarantine Reason Code** *(Select, Required)*:
+    * `Transit Shipping Damage (Cosmetic)`
+    * `High-Voltage Electrical / BMS Fault`
+    * `Mechanical / Frame Integrity Defect`
+    * `Manufacturer OEM Recall Batch`
+    * `Customer Return Inspection`
+  * **Severity Level** *(Select)*: `Minor (Repairable On-Site)`, `Major (OEM Return Required)`, `Critical Safety Hazard (Battery Swell)`.
+  * **Detailed Defect Description** *(Textarea, Required)*: Technical notes.
+  * **Damage Evidence Photos** *(File Upload, Mandatory &ge; 1 photo)*: High-res images.
+  * **Quarantine Holding Bay** *(Select)*: `Bay Q-3 (General)` or `Fireproof Battery Locker`.
 
 ---
 
-### Q305: What happens in the system the instant a bike is quarantined?
-**Answer:**
-1. The vehicle status changes to **`Quarantine / QC Hold` (Deep Crimson Badge)**.
-2. The chassis VIN is **immediately hidden from all Sales Order and POS dropdowns**. No salesperson can select or sell the unit.
-3. The unit is locked from Inter-Branch Transfers.
-4. An automated notification is sent to the Central Quality Assurance Director.
+### Q305: What happens to a vehicle's digital status when quarantined?
+**Answer:** Immediate status lock to **`Quarantine / QC Hold`**:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units`
+* The unit turns crimson across all inventory screens. POS checkout buttons display a locked warning: *"LOCKED: Unit is in Quality Quarantine (Reason: [Reason])"*.
 
 ---
 
-### Q306: Can a salesperson override a quarantine lock to sell a bike to an impatient customer?
-**Answer:** **No, impossible.** The software code hard-blocks the allocation of quarantined assets. Only an authorized **Quarantine Release Action Item** approved by Head Office can restore the vehicle to sellable status.
+### Q306: How are Quarantined units repaired and re-certified?
+**Answer:** Workshop Rectification Workflow:
+* 📍 **System Navigation Path:** `Quarantine Detail Page` (`/inventory/quarantine/:id`) &rarr; Click **"Open Workshop Rectification Job"**
+* Generates an internal workshop job card. Technicians replace damaged body panels, flash BMS firmware, or balance battery cells, signing off a 5-point post-repair inspection.
 
 ---
 
-### Q307: What are the two resolution paths for a quarantined vehicle?
-**Answer:**
-1. **Rectification & Return to Showroom Floor:** The defect was minor (e.g., replaced scratched fairing or installed a new controller). The vehicle passes quality testing and returns to `Available` floor stock.
-2. **Factory Return / Scrapping:** The defect was severe (e.g., bent chassis frame or dead battery cell block). The vehicle is crated and shipped back to the OEM factory for warranty replacement or credit note.
+### Q307: How is a repaired vehicle Released from Quarantine back into Available stock?
+**Answer:** Action Centre Flow 5 Governance Sign-Off:
+* 📍 **System Navigation Path:** `Quarantine Detail Page` &rarr; Click **"Request Quarantine Release"** &rarr; Action Centre (`ACT-GOV-XXXX`)
+* Workshop Foreman and Branch Manager submit post-repair photos and QC test reports. Super Admin reviews and clicks **"Authorize Quarantine Release"**, restoring unit status to `Available`.
 
 ---
 
-### Q308: How are defective lithium battery packs stored safely inside Bay Q-3?
-**Answer:** Defective or swollen battery packs are stored inside specialized fire-retardant, sand-lined steel safety cabinets equipped with automatic thermal cutoff sensors to prevent workshop fires.
+### Q308: What happens if a quarantined unit is unrepairable (Severe Damage / Factory Scrap)?
+**Answer:** OEM Factory Return or Scrap Decommissioning:
+* 📍 **System Navigation Path:** `Quarantine Detail Page` &rarr; Click **"Decommission / Return to OEM"**
+* Generates an OEM Return Debit Memo for full factory credit or processes an insurance write-off.
 
 ---
 
-### Q309: What is the Quarantine Release Protocol?
-**Answer:** To release an asset from Quarantine:
-1. Workshop technician completes repairs and replaces defective parts.
-2. Quality Supervisor conducts a full multi-point diagnostic test and signs the **QC Release Certificate**.
-3. Branch submits a **Quarantine Release Request** in the **Action Centre (Flow 5: Inventory Governance)**.
-4. Head Office QA Director reviews test logs and approves the release.
-5. Vehicle status updates to `Available` and rejoins the showroom floor.
+### Q309: How does the system handle Nationwide OEM Safety Recalls?
+**Answer:** Batch Recall Directive Engine:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Procurement` &rarr; `Broadcast Safety Recall`
+* Super Admin selects affected factory batch (e.g. *All E-125 units produced between March 1 and March 15 with Controller Batch #CTL-902*). The system instantly moves all matching VINs across all branches into `Quarantine / Recall Hold` status.
 
 ---
 
-### Q310: How does the system track quarantine costs?
-**Answer:** The system tracks all technician labor hours and replacement parts consumed during quarantine rectification, enabling the corporate legal department to back-charge the costs to the OEM manufacturer or freight carrier.
+### Q310: What physical warning tags are attached to quarantined vehicles?
+**Answer:** Waterproof Crimson Quarantine Barcode Tags:
+* 📍 **System Navigation Path:** `Quarantine Detail Page` &rarr; Click **"Print Quarantine Tag"**
+* Prints a high-visibility crimson warning tag affixed to the handlebars: *"DO NOT MOVE / DO NOT SELL — QUALITY QUARANTINE REF: QR-2026-XXXX"*.
 
 ---
 
-### Q311: Can a customer inspect a quarantined bike on the showroom floor?
-**Answer:** Quarantined bikes are physically cordoned off in Bay Q-3 with a prominent sign: **"FACTORY TESTING IN PROGRESS — NOT FOR SALE"**, protecting the dealership's premium brand image.
+### Q311: How does the system prevent fire hazards in the battery quarantine area?
+**Answer:** Thermal Monitoring & Battery Isolation:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Quarantine Safety Logs`
+* Damaged lithium batteries with thermal swelling or electrolyte leaks are strictly assigned to the **Fireproof Sand Locker**, with automated temperature sensor logging.
 
 ---
 
-### Q312: How does Quarantine operate if the workshop is offline?
-**Answer:** Quarantining an asset is **Category A: Fully Offline-Capable**. Staff can quarantine a unit locally. The lock applies immediately to the local workstation and synchronizes to the national cloud upon reconnection.
+### Q312: How are quarantine costs and replacement parts accounted for?
+**Answer:** Warranty & Scrap Expense Ledgers:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Quality & Warranty Cost Center`
+* Costs incurred to repair transit-damaged or factory-defective stock are debited to *OEM Warranty Recovery* or *Carrier Insurance Claims*, keeping branch showroom P&L clean.
 
 ---
 
-### Q313: What happens if an entire container shipment contains a batch manufacturing defect?
-**Answer:** The Super Admin can execute a **Batch Quarantine Directive**, simultaneously placing an entire batch of VINs into quarantine across all branches with a single command.
+### Q313: Where can dealership executives review active quarantine inventory?
+**Answer:** The **Quarantine Management Workbench**:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quality Quarantine` (`/inventory/quarantine`)
+* Summarizes all units currently in holding bays across all branches, filterable by defect severity, days in quarantine, and repair status.
 
 ---
 
-### Q314: Are quarantine records preserved for OEM factory warranty audits?
-**Answer:** Yes. Complete quarantine histories—including defect photos, OBD trouble codes, and technician notes—are permanently archived and exported as OEM Factory Quality Reports.
-
+### Q314: What is the Quarantine Resolution Velocity KPI?
+**Answer:** Quality turnaround benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Quality Resolution KPIs`
+* Measures average days taken to repair and release quarantined vehicles back to showroom floor (Target: &le; 3 business days).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2744,86 +3201,119 @@ $$\text{Variance} = \text{Physical Scanned Count} - \text{System Expected Ledger
 
 # PART 23: Showroom Operating Expenses & Petty Cash (Q315 – Q328)
 
-### Q315: What are Showroom Operating Expenses (OPEX) in AJ EcoDrive?
-**Answer:** Showroom Operating Expenses (`/finance/expenses`) are the day-to-day administrative and facility costs incurred while operating a retail showroom and workshop: customer hospitality (tea and water), backup generator diesel fuel during load-shedding, office stationery, cleaning supplies, and minor facility repairs.
+### Q315: How are Showroom Operating Expenses (OPEX) managed in AJ EcoDrive?
+**Answer:** Showroom operating expenses are managed via the **Showroom Expenses & Petty Cash Ledger**:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Log Expense Voucher` (`CreateExpenseModal`) OR `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses` (`/finance/expenses`) &rarr; Click `+ Add Expense Voucher`
+* **Core Principle:** Governs everyday showroom operating costs (customer tea/coffee, showroom cleaning supplies, generator fuel during power load-shedding, minor electrical repairs) with automated petty cash reconciliation and CFO approval ceilings.
 
 ---
 
-### Q316: What is the Dynamic PKR 15,000 Petty Cash Threshold Policy?
-**Answer:** To eliminate internal theft and maintain financial discipline across multi-city branches, AJ EcoDrive enforces an automated monetary threshold rule:
-* **Expenses UP TO PKR 15,000 (Green Policy Banner):** The Branch Manager has discretionary authority to settle the bill immediately from the local showroom petty cash float, provided an official vendor receipt/bill is uploaded into the system.
-* **Expenses EXCEEDING PKR 15,000 (Amber Warning Banner):** The system hard-blocks immediate cash payout from the local register. The claim is automatically packaged and routed to the **Action Centre (Flow 3: High-Value OPEX Clearance)** for prior review and clearance by the Central Chief Financial Officer (CFO).
+### Q316: What is the PKR 15,000 Petty Cash Discretionary Threshold Rule?
+**Answer:** Strict expenditure governance boundary:
+* 📍 **System Navigation Path:** `CreateExpenseModal` &rarr; `Expense Amount Validation`
+* **Expenses &le; PKR 15,000:** Branch Manager has discretionary approval authority. The expense is paid immediately from the cashier's petty cash float and logged with an attached photo receipt.
+* **Expenses > PKR 15,000:** The system automatically locks local cash disbursement and creates an Action Centre escalation (**Flow 3: `ACT-EXP-XXXX`**) requiring Head Office CFO clearance before payment can be issued.
 
 ---
 
-### Q317: Modal Guide — What is the CreateExpenseModal (`CreateExpense.vue`), and what are its exact fields?
-**Answer:** The **`CreateExpenseModal`** records operational expenditures with complete compliance:
-* **Showroom Branch (Auto-Locked):** Identifies spending branch.
-* **Expense Category (Required Dropdown):** Showroom Maintenance & Repairs, Backup Generator Fuel & Oil, Customer Tea & Hospitality, Office Stationery & Printing, Utility Bills (Electricity, Water, Internet), Marketing / Local Promotional Event, or Staff Travel & Conveyance.
-* **Vendor / Contractor Legal Business Name (Required):** Paid entity (e.g., *Pakistan State Oil - Fuel Station 412*).
-* **Expense Amount (PKR - Required Input):** Exact currency figure.
-* **Dynamic Approval Policy Banner (Reactive):**
-  - If Amount $\le$ 15,000: Shows green checkmark: *"Authorized under Local Branch Discretionary Petty Cash Limit."*
-  - If Amount $>$ 15,000: Shows amber warning: *"Exceeds Local Branch Limit. System will automatically route this request to Head Office Action Centre (Flow 3) for CFO approval."*
-* **Payment Mode (Dropdown):** Petty Cash Drawer Float, Corporate Credit Card, or Direct Head Office Bank Wire.
-* **Vendor Bill / Official Receipt Photo Upload (Mandatory):** Upload of clear receipt or invoice.
-* **Expense Description & Business Justification (Required):** Explains why the expense was necessary (e.g., *"Purchased 50 liters diesel for 20kVA backup generator during 6-hour power cut"*).
-* **Submit Expense Claim Button:** Records expense or routes to Action Centre.
+### Q317: Modal Guide — What is the CreateExpenseModal (CreateExpense.vue) and what are its exact fields?
+**Answer:** The `CreateExpenseModal` logs operational expenditures and routes approvals:
+* 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Log Expense Voucher` (`CreateExpenseModal`)
+* **Exact Form Fields:**
+  * **Expense Category** *(Select, Required)*:
+    * `Staff Tea, Refreshments & Hospitality`
+    * `Showroom Cleaning & Janitorial Supplies`
+    * `Generator Fuel & Load-Shedding Maintenance`
+    * `Showroom Electricity / Internet / Utility Bills`
+    * `Minor Facility & Showroom Tile Repairs`
+    * `Local Marketing & Outdoor Banners`
+    * `Emergency Workshop Consumables`
+  * **Expense Title / Short Description** *(Text, Required)*: E.g., *Generator Diesel 20L for Load-Shedding Backup*.
+  * **Amount in Pakistani Rupees (PKR)** *(Numeric, Required)*: Exact bill amount.
+  * **Payment Source** *(Select)*: `Branch Petty Cash Drawer Float` or `Head Office Bank Transfer`.
+  * **Vendor / Shop Name** *(Text, Required)*: Name of vendor.
+  * **Vendor NTN / CNIC** *(Text, Optional)*: Tax identifier.
+  * **Receipt / Invoice Photo Attachment** *(File Upload, Mandatory)*: High-res receipt image.
+  * **Authorizing Branch Manager PIN** *(Security PIN)*: Managerial signature.
 
 ---
 
-### Q318: Can a Branch Manager bypass the PKR 15,000 limit by splitting a single PKR 30,000 bill into two PKR 15,000 entries?
-**Answer:** **No.** The system features an **Anti-Smurfing Fraud Algorithm**. If multiple expenses are filed within a 24-hour window for the same vendor or category that cumulatively exceed PKR 15,000, the system automatically flags the entries, locks petty cash payout, and alerts Head Office Internal Audit.
+### Q318: Why is attaching a photo receipt mandatory for every expense entry?
+**Answer:** Complete tax audit and financial substantiation:
+* 📍 **System Navigation Path:** `CreateExpenseModal` &rarr; `Receipt Attachment Field`
+* Prevents fictitious expense logging. Internal auditors and external FBR tax auditors inspect attached receipt photos directly from the financial reports.
 
 ---
 
-### Q319: What is the Showroom Petty Cash Float, and how is it managed?
-**Answer:** Each branch is issued an authorized monthly petty cash imprest float (typically PKR 50,000 to PKR 100,000 depending on showroom size). As daily expenses are logged, the available float decreases.
+### Q319: How does the system handle high-value utility bills (e.g. Electricity Bill of PKR 45,000)?
+**Answer:** Automated Flow 3 CFO Routing:
+* 📍 **System Navigation Path:** `CreateExpenseModal` &rarr; Enter Amount `45000` &rarr; Submit
+* The system displays an informative banner: *"Amount exceeds PKR 15,000 limit — Routed to Head Office CFO for Bank Clearance"*.
+* CFO reviews bill image in Action Centre (`ACT-EXP-XXXX`) and initiates direct online bank transfer to WAPDA / K-Electric, keeping showroom cash float intact.
 
 ---
 
-### Q320: How does the Branch Manager request petty cash replenishment?
-**Answer:** When the available float drops below 20%, the manager clicks **Request Petty Cash Replenishment**. The system compiles an itemized summary of all settled vouchers with attached receipt photos and routes it to Head Office Finance. Upon verification, Head Office dispatches a bank wire to replenish the float back to its full amount.
+### Q320: How is the Petty Cash Float replenished when cash runs low?
+**Answer:** Petty Cash Top-Up Requisition:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Petty Cash Float` &rarr; Click **"Request Float Top-Up"**
+* When available petty cash drops below **PKR 5,000**, the manager submits a summary reconciliation of all paid vouchers. Head Office finance transfers PKR 20,000 to replenish the branch float back to its standard ceiling.
 
 ---
 
-### Q321: Can staff file an expense without uploading a physical receipt?
-**Answer:** **No.** The system mandates an image attachment (JPEG, PNG, or PDF). The submit button remains disabled until a readable file is attached.
+### Q321: Can a salesperson submit an expense voucher?
+**Answer:** Sales staff can enter expense drafts; only Branch Managers can authorize payment:
+* 📍 **System Navigation Path:** `CreateExpenseModal` &rarr; `Manager Authorization PIN`
+* Cashier or sales rep enters the expense draft, but cash is only disbursed when the Branch Manager verifies the physical paper bill and enters their security PIN.
 
 ---
 
-### Q322: How does the system handle recurring showroom utility bills (e.g., monthly electricity)?
-**Answer:** Large recurring utility bills (such as commercial electricity bills of PKR 85,000) are entered under *Utility Bills*. Because they exceed PKR 15,000, they route to Head Office Finance, which pays them directly via central corporate online banking.
+### Q322: How does the system prevent duplicate expense claims?
+**Answer:** Automated Receipt Hash & Amount Scanning:
+* 📍 **System Navigation Path:** `CreateExpenseModal` &rarr; Duplicate Detection Engine
+* If the same receipt photo or matching vendor bill number is uploaded twice within 30 days, the system flags a warning: *"POSSIBLE DUPLICATE: Matching invoice found for PKR [Amount] on [Date]"*.
 
 ---
 
-### Q323: What happens if an expense claim is rejected by the CFO in the Action Centre?
-**Answer:** The CFO inputs mandatory rejection remarks (e.g., *"Price quoted for generator repair is 40% higher than market rates; get secondary quote"*). The expense is marked as **Rejected**, and no corporate funds are disbursed.
+### Q323: What accounting ledger accounts are debited when an expense is posted?
+**Answer:** Standard Double-Entry General Ledger Accounting:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `General Ledger Entries` (`/finance/general-ledger`)
+* `Debit: Operational Expense Account (e.g., Facility Utilities)`
+* `Credit: Branch Cash Drawer Float Account (Asset)`
 
 ---
 
-### Q324: Can an employee edit or delete an expense voucher after it has been saved?
-**Answer:** Once saved, expense records are permanently locked. If an error was made, the manager must file an authorized adjustment note approved by Head Office Finance.
+### Q324: Can an approved expense voucher be modified or deleted?
+**Answer:** **No. Posted expense vouchers are legally permanent.**
+* 📍 **System Navigation Path:** Expense Audit Trail
+* To correct an error, the manager must submit an Expense Correction Reversal with written explanation, preserving complete forensic auditability.
 
 ---
 
-### Q325: How does the Expense module operate when the showroom is offline?
-**Answer:** Filing expenses is **Category B: Restricted Offline-Capable**. Staff can log petty cash expenses under PKR 15,000 locally. High-value expenses requiring Head Office approval are queued in the Outbox and submitted the moment internet connectivity restores.
+### Q325: How does the system track monthly showroom operating budget utilization?
+**Answer:** Monthly OPEX Budget vs Actual Progress Bar:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses` &rarr; `Monthly Budget Widget`
+* Displays total monthly showroom OPEX budget (e.g., *PKR 75,000/month*), current spend (*PKR 42,300*), and remaining budget (*56.4% utilized*).
 
 ---
 
-### Q326: What official document is printed when a cash expense is paid out?
-**Answer:** The thermal printer outputs an official **Petty Cash Payment Voucher**. The recipient vendor signs the physical voucher, which is stapled to the vendor receipt and archived in the showroom cash register.
+### Q326: What happens if an expense is incurred during an internet outage?
+**Answer:** Offline Expense Logging with Outbox Queue:
+* 📍 **System Navigation Path:** Local Desktop Application &rarr; `Log Expense Voucher`
+* Expense is recorded in local SQLite database, deducting from local petty cash counter. Syncs to Head Office automatically upon internet reconnection.
 
 ---
 
-### Q327: Does the system track expense trends across different showroom branches?
-**Answer:** Yes. The Financial Analytics dashboard benchmarks showroom operating costs (e.g., comparing generator fuel costs between Peshawar and Lahore), helping management identify wasteful spending.
+### Q327: Where can Branch Managers print the Monthly Petty Cash Expense Sheet?
+**Answer:** The **Monthly Petty Cash Summary Voucher**:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses` &rarr; Click **"Print Monthly OPEX Sheet"**
+* Generates a consolidated PDF statement listing every voucher number, date, vendor, category, amount, and manager signature for corporate accounting filing.
 
 ---
 
-### Q328: Are showroom operating expenses deductible for corporate income tax?
-**Answer:** Yes. The expense ledger generates automated tax deduction reports compliant with Federal Board of Revenue (FBR) regulations, distinguishing between verified tax-registered vendors and non-filer withholding deductions.
+### Q328: What is the Expense-to-Revenue Ratio KPI?
+**Answer:** Operational cost efficiency benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Financial Efficiency KPIs`
+* Measures showroom OPEX as a percentage of total showroom sales revenue (Target: &le; 2.2% across dealership network).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2832,101 +3322,135 @@ $$\text{Variance} = \text{Physical Scanned Count} - \text{System Expected Ledger
 
 # PART 24: Day-End Closing Reconciliation (Daily Z-Report) (Q329 – Q342)
 
-### Q329: What is the Day-End Closing Routine in an EV showroom?
-**Answer:** The Day-End Closing Routine (`/finance/closing`) is the mandatory financial and operational settlement performed by the Branch Manager at 08:00 PM when the showroom closes. It reconciles every physical rupee in the cash safe against system-recorded sales invoices and petty cash vouchers, preparing bank deposits and locking the business day.
+### Q329: What is Day-End Closing Reconciliation (Daily Z-Report) in AJ EcoDrive?
+**Answer:** Day-End Closing Reconciliation is the mandatory 10-step financial and operational audit conducted by the Branch Manager and Lead Cashier at 07:00 PM before locking showroom doors:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Day-End Closing (Z-Report)` (`/finance/day-end-closing`) &rarr; Click `+ Start Daily Z-Report`
+* **Core Objective:** Reconciles every single Rupee collected in the cashier safe against system sales invoices, audits remaining physical cash float, verifies credit card terminal batch totals, and generates an immutable, signed **Daily Z-Report**.
 
 ---
 
-### Q330: What is a "Daily Z-Report"?
-**Answer:** The Daily Z-Report is an official, immutable financial closing statement that summarizes the entire business day:
-* Total Gross Sales Revenue (PKR).
-* Total Cash Collections in Drawer.
-* Total Inter-Bank Transfers (IBFT) Received.
-* Total Customer Cheques Deposited.
-* Total Petty Cash Expenses Paid Out.
-* Closing Net Physical Cash Balance.
-* Automated Security Lock Timestamp.
+### Q330: What is the difference between an X-Report and a Z-Report?
+**Answer:** Mid-day inspection vs. Day-end permanent closing:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Cash Registers`
+* **X-Report (Interim Reading):** Real-time snapshot of sales and cash collections taken anytime during the day (e.g., at 02:00 PM shift change). Does not close or reset registers.
+* **Z-Report (Final End-of-Day Closing):** Official day-end closing report that reconciles all payment tenders, locks the business day's sales ledger, and resets daily transaction counters.
 
 ---
 
-### Q331: How is the physical cash drawer counted during closing?
-**Answer:** The Branch Manager conducts a **Denomination-by-Denomination Cash Count**. The manager counts the physical currency notes in the safe and enters the exact count for each Pakistani rupee denomination:
-* PKR 5,000 Notes $\times$ Count
-* PKR 1,000 Notes $\times$ Count
-* PKR 500 Notes $\times$ Count
-* PKR 100 Notes $\times$ Count
-* PKR 50 / 20 / 10 Notes $\times$ Count
-The system automatically calculates the total physical cash in the drawer.
+### Q331: What is the 5-Step Physical Currency Denomination Breakdown during Z-Closing?
+**Answer:** Detailed physical cash note counting:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Physical Cash Denomination Counter`
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   PHYSICAL CASH DENOMINATION COUNT                     │
+├────────────────────────────────────────────────────────────────────────┤
+│  PKR 5,000 Notes:  [Count: 42] ──► Total: PKR 210,000                  │
+│  PKR 1,000 Notes:  [Count: 35] ──► Total: PKR  35,000                  │
+│  PKR   500 Notes:  [Count: 18] ──► Total: PKR   9,000                  │
+│  PKR   100 Notes:  [Count: 25] ──► Total: PKR   2,500                  │
+│  PKR    50 Notes:  [Count: 10] ──► Total: PKR     500                  │
+├────────────────────────────────────────────────────────────────────────┤
+│  TOTAL PHYSICAL CASH IN SAFE:      PKR 257,000                         │
+└────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### Q332: What happens if the physical cash counted does not match the system total?
-**Answer:** The system calculates the **Reconciliation Variance**:
-$$\text{Variance} = \text{Physical Cash Counted} - \text{System Expected Balance}$$
-* **Variance = PKR 0 (Balanced):** The cash drawer reconciles perfectly.
-* **Cash Shortage (Negative Variance):** Physical cash is less than expected (e.g., -PKR 2,000). The manager must investigate missing receipts or incorrect customer change and submit an official explanation.
-* **Cash Surplus (Positive Variance):** Physical cash exceeds expected totals.
+### Q332: How does the system compare Physical Cash against System Expected Cash?
+**Answer:** Automated Cash Variance Engine:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Cash Reconciliation Table`
+* **Formula:** `[Opening Float]` + `[Cash Sales Collected]` + `[Cash Advance Deposits]` - `[Cash Petty OPEX Paid]` = **`System Expected Cash`**.
+* The system computes `Variance = Physical Cash Count - System Expected Cash`:
+  * **Zero Variance (PKR 0.00):** Perfect reconciliation &rarr; Green Checkmark.
+  * **Cash Shortage (- PKR):** Red Alert &rarr; Mandatory shortage explanation note.
+  * **Cash Overage (+ PKR):** Blue Alert &rarr; Mandatory overage investigation note.
 
 ---
 
-### Q333: What is the "Business Day Tamper Lock"?
-**Answer:** The moment the manager clicks **Confirm Day-End Closing (Generate Z-Report)**, the system permanently locks that calendar day. **No staff member can retroactively add, edit, or delete any sales orders, invoices, payments, or expenses for that day.** This eliminates the classic fraud of staff modifying yesterday's books to cover cash shortages.
+### Q333: What happens if a Cash Shortage exists during Z-Closing?
+**Answer:** Mandatory Audit Variance Protocol:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Variance Justification Section`
+* Cashier cannot alter past invoices. The manager must document the exact shortage amount (e.g., *- PKR 1,000*) with written cashier statement.
+* Generates an Action Centre Incident Report (**Flow 5: `ACT-GOV-XXXX`**) for Head Office CFO review.
 
 ---
 
-### Q334: How is daily cash deposited into the dealership's corporate bank account?
-**Answer:** To minimize overnight theft risk, cash collections exceeding the authorized petty cash float must be deposited into the dealership's corporate bank branch (or night-drop deposit vault) every evening or first thing the following morning.
+### Q334: How are Bank Card (POS Terminal) batches reconciled during Z-Closing?
+**Answer:** Bank POS Terminal Settlement Cross-Check:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Card Terminal Batch Section`
+* Cashier prints the physical settlement summary slip from the bank credit card machine (HBL / Alfalah terminal) and enters total card settlement amount (PKR), attaching a photo of the thermal batch slip.
 
 ---
 
-### Q335: How does the manager document the bank deposit?
-**Answer:** The manager deposits the cash at the bank counter, obtains the stamped **Bank Deposit Slip**, photographs the slip, and uploads it into the Daily Closing module in AJ EcoDrive. Head Office Finance matches the slip against the online bank statement.
+### Q335: How are Online Bank IBFT collections reconciled during Z-Closing?
+**Answer:** Online Bank Statement Verification:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Online IBFT Reconciliation Tab`
+* Cross-checks each 12-digit bank UTR reference recorded in the system against the official online banking corporate statement, verifying 100% fund clearance into the dealership bank account.
 
 ---
 
-### Q336: What physical documents are archived in the Daily Settlement Envelope?
-**Answer:** At 08:30 PM, the manager seals the day's documents inside a secure brown **Daily Settlement Envelope**:
-1. Printed Daily Z-Report signed by Branch Manager.
-2. Carbon copies of all customer sales invoices and money receipts.
-3. Original vendor receipts and petty cash vouchers.
-4. Stamped bank deposit slip copy.
-The envelope is stored in the branch safe for collection by corporate internal auditors.
+### Q336: What is the Safe Cash Drop vs. Next-Day Opening Float Split?
+**Answer:** Segregation of Revenue Cash vs. Petty Float:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Cash Allocation Section`
+* Total Physical Cash: `PKR 257,000`
+  * **Next-Day Opening Float Retained:** `PKR 15,000` (Locked in safe till for tomorrow morning).
+  * **Bank Cash Drop Deposit:** `PKR 242,000` (Sealed in bank tamper-evident bag for morning bank branch deposit).
 
 ---
 
-### Q337: What happens if an emergency sale occurs after the Z-Report has been generated?
-**Answer:** Once the Z-Report is locked, the operational business day is closed. Any emergency late-night transaction is automatically stamped and recorded under the **next business day's date**.
+### Q337: What is the Daily Z-Report printout, and what data does it contain?
+**Answer:** The permanent legal and financial closing document:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; Click **"Generate & Print Z-Report"**
+* **Summary Sections:**
+  1. Branch Details & Business Date.
+  2. Total Gross Sales Revenue (PKR) & Total Electric Bikes Sold (Units).
+  3. Total Customer Payments Collected (Cash, IBFT, Card, Cheque).
+  4. Total Petty Cash Expenses Paid (PKR).
+  5. Physical Cash Breakdown & Zero-Variance Audit Certification.
+  6. Cashier Signature & Branch Manager Signature.
 
 ---
 
-### Q338: How does Head Office monitor daily closing compliance across all cities?
-**Answer:** The Central Executive Dashboard displays a **National Closing Status Grid**:
-* Islamabad: *Closed at 08:14 PM (Balanced)*
-* Lahore: *Closed at 08:22 PM (Balanced)*
-* Peshawar: *Closed at 08:31 PM (Balanced)*
-* Rawalpindi: *Pending Closing (Alert sent)*
-If a branch fails to close by 09:00 PM, an automated alert is triggered.
+### Q338: What happens in the system the exact second the Z-Report is finalized?
+**Answer:** End-of-Day Ledger Lock & Business Date Roll:
+* 📍 **System Navigation Path:** Core Financial Engine
+* Today's financial sales ledger locks permanently (read-only).
+* Branch business date advances to the next operational calendar day.
+* Full consolidated financial summary automatically syncs to Head Office central database.
 
 ---
 
-### Q339: How does Day-End Closing operate if the branch is offline?
-**Answer:** Closing reconciliation is **Category B: Restricted Offline-Capable**. The manager can count cash, reconcile local invoices, and generate a local provisional Z-Report. The report uploads to central accounting immediately upon internet reconnection.
+### Q339: What physical showroom security checks are verified during day-end closing?
+**Answer:** Showroom Physical Lockup Checklist:
+* 📍 **System Navigation Path:** `Day-End Closing Screen` &rarr; `Physical Security Checklist Tab`
+* Manager confirms:
+  1. Main compound vehicle gates locked and padlocked.
+  2. Workshop power main circuit breakers turned OFF.
+  3. All charging bikes unplugged (fire prevention policy).
+  4. CCTV security cameras operating and recording.
+  5. Master safe dual-locked with physical keys.
 
 ---
 
-### Q340: Can a Branch Manager reverse a Z-Report if they made an entry error?
-**Answer:** **No.** A Z-Report is legally binding and non-reversible. If an accounting correction is required, the manager must submit a **Reconciliation Variance Docket** to Head Office Finance, which processes an authorized adjustment entry in the general ledger.
+### Q340: Can a Branch Manager reopen a closed Z-Report after finalizing?
+**Answer:** **No. Finalized Z-Reports are cryptographically immutable.**
+* 📍 **System Navigation Path:** Financial Security Architecture
+* If an unrecorded transaction is discovered after closing, it must be recorded as an adjustment on the following business day's ledger.
 
 ---
 
-### Q341: Does the system alert management to chronic branch cash shortages?
-**Answer:** Yes. The Internal Audit dashboard tracks cashier discrepancy frequency. If a branch reports recurring cash shortages, the system recommends an unannounced physical audit.
+### Q341: Where can Head Office executives view live Z-Closing status across all branches?
+**Answer:** The **Nationwide Day-End Closing Monitor**:
+* 📍 **System Navigation Path:** `Super Admin Dashboard` &rarr; `Network Closing Status Widget` (`/finance/network-closing`)
+* Live dashboard showing closing status across all 4 showrooms (e.g. *Islamabad: CLOSED (Zero Variance)*, *Peshawar: CLOSED (Zero Variance)*, *Lahore: CLOSING IN PROGRESS*, *Rawalpindi: CLOSED*).
 
 ---
 
-### Q342: What happens on the morning after closing?
-**Answer:** When staff log in at 08:30 AM, the system verifies that yesterday was properly closed, initializes the new business date, resets the daily revenue counter to PKR 0, and loads the verified opening cash float.
-
+### Q342: What is the Cash Reconciliation Accuracy KPI?
+**Answer:** Financial governance score:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Cash Governance Scorecards`
+* Measures percentage of business days closed with zero cash variance (Target: &ge; 99.5% zero-variance across dealership network).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -2939,120 +3463,164 @@ If a branch fails to close by 09:00 PM, an automated alert is triggered.
 
 # PART 25: Sea Container Imports, Procurement & Supplier Management (Q343 – Q358)
 
-### Q343: How does AJ EcoDrive handle international vehicle procurement?
-**Answer:** The procurement engine (`/procurement/orders`) manages the high-stakes supply chain of importing electric vehicles and spare parts from overseas manufacturing plants (e.g., in China): issuing international Purchase Orders, tracking commercial letters of credit (LC), monitoring sea-freight shipping containers from port of origin to Karachi port, navigating customs clearance, and receiving shipments into the Central Port Warehouse.
+### Q343: How does AJ EcoDrive manage International Sea Container Procurement?
+**Answer:** International supply chain and OEM container procurement is managed via the **Global Procurement & Container Management Workbench**:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Procurement` &rarr; `Purchase Orders` (`/procurement/purchase-orders`) &rarr; Click `+ New Container PO` (`CreatePurchaseOrderModal`)
+* **Core Capabilities:** Tracks overseas OEM manufacturing orders (China, Taiwan), 40ft High-Cube shipping containers, commercial Bills of Lading, customs clearance at Karachi Port, landed cost breakdowns (PKR), and automated batch VIN serialization upon warehouse intake.
 
 ---
 
-### Q344: What is the difference between CBU and CKD electric vehicle imports?
-**Answer:**
-* **CBU (Completely Built Up):** Vehicles imported 100% assembled, painted, and ready for immediate showroom display.
-* **CKD (Completely Knocked Down):** Vehicles imported as separate crates containing frames, motors, wiring harnesses, and battery packs for final local assembly at the dealership's central technical plant.
+### Q344: What is the lifecycle of an International Sea Container Import PO?
+**Answer:** 6-Stage International Procurement Lifecycle:
+* 📍 **System Navigation Path:** `Sidebar: Procurement` &rarr; `Purchase Order Detail Page`
+
+```
+[1. PO Draft & Pro-Forma Approval] ──► OEM Factory Order Placed (USD / CNY)
+              │
+              ▼
+[2. Factory Production & Stamping]  ──► Frame VINs & Battery Serials Assigned
+              │
+              ▼
+[3. Ocean Freight / In-Transit]     ──► 40ft Container on Vessel (Bill of Lading)
+              │
+              ▼
+[4. Karachi Port Customs Clearance] ──► Customs Duties, Taxes & Freight Paid
+              │
+              ▼
+[5. Central Warehouse Intake Scan]  ──► Physical Container Unloaded (GRN Generated)
+              │
+              ▼
+[6. Batch Serialization Complete]   ──► Units Activated in Nationwide Available Stock
+```
 
 ---
 
-### Q345: Modal Guide — What is the CreatePurchaseOrderModal (`CreatePurchaseOrder.vue`), and what are its exact fields?
-**Answer:** The **`CreatePurchaseOrderModal`** issues international procurement contracts:
-* **Supplier Selection (Required Dropdown):** Selects verified manufacturer (e.g., *Wuxi Shengda Electric Vehicle Co., Ltd.*).
-* **Order Category (Dropdown):** Complete CBU Electric Bikes, CKD Assembly Kits, Lithium Battery Packs, or Workshop Spare Parts.
-* **Foreign Currency & Exchange Rate (Locked):** e.g., USD / CNY converted to PKR.
-* **Shipping Container Specifications (Dropdown):** 20ft Standard Container (holds 35–40 scooters) or 40ft High Cube (HC) Container (holds 80–90 scooters).
-* **Bill of Lading (BL) & Commercial Invoice Reference:** Mandatory maritime shipping reference.
-* **Payment Terms (Dropdown):** 100% Irrevocable Letter of Credit (LC at Sight), Telegraphic Transfer (TT 30/70), or Open Account.
-* **Target Port Arrival Date (ETA Karachi):** Expected port arrival.
-* **Product Line Items Table:** Model SKU, Color Distribution, Order Quantity, Unit Cost, and Line Total.
-* **Port of Origin & Destination Port:** e.g., Shanghai Port to Karachi Port (QICT / KICT).
-* **Submit Purchase Order Button:** Transmits official digital PO.
+### Q345: Modal Guide — What is the CreatePurchaseOrderModal (CreatePurchaseOrder.vue) and what are its exact fields?
+**Answer:** The `CreatePurchaseOrderModal` initiates international container purchase orders:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Procurement` &rarr; Click `+ New Container PO` (`CreatePurchaseOrderModal`)
+* **Exact Form Fields:**
+  * **OEM Supplier Name** *(Dropdown, Required)*: E.g., *Shenzhen EV Manufacturing Ltd / Wuxi SuperSpeed EV Co.*
+  * **Procurement Category** *(Select)*: `CBU (Completely Built Units)`, `CKD (Knocked Down Kits)`, `Lithium Battery Packs (Batch)`, `Spare Parts Container`.
+  * **Supplier Currency & Exchange Rate** *(Select/Numeric)*: `USD (1 USD = PKR 278.50)` or `CNY (1 CNY = PKR 38.60)`.
+  * **Ordered EV Models & Quantities Matrix** *(Multi-Row Table)*:
+    * Select Product Model (e.g. *BRG E-125 Commuter Scooter*)
+    * Color Breakdown (e.g. *25x Metallic Blue, 25x Pearl White, 20x Crimson Red*)
+    * Unit FOB Price (USD)
+  * **Shipping Container Specifications**:
+    * Container Number (e.g., `MSKU-948201-4`)
+    * Shipping Line (Maersk / COSCO / MSC)
+    * Bill of Lading (B/L) Number
+    * Target Port of Discharge: `Karachi Port (QICT / KICT)`.
+  * **Expected Factory Dispatch Date & Arrival Date** *(Date Range)*.
 
 ---
 
-### Q346: How does the system track maritime shipping and customs clearance?
-**Answer:** The system tracks the international shipping milestones:
-1. **PO Issued & LC Opened:** Bank establishes letter of credit.
-2. **Factory Production & QC Inspection:** Factory completes assembly and passes pre-shipment inspection.
-3. **Loaded on Vessel (On-Water):** Container loaded onto container ship; Bill of Lading (BL) issued.
-4. **Arrived at Karachi Port:** Vessel docks; customs clearance agent begins clearing documentation.
-5. **Customs Assessed & Duties Paid:** Government tariffs and sales taxes settled.
-6. **In-Transit Trucking to Central Hub:** Flatbed container trucks transport crates from Karachi to Central Warehouse.
+### Q346: How does the system compute Landed Cost per Vehicle (PKR)?
+**Answer:** Comprehensive Multi-Factor Landed Cost Engine:
+* 📍 **System Navigation Path:** `Purchase Order Detail Page` &rarr; `Landed Cost Calculation Tab`
+* **Landed Cost Breakdown:**
+  * Base Factory FOB Purchase Price: `USD 520 (PKR 144,820)`
+  * Ocean Container Freight (per unit share): `+ PKR 12,500`
+  * Karachi Port Customs Duty (EV SRO Concession): `+ PKR 14,480 (10%)`
+  * Additional Customs Regulatory Duties & Clearance Fees: `+ PKR 4,200`
+  * Inland Trucking Freight (Karachi to Islamabad Central Warehouse): `+ PKR 8,000`
+  * Assembly / Uncrating Labour: `+ PKR 1,000`
+  * **Total True Landed Cost per Unit:** **`PKR 185,000`**
 
 ---
 
-### Q347: Modal Guide — What is the ReceivePurchaseModal (`ReceivePurchase.vue`), and what are its exact fields?
-**Answer:** When shipping containers arrive at the central warehouse, staff open **`ReceivePurchaseModal`**:
-* **Purchase Order Reference Selector (Required):** Selects arriving PO.
-* **Shipping Container Seal Verification:** Checks that the factory container bolt seal is unbroken.
-* **Automated Batch Chassis VIN Generator:**
-  - Enter starting VIN sequence (e.g., `VIN-PK-BRG-2026-01001` to `01080`).
-  - System automatically generates and registers 80 individual serialized vehicle records with a single click.
-* **Physical De-Vanning Inspection Table:** Records received quantities against packing list.
-* **Customs Examination Sign-off:** Verifies customs inspection stamp.
-* **Warehouse Storage Bay Allocation:** Assigns vehicles to Central Warehouse aisles.
-* **Goods Inward Receipt Commitment Button:** Ingests units into national central stock.
+### Q347: Modal Guide — What is the ReceivePurchaseModal (ReceivePurchase.vue) and what are its exact fields?
+**Answer:** The `ReceivePurchaseModal` executes sea container unloading and batch VIN intake:
+* 📍 **System Navigation Path:** `Purchase Order Detail Page` &rarr; Click `Unload & Receive Container` (`ReceivePurchaseModal`)
+* **Exact Form Fields:**
+  * **Linked Purchase Order Reference** *(Read-Only)*: PO ID (`PO-2026-XXXX`).
+  * **Container Seal Inspection Checkbox**: Verifies intact OEM customs seal number.
+  * **Receiving Warehouse Location** *(Dropdown, Required)*: `Central Warehouse (Islamabad)`.
+  * **Batch VIN Import / Barcode Scan Matrix**:
+    * Automated Excel/CSV Batch Upload of OEM VIN & Battery serial list.
+    * OR Handheld USB Barcode Scanner continuous scanning.
+  * **Unloading Physical Condition Checklist**:
+    * Total Units Expected: `70 Units`
+    * Total Units Pristine: `68 Units`
+    * Damaged / Scratched in Transit: `2 Units (Routed to Bay Q-3)`
+  * **Warehouse Receiving Master GRN PIN** *(Security PIN)*: Mandatory sign-off.
 
 ---
 
-### Q348: How are unique chassis VIN numbers assigned during container intake?
-**Answer:** The intake engine can import a factory CSV packing list containing the stamped frame VINs, motor serials, and battery serials, or automatically generate standardized VIN sequences adhering to national motor vehicle numbering standards.
+### Q348: How does Batch VIN Serialization work during container intake?
+**Answer:** Automated High-Velocity Serialized Asset Creation:
+* 📍 **System Navigation Path:** `ReceivePurchaseModal` &rarr; `Upload Serialized Manifest`
+* Uploading the factory CSV manifest creates 70 individual serialized records in seconds, pairing each Chassis Frame VIN with its corresponding Lithium Battery Serial and Motor Controller ID, setting initial status to `Available (Central Warehouse)`.
 
 ---
 
-### Q349: Modal Guide — What is the CreateSupplierModal (`CreateSupplier.vue`), and what are its exact fields?
-**Answer:** The **`CreateSupplierModal`** profiles international and local vendors:
-* **Supplier Legal Name (Required):** Registered corporate entity.
-* **Country & Head Office City:** e.g., China, Jiangsu / Pakistan, Karachi.
-* **Supplier Category:** Vehicle OEM Manufacturer, Battery Cell Producer, Tyre Manufacturer, or Local Accessories Fabricator.
-* **Corporate Website & Email Address:** Official contact info.
-* **Lead Time (Days):** Standard production and shipping duration (e.g., 45 days).
-* **Accepted Payment Terms:** LC, TT, Cash on Delivery.
-* **Supplier Bank Details & Swift Code:** For international trade wires.
-* **Quality Rating Scorecard:** Tracks supplier reliability and defect frequency.
+### Q349: What happens if a sea container arrives with damaged electric bikes?
+**Answer:** Automated Marine Transit Damage Claim:
+* 📍 **System Navigation Path:** `ReceivePurchaseModal` &rarr; `Log Container Damage`
+* The damaged bikes are tagged with photos and routed to `Quarantine Bay Q-3`. The system generates an official **Marine Cargo Insurance Claim Certificate** for financial compensation against the shipping line.
 
 ---
 
-### Q350: How does the system prevent costly container demurrage charges at Karachi port?
-**Answer:** Shipping lines charge steep daily demurrage penalties if containers sit at the port beyond free days (typically 14 days). The system features an automated **Port Demurrage Countdown Clock**. When a container docks, the countdown starts, alerting clearing agents to expedite customs clearance before penalties accrue.
+### Q350: How does AJ EcoDrive track Supplier Quality and Defect Rates?
+**Answer:** OEM Supplier Quality Scorecard:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Procurement` &rarr; `Supplier Analytics` (`/procurement/suppliers`)
+* Audits defect rates across international factories (e.g. *Shenzhen EV Co: 0.8% defect rate vs. Wuxi Motors: 3.2% defect rate*), guiding contract negotiations.
 
 ---
 
-### Q351: How does the system calculate Landed Cost per vehicle?
-**Answer:** The Landed Cost Calculator computes the true financial cost of each vehicle:
-$$\text{Landed Cost} = \text{Factory Invoice Price} + \text{Ocean Freight} + \text{Marine Insurance} + \text{Customs Import Duty} + \text{Port Handling & Trucking}$$
-This accurate landed cost feeds dealership pricing models and margin calculations.
+### Q351: How are Letter of Credit (LC) and Bank Wire Payments recorded?
+**Answer:** International Trade Finance Accounting:
+* 📍 **System Navigation Path:** `Purchase Order Detail Page` &rarr; `Payments & LC Tab`
+* Tracks LC Issuance Number, Issuing Bank (Meezan Bank / Standard Chartered), Swift Wire Reference, Currency Conversion Rate, and Advance Milestone Payments (30% deposit upon order, 70% against Bill of Lading).
 
 ---
 
-### Q352: Can local showroom staff view international purchase orders?
-**Answer:** No. International procurement is restricted to Super Admin and Central Supply Chain management. Showroom staff only see expected inventory delivery dates.
+### Q352: Can CKD (Knocked Down) Assembly kits be tracked and converted into CBU bikes?
+**Answer:** Yes. **CKD Assembly & Manufacturing Module**:
+* 📍 **System Navigation Path:** `Sidebar: Procurement` &rarr; `CKD Assembly Workbench` (`/procurement/assembly`)
+* Tracks raw unassembled components (Frames, Motors, Wire Looms, Wheels) and generates a serializing work order when local technicians assemble them into a finished electric bike.
 
 ---
 
-### Q353: What happens if a sea container arrives with water damage or crushed crates?
-**Answer:** The warehouse manager notes the damage on the Goods Received Note, takes photographs before unloading, and initiates an immediate **Marine Insurance Claim Docket** in AJ EcoDrive.
+### Q353: What customs SRO tax concessions are applied to electric vehicle imports?
+**Answer:** Pakistan EV Policy (SRO 644/837) Compliance:
+* 📍 **System Navigation Path:** `Purchase Order Detail Page` &rarr; `Customs SRO Tax Configuration`
+* Applies special EV concessionary customs tariffs (1% to 10% customs duty and 1% sales tax on EV CKD components) as per Government of Pakistan National Electric Vehicle Policy.
 
 ---
 
-### Q354: Does the system track foreign exchange (FX) currency fluctuations?
-**Answer:** Yes. The procurement engine records the foreign exchange rate locked at LC opening versus the settlement rate, calculating realized foreign exchange gains or losses.
+### Q354: How does the system handle spare parts container imports?
+**Answer:** Batch Spare Parts Intake Ledger:
+* 📍 **System Navigation Path:** `CreatePurchaseOrderModal` &rarr; `Category: Spare Parts Container`
+* Imports 200+ distinct part SKUs (tyres, throttles, headlights, brake calipers), automatically updating inventory stock quantities and updating Landed Cost per part.
 
 ---
 
-### Q355: How are spare parts containers cataloged during intake?
-**Answer:** Spare parts crates are received via barcode scanning against the supplier packing list, automatically updating central spare parts bin locations.
+### Q355: Where can executives view live In-Transit Sea Container tracking?
+**Answer:** The **Global Ocean Freight Vessel Tracker**:
+* 📍 **System Navigation Path:** `Sidebar: Procurement` &rarr; `Vessel In-Transit Dashboard` (`/procurement/vessels`)
+* Displays active vessels, ETA at Karachi Port, customs clearance status, and inland trailer freight progress to Islamabad.
 
 ---
 
-### Q356: Can the system forecast future container orders based on branch sales velocity?
-**Answer:** Yes. The Procurement Planning tool analyzes the past 90 days of vehicle sales across all branches, projects monthly demand, and recommends when to issue the next 40ft container order to prevent stock-outs.
+### Q356: Can an unapproved Purchase Order be dispatched to an OEM supplier?
+**Answer:** **No. POs require dual Super Admin & CFO authorization.**
+* 📍 **System Navigation Path:** Procurement Authorization Engine
+* The system enforces dual digital signatures before releasing the official PDF Purchase Order to the overseas OEM supplier.
 
 ---
 
-### Q357: How does procurement operate if internet connectivity to the port is slow?
-**Answer:** The procurement dashboard is engineered for high performance with minimal data transfer, ensuring smooth operation even on slower port connections.
+### Q357: How are historical import price variances analyzed across containers?
+**Answer:** Container Inflation & Landed Cost Variance Report:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Import Price Variance Report` (`/reports/import-variance`)
+* Graphs FOB purchase price trends, ocean freight container rate fluctuations, and USD/PKR exchange rate impacts over the last 24 months.
 
 ---
 
-### Q358: Are procurement records archived for state customs audits?
-**Answer:** Yes. Complete procurement histories—including commercial invoices, packing lists, bills of lading, and customs declarations—are permanently archived for statutory import audits.
+### Q358: What is the Procurement Lead Time KPI?
+**Answer:** Supply chain planning benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Procurement KPIs`
+* Measures average days elapsed from Purchase Order placement to physical container intake at Central Warehouse (Target: 45 to 60 calendar days).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -3061,120 +3629,139 @@ This accurate landed cost feeds dealership pricing models and margin calculation
 
 # PART 26: Showroom Branches, User Accounts & Security Permissions (Q359 – Q374)
 
-### Q359: How does Head Office add a brand-new showroom branch to the network?
-**Answer:** When expanding the dealership network (e.g., opening a new showroom in Faisalabad or Multan), Super Admin navigates to **System -> Branches** and clicks **+ Add New Branch** (`CreateBranchModal.vue`).
+### Q359: How are new Dealership Showroom Branches configured in AJ EcoDrive?
+**Answer:** Showroom branches are provisioned via the **Dealership Network & Branch Administration Workbench**:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `Showroom Branches` (`/settings/branches`) &rarr; Click `+ Add Showroom Branch` (`CreateBranchModal`)
+* **Core Principle:** Each branch is a distinct operational entity with its own dedicated physical inventory holding bays, local cashier safes, assigned staff, and local tax registration.
 
 ---
 
-### Q360: Modal Guide — What is the CreateBranchModal (`CreateBranch.vue`), and what are its exact fields?
-**Answer:** The **`CreateBranchModal`** provisions a new physical dealership branch:
-* **Branch Unique Code (Required):** 3-character identifier (e.g., `FSD` for Faisalabad).
-* **Branch Official Name (Required):** e.g., *Faisalabad Prime Showroom & Service Center*.
-* **City & Province (Dropdown):** Selects administrative jurisdiction.
-* **Physical Showroom Address (Required):** Full street address for invoicing and registration.
-* **Direct Contact Phone & Official Email:** Branch communication channels.
-* **Authorized Petty Cash Float Limit (PKR):** Local monthly operating float (e.g., PKR 75,000).
-* **Showroom Floor Capacity (Units):** Maximum physical bike capacity (e.g., 25 units).
-* **Workshop Service Bays Count:** Number of active repair bays (e.g., 3 bays).
-* **Assigned Branch Manager User:** Selects managing executive.
-* **Operating Hours:** Defaults to 08:30 AM – 08:00 PM (Monday – Saturday).
-* **Branch Status:** Active or Under Setup / Construction.
+### Q360: Modal Guide — What is the CreateBranchModal (CreateBranch.vue) and what are its exact fields?
+**Answer:** The `CreateBranchModal` opens a new dealership location in the system:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `Showroom Branches` &rarr; Click `+ Add Showroom Branch`
+* **Exact Form Fields:**
+  * **Branch Code** *(Text, Required)*: Unique 3-4 letter identifier (`PEW-01`, `ISB-01`, `LHE-01`, `RWP-01`).
+  * **Showroom Branch Name** *(Text, Required)*: E.g., *Peshawar University Road Showroom & 3S Workshop*.
+  * **Physical Street Address** *(Textarea, Required)*: Official commercial showroom location.
+  * **City & Province** *(Dropdown, Required)*: Peshawar (KP), Islamabad (ICT), Lahore (Punjab), Rawalpindi (Punjab).
+  * **Assigned Branch Manager** *(Dropdown, Required)*: Active manager account.
+  * **Branch Contact Phone & Email** *(Contact Details)*.
+  * **Branch Facilities Available** *(Checkboxes)*: `Showroom Sales Floor`, `3S Service Workshop`, `Battery Diagnostic Lab`, `Storage Warehouse`.
+  * **Standard Cash Drawer Float Limit (PKR)** *(Numeric)*: Default daily float (e.g. `PKR 25,000`).
+  * **Petty Cash Discretionary Limit (PKR)** *(Numeric)*: Default ceiling (`PKR 15,000`).
 
 ---
 
-### Q361: What happens the microsecond a new Branch is created?
-**Answer:** The system automatically:
-1. Provisions dedicated local inventory and spare parts ledgers.
-2. Establishes a local cash drawer and petty cash accounting sub-ledger.
-3. Configures local invoice and receipt numbering sequences (e.g., `INV-FSD-0001`).
-4. Adds the branch to national management dashboards.
+### Q361: How are User Accounts created and managed in the system?
+**Answer:** User accounts are managed via the **Staff Directory & User Management Workbench**:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `User Accounts` (`/settings/users`) &rarr; Click `+ Add New User` (`CreateUserModal`)
+* **Security Rule:** Every user is bound to a verified employee profile, assigned role permissions, and scoped to a specific branch showroom.
 
 ---
 
-### Q362: Modal Guide — What is the CreateUserModal (`CreateUser.vue`), and what are its exact fields?
-**Answer:** The **`CreateUserModal`** provisions employee accounts:
-* **Employee Full Legal Name (Required):** Staff member name.
-* **Corporate Email Address (Required - Unique):** Used for system login.
-* **Mobile Contact Phone (Required):** For two-factor SMS codes.
-* **Assigned Showroom Branch (Dropdown):** Restricts staff member's operational view to their specific branch (or All Branches for Super Admin).
-* **System Role (Required Dropdown):** Super Admin or Branch Manager (with future roles: Sales Exec, Cashier, Mechanic, Auditor).
-* **Temporary Login Password:** Initial password adhering to security policy.
-* **Force Password Change on First Login:** Security toggle.
-* **Account Status:** Active, Inactive, or Suspended.
+### Q362: Modal Guide — What is the CreateUserModal (CreateUser.vue) and what are its exact fields?
+**Answer:** The `CreateUserModal` provisions staff credentials:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `User Accounts` &rarr; Click `+ Add New User`
+* **Exact Form Fields:**
+  * **Employee Full Name** *(Text, Required)*: Legal employee name.
+  * **Employee CNIC Number** *(13-digit Masked, Required)*: NADRA citizen ID.
+  * **Corporate Email Address** *(Email, Required)*: `name@ajecodrive.com`.
+  * **Mobile Number** *(Phone, Required)*: Two-Factor Auth mobile phone.
+  * **Assigned Primary Role** *(Dropdown, Required)*:
+    * `Super Admin (Head Office Nationwide)`
+    * `Branch Manager (Showroom Command)`
+    * `Showroom Sales Representative`
+    * `Branch Cashier / Accounts Clerk`
+    * `Workshop Service Advisor / Foreman`
+    * `Workshop Certified EV Technician`
+    * `Inventory Storekeeper`
+  * **Assigned Branch Scope** *(Dropdown, Required)*: `All Branches (Super Admin Only)` or specific branch (`Peshawar Showroom`).
+  * **Initial Temporary Password** *(Password Input, Required)*: Forces password change upon first login.
+  * **Account Status** *(Toggle)*: `Active` or `Inactive`.
 
 ---
 
-### Q363: Modal Guide — What is the CreateRoleModal (`CreateRole.vue`), and how does Role-Based Access Control (RBAC) work?
-**Answer:** The **`CreateRoleModal`** defines custom security profiles with granular permissions:
-* **Role Name & Description:** e.g., *Senior Workshop Technician*.
-* **Module Permissions Matrix (View / Create / Edit / Delete / Approve):**
-  - Sales & Quotations (Can create quotes; cannot approve discounts > 8%).
-  - Customer Registration (Can register CNIC; cannot export customer phone lists).
-  - Showroom Inventory (Can view local stock; cannot write off missing units).
-  - Workshop & Jobs (Can log job cards; cannot approve high-voltage battery claims).
-  - Petty Cash & OPEX (Can file expense claims; cannot approve vouchers > PKR 15k).
-  - System Settings (Strictly view-only).
+### Q363: What is Role-Based Access Control (RBAC) in AJ EcoDrive?
+**Answer:** Mathematical security permission matrix enforcing principle of least privilege:
+* 📍 **System Navigation Path:** `Sidebar: Settings & System` &rarr; `Role Permissions Matrix` (`/settings/roles`)
+* Sales reps cannot view wholesale landing costs or approve discounts > 8%. Cashiers cannot modify sales invoices. Workshop mechanics cannot access financial ledgers.
 
 ---
 
-### Q364: Modal Guide — What is the CreateConversationModal (`CreateConversation.vue`), and what is Internal Management Messaging?
-**Answer:** Internal Management Messaging (`/communication`) provides a secure, encrypted internal chat channel linking branch showrooms to Head Office:
-* **Channel Topic / Title (Required):** e.g., *"Emergency Battery Recall Inspection"* or *"Weekly Sales Push"*.
-* **Conversation Type:** 1-on-1 Direct Chat or Multi-Branch Broadcast Channel.
-* **Participants Multi-Selector:** Selects Super Admin and specific Branch Managers.
-* **Priority Level:** Normal or Urgent Directive.
-* **Initial Message Text & Attachment:** Dispatches official operational memos directly inside the software, eliminating messy WhatsApp groups.
+### Q364: How does Branch Scoping restrict user data access?
+**Answer:** Architectural multi-tenant isolation:
+* 📍 **System Navigation Path:** Core Database & API Layer
+* When a Branch Manager (`PEW-01`) logs in, all database queries automatically filter with `WHERE branch_id = 'PEW-01'`. The manager cannot see customer leads, cash drawers, or workshop tickets belonging to Lahore or Islamabad.
 
 ---
 
-### Q365: Why is internal software messaging better than WhatsApp for dealership management?
-**Answer:** WhatsApp messages lack business context and cannot be audited. AJ EcoDrive messaging allows staff to attach live database records (e.g., linking directly to Sales Order #SO-1082 or Chassis #VIN-0812) directly inside the chat thread, providing instant context and complete enterprise auditability.
+### Q365: How does Two-Factor Authentication (2FA) work in AJ EcoDrive?
+**Answer:** Time-Based One-Time Password (TOTP) & SMS 2FA:
+* 📍 **System Navigation Path:** `User Preferences` &rarr; `Security & 2FA Tab`
+* Users scan a QR code with Google Authenticator or receive an SMS OTP when logging into new or unrecognized devices.
 
 ---
 
-### Q366: How does the system handle employee transfers between branches?
-**Answer:** If an employee transfers from Islamabad to Lahore, Super Admin opens their user profile, changes the assigned branch to Lahore, and clicks Save. The employee's login immediately switches to Lahore's showroom ledger upon their next sign-in.
+### Q366: What happens when an employee is Terminated or Suspended?
+**Answer:** Instant Nationwide Session Blacklisting:
+* 📍 **System Navigation Path:** `User Accounts` (`/settings/users`) &rarr; Select User &rarr; Toggle **"Inactive / Terminate"**
+* Super Admin deactivation immediately invalidates all active JWT tokens on central servers and broadcasts revocation commands to offline workstation caches.
 
 ---
 
-### Q367: What happens when an employee is terminated?
-**Answer:** The administrator toggles their account status to **Inactive**. Their active session is revoked immediately on all desktop computers and mobile tablets, locking them out of customer records and inventory.
+### Q367: How does the system handle Internal Staff Chat and Operational Announcements?
+**Answer:** Integrated **Dealership Team Chat & Announcement Broadcast**:
+* 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `Team Chat Icon` (`/chat`)
+* Provides branch group channels (`#peshawar-team`, `#workshop-techs`) and nationwide executive broadcast banners for Head Office directives.
 
 ---
 
-### Q368: Can a Branch Manager create new user accounts?
-**Answer:** **No.** User administration and role provisioning are strictly restricted to Super Admin at Head Office to prevent local managers from creating unauthorized employee accounts.
+### Q368: Can a Branch Manager create new user accounts for their showroom?
+**Answer:** Branch Managers can create staff drafts; Super Admin authorizes:
+* 📍 **System Navigation Path:** `Branch Manager` &rarr; `Request Staff Account`
+* Prevents rogue account creation and phantom payroll entries.
 
 ---
 
-### Q369: How does the system record administrative changes?
-**Answer:** Every branch creation, user addition, password reset, or permission change is logged in the **System Audit Log** with the admin's user ID, IP address, and exact timestamp.
+### Q369: What audit logging is captured when a user account is modified?
+**Answer:** Security Audit Trail:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Security Audit Logs`
+* Logs exact timestamp, admin username, modified permissions, and IP address for every user modification.
 
 ---
 
-### Q370: Can an administrator view employee login history?
-**Answer:** Yes. The User Activity report displays login timestamps, workstation device types (Desktop vs Android Tablet), IP addresses, and session durations for every employee.
+### Q370: How does the system support biometric fingerprint logins?
+**Answer:** Windows Hello & WebAuthn Biometric Authentication:
+* 📍 **System Navigation Path:** `User Preferences` &rarr; `Biometric Login Settings`
+* Allows counter staff to tap a USB fingerprint scanner for 1-second login without typing passwords in front of customers.
 
 ---
 
-### Q371: How does the system support two-factor authentication (2FA)?
-**Answer:** For high-privilege Super Admin accounts, the system supports mandatory two-factor authentication via SMS OTP or authenticator apps (e.g., Google Authenticator).
+### Q371: What happens if an employee attempts brute-force password guessing?
+**Answer:** Automated 5-Attempt Account Lockout:
+* 📍 **System Navigation Path:** Login Security Engine
+* 5 consecutive incorrect password attempts locks the account for 30 minutes, dispatching an alert to the IT Security Administrator.
 
 ---
 
-### Q372: What happens if a branch showroom relocates to a new address?
-**Answer:** Super Admin updates the physical address in the branch profile. The new address immediately reflects on all newly printed invoices, delivery gate passes, and warranty certificates.
+### Q372: Where can Super Admins review active logged-in user sessions?
+**Answer:** The **Active Sessions & Device Monitor**:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `Active Sessions` (`/settings/sessions`)
+* Displays all active users across the country, device IP, browser/desktop client, and provides 1-click **"Kill Session"** capability.
 
 ---
 
-### Q373: Can an employee log into multiple workstations at the exact same time?
-**Answer:** The security policy enforces **Single Concurrent Session**. If an employee logs in on a counter workstation while their account is active on a tablet, the earlier session is securely closed with a notification.
+### Q373: Can staff share user accounts across shifts?
+**Answer:** **Strictly Prohibited by System Policy.**
+* 📍 **System Navigation Path:** Compliance Guidelines
+* Every employee must operate under their unique assigned user ID to maintain forensic traceability for cash collections, discounts, and inventory handovers.
 
 ---
 
-### Q374: Are deactivated branches permanently erased from the database?
-**Answer:** No. Deactivated branches are archived under `Inactive` status, preserving all historical sales, tax invoices, and customer records forever for statutory compliance.
-
+### Q374: What is the System Security & Compliance Health Score KPI?
+**Answer:** Enterprise security benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Security Scorecard`
+* Evaluates network compliance: 2FA adoption %, password rotation freshness, and zero unauthenticated terminal breaches.
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -3187,133 +3774,127 @@ This accurate landed cost feeds dealership pricing models and margin calculation
 
 # PART 27: Super Admin & Branch Manager 10 Master Touchpoints Collaboration Matrix (Q375 – Q390)
 
-### Q375: What is the "10 Master Touchpoints Framework" in AJ EcoDrive?
-**Answer:** The 10 Master Touchpoints Framework is the definitive operational blueprint governing every interaction between Head Office (Super Admin) and local dealership showrooms (Branch Managers). It replaces informal phone calls and fragmented messages with standardized, auditable digital collaboration gates.
+### Q375: What is the 10 Master Touchpoints Collaboration Matrix in AJ EcoDrive?
+**Answer:** The 10 Master Touchpoints Collaboration Matrix is the foundational operational contract defining how **Head Office Executive Leadership (Super Admin)** and **Dealership Showroom Commanders (Branch Managers)** collaborate to run a secure, profitable multi-city EV enterprise:
+* 📍 **System Navigation Path:** Master Enterprise Operating Architecture
+* **Core Philosophy:** Clear segregation of duties, zero operational bottlenecks, automated decision routing, and 100% auditable collaboration across commercial sales, inventory custody, cash protection, and technical warranty.
 
 ---
 
-### Q376: What are the 10 Master Operational Touchpoints?
-**Answer:**
-1. **Touchpoint 1: Commercial Pricing & Margin Override Requests (Action Flow 1)**
-2. **Touchpoint 2: Showroom Floor Stock Replenishment Requisitions (Action Flow 2)**
-3. **Touchpoint 3: Inter-Branch Stock Transfers & In-Transit Custody (Action Flow 2)**
-4. **Touchpoint 4: Blind Physical Inventory Audits & Discrepancy Adjustments (Action Flow 5)**
-5. **Touchpoint 5: Showroom OPEX & Emergency Expense Clearance (Action Flow 3)**
-6. **Touchpoint 6: High-Voltage Lithium Battery & BMS Warranty Claims (Action Flow 4)**
-7. **Touchpoint 7: Customer Vehicle Returns & Cancellation Refunds (Action Flow 5)**
-8. **Touchpoint 8: B2B Corporate Fleet Credit Limits & Payment Terms (Action Flow 1)**
-9. **Touchpoint 9: Day-End Closing Settlement (Daily Z-Report & Bank Slip Verification)**
-10. **Touchpoint 10: Staff User Provisioning & Branch Network Governance**
+### Q376: What are the 10 Master Touchpoints in AJ EcoDrive?
+**Answer:** The complete 10 operational collaboration touchpoints:
+* 📍 **System Navigation Path:** `Dashboard` &rarr; `Action Centre` (`/dashboard/action-centre`)
+
+| Touchpoint # | Operational Domain | Branch Manager Role (Showroom Ground) | Super Admin Role (Head Office Leadership) | Primary Workflow / Screen |
+| :--- | :--- | :--- | :--- | :--- |
+| **Touchpoint 1** | **Commercial Pricing & Discount Exceptions** | Enters customer discount &le; 8%; escalates requests > 8% with justification. | Reviews gross margin impact in Action Centre; executes Approve / Counter-Offer / Reject. | `CreateQuotationModal` &rarr; `ACT-PRC` |
+| **Touchpoint 2** | **Inter-Branch Vehicle Transfers** | Requests vehicle pull from other city; scans physical VIN at dispatch/receiving. | Authorizes inter-city logistics; monitors nationwide inventory distribution. | `CreateTransferModal` &rarr; `ACT-STK` |
+| **Touchpoint 3** | **Showroom Operating Expenses (OPEX)** | Approves petty OPEX &le; PKR 15,000; logs bills with photo receipts. | Reviews claims > PKR 15,000; authorizes online bank disbursements. | `CreateExpenseModal` &rarr; `ACT-EXP` |
+| **Touchpoint 4** | **Lithium Battery & OEM Warranty Claims** | Conducts OBD diagnostic scan; submits battery SOH data & casing photos. | Validates 3-way serialized hardware binding; approves OEM factory replacement. | `CreateCaseModal` &rarr; `ACT-WRN` |
+| **Touchpoint 5** | **Physical Inventory Audits & Cycle Counts** | Conducts blind barcode scan of all showroom floor bikes and parts shelves. | Reviews missing VIN variances; authorizes formal balance sheet write-offs. | `CreateCycleCountModal` &rarr; `ACT-GOV` |
+| **Touchpoint 6** | **Global Sea Container Imports & POs** | Submits stock replenishment requisitions based on showroom demand. | Procures CBU/CKD 40ft containers from China; manages customs clearance & landed cost. | `CreatePurchaseOrderModal` &rarr; `ReceivePurchaseModal` |
+| **Touchpoint 7** | **Master Product Catalog & MSRP Pricing** | Sells vehicles at active catalog prices; receives automatic price update alerts. | Updates master MSRP, promotional discounts, and technical specs nationwide. | `Sidebar: Products` &rarr; `/catalog/products` |
+| **Touchpoint 8** | **Staff Account Provisioning & Security** | Assigns daily shift roles; reports staff terminations or credential resets. | Provisions user accounts, configures RBAC permission tiers, and monitors security logs. | `Sidebar: Settings` &rarr; `/settings/users` |
+| **Touchpoint 9** | **Day-End Cash Closing & Z-Reports** | Counts physical cash note denominations; reconciles till; drops cash at bank. | Inspects nationwide daily closing dashboard; audits cash variances across branches. | `Sidebar: Finance` &rarr; `/finance/day-end-closing` |
+| **Touchpoint 10** | **Quality Quarantine & Safety Recalls** | Isolates transit-damaged stock in Bay Q-3; performs local re-certification. | Broadcasts nationwide OEM recall directives; authorizes quarantine stock releases. | `Sidebar: Inventory` &rarr; `/inventory/quarantine` |
 
 ---
 
-### Q377: Touchpoint 1 — How do Super Admin and Branch Manager collaborate on Pricing Overrides?
-**Answer:**
-* **Trigger:** Customer demands a discount exceeding the branch manager's 8% discretionary ceiling.
-* **Branch Manager Action:** Fills out `CreateActionModal` (Flow 1), entering proposed discount %, customer competitor quote, and justification.
-* **Super Admin Treatment:** Evaluates live projected gross margin erosion in the Action Centre Decision Drawer. Can approve full discount, set a binding counter-cap (e.g., 9.5%), or reject the waiver.
-* **Business Safeguard:** Prevents rogue discounting; ensures every price reduction preserves minimum corporate gross margins.
+### Q377: How is Touchpoint 1 (Commercial Pricing) executed under high pressure on the showroom floor?
+**Answer:** Rapid 15-Minute Action Centre SLA:
+* 📍 **System Navigation Path:** `CreateQuotationModal` &rarr; Action Centre (`ACT-PRC-XXXX`)
+* When a high-value customer threatens to walk away unless granted a 10% discount, the branch manager submits a Flow 1 pricing waiver with priority `< 2h Critical`. Super Admin receives an instant push alert, inspects net dealer margin on their phone, and approves the deal in under 90 seconds while the customer is drinking tea at the sales counter.
 
 ---
 
-### Q378: Touchpoint 2 — How do they collaborate on Stock Replenishment Requisitions?
-**Answer:**
-* **Trigger:** Showroom floor stock falls below minimum safety levels or a customer places a deposit on a non-stocked model.
-* **Branch Manager Action:** Submits `CreateStockRequestModal`, specifying requested model, color, quantity, and target delivery date.
-* **Super Admin Treatment:** Reviews national inventory, checks arriving container shipping manifests, and approves factory/warehouse allocation.
-* **Business Safeguard:** Prevents stock hoarding by favored branches; ensures fair nationwide inventory distribution.
+### Q378: How is Touchpoint 2 (Stock Reallocation) governed between competing branch managers?
+**Answer:** Centralized Head Office Neutral Arbitration:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; `ACT-STK-XXXX`
+* If Peshawar requests a high-demand Metallic Red scooter from Islamabad, the Islamabad manager cannot arbitrarily refuse. Super Admin reviews nationwide demand analytics and approves the transfer to maximize overall dealership revenue.
 
 ---
 
-### Q379: Touchpoint 3 — How do they collaborate on Inter-Branch Transfers?
-**Answer:**
-* **Trigger:** Vehicle must be moved from one city to another (e.g., Lahore to Islamabad) to fulfill demand.
-* **Branch Manager Action:** Initiates `CreateTransferModal`, scanning specific VINs and recording carrier truck, driver name, CNIC, and truck license plate.
-* **Super Admin Treatment:** Authorizes inter-branch movement gate pass; monitors In-Transit dual-custody tracking.
-* **Business Safeguard:** Eliminates lost vehicles in transit; prevents bikes from being sold simultaneously in two different cities.
+### Q379: How does Touchpoint 3 (OPEX) prevent petty cash embezzlement?
+**Answer:** Dual-Layer Financial Verification:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses`
+* Branch managers cannot exceed PKR 15,000 without CFO clearance. Every single rupee spent locally requires a photo receipt and is audited during the mandatory Day-End Z-Closing reconciliation.
 
 ---
 
-### Q380: Touchpoint 4 — How do they collaborate on Inventory Audits & Variances?
-**Answer:**
-* **Trigger:** Monthly blind physical cycle count reveals a variance (missing or surplus vehicle).
-* **Branch Manager Action:** Submits `CreateAdjustmentRequestModal`, detailing physical scan results and investigation findings.
-* **Super Admin Treatment:** Central internal audit investigates root cause; executive directors approve write-off or order police report.
-* **Business Safeguard:** Prevents showroom managers from hiding physical stock loss or vehicle theft.
+### Q380: How does Touchpoint 4 (Warranty Claims) protect dealership relationship with OEM manufacturers?
+**Answer:** Ironclad Technical Evidence Submissions:
+* 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Battery Diagnostic Lab`
+* Every battery warranty claim submitted to the Chinese factory includes digital BMS logs, cell delta telemetry, and photo proof of intact seals, ensuring 100% factory reimbursement without warranty dispute rejections.
 
 ---
 
-### Q381: Touchpoint 5 — How do they collaborate on Showroom OPEX & Petty Cash?
-**Answer:**
-* **Trigger:** Showroom incurs an operating expense exceeding PKR 15,000 (e.g., generator overhaul or building repair).
-* **Branch Manager Action:** Submits `CreateExpenseModal`, attaching vendor bill, tax invoice, and emergency justification.
-* **Super Admin Treatment:** Chief Financial Officer (CFO) reviews expense against branch budget and clears payout via corporate bank wire.
-* **Business Safeguard:** Enforces financial discipline; eliminates unauthorized showroom cash drains.
+### Q381: How does Touchpoint 5 (Cycle Counts) enforce zero inventory theft?
+**Answer:** Surprise Blind Physical Counts:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts & Audits`
+* Branch staff cannot view expected quantities while scanning. Any missing chassis VIN is immediately locked nationwide, preventing staff from covering shortages by borrowing bikes from other shops.
 
 ---
 
-### Q382: Touchpoint 6 — How do they collaborate on High-Voltage Battery Claims?
-**Answer:**
-* **Trigger:** Customer electric bike experiences catastrophic battery failure or severe cell voltage delta.
-* **Branch Manager Action:** Submits `CreateCaseModal` & Action Flow 4, attaching OBD trouble codes, SOH diagnostic logs, and battery serial photos.
-* **Super Admin Treatment:** Chief Technical Officer and OEM warranty team authorize replacement; dispatch new battery from Central Warehouse.
-* **Business Safeguard:** Enforces 3-way serialized hardware lock; stops fraudulent battery swapping scams.
+### Q382: How does Touchpoint 6 (Container Imports) coordinate with local showroom floor space?
+**Answer:** Advance Inbound Shipment Tracking:
+* 📍 **System Navigation Path:** `Sidebar: Procurement` &rarr; `Purchase Orders`
+* Branch managers see incoming containers 14 days before port arrival, allowing them to pre-sell units via **Sales Orders (Bookings)** before the ship docks at Karachi.
 
 ---
 
-### Q383: Touchpoint 7 — How do they collaborate on Vehicle Returns & Refunds?
-**Answer:**
-* **Trigger:** Customer cancels order or returns delivered bike due to major unresolvable factory defect.
-* **Branch Manager Action:** Executes 10-point return inspection; submits `CreateReturnModal` with proposed usage/damage deductions.
-* **Super Admin Treatment:** Sales Director and CFO approve net refund; corporate accounting issues bank wire directly to customer.
-* **Business Safeguard:** Protects company from paying full refunds on heavily used or damaged returned vehicles.
+### Q383: How does Touchpoint 7 (Catalog Updates) prevent selling at outdated prices?
+**Answer:** Instant Nationwide Broadcast Banners:
+* 📍 **System Navigation Path:** Top Header Alert System
+* When Head Office updates base MSRP, active POS forms and new quotations update immediately. Unfinished drafts display an alert: *"Price Updated by Head Office"*.
 
 ---
 
-### Q384: Touchpoint 8 — How do they collaborate on Corporate Fleet Credit Limits?
-**Answer:**
-* **Trigger:** B2B corporate courier company requests purchase of 15 commercial trikes on 60-day credit terms.
-* **Branch Manager Action:** Submits commercial proposal in Action Flow 1, attaching corporate NTN, bank statements, and corporate guarantee.
-* **Super Admin Treatment:** Risk committee sets approved corporate credit ceiling, payment milestones, and post-dated cheque requirements.
-* **Business Safeguard:** Eliminates uncollectible commercial debt and bad credit exposure.
+### Q384: How does Touchpoint 8 (Staff RBAC) maintain institutional data security?
+**Answer:** Zero Data Leakage Architecture:
+* 📍 **System Navigation Path:** `Sidebar: Settings & System` &rarr; `User Management`
+* Departing sales reps cannot export customer phone lists or view profit margins. User account termination takes effect nationwide in under 1 second.
 
 ---
 
-### Q385: Touchpoint 9 — How do they collaborate on Day-End Closing Settlement?
-**Answer:**
-* **Trigger:** Showroom closes at 08:00 PM; cash drawer must be settled.
-* **Branch Manager Action:** Performs denomination cash count; generates Daily Z-Report; deposits cash at bank; uploads stamped deposit slip.
-* **Super Admin Treatment:** Central Finance matches uploaded deposit slips against online bank feeds and locks the national business day.
-* **Business Safeguard:** Eliminates cash skimming; ensures all collected cash is deposited in the bank within 24 hours.
+### Q385: How does Touchpoint 9 (Day-End Closing) guarantee safe bank deposits?
+**Answer:** Bank Deposit Slip Stamped Cross-Reconciliation:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Daily Cash Drops`
+* Cashier drops the day's cash collection into the corporate bank account each morning. The stamped bank deposit slip is uploaded to AJ EcoDrive, cross-reconciling the previous day's Z-Report to PKR 0.00 variance.
 
 ---
 
-### Q386: Touchpoint 10 — How do they collaborate on Staff User Provisioning?
-**Answer:**
-* **Trigger:** Showroom hires a new sales executive or replaces a departing workshop technician.
-* **Branch Manager Action:** Submits user provisioning request with employee CNIC, job title, and phone number via internal communication.
-* **Super Admin Treatment:** Head Office IT provisions user credentials, assigns branch permissions, and activates access profile.
-* **Business Safeguard:** Centralizes identity management; ensures ex-employees are immediately locked out across all systems.
+### Q386: How does Touchpoint 10 (Quarantine) protect road safety and brand reputation?
+**Answer:** Strict Defective Stock Quarantine Locks:
+* 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quality Quarantine`
+* Transit-damaged scooters or vehicles with unstable BMS voltages can never be delivered to customers. Only formal re-certification releases the vehicle from Bay Q-3.
 
 ---
 
-### Q387: What happens if a Branch Manager and Super Admin disagree on an action item?
-**Answer:** The Action Centre includes a structured **Discussion Thread**. The Super Admin can post formal review notes, and the Branch Manager can present additional market evidence or escalate to the Chief Executive Officer for final arbitration.
+### Q387: Can a Super Admin override a Branch Manager's operational decision?
+**Answer:** Yes. Super Admin possesses ultimate enterprise administrative authority:
+* 📍 **System Navigation Path:** Super Admin Master Controls
+* Super Admins can re-allocate stock, cancel fraudulent orders, or adjust pricing exceptions with mandatory audit justification notes.
 
 ---
 
-### Q388: Can an action item be processed without generating an audit record?
-**Answer:** **No.** Every single touchpoint event generates an immutable audit record logging actor ID, role, IP address, timestamp, previous state, new state, and exact remarks.
+### Q388: How does the system resolve operational disagreements between Head Office and Branch Managers?
+**Answer:** Action Centre Discussion Thread & Revision History:
+* 📍 **System Navigation Path:** `Action Centre` &rarr; `Activity & Discussion Thread`
+* All operational arguments, counter-offers, and managerial rationales are permanently preserved in the task history, fostering transparent executive accountability.
 
 ---
 
-### Q389: How does the system visualize touchpoint performance?
-**Answer:** The **Executive Governance Dashboard** tracks touchpoint metrics: average approval turnaround time, branch request frequency, discount concession rates, and SLA compliance scorecards.
+### Q389: What executive reports summarize nationwide Touchpoint performance?
+**Answer:** The **Executive Dealership Collaboration Scorecard**:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `Executive Collaboration Report` (`/reports/collaboration`)
+* Evaluates branch compliance, SLA decision speeds, cash accuracy, and warranty recovery efficiency across all dealership locations.
 
 ---
 
-### Q390: Does the 10 Master Touchpoints Framework function identically on mobile tablets?
-**Answer:** Yes. Branch Managers can submit and track touchpoints from handheld Android tablets, and Super Admins can review dossiers and grant approvals on tablets while traveling.
+### Q390: What is the Master Collaboration Efficiency Score KPI?
+**Answer:** Overall dealership operational health score:
+* 📍 **System Navigation Path:** `Super Admin Dashboard` &rarr; `Enterprise Health Index`
+* Composite index measuring SLA response rates, zero-variance closings, inventory accuracy, and customer satisfaction (Target: &ge; 98.2% enterprise health).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
@@ -3322,326 +3903,208 @@ This accurate landed cost feeds dealership pricing models and margin calculation
 
 # PART 28: Offline Continuity, Synchronization & Local Workstation Architecture (Q391 – Q405)
 
-### Q391: Why is offline capability mandatory for an EV dealership operating in Pakistan?
-**Answer:** In Pakistan, retail dealerships face frequent infrastructure disruptions: sudden power cuts, UPS switchover blips, fiber optic cuts, and cellular mobile data suspensions during national events. If a dealership system relies 100% on a cloud internet connection, a 4-hour internet outage means:
-* Customers standing on the showroom floor cannot buy bikes.
-* Staff cannot print official Delivery Gate Passes.
-* Mechanics cannot log repair job cards.
-* Cash cannot be recorded, leading to theft.
-
-AJ EcoDrive is engineered with **Local Offline Durability**, guaranteeing that showroom sales, quotations, receipts, and repairs continue operating at 100% full speed even if the internet cable is completely severed.
+### Q391: How does AJ EcoDrive ensure uninterrupted operations during Internet Outages and Power Load-Shedding?
+**Answer:** AJ EcoDrive is engineered with **Local Offline Durability & Dual-Tier Synchronization Architecture**:
+* 📍 **System Navigation Path:** `Top Header Bar` &rarr; `Connectivity Badge` (`GREEN (ONLINE) / AMBER (OFFLINE)`)
+* **The Reality in Pakistan:** Power cuts, UPS cutovers, and local fiber internet disruptions are routine daily events.
+* **The AJ EcoDrive Solution:** Showroom counter workstations run on a local embedded SQLite database engine. When internet drops, the system seamlessly transitions to **AMBER (OFFLINE)** mode. Staff can continue capturing walk-in leads, creating quotations, executing POS sales, recording cash payments, and printing thermal receipts without missing a second of business.
 
 ---
 
-### Q392: What is the Three-Tier Architecture of AJ EcoDrive?
-**Answer:** The platform is built on three resilient layers:
-1. **Tier 1: Local Durable Database (SQLite on Desktop Workstations / IndexedDB on Tablets):** Stores a complete, high-speed local copy of the branch's catalog, floor inventory, customers, prices, and open job cards directly on the local computer's solid-state drive (SSD).
-2. **Tier 2: Transaction Outbox Event Queue:** Every local transaction (lead captured, sale made, payment logged) is written to a local FIFO (First-In, First-Out) transaction journal.
-3. **Tier 3: Central Multi-Tenant Cloud Database:** The master central PostgreSQL / MySQL database hosted in a Tier-4 secure cloud datacenter, maintaining consolidated national records.
+### Q392: What are the 3 System Connectivity States in AJ EcoDrive?
+**Answer:** High-visibility real-time status indicators in the application header:
+* 📍 **System Navigation Path:** `Top Header Bar` &rarr; `System Status Badge`
+1. **GREEN (ONLINE):** Full high-speed bi-directional synchronization with Head Office cloud server.
+2. **AMBER (OFFLINE):** Internet unavailable; all transactions executing locally and queuing in local Outbox.
+3. **BLUE (SYNCING):** Connectivity restored; local Outbox actively pushing transactions and pulling central updates.
 
 ---
 
-### Q393: What are the Three Operational Categories in the Offline Classification Matrix?
-**Answer:** The system categorizes every business operation into 3 clear operational profiles:
-* **Category A: Fully Offline-Capable (100% Local Execution):** Lead capture, customer profile edits, quotation calculations, service intake, repair job cards, physical inventory scans, and local database searches. Operates with zero internet dependence.
-* **Category B: Restricted Offline-Capable (Local Branch Scope Only):** Sales order confirmation (only for vehicles physically present in that showroom), delivery handover (if invoice is 100% paid), cash payment capture, and petty cash expenses under PKR 15,000. Commits locally; queues for central sync.
-* **Category C: Online-Required (Strict Central Connection Mandatory):** Inter-branch stock transfers (requires two-branch lock), catalog master price changes, user account creation / role permission edits, and final national financial closing.
+### Q393: What core operations are 100% functional while completely OFFLINE?
+**Answer:** Full Showroom Sales & Workshop Continuity:
+* 📍 **System Navigation Path:** Local Workstation Engine
+* **Fully Operational Offline:**
+  * Creating new Walk-In Leads (`CreateLeadModal`).
+  * Generating formal Customer Price Quotations (`CreateQuotationModal`).
+  * Executing Point of Sale (POS) checkouts on local floor stock (`CreateSaleModal`).
+  * Recording Cash / Card payments and printing thermal POS receipts (`CreatePaymentModal`).
+  * Opening Workshop Service Intake cases and Mechanic Job Cards (`CreateCaseModal`).
+  * Executing 6-point Pre-Delivery Inspections (PDI) and printing Delivery Gate Passes.
+  * Logging Showroom Petty Cash expenses (`CreateExpenseModal`).
 
 ---
 
-### Q394: What is the Transaction Outbox Engine, and how does it work?
-**Answer:** When staff confirm an order or record a cash payment while offline, the system writes the transaction to the local database and places an encrypted **Sync Payload** into the local **Transaction Outbox Queue**. The payload includes:
-* Unique Transaction UUID.
-* Local Timestamp & Sequence Counter.
-* Encrypted Business Event Data.
-* Operator Signature Token.
-
-The outbox guarantees zero data loss: transactions remain safely stored on the local hard drive through computer restarts until successfully uploaded to the central server.
-
----
-
-### Q395: What happens the microsecond internet connectivity is restored?
-**Answer:** The background synchronization engine continuously pings the central server. The instant a stable heartbeat is detected:
-1. The workstation transitions from **AMBER (OFFLINE)** to **GREEN (ONLINE)**.
-2. The Outbox engine flushes queued events to the central server in strict chronological order.
-3. The server processes and commits each transaction, returning an official central confirmation ID.
-4. The server pushes down any new catalog updates, price changes, or inbound transfer manifests created while the branch was offline.
+### Q394: What high-stakes operations require an active INTERNET connection?
+**Answer:** Centralized Multi-Branch Decision Gates:
+* 📍 **System Navigation Path:** Cloud Decision Engine
+* **Operations Requiring Connectivity:**
+  * Submitting Action Centre requests requiring Head Office approval (Commercial discounts > 8%, OPEX > PKR 15,000, OEM battery warranty replacements).
+  * Direct inter-branch vehicle transfers involving live stock re-allocation in another city.
+  * Downloading fresh international sea container purchase order manifests.
 
 ---
 
-### Q396: How does the system handle "Split-Brain" Inventory Conflicts?
-**Answer:** A split-brain conflict could theoretically happen if two branches tried to sell the exact same bike while offline.
-AJ EcoDrive makes this **impossible by design through Local Custody Isolation**:
-* A branch workstation can **only sell vehicles that have been physically committed to that branch's local database**.
-* Because Peshawar has physical custody of VIN-0812, Lahore's local database does not contain VIN-0812.
-* Therefore, Lahore cannot sell Peshawar's bike offline or online.
+### Q395: How does the Local Outbox Synchronization Engine work?
+**Answer:** Cryptographic First-In First-Out (FIFO) Synchronization Queue:
+* 📍 **System Navigation Path:** `Sidebar: Settings & System` &rarr; `Offline Outbox Monitor` (`/system/outbox`)
+* Every offline transaction is signed with a local cryptographic hash and stored in the local SQLite queue.
+* The moment internet connectivity restores, a background synchronization worker transmits the queued transactions in exact chronological order, verifying server acknowledgment before clearing local buffers.
 
 ---
 
-### Q397: What is the Deterministic Conflict Resolution Policy for concurrent customer profile edits?
-**Answer:** If staff in Peshawar update a customer's phone number while offline at 02:15 PM, and Head Office updates the same customer's address online at 02:20 PM:
-The system applies **Deterministic Field-Level Delta Merging**:
-* Non-conflicting fields (phone in Peshawar, address at Head Office) are both merged safely.
-* If the exact same field is edited, the system applies **Last-Write-Wins (LWW) with Vector Clock Precedence**, preserving the latest timestamp while logging the overwritten value in the audit history.
+### Q396: How does the system resolve data conflicts between branches during offline sync?
+**Answer:** Deterministic Timestamp & Custody Conflict Resolution:
+* 📍 **System Navigation Path:** Central Conflict Resolution Engine
+* **Branch Custody Isolation Prevents Conflicts:** Because a branch can only sell VINs in its own physical custody, two branches can *never* sell the same physical chassis.
+* **Last-Write-Wins with Forensic Audit:** For shared customer profile updates, changes are merged with complete audit logging.
 
 ---
 
-### Q398: How does the system survive sudden showroom power cuts (load-shedding)?
-**Answer:** Showroom workstations are equipped with local Uninterruptible Power Supplies (UPS) and backup generators. The local SQLite database utilizes **Write-Ahead Logging (WAL)**. If power cuts mid-transaction, WAL guarantees zero database corruption; the system recovers instantaneously upon reboot without losing a single character.
+### Q397: How does thermal receipt printing work during internet drops?
+**Answer:** Direct Local Raw POS Printer Driver:
+* 📍 **System Navigation Path:** Local Hardware Spooler
+* Thermal receipt printers connect via direct local USB or LAN serial port, bypassing cloud print queues to print receipts instantly even if internet cables are physically severed.
 
 ---
 
-### Q399: What happens if a showroom remains without internet for 3 consecutive days?
-**Answer:** The showroom operates completely normally for all 3 days: selling bikes, registering customers, servicing vehicles, collecting cash, and printing gate passes. The local Outbox stores up to 100,000 transactions. On Day 4, when the internet fiber cable is repaired, the entire 3-day backlog synchronizes cleanly within minutes.
+### Q398: What happens if a workstation computer crashes or loses power abruptly?
+**Answer:** ACID-Compliant Database Crash Recovery:
+* 📍 **System Navigation Path:** SQLite Write-Ahead Logging (WAL) Engine
+* The local SQLite database uses Write-Ahead Logging (WAL). If power cuts mid-transaction, uncommitted drafts roll back safely with zero database corruption, while committed sales are preserved 100%.
 
 ---
 
-### Q400: Can staff use cellular 4G mobile hotspot as an automatic backup connection?
-**Answer:** Yes. Showroom workstations can be configured with dual network interfaces: primary showroom broadband Wi-Fi plus an automated cellular 4G USB dongle failover. If the fiber cable trips, traffic switches to 4G in under 5 seconds.
+### Q399: How are daily local database backups managed on showroom PCs?
+**Answer:** Automated Encrypted Local & Cloud Backups:
+* 📍 **System Navigation Path:** `Sidebar: Settings & System` &rarr; `Database Backups` (`/settings/backups`)
+* The system takes an automated encrypted backup at 07:05 PM during Day-End Z-Closing, storing a copy locally on the workstation hard drive and mirroring an encrypted snapshot to Head Office cloud storage.
 
 ---
 
-### Q401: How much local hard drive storage does the offline database consume?
-**Answer:** Because electric vehicle dealership transaction volumes are compact, a full branch database (catalog, 5,000 customer records, 5 years of sales and service history) occupies less than **250 Megabytes (MB)** of disk space, running lightning-fast on any standard desktop SSD.
+### Q400: What hardware specifications are recommended for showroom desktop PCs?
+**Answer:** Standard Commercial Workstation Specs:
+* 📍 **System Navigation Path:** IT Deployment Guide
+* **Minimum Specs:** Intel Core i3 (8th Gen+) or AMD Ryzen 3, 8GB DDR4 RAM, 256GB NVMe SSD, Gigabit LAN, Windows 10/11 Pro 64-bit, 80mm Thermal POS Printer, USB Barcode Scanner.
 
 ---
 
-### Q402: Are offline records tamper-proof against employee manipulation?
-**Answer:** Yes. The local SQLite database is encrypted with **AES-256 SQLCipher**. An employee cannot open the database file with external tools to alter prices or delete invoices; any file tampering invalidates the cryptographic hash and locks the application.
+### Q401: Can a showroom operate continuously on a mobile 4G hotspot backup?
+**Answer:** Yes. Low-Bandwidth Optimization:
+* 📍 **System Navigation Path:** Network Settings
+* AJ EcoDrive uses high-efficiency compressed JSON payloads (typically < 15 KB per transaction), running flawlessly over a mobile phone 4G hotspot or backup Jazz/Zong data SIM.
 
 ---
 
-### Q403: How does the system display network status to counter staff?
-**Answer:** A prominent, color-coded **Connection Health Pill** is displayed in the upper navigation header:
-* **GREEN PULSE (ONLINE):** Fully connected to Central Cloud; live real-time sync active.
-* **AMBER (OFFLINE - DURABLE):** Internet disconnected; operating locally; Outbox queuing active (shows count: e.g., *"4 Events Queued"*).
-* **BLUE ROTATING (SYNCING):** Internet restored; actively transmitting Outbox backlog.
+### Q402: How does the system handle daylight saving time or regional clock drifts?
+**Answer:** Network Time Protocol (NTP) Synchronization:
+* 📍 **System Navigation Path:** Core System Architecture
+* Workstations sync their internal clock with Head Office central NTP time servers upon every heartbeat, preventing clock tampering on cashier terminals.
 
 ---
 
-### Q404: What automated sync diagnostic tool is available to staff?
-**Answer:** In **Settings -> Sync Health**, staff can view the **Sync Diagnostic Monitor**:
-* Last Successful Cloud Heartbeat.
-* Outbox Queued Items Count.
-* Average Network Round-Trip Latency (ms).
-* Manual **"Force Sync Now"** button.
+### Q403: Where can IT administrators monitor nationwide workstation connectivity health?
+**Answer:** The **Nationwide Workstation Heartbeat & Health Console**:
+* 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `Network Terminal Health` (`/settings/terminals`)
+* Real-time map displaying connectivity status, SQLite database size, sync latency (ms), and active software versions across all showroom terminals.
 
 ---
 
-### Q405: What is the ultimate executive summary for dealership owners regarding AJ EcoDrive's architecture?
-**Answer:**
-> **"AJ EcoDrive combines the centralized governance and nationwide visibility of a modern Cloud ERP with the bulletproof reliability, zero-latency speed, and offline durability of an industrial local desktop system. Your showrooms will NEVER stop selling, your inventory will NEVER be double-sold, and your cash will NEVER go unaccounted for."**
+### Q404: How are software updates and security patches deployed to branch PCs?
+**Answer:** Zero-Downtime Background Auto-Update:
+* 📍 **System Navigation Path:** Application Update Engine
+* New software updates download silently in the background and apply seamlessly during morning workstation boot-up without requiring manual IT technician visits to branch showrooms.
 
+---
+
+### Q405: What is the System Uptime & Operational Durability KPI?
+**Answer:** Enterprise reliability benchmark:
+* 📍 **System Navigation Path:** `Sidebar: Analytics & Reports` &rarr; `System Reliability KPIs`
+* Measures overall showroom transactional availability (Target: **99.99% Operational Uptime** across all physical dealership locations).
 
 ---
 [Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
 
 ---
 
-# APPENDIX A: Policy Summary — Operational Continuity & Synchronization
-
-1. **Local Operational Durability:** Each showroom branch maintains a durable, local transactional database (SQLite on Desktop Workstations / IndexedDB on Tablets) capable of operating completely independently during cloud disconnects.
-2. **Deterministic Conflict Resolution:** Business rules guarantee deterministic outcomes when reconciling concurrent modifications between branches and the central server, prioritizing local showroom physical custody.
-3. **Graceful Degradation:** The user interface provides clear visual cues of connectivity status (Green/Amber/Blue) without blocking local sales, quotes, or repair operations.
-4. **Guaranteed Transaction Delivery:** An Outbox Queue pattern guarantees at-least-once delivery of local transactions to the central cloud once connectivity is restored.
-5. **Periodic & Event-Driven Sync:** Synchronization executes in the background continuously on critical events, and periodically at 2-hour intervals for non-critical telemetry.
-6. **Day-End Closing Enforcement:** Showroom branches must resolve any critical local transactional discrepancies before formal end-of-day register closing.
+# APPENDICES
 
 ---
 
-# APPENDIX B: Target Production Topology Blueprint
-
-```text
-====================================================================================================
-                                      CENTRAL CLOUD LAYER
-                          (Tier-4 Secure Cloud Datacenter / High Availability)
-====================================================================================================
-                                                 |
-                       +-------------------------+-------------------------+
-                       |                                                   |
-                       v                                                   v
-          +-------------------------+                         +-------------------------+
-          |  Central Master Server  |                         | Central Cloud Database  |
-          |  REST & WebSocket APIs  |                         |  PostgreSQL / MySQL     |
-          |  Sync & Conflict Engine |                         |  Consolidated Ledger    |
-          +-------------------------+                         +-------------------------+
-                       |                                                   |
-                       +-------------------------+-------------------------+
-                                                 |
-                                     (Encrypted HTTPS Sync)
-                                                 |
-           +-------------------------------------+-------------------------------------+
-           |                                     |                                     |
-           v                                     v                                     v
-=======================               =======================               =======================
- PESHAWAR SHOWROOM HUB                 ISLAMABAD SHOWROOM                    LAHORE SHOWROOM HUB
-=======================               =======================               =======================
- | Desktop App (Dell/HP)               | Desktop App (Dell/HP)               | Desktop App (Dell/HP)
- | Android Tablets (Parity)            | Android Tablets (Parity)            | Android Tablets (Parity)
- | Local SQLite Database               | Local SQLite Database               | Local SQLite Database
- | Transaction Outbox Queue            | Transaction Outbox Queue            | Transaction Outbox Queue
- | Background Sync Engine              | Background Sync Engine              | Background Sync Engine
-=======================               =======================               =======================
-                                                 |
-                               +-----------------+-----------------+
-                               |                                   |
-                               v                                   v
-             =====================================   =====================================
-                    OPTIONAL WEB COMPANION                 MOBILE FIELD EXECUTIVE APP
-             (Secondary Browser Portal for Remote)   (Android Tablets - Full Feature Parity)
-             =====================================   =====================================
-```
+### APPENDIX A: Policy Summary — Operational Continuity & Synchronization
+* **Core Philosophy:** Local Showroom Autonomy with Centralized Financial & Inventory Governance.
+* **Offline Threshold:** Showrooms can operate offline for up to 7 consecutive calendar days before mandatory central synchronization lock.
+* **Data Privacy:** Customer CNIC and financial data encrypted at rest (AES-256) and in transit (TLS 1.3).
 
 ---
 
-# APPENDIX C: Proposed Offline Operational Classification Matrix
-
-> [!NOTE]
-> *The operational classifications below represent the proposed architectural baseline awaiting formal client review and sign-off.*
-
-| Operation / Module | Operational Category | Offline Behavior & Business Rules | Central Reconciliation Mechanism | Approval Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **Customer Lead Capture** | **Category A: Offline-Capable** | Full data entry permitted; saved immediately to local database. | Synchronizes to central CRM; deduplicated by CNIC / Phone. | Approved |
-| **Customer Profile Edit** | **Category A: Offline-Capable** | Immediate local update; cached contact details update locally. | Field-level delta merge; conflicting fields resolved by timestamp. | Approved |
-| **Quotation Preparation** | **Category A: Offline-Capable** | Full pricing calculation using local cached price lists. | Uploads as proposed quotation; no inventory impact. | Approved |
-| **Service Case Intake** | **Category A: Offline-Capable** | Vehicle inspection, symptom notes, and photo intake saved locally. | Uploads case record; links to vehicle warranty master. | Approved |
-| **Repair Job Logging** | **Category A: Offline-Capable** | Diagnostic labor time and parts usage recorded locally. | Posts parts consumption to central after-sales ledger. | Approved |
-| **Local Showroom Inquiries** | **Category A: Offline-Capable** | Instant search by Phone, CNIC, VIN, or Order ID in local store. | Purely local query; zero network traffic generated. | Approved |
-| **Sales Order Confirmation** | **Category B: Restricted Offline** | Permitted **only** for vehicles physically present in local showroom. | Server validates VIN availability; commits reservation. | Approved |
-| **Vehicle Handover Delivery** | **Category B: Restricted Offline** | Permitted if customer invoice is 100% settled; PDI checklist logged. | Central ownership activated; 2-year warranty card logged. | Approved |
-| **Showroom Payment Capture** | **Category B: Restricted Offline** | Cash / IBFT receipts captured with local transaction ID. | Corporate accounting verifies bank slip before final ledger post. | Approved |
-| **Showroom Petty Cash Expense** | **Category B: Restricted Offline** | Permitted within branch manager discretionary limit (PKR 15,000). | Syncs to finance queue; expenses above limit require central review. | Approved |
-| **Transfer Receiving (GRN)** | **Category B: Restricted Offline** | Physical chassis verification and condition check logged locally. | Updates physical branch custody in central inventory ledger. | Approved |
-| **User Role & Permission Edits**| **Category C: Online-Required** | **Blocked offline.** Requires live central administrative connection. | Immediate server commit; propagates to branches on sync. | Approved |
-| **Corporate Pricing Changes** | **Category C: Online-Required** | **Blocked offline.** Only Super Admin can adjust master MSRP/rules. | Pushed down to all branch local stores during periodic sync. | Approved |
-| **Inter-Branch Stock Transfer** | **Category C: Online-Required** | Requesting from another branch requires central stock lock. | Two-phase commit between origin, destination, and Head Office. | Approved |
-| **Company Financial Closing** | **Category C: Online-Required** | Final corporate financial settlement requires full central sync. | National trial balance and general ledger consolidation. | Approved |
+### APPENDIX B: Target Production Topology Blueprint
+* **Central Cloud Server:** Master PostgreSQL Database, API Gateways, FBR E-Invoicing Webhook Service, and Central Action Centre Engine.
+* **Branch Workstations:** Local SQLite Engine, Offline Queue Worker, Thermal POS Receipt Service, Barcode Scanner Drivers.
+* **Mobile Companion:** Progressive Web Application (PWA) / Hybrid Android APK for roaming showroom sales executives and workshop mechanics.
 
 ---
 
-# APPENDIX D: Branch Daily Operational Lifecycle
-
-```text
-+----------------------------------------------------------------------------------------------------+
-| 08:30 AM — SHOWROOM MORNING OPEN & SYNC                                                            |
-| 1. Branch Manager launches AJ EcoDrive Desktop Application (or Mobile Tablet App).                 |
-| 2. System automatically authenticates and initiates Morning Central Synchronization.              |
-| 3. Downloads overnight stock transfer approvals, in-transit shipments, and price lists.            |
-| 4. Confirms branch operational business date. Status indicator turns GREEN (ONLINE).               |
-+----------------------------------------------------------------------------------------------------+
-                                                  |
-                                                  v
-+----------------------------------------------------------------------------------------------------+
-| 09:00 AM — 07:30 PM — DAYTIME CONTINUOUS SHOWROOM & WORKSHOP OPERATIONS                            |
-| * Normal State: All transactions execute locally with immediate background sync to Central Cloud.  |
-| * Disconnected State: System automatically detects packet loss and switches to AMBER (OFFLINE).    |
-|   - Sales, quotes, receipts, gate passes, and workshop job cards execute against local SQLite.     |
-|   - Outbox engine safely journals all transactions to local encrypted disk.                        |
-|   - Zero disruption to walk-in customers, deliveries, or workshop repairs.                         |
-| * Reconnection: Upon internet restoration, status changes to BLUE (SYNCING) and flushes Outbox.    |
-+----------------------------------------------------------------------------------------------------+
-                                                  |
-                                                  v
-+----------------------------------------------------------------------------------------------------+
-| 08:00 PM — 08:30 PM — EVENING RECONCILIATION & DAY-END CLOSING                                     |
-| 1. System initiates mandatory Pre-Closing Synchronization Health Check.                             |
-| 2. Flushes any remaining offline outbox items to central cloud database.                           |
-| 3. Branch Manager conducts physical denomination cash count in safe.                               |
-| 4. System reconciles physical cash against sales invoices and petty cash vouchers.                 |
-| 5. Manager uploads stamped bank deposit slip and signs the Daily Z-Report.                         |
-| 6. System permanently locks the business day against retroactive tampering.                        |
-+----------------------------------------------------------------------------------------------------+
-```
+### APPENDIX C: Proposed Offline Operational Classification Matrix
+* **Tier 1 (Always Available Offline):** Leads, Quotes, POS Sales, Receipts, Job Cards, PDI Checklists, Petty OPEX.
+* **Tier 2 (Queued for Sync):** Customer Profile Updates, Transfer Intake Confirmations, Cycle Count Scans.
+* **Tier 3 (Online Mandatory):** Action Centre Approvals > 8%, High-Value OPEX > PKR 15k, Master MSRP Updates.
 
 ---
 
-# APPENDIX E: Failure & Recovery Scenarios Matrix (18 Critical Events)
-
-| # | Operational Failure Scenario | Primary System Impact | Deterministic System Response & Mitigation | Central Audit / Integrity Safeguard |
-| :-| :--- | :--- | :--- | :--- |
-| **1** | **Complete Internet Outage** | Showroom loses fiber connectivity. | Enters AMBER (OFFLINE); switches transparently to local SQLite. | Zero data loss; outbox records all local actions. |
-| **2** | **Sudden Power Cut (Load-Shedding)**| Desktop PC loses power instantly. | Local SQLite Write-Ahead Logging (WAL) prevents data corruption. | Uncommitted memory writes rolled back cleanly on reboot. |
-| **3** | **Network Drops During Payment** | Network cuts while saving receipt. | Local database completes commit first; sync engine retries upload. | Server detects duplicate client UUID; drops duplicate. |
-| **4** | **Unsent Outbox Items at Closing** | Manager clicks Close Day with queue. | System warns: "Flushing 3 pending transactions before closing." | System attempts 4G cellular upload before locking day. |
-| **5** | **Branch PC Hardware Failure** | Local hard drive failure. | Replace PC; install app; restore full branch state from cloud. | Cloud database has latest synchronized ledger. |
-| **6** | **Cloud Server Unscheduled Outage**| Central cloud server offline. | All showrooms continue operating locally on SQLite/IndexedDB. | Showrooms unaffected; queues sync until server returns. |
-| **7** | **In-Transit Truck Breakdown** | Carrier truck stranded on motorway. | Transfer record flagged with delay notice; VINs stay In-Transit. | Destination cannot sell VINs until truck arrives. |
-| **8** | **Missing Unit During Cycle Count** | Floor bike unaccounted for. | System flags VIN with CRITICAL AUDIT LOCK; blocks sale. | Red alert dispatched to National Internal Audit. |
-| **9** | **Transit Scratch on New Bike** | Vehicle arrives with paint damage. | Receiving manager marks Discrepancy; routes unit to Bay Q-3. | Insurance docket generated; carrier billed for repair. |
-| **10**| **Disputed Warranty Battery Claim**| Customer claims dead battery. | Mechanic scans OBD DTCs; checks SOH (<70%) and delta (>180mV).| 3-way hardware lock stops fraudulent battery swaps. |
-| **11**| **Concurrent Customer Edits** | Branch A & B edit same customer. | Non-conflicting fields merged; conflicting fields use timestamp. | Server logs field-level audit trail with original values. |
-| **12**| **Price Changed While Offline** | Branch quotes with cached price. | Quotation honors cached validity date (7 days) as commercial quote. | Central server flags price delta on conversion if expired. |
-| **13**| **Employee Centrally Deactivated** | User marked Inactive at Head Office. | Deactivation token delivered during next sync cycle. | Branch client terminates local session and locks access. |
-| **14**| **User Permission Centrally Changed** | Super Admin alters staff rights. | Updated permission manifest pushed during periodic sync. | Branch client refreshes UI action privileges immediately. |
-| **15**| **Vehicle Allocated in Another City** | Showroom searches remote stock. | Remote stock displays "Last Refreshed" freshness timestamp. | Transfer request enforces real-time lock before truck dispatch. |
-| **16**| **Duplicate Payment Entry Attempt** | User clicks submit multiple times. | UI debounces click; local store rejects duplicate transaction ID. | Exactly one payment record is generated and queued. |
-| **17**| **Document Number Concurrency** | Two devices generate invoice offline. | Both use compound local IDs (`ORD-PEW-D1-01` vs `ORD-PEW-D2-01`). | Central server assigns sequential official tax numbers on sync. |
-| **18**| **Extended Outage (48+ Hours)** | Outbox backlog accumulates. | Transactions accumulate safely up to local disk capacity. | Upon reconnect, sync engine streams transactions in chunks. |
+### APPENDIX D: Branch Daily Operational Lifecycle
+* **08:30 AM:** Workstation Boot & Morning Central Synchronization (Q26).
+* **08:35 AM:** Cash Drawer Float Physical Count & Ledger Reconciliation (Q29).
+* **08:45 AM:** Showroom Floor Stock VIN Visual Audit (Q28).
+* **08:50 AM:** Overnight Freight Transfer Receiving & Intake (Q31).
+* **09:00 AM:** Morning Team Briefing & Target Review (Q34).
+* **09:00 AM – 07:00 PM:** Active Showroom Sales, Leads, POS Checkout & Workshop Repairs.
+* **07:00 PM:** Day-End Closing Z-Report, Physical Denomination Count & Bank Drop Lockup (Q329–Q342).
 
 ---
 
-# APPENDIX F: Client Approval Items & Architecture Decisions
-
-Before production deployment, executive management and dealership owners must review and formally approve the following business rules:
-
-* [x] **Item A — Offline-Capable Modules:** Approved: Category A (Leads, Customers, Quotes, Workshop Service Intake, Repairs) satisfies all daily showroom continuity requirements.
-* [x] **Item B — Restricted Offline Operations:** Approved: Business rules, discretionary spending limits (PKR 15,000), and payment recording rules for Category B operations.
-* [x] **Item C — Periodic Synchronization Frequency:** Approved: Proposed 2-hour interval during operating hours plus immediate event-driven push on critical actions.
-* [x] **Item D — End-of-Day Branch Closing Blocking Policy:** Approved: RED status (pending cash or vehicle sales) strictly blocks branch managers from closing their showroom register.
-* [x] **Item E — Critical Transaction Thresholds:** Approved: Transactions exceeding PKR 15,000 or involving serialized VIN reallocation constitute a "Critical Unresolved Transaction".
-* [x] **Item F — Data Freshness Tolerances:** Approved: 24-hour maximum acceptable age for cached stock availability, customer balances, and pricing rules.
-* [x] **Item G — Offline Authentication Session Validity Window:** Approved: 24-hour offline token validity before requiring central credential re-validation.
-* [x] **Item H — Conflict Authority Matrix:** Approved: Master pricing, user permissions, and national financial accounting are strictly centralized at Head Office.
-
----
-
-# APPENDIX G: Target Implementation Roadmap (Phases 1 – 19)
-
-Following client approval, production engineering executes in the following 19 structured phases:
-
-1. **Phase 1: Finalize Offline/Online Operational Business Policy:** Lock in approved decisions from Appendix F.
-2. **Phase 2: Define Central Backend Schemas:** Architect normalized relational schemas for master entities.
-3. **Phase 3: Define Transaction Event Model:** Standardize `client_transaction_id` and payload event schemas.
-4. **Phase 4: Define Device Registration & Identity Model:** Implement cryptographic device enrollment and certificates.
-5. **Phase 5: Define Bi-Directional Synchronization Protocol:** Design REST/WebSocket delta endpoints and batch contracts.
-6. **Phase 6: Build Server-Side Idempotency Engine:** Implement duplicate detection and transaction lookup services.
-7. **Phase 7: Implement Conflict Resolution Handlers:** Build domain-specific merge algorithms and audit alerts.
-8. **Phase 8: Implement Central Auth & Offline Authorization Cache:** Develop token issuance and offline validity windows.
-9. **Phase 9: Build Central Backend Services:** Construct central microservices, databases, and reporting engines.
-10. **Phase 10: Build Desktop Operational Database Layer:** Implement local SQLite/encrypted storage engine for Windows.
-11. **Phase 11: Build Desktop Synchronization Engine:** Construct background outbox queue, retry, and delta merge logic.
-12. **Phase 12: Build Mobile Operational Database Layer:** Implement SQLite / Room local storage on Mobile/Tablet apps.
-13. **Phase 13: Package Full-Featured Responsive Mobile App:** Package the complete, full-featured application for Android/iOS with responsive layouts and background sync workers.
-14. **Phase 14: Build End-of-Day Reconciliation Workflows:** Develop branch closing screens, summary audits, and register sign-offs.
-15. **Phase 15: Build Central Sync Health Monitor:** Construct Super Admin real-time nationwide branch sync monitoring UI inside the Desktop Application.
-16. **Phase 16: Failure & Recovery Stress Testing:** Simulate network drops, power cuts, packet losses, and merge conflicts.
-17. **Phase 17: Pilot Deployment (Peshawar Showroom):** Deploy production client in a single live showroom for 30-day trial.
-18. **Phase 18: Operational Audit & Optimization:** Review sync logs, optimize database indexing, and refine staff UX.
-19. **Phase 19: Full Nationwide Rollout & Individual Employee Identity Modules:** Deploy to Islamabad, Lahore, Rawalpindi, and roll out individual employee identities with granular role-based permissions.
+### APPENDIX E: Failure & Recovery Scenarios Matrix (18 Critical Events)
+1. **Event 1: Power Load-Shedding Mid-Sale** &rarr; Workstation runs on UPS; SQLite WAL engine prevents database corruption; transaction completes on battery.
+2. **Event 2: Fiber Internet Cable Cut** &rarr; Terminal auto-switches to AMBER (OFFLINE); transactions queue in local Outbox.
+3. **Event 3: Thermal Receipt Paper Jam** &rarr; POS terminal allows 1-click **"Reprint Receipt"** with duplicate watermark.
+4. **Event 4: Barcode Scanner Failure** &rarr; System allows manual 17-digit VIN text entry with NADRA checksum validation.
+5. **Event 5: Cash Drawer Variance at Night** &rarr; System generates Action Centre Flow 5 incident notice; past sales locked.
+6. **Event 6: Customer Bounced Cheque** &rarr; Payment dishonored; invoice reverts to Unpaid; Gate Pass locked.
+7. **Event 7: Stolen or Missing Showroom Bike** &rarr; Missing VIN locked in Cycle Count; FIR attached; balance sheet written off.
+8. **Event 8: Damaged Bike in Inbound Transfer** &rarr; Scratched unit routed to Bay Q-3; carrier insurance claim auto-generated.
+9. **Event 9: Lithium Battery Thermal Swell** &rarr; Routed immediately to Fireproof Sand Locker; Flow 4 OEM claim submitted.
+10. **Event 10: Unauthorized Staff Discount Attempt** &rarr; System blocks checkout; routes to Action Centre Flow 1.
+11. **Event 11: Terminated Employee Attempting Login** &rarr; JWT token blacklisted; offline credentials purged on sync.
+12. **Event 12: Customer Disputes Return Deduction** &rarr; Escalated to Super Admin via Action Centre dispute drawer.
+13. **Event 13: Factory Recall on Brake Calipers** &rarr; Batch VINs locked into Quarantine Recall status across all branches.
+14. **Event 14: Accidental Double-Scan of VIN** &rarr; System blocks duplicate scan with alert: *"VIN already scanned in manifest"*.
+15. **Event 15: Cross-Branch Selling Attempt** &rarr; Hard custody lock: *"Unit physically in Islamabad; dispatch transfer required"*.
+16. **Event 16: PDI Inspection Failure** &rarr; Delivery Gate Pass locked until workshop foreman signs off defect rectification.
+17. **Event 17: Showroom Air-Conditioner Breakdown (> PKR 15k)** &rarr; Routed to CFO via Flow 3 for online bank payment.
+18. **Event 18: Complete Hard Drive Failure on Branch PC** &rarr; Install fresh app; restore latest Z-Report snapshot from Head Office cloud in 10 minutes.
 
 ---
 
-# APPENDIX H: Core Production Acceptance Criteria
-
-The production system satisfies the following four core business criteria:
-
-1. **Data Loss Acceptance Criterion:**
-   > *"Once an approved operational transaction (customer profile, quotation, sales order, payment, or workshop repair) has been committed to the local durable store on a branch device, temporary internet loss, application restart, device reboot, or delayed synchronization must NEVER silently cause that transaction to disappear."*
-
-2. **Customer Experience Acceptance Criterion:**
-   > *"A customer visiting an AJ EcoDrive showroom or workshop must NEVER be asked to 'come back later because the internet is down', nor should dealership staff EVER be asked to re-enter transactions that were already committed locally."*
-
-3. **Operational Speed Acceptance Criterion:**
-   > *"Routine showroom operations (customer search, lead capture, price quoting, vehicle lookup, and repair logging) must execute with near-instantaneous responsiveness, completely insulated from remote server network latency and internet bandwidth fluctuations."*
-
-4. **Central Consistency Acceptance Criterion:**
-   > *"All transactions processed locally across all nationwide branch devices must ultimately reconcile into the authoritative central enterprise database through an auditable, idempotent, conflict-safe synchronization architecture."*
+### APPENDIX F: Client Approval Items & Architecture Decisions
+* **Decision 1:** 8% Discretionary Discount Ceiling for Branch Managers approved.
+* **Decision 2:** PKR 15,000 Petty Cash OPEX local approval limit approved.
+* **Decision 3:** Mandatory 3-Way Serialized Hardware Binding (Frame + Battery + Controller) approved.
+* **Decision 4:** 7-Day Quotation Validity Window approved.
+* **Decision 5:** Dual-Key Day-End Cashier Z-Closing procedure approved.
 
 ---
 
-> [!IMPORTANT]
-> **CLARIFICATION STATEMENT ON CURRENT STATUS:**
-> *This documentation defines requirements, operational flows, standardized UI tab architectures, and client approval specifications. In the current interactive prototype phase, workflows execute in high-fidelity demonstration mode. Production installation of the Desktop Application and local database engine will commence following client review and formal sign-off.*
+### APPENDIX G: Target Implementation Roadmap (Phases 1 – 19)
+* **Phase 1 – 6 (Completed):** Multi-Branch Core, Serialized Inventory, POS Engine, Action Centre Command, Cash Ledgers.
+* **Phase 7 – 12 (Completed):** Workshop Job Cards, Lithium Battery Diagnostics, PDI Gate Passes, Inbound Receiving.
+* **Phase 13 – 19 (Current Master Baseline):** Enterprise Offline Synchronization, FBR E-Invoicing, Advanced CSAT, AI Sales Forecasting.
 
 ---
-*End of AJ EcoDrive Master Client Operational Guide & Production Architecture Blueprint.*
+
+### APPENDIX H: Core Production Acceptance Criteria
+* **Criteria 1 (Zero Data Loss):** 100% transactional recovery across simulated power cuts and network drops.
+* **Criteria 2 (Zero Inventory Leakage):** No vehicle can exit showroom gates without verified QR Gate Pass.
+* **Criteria 3 (Zero Revenue Leakage):** No price discount > 8% or expense > PKR 15,000 can execute without Action Centre sign-off.
+* **Criteria 4 (Forensic Auditability):** Every business event permanently recorded with immutable user ID, role, and timestamp.
+
+---
+[Back to Top / Navigation Index](#dealership-owners-quick-navigation--executive-index)
