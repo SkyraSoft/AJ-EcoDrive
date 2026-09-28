@@ -287,6 +287,7 @@ The customer walks out with a brand-new original controller without paying, and 
 
 ### Q25: What is the very first screen a Branch Manager sees upon logging in each morning?
 **Answer:** The **Showroom Operations Dashboard** (`/dashboard`). This command dashboard displays real-time operational KPI counters:
+* 📍 **System Navigation Path:** `Login Screen` &rarr; `Branch Manager Role` &rarr; `Main Dashboard` (`/dashboard`)
 * **Showroom Floor Bikes:** Number of physical vehicles currently available for immediate sale.
 * **Today's Revenue:** Live PKR sales volume collected today.
 * **Pending Deliveries:** Customers scheduled to collect their vehicles today.
@@ -297,6 +298,7 @@ The customer walks out with a brand-new original controller without paying, and 
 
 ### Q26: What is the Morning Central Synchronization Routine?
 **Answer:** At 08:30 AM when the showroom opens, launching the desktop workstation triggers the automated **Morning Central Synchronization Routine**:
+* 📍 **System Navigation Path:** `Top Header Bar` &rarr; `Cloud Connectivity Badge` (`GREEN (ONLINE) / AMBER (OFFLINE)`)
 1. Connects to the Head Office central database server.
 2. Downloads overnight catalog price changes or promotional discount guidelines.
 3. Downloads inbound transfer manifests (trucks dispatched from Central Warehouse or other cities).
@@ -307,23 +309,44 @@ The customer walks out with a brand-new original controller without paying, and 
 
 ### Q27: What is the Quick Actions bar on the dashboard and top navigation, how does it speed up operations, and what is the difference between a Quick Sale (POS) and a Sales Order?
 **Answer:** The Quick Actions suite is engineered to give dealership personnel instant, 1-click execution across all high-frequency dealership operations. It is accessible both globally via the top application header (`+ Quick Sale` button and `Quick Actions ⌄` dropdown) and centrally via the Showroom Dashboard Quick Actions action grid.
+* 📍 **System Navigation Path:** `Any Screen` &rarr; `Top Navigation Bar` &rarr; `+ Quick Sale` (or `Quick Actions ⌄` dropdown) OR `Branch Manager Dashboard` &rarr; `Quick Actions Grid`
 
 Crucially, **every Quick Action launches directly in-context as an active modal overlay**. Staff never lose their current workflow or page context—they simply fill the form, click submit, and receive instant confirmation.
 
 #### 1. Complete Categorized Quick Actions Suite
 * **Sales & Commercial Transactions:**
-  * **+ Quick Sale / Point of Sale (POS)** (Directly launches `CreateSaleModal` in `mode="pos"`): Rapid checkout for ready showroom floor units. Instantly assigns physical VIN, captures full payment (or instant financing), updates unit status to `Sold/Ready for PDI`, and generates the customer invoice.
-  * **+ New Order / Booking** (Directly launches `CreateSaleModal` in `mode="order"`): Advance customer reservation, custom vehicle allocation, or pre-order booking against incoming shipments. Accepts booking deposits, marks stock as `Reserved`, and schedules future delivery milestones.
-  * **+ New Walk-In Lead** (Directly launches `CreateLeadModal`): Rapid capture of showroom walk-in visitors, contact numbers, CNIC, interest tags, assigned sales representative, and test ride scheduling.
-  * **+ New Quotation** (Directly launches `CreateQuotationModal`): Generates binding 7-day customer price quotations with dynamic financing calculators, accessory add-ons, and an automated 8% discount ceiling guard. Converts to a Sales Order in 1 click.
-  * **+ Record Payment** (Directly launches `CreatePaymentModal`): Immediately records customer collections (Cash, Pay Order, Cheque, Online IBFT, Credit Card), generates an official receipt, and reconciles pending invoice balances.
+  * **+ Quick Sale / Point of Sale (POS)** (Directly launches `CreateSaleModal` in `mode="pos"`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `+ Quick Sale` button (OR `Quick Actions ⌄` &rarr; `Point of Sale (POS)`)
+    * Rapid checkout for ready showroom floor units. Instantly assigns physical VIN, captures full payment (or instant financing), updates unit status to `Sold/Ready for PDI`, and generates the customer invoice.
+  * **+ New Order / Booking** (Directly launches `CreateSaleModal` in `mode="order"`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Order / Booking` OR `Sidebar: Sales & Revenue` &rarr; `Sales Orders` (`/sales/orders`) &rarr; `+ New Order`
+    * Advance customer reservation, custom vehicle allocation, or pre-order booking against incoming shipments. Accepts booking deposits, marks stock as `Reserved`, and schedules future delivery milestones.
+  * **+ New Walk-In Lead** (Directly launches `CreateLeadModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Walk-In Lead` OR `Sidebar: CRM & Leads` &rarr; `Walk-In Leads` (`/sales/leads`) &rarr; `+ Add Lead`
+    * Rapid capture of showroom walk-in visitors, contact numbers, CNIC, interest tags, assigned sales representative, and test ride scheduling.
+  * **+ New Quotation** (Directly launches `CreateQuotationModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Quotation` OR `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; `+ New Quotation`
+    * Generates binding 7-day customer price quotations with dynamic financing calculators, accessory add-ons, and an automated 8% discount ceiling guard. Converts to a Sales Order in 1 click.
+  * **+ Record Payment** (Directly launches `CreatePaymentModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Record Payment` OR `Sidebar: Finance & Accounts` &rarr; `Customer Payments Ledger` (`/sales/payments`) &rarr; `+ Record Payment`
+    * Immediately records customer collections (Cash, Pay Order, Cheque, Online IBFT, Credit Card), generates an official receipt, and reconciles pending invoice balances.
 * **Showroom & Fleet Operations:**
-  * **+ Stock Request** (Directly launches `CreateStockRequestModal`): Initiates formal stock replenishment requisitions to Central Warehouse when showroom floor inventory drops below safety thresholds.
-  * **+ Inter-Branch Transfer** (Directly launches `CreateTransferModal`): Dispatches vehicles between dealership branches (e.g., Peshawar to Islamabad) with carrier driver info, transit custody tracking, and physical VIN handovers.
-  * **+ Log Showroom Expense** (Directly launches `CreateExpenseModal`): Records branch operating expenditures (tea, utility bills, maintenance). Expenses under PKR 15,000 deduct from the petty cash float; expenses exceeding PKR 15,000 route automatically to the CFO via Action Centre.
-  * **+ Service Intake** (Directly launches `CreateCaseModal`): Checks customer electric bikes into the workshop service bay, logging odometer readings, symptoms, technician assignment, and warranty coverage status.
+  * **+ Stock Request** (Directly launches `CreateStockRequestModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Stock Replenishment Request` OR `Sidebar: Inventory` &rarr; `Stock Requests` (`/inventory/stock-requests`) &rarr; `+ New Requisition`
+    * Initiates formal stock replenishment requisitions to Central Warehouse when showroom floor inventory drops below safety thresholds.
+  * **+ Inter-Branch Transfer** (Directly launches `CreateTransferModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Inter-Branch Transfer` OR `Sidebar: Inventory` &rarr; `Transfers` (`/inventory/transfers`) &rarr; `+ Dispatch Transfer`
+    * Dispatches vehicles between dealership branches (e.g., Peshawar to Islamabad) with carrier driver info, transit custody tracking, and physical VIN handovers.
+  * **+ Log Showroom Expense** (Directly launches `CreateExpenseModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Log Expense Voucher` OR `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses` (`/finance/expenses`) &rarr; `+ Add Expense Voucher`
+    * Records branch operating expenditures (tea, utility bills, maintenance). Expenses under PKR 15,000 deduct from the petty cash float; expenses exceeding PKR 15,000 route automatically to the CFO via Action Centre.
+  * **+ Service Intake** (Directly launches `CreateCaseModal`):
+    * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Service Intake Case` OR `Sidebar: After-Sales & Workshop` &rarr; `Active Service Cases` (`/after-sales/warranty`) &rarr; `+ New Intake Job Card`
+    * Checks customer electric bikes into the workshop service bay, logging odometer readings, symptoms, technician assignment, and warranty coverage status.
 * **Super Admin Enterprise Actions:**
-  * **+ Purchase Order / Sea Container Intake** (Directly launches `CreatePurchaseOrderModal`): Head Office procurement of CBU/CKD container shipments from international OEM manufacturers with Bill of Lading numbers and batch VIN tracking.
+  * **+ Purchase Order / Sea Container Intake** (Directly launches `CreatePurchaseOrderModal`):
+    * 📍 **System Navigation Path:** `Super Admin Dashboard` &rarr; `Sidebar: Procurement & OEM` &rarr; `Purchase Orders` (`/procurement/purchase-orders`) &rarr; `+ New Container PO`
+    * Head Office procurement of CBU/CKD container shipments from international OEM manufacturers with Bill of Lading numbers and batch VIN tracking.
 
 ---
 
@@ -340,64 +363,104 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 ---
 
----
-
 ### Q28: How does the Branch Manager verify physical floor inventory against the system each morning?
-**Answer:** The manager opens **Inventory -> Floor Stock**. The screen lists every physical vehicle assigned to the showroom with its Model, Color, and unique VIN. The manager or floor supervisor conducts a quick walk-around visual verification to confirm every physical scooter on the showroom tiles matches the active digital ledger.
+**Answer:** The manager conducts a visual floor stock audit by matching physical showroom units against the active serialized digital ledger:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Left Sidebar: Inventory` &rarr; `Serialized Units / Floor Stock` (`/inventory/serialized-units?status=Available`)
+* **Procedure:** The screen lists every physical vehicle assigned to the showroom with its Model Name, Frame/Chassis VIN, Motor Serial Number, and Battery Serial Number. The manager or floor supervisor conducts a quick walk-around visual verification to confirm every physical scooter on the showroom tiles matches the active digital ledger before customer entry.
 
 ---
 
 ### Q29: What is the morning procedure for the Showroom Cash Drawer Float?
-**Answer:** The Branch Manager opens the physical showroom cash drawer and counts the opening petty cash float (typically PKR 10,000 to PKR 25,000 for customer change, tea, and daily utility expenses). The manager verifies that the system opening cash balance matches the physical cash notes in the safe before customer transactions begin.
+**Answer:** The Showroom Cash Drawer Float is the dedicated physical currency reserve maintained in the branch cashier's till at the start of each business day. It guarantees that the branch can immediately provide cash change to paying customers and pay for minor day-to-day operational supplies without disrupting daily sales receipts.
+
+* 📍 **System Navigation Path:**
+  * **Primary Float Ledger:** `Branch Manager / Cashier Dashboard` &rarr; `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses & Cash Drawer` (`/finance/expenses`)
+  * **Payment Ledger:** `Sidebar: Finance & Accounts` &rarr; `Customer Payments Ledger` (`/sales/payments`)
+  * **Quick Cash Logging:** `Top Navigation Bar` &rarr; `Quick Actions ⌄` &rarr; `Log Expense Voucher` (or `Record Payment`)
+
+#### Mandatory 6-Step Morning Cash Drawer Float Procedure (08:35 AM):
+
+1. **Dual-Key Safe Access & Physical Count (08:35 AM):**
+   * The Branch Manager and Lead Cashier open the showroom safe and retrieve the cash till.
+   * Physically count all currency notes in the float tray, sorting by denomination (PKR 5,000, 1,000, 500, 100, 50 notes).
+2. **Reconciliation with Yesterday's Closing Balance:**
+   * Navigate to `Finance & Accounts` &rarr; `Showroom Expenses & Cash Drawer` (`/finance/expenses`).
+   * Verify that the physical cash count in hand **exactly matches** the system's recorded *Closing Float Carry-Forward* from the previous evening.
+3. **Safe-to-Till Opening Float Transfer:**
+   * Transfer the standard approved opening float (typically **PKR 10,000 to PKR 25,000**, depending on branch volume) from the master safe into the active counter cash drawer.
+   * This float is reserved exclusively for giving customer change and daily operational necessities (tea, cleaning supplies, drinking water).
+4. **Float Replenishment Threshold Check:**
+   * If the opening cash balance has fallen below the branch emergency safety threshold (e.g., **PKR 5,000**), the manager must click `+ Quick Actions` &rarr; `Log Expense Voucher` or submit an *Emergency Float Reimbursement Requisition* to Head Office via the Action Centre (`/dashboard/action-centre`).
+5. **Petty Cash Operating Expenditure Rules:**
+   * **Minor OPEX (< PKR 15,000):** Paid directly from the petty cash float and logged immediately into `Finance` &rarr; `Expenses` with an attached photo receipt.
+   * **Major OPEX (> PKR 15,000):** Cannot be paid out of the cash drawer without automated CFO approval through the Action Centre.
+6. **Discrepancy Reporting & Zero-Variance Protocol:**
+   * If any variance exists between the physical cash count and the system ledger (e.g., missing PKR 500), the manager must **NOT** alter past sales records.
+   * The manager immediately clicks `Action Centre` (`/dashboard/action-centre`) &rarr; `Submit Cash Float Variance Notice` to document the discrepancy with an audit explanation before the first customer transaction begins.
 
 ---
 
 ### Q30: How does the system handle internet drops or power load-shedding in the morning?
-**Answer:** In Pakistan, power cuts and internet outages are routine. AJ EcoDrive is architected with **Local Offline Durability**. If the internet cable is cut or the local Wi-Fi router loses power, the system seamlessly transitions to **AMBER (OFFLINE)** mode. Staff can continue creating customer leads, generating quotations, making sales, and printing receipts using the local SQLite database. All transactions queue in an Outbox and sync automatically once connectivity restores.
+**Answer:** In Pakistan, power cuts and internet outages are routine. AJ EcoDrive is architected with **Local Offline Durability**:
+* 📍 **System Navigation Path:** `Top Header Bar` &rarr; `System Status Indicator` (Switches from `GREEN (ONLINE)` to `AMBER (OFFLINE)`)
+* If the internet cable is cut or the local Wi-Fi router loses power, the desktop application seamlessly transitions to **AMBER (OFFLINE)** mode. Staff can continue creating customer leads, generating quotations, making sales, and printing receipts using the local SQLite database. All transactions queue in an Outbox and sync automatically to Head Office once connectivity restores.
 
 ---
 
 ### Q31: What should the manager do if an expected incoming delivery truck arrived overnight?
-**Answer:** If an inter-branch transfer truck from Islamabad arrived overnight, the manager navigates to **Inventory -> Transfers -> Inbound Transfers**, selects the transfer manifest ID, physically scans each bike's chassis number as it is unloaded from the truck, checks for transit damage, and clicks **Confirm Receipt**. The vehicles immediately move into Peshawar's active showroom inventory.
+**Answer:** If an inter-branch transfer truck from Islamabad arrived overnight, the manager confirms inbound delivery:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Sidebar: Inventory` &rarr; `Transfers` &rarr; `Inbound Shipments Tab` (`/inventory/transfers?tab=inbound`)
+* **Procedure:** Select the transfer manifest ID, physically scan each bike's chassis number barcode as it is unloaded from the carrier truck, check for exterior transit damage, and click **Confirm Receipt**. The vehicles immediately move from `In-Transit` status into the showroom's active `Available Floor Inventory`.
 
 ---
 
 ### Q32: How does the system alert the manager to scheduled customer delivery appointments?
-**Answer:** The dashboard highlights a dedicated widget: **"Today's Scheduled Deliveries"**. It lists customer names, models, and scheduled handover times. This ensures the workshop team prepares the vehicle early—cleaning the bodywork, charging the lithium battery to 100% State of Charge (SOC), and completing the Pre-Delivery Inspection (PDI).
+**Answer:** The system highlights scheduled handovers through automated dashboard widgets:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Today's Scheduled Deliveries Widget` OR `Sidebar: Sales & Revenue` &rarr; `Sales Orders` (`/sales/orders?status=ReadyForDelivery`)
+* **Procedure:** It lists customer names, vehicle models, VIN allocations, and scheduled handover times. This ensures the workshop team prepares the vehicle early—cleaning the bodywork, charging the lithium battery to 100% State of Charge (SOC), and completing the 6-point Pre-Delivery Inspection (PDI).
 
 ---
 
 ### Q33: How does the manager check for open service complaints from the previous day?
-**Answer:** By clicking **Workshop -> Active Cases**. The screen filters all repair orders currently in progress, indicating which technician is working on each bike, whether replacement parts have arrived, and whether any high-voltage battery warranty claims are awaiting Head Office approval.
+**Answer:** The manager audits open workshop repair orders and warranty tickets:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Sidebar: After-Sales & Workshop` &rarr; `Service Cases & Warranty` (`/after-sales/warranty?status=In-Progress`)
+* **Procedure:** The screen filters all repair orders currently in progress, indicating which technician is working on each bike, whether replacement spare parts have arrived from the central warehouse, and whether any high-voltage battery warranty claims are awaiting Head Office approval.
 
 ---
 
 ### Q34: What is the morning team briefing routine supported by AJ EcoDrive?
-**Answer:** Showroom managers use the Dashboard's **Monthly Target vs Actual Sales Progress Bar** during the 09:00 AM morning staff huddle. The team reviews yesterday's closed deals, open hot leads requiring phone follow-ups, and the remaining unit sales required to hit monthly sales commission targets.
+**Answer:** Showroom managers guide the 09:00 AM staff huddle using live sales metrics:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Monthly Target vs Actual Sales Progress Bar` OR `Sidebar: Analytics & Reports` &rarr; `Sales Performance` (`/reports/sales-performance`)
+* **Procedure:** The team reviews yesterday's closed deals, open hot leads requiring phone follow-ups, workshop bay turnaround times, and the remaining unit sales required to hit monthly sales commission targets.
 
 ---
 
 ### Q35: What happens if the system shows a catalog price update from Head Office?
-**Answer:** When Head Office modifies a model's MSRP (e.g., due to foreign currency exchange fluctuations or factory price adjustments), a notification banner appears: *"Catalog Updated: 2 Models Have New Base Prices"*. The new prices apply immediately to all newly created quotations and sales orders, preventing staff from selling bikes at outdated, unprofitable rates.
+**Answer:** When Head Office modifies a model's MSRP (e.g., due to foreign currency exchange fluctuations or factory price adjustments), a system alert is broadcast:
+* 📍 **System Navigation Path:** `Top Navigation Bar` &rarr; `Notification Bell Icon` OR `Sidebar: Products & Catalog` &rarr; `Product Pricing` (`/catalog/products`)
+* A notification banner appears: *"Catalog Updated: 2 Models Have New Base Prices"*. The new prices apply immediately to all newly created quotations and sales orders, preventing staff from selling bikes at outdated, unprofitable rates.
 
 ---
 
 ### Q36: How does the manager verify that receipt printers and barcode scanners are working?
-**Answer:** The manager navigates to **Settings -> Device Test**, clicks **Print Test Slip**, and confirms that the thermal receipt printer outputs a clean test voucher with the dealership logo, tax registration number, and current date.
+**Answer:** Hardware peripherals are tested through the built-in device diagnostics utility:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Sidebar: Settings & System` &rarr; `Hardware & POS Peripherals` (`/settings/devices`)
+* **Procedure:** The manager navigates to the Hardware screen, clicks **Print Test Slip**, and confirms that the thermal receipt printer outputs a clean test voucher with the dealership logo, tax registration number, and current date. The manager also scans a sample VIN barcode to verify the handheld scanner is responsive.
 
 ---
 
 ### Q36A: What is the Branch Snapshot on the Branch Manager Dashboard, where does each KPI tile redirect, and what does it display?
 **Answer:** The **Branch Snapshot** is a 6-tile live operational widget located on the main dashboard (`/dashboard`) for branch managers. Every tile is an interactive drill-down button that navigates directly to the filtered operational workbench:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` (`/dashboard`) &rarr; `Branch Snapshot Widget` (Upper Section)
 
-| Snapshot KPI Tile | Live Metric Displayed | Redirect Target Route | Operational Purpose & Workflow |
+| Snapshot KPI Tile | Live Metric Displayed | Exact System Navigation Path & Route | Operational Purpose & Workflow |
 | :--- | :--- | :--- | :--- |
-| **Open Orders** | Total active customer orders not yet delivered | `/sales/orders?status=Open` | Opens the Sales Orders management workbench. Allows the manager to review pending customer agreements, allocate chassis VINs, and track payment balances. |
-| **Available Stock** | Total physical vehicles on the showroom floor ready for sale | `/inventory/serialized-units?status=Available` | Opens the Serialized Inventory screen filtered to Available bikes. Used to verify chassis numbers, exterior colors, and showroom display units. |
-| **Reserved** | Units locked to confirmed customer deposits | `/inventory/serialized-units?status=Reserved` | Opens the Serialized Inventory filtered to Reserved status. Verifies which VINs are locked to customer sales orders and awaiting final invoicing or PDI. |
-| **Incoming** | In-transit stock transfer shipments en route to this branch | `/inventory/transfers` | Opens the Inter-Branch Transfers view. Used by the branch manager to inspect incoming freight trucks, verify carrier manifests, and confirm inbound delivery receipts. |
-| **Low Stock** | Product models whose available units are below reorder threshold | `/inventory/stock-by-product?filter=low-stock` | Opens the Stock by Product inventory screen with low-stock alert filters applied. Allows the manager to immediately submit a Stock Replenishment Request (`CreateStockRequestModal`). |
-| **Service Cases** | Open workshop repair tickets and warranty complaints | `/after-sales/warranty` | Opens the Warranty & After-Sales Service desk. Displays customer bikes in the workshop, technician job assignments, and Lithium battery warranty claims. |
+| **Open Orders** | Total active customer orders not yet delivered | `Sidebar: Sales & Revenue` &rarr; `Sales Orders` (`/sales/orders?status=Open`) | Opens the Sales Orders management workbench. Allows the manager to review pending customer agreements, allocate chassis VINs, and track payment balances. |
+| **Available Stock** | Total physical vehicles on the showroom floor ready for sale | `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units?status=Available`) | Opens the Serialized Inventory screen filtered to Available bikes. Used to verify chassis numbers, exterior colors, and showroom display units. |
+| **Reserved** | Units locked to confirmed customer deposits | `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units?status=Reserved`) | Opens the Serialized Inventory filtered to Reserved status. Verifies which VINs are locked to customer sales orders and awaiting final invoicing or PDI. |
+| **Incoming** | In-transit stock transfer shipments en route to this branch | `Sidebar: Inventory` &rarr; `Transfers` (`/inventory/transfers?tab=inbound`) | Opens the Inter-Branch Transfers view. Used by the branch manager to inspect incoming freight trucks, verify carrier manifests, and confirm inbound delivery receipts. |
+| **Low Stock** | Product models whose available units are below reorder threshold | `Sidebar: Inventory` &rarr; `Stock by Product` (`/inventory/stock-by-product?filter=low-stock`) | Opens the Stock by Product inventory screen with low-stock alert filters applied. Allows the manager to immediately submit a Stock Replenishment Request (`CreateStockRequestModal`). |
+| **Service Cases** | Open workshop repair tickets and warranty complaints | `Sidebar: After-Sales & Workshop` &rarr; `Warranty & Service Desk` (`/after-sales/warranty?status=Open`) | Opens the Warranty & After-Sales Service desk. Displays customer bikes in the workshop, technician job assignments, and Lithium battery warranty claims. |
 
 *Hovering over any Branch Snapshot card highlights the tile in emerald with an interactive arrow indicator, enabling 1-click drill-down.*
 
@@ -405,31 +468,33 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 ### Q36B: What is the Action Required table on the Branch Manager Dashboard, and where do the "Open ›" buttons and record badges redirect?
 **Answer:** The **Action Required** table on the dashboard (`/dashboard`) is the central operational triage queue for the branch manager. It highlights urgent threshold breaches, pending regulatory approvals, and due tasks:
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` (`/dashboard`) &rarr; `Action Required Section`
 
 1. **Priority Actions Row (High / Med Priority):**
    * **Scope of Tasks:** Incoming stock waiting to be received, inter-branch transfers ready to dispatch, low-stock reorder warnings, unpaid customer balances, and overdue customer follow-ups.
    * **Main "Open ›" Button & Row Click:** Redirects directly to `/dashboard/action-centre?priority=Critical` in the Action Centre.
    * **Direct Record Badge Links:** Branch managers can click the individual record code pills to jump directly to specific sub-modules:
-     * `TR` &rarr; Opens **Inter-Branch Transfers** (`/inventory/transfers`)
-     * `PO` &rarr; Opens **Purchase Orders & Receipts** (`/procurement/purchase-orders`)
-     * `SKU` &rarr; Opens **Stock Replenishment Requests** (`/inventory/stock-requests`)
-     * `ORD` &rarr; Opens **Sales Orders** (`/sales/orders`)
-     * `LD` &rarr; Opens **Walk-In Leads & Pipeline** (`/sales/leads`)
+     * `TR` &rarr; `Sidebar: Inventory` &rarr; **Inter-Branch Transfers** (`/inventory/transfers`)
+     * `PO` &rarr; `Sidebar: Procurement` &rarr; **Purchase Orders & Receipts** (`/procurement/purchase-orders`)
+     * `SKU` &rarr; `Sidebar: Inventory` &rarr; **Stock Replenishment Requests** (`/inventory/stock-requests`)
+     * `ORD` &rarr; `Sidebar: Sales & Revenue` &rarr; **Sales Orders** (`/sales/orders`)
+     * `LD` &rarr; `Sidebar: CRM & Leads` &rarr; **Walk-In Leads & Pipeline** (`/sales/leads`)
 
 2. **Due / Overdue Row (Med / High Priority):**
    * **Scope of Tasks:** Showroom petty cash expense corrections, customer vehicle returns pending physical inspection, workshop warranty escalation tasks, and official Head Office executive directives.
    * **Main "Open ›" Button & Row Click:** Redirects directly to `/dashboard/action-centre?priority=High` in the Action Centre.
    * **Direct Record Badge Links:**
-     * `EXP` &rarr; Opens **Showroom Expenses** (`/finance/expenses`)
-     * `RET` &rarr; Opens **Vehicle Returns & Refunds** (`/sales/returns`)
-     * `SC` &rarr; Opens **Service Cases & Workshop** (`/after-sales/warranty`)
-     * `TASK` &rarr; Opens **Action Centre Directives** (`/dashboard/action-centre`)
+     * `EXP` &rarr; `Sidebar: Finance & Accounts` &rarr; **Showroom Expenses** (`/finance/expenses`)
+     * `RET` &rarr; `Sidebar: Sales & Revenue` &rarr; **Vehicle Returns & Refunds** (`/sales/returns`)
+     * `SC` &rarr; `Sidebar: After-Sales & Workshop` &rarr; **Service Cases & Workshop** (`/after-sales/warranty`)
+     * `TASK` &rarr; `Sidebar: Dashboard` &rarr; **Action Centre Directives** (`/dashboard/action-centre`)
 
 ---
 
 ### Q36C: What are the 4 Top KPI Cards on the Branch Manager Dashboard and where do they redirect?
 **Answer:** At the very top of the Branch Manager Dashboard, 4 high-level daily financial and operational cards provide instant visibility. Each card is interactive and clickable:
-* **Today's Sales (PKR):** Clickable &rarr; Redirects to **Sales Orders** (`/sales/orders`) or **Sales Dashboard** (`/sales/dashboard`).
+* 📍 **System Navigation Path:** `Branch Manager Dashboard` (`/dashboard`) &rarr; `Top Metric Header Row`
+* **Today's Sales (PKR):** Clickable &rarr; Redirects to **Sales Orders** (`/sales/orders`) or **Sales Dashboard` (`/sales/dashboard`).
 * **Units Sold:** Clickable &rarr; Redirects to **Sales Orders** (`/sales/orders`) to review closed vehicle deliveries.
 * **Payments Collected (PKR):** Clickable &rarr; Redirects to **Customer Payments Ledger** (`/sales/payments`) to audit cash and bank collections.
 * **Expenses (PKR):** Clickable &rarr; Redirects to **Showroom Expenses** (`/finance/expenses`) to monitor daily petty cash burn.
@@ -438,6 +503,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 ### Q36D: What are the explicit operational decision criteria for choosing between a "Quick Sale (POS)" and a "Sales Order (Booking)" at the showroom counter?
 **Answer:** Showroom sales representatives and branch managers must evaluate four mandatory operational criteria when choosing which workflow to launch:
+* 📍 **System Navigation Path:** `Top Header Bar` &rarr; `+ Quick Sale` button (POS Mode) OR `Top Header Bar` &rarr; `Quick Actions ⌄` &rarr; `New Order / Booking` (Booking Order Mode)
 
 ```
 [Customer at Showroom Sales Counter]
@@ -480,6 +546,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 ### Q36E: How do the financial and accounting ledger entries differ between a Point of Sale (POS) transaction and a Sales Order booking?
 **Answer:** AJ EcoDrive enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:
+* 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Financial Reports / General Ledger` (`/finance/general-ledger`)
 
 | Financial / Accounting Aspect | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
 | :--- | :--- | :--- |
@@ -492,32 +559,44 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 ### Q36F: What are the 9 Standard Dealership Operational Goals achieved via the Quick Actions menu?
 **Answer:** The Quick Actions menu in the top navigation bar and dashboard action grid directly serves 9 core dealership goals:
+* 📍 **System Navigation Path:** `Top Header Bar` &rarr; `Quick Actions ⌄` (or `+ Quick Sale` button)
 
-1. **Goal 1: Instant Walk-In Customer Checkout** &rarr; `Point of Sale (POS)`: Finalizes floor sales in under 60 seconds with instant VIN assignment.
-2. **Goal 2: Pipeline Lead Capture** &rarr; `New Walk-In Lead`: Captures customer CNIC, phone number, test ride preference, and assigns a sales rep before the customer exits the door.
-3. **Goal 3: Binding Price Commitments** &rarr; `New Quotation`: Issues formal 7-day price quotes with financing terms and automated 8% discount ceiling guards.
-4. **Goal 4: Scheduled Fleet & Custom Bookings** &rarr; `New Order / Booking`: Reserves incoming stock and records token deposits.
-5. **Goal 5: Cash Reconciliation & Collections** &rarr; `Record Payment`: Reconciles cash, cheque, and IBFT deposits directly against open customer invoices.
-6. **Goal 6: Floor Inventory Replenishment** &rarr; `Stock Replenishment Request`: Triggers stock requisition from Central Warehouse when floor stock reaches low safety buffer.
-7. **Goal 7: Multi-City Stock Rebalancing** &rarr; `Inter-Branch Transfer`: Moves units between cities with carrier tracking and transit discrepancy logging.
-8. **Goal 8: Petty Cash Governance** &rarr; `Log Expense Voucher`: Logs showroom OPEX (under PKR 15,000 petty cash; over PKR 15,000 auto-routes to CFO).
-9. **Goal 9: After-Sales Service Intake** &rarr; `Service Intake Case`: Checks customer bikes into the service bay with OBD trouble codes and technician job cards.
+1. **Goal 1: Instant Walk-In Customer Checkout** &rarr; `Point of Sale (POS)` (`CreateSaleModal` in `pos` mode): Finalizes floor sales in under 60 seconds with instant VIN assignment.
+2. **Goal 2: Pipeline Lead Capture** &rarr; `New Walk-In Lead` (`CreateLeadModal`): Captures customer CNIC, phone number, test ride preference, and assigns a sales rep before the customer exits the door.
+3. **Goal 3: Binding Price Commitments** &rarr; `New Quotation` (`CreateQuotationModal`): Issues formal 7-day price quotes with financing terms and automated 8% discount ceiling guards.
+4. **Goal 4: Scheduled Fleet & Custom Bookings** &rarr; `New Order / Booking` (`CreateSaleModal` in `order` mode): Reserves incoming stock and records token deposits.
+5. **Goal 5: Cash Reconciliation & Collections** &rarr; `Record Payment` (`CreatePaymentModal`): Reconciles cash, cheque, and IBFT deposits directly against open customer invoices.
+6. **Goal 6: Floor Inventory Replenishment** &rarr; `Stock Replenishment Request` (`CreateStockRequestModal`): Triggers stock requisition from Central Warehouse when floor stock reaches low safety buffer.
+7. **Goal 7: Multi-City Stock Rebalancing** &rarr; `Inter-Branch Transfer` (`CreateTransferModal`): Moves units between cities with carrier tracking and transit discrepancy logging.
+8. **Goal 8: Petty Cash Governance** &rarr; `Log Expense Voucher` (`CreateExpenseModal`): Logs showroom OPEX (under PKR 15,000 petty cash; over PKR 15,000 auto-routes to CFO).
+9. **Goal 9: After-Sales Service Intake** &rarr; `Service Intake Case` (`CreateCaseModal`): Checks customer bikes into the service bay with OBD trouble codes and technician job cards.
 
 ---
 
 ### Q36G: What is the mandatory 5-step Morning Showroom Opening Checklist every Branch Manager must complete before unlocking the customer entrance doors?
 **Answer:** To ensure dealership security, floor safety, and zero inventory leakage, every Branch Manager follows this 5-step morning opening checklist between 08:30 AM and 09:00 AM:
 
-1. **Step 1: Workstation Boot & Synchronization Check (08:30 AM):** Power on main counter PC, verify green **ONLINE** connectivity badge, and download overnight Head Office price updates or incoming transfer manifests.
-2. **Step 2: Showroom Cash Drawer Float Count (08:35 AM):** Count physical cash notes in the safe and confirm the physical total matches the system opening cash float (typically PKR 15,000 to PKR 25,000).
-3. **Step 3: Physical Floor Stock VIN Audit (08:45 AM):** Walk the showroom floor tiles with a handheld tablet or floor sheet to verify that every physical electric scooter's chassis VIN matches the **Available** units ledger.
-4. **Step 4: Overnight Shipment & Transfer Intake (08:50 AM):** If carrier trucks arrived overnight, scan inbound VIN barcodes, log physical exterior condition, and confirm receipt in the system.
-5. **Step 5: Morning Sales Huddle & Delivery Briefing (09:00 AM):** Review today's scheduled delivery appointments, hot leads needing phone follow-ups, and daily sales targets with showroom sales reps and workshop technicians before opening doors.
+1. **Step 1: Workstation Boot & Synchronization Check (08:30 AM):**
+   * 📍 **System Navigation Path:** `Top Header Bar` &rarr; `Connectivity Badge`
+   * Power on main counter PC, verify green **ONLINE** connectivity badge, and download overnight Head Office price updates or incoming transfer manifests.
+2. **Step 2: Showroom Cash Drawer Float Count (08:35 AM):**
+   * 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses & Cash Drawer` (`/finance/expenses`)
+   * Count physical cash notes in the safe and confirm the physical total matches the system opening cash float (typically PKR 15,000 to PKR 25,000).
+3. **Step 3: Physical Floor Stock VIN Audit (08:45 AM):**
+   * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units?status=Available`)
+   * Walk the showroom floor tiles with a handheld tablet or floor sheet to verify that every physical electric scooter's chassis VIN matches the **Available** units ledger.
+4. **Step 4: Overnight Shipment & Transfer Intake (08:50 AM):**
+   * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` (`/inventory/transfers?tab=inbound`)
+   * If carrier trucks arrived overnight, scan inbound VIN barcodes, log physical exterior condition, and confirm receipt in the system.
+5. **Step 5: Morning Sales Huddle & Delivery Briefing (09:00 AM):**
+   * 📍 **System Navigation Path:** `Branch Manager Dashboard` (`/dashboard`)
+   * Review today's scheduled delivery appointments, hot leads needing phone follow-ups, and daily sales targets with showroom sales reps and workshop technicians before opening doors.
 
 ---
 
 ### Q36H: How does the system prevent staff from confusing a Sales Quotation with a Sales Order or Official Invoice?
 **Answer:** AJ EcoDrive establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:
+* 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; Select Quotation &rarr; Click `Convert to Order` button
 * **Watermark & Header Banners:** Quotations print with a prominent watermark: *"PRICE ESTIMATE — NOT AN INVOICE / NON-BINDING AFTER 7 DAYS"*.
 * **No Inventory Allocation:** Creating a Quotation **does NOT reserve or lock physical stock**. Other showroom salespeople can freely sell that vehicle. Physical reservation only occurs when the quote is converted to an active Sales Order or POS transaction.
 * **No Gate Pass Eligibility:** Security guards will strictly confiscate any vehicle attempting to exit with a Quotation or Pro-forma document. Gate Passes require a verified Tax Invoice with zero remaining balance.
