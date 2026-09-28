@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "sync:guide": "node scratch/sync_html_guide.cjs",
-    "build": "node scratch/sync_html_guide.cjs && vite build",
+    "sync:guide": "node scripts/sync_html_guide.cjs",
+    "build": "node scripts/sync_html_guide.cjs && vite build",
     "preview": "vite preview",
-    "test": "node scratch/sync_html_guide.cjs && node tests/test_master_readiness.js",
+    "test": "node scripts/sync_html_guide.cjs && node tests/test_master_readiness.js",
     "test:integration": "node tests/test_cross_entity_validation.js && node tests/test_prompt7_audit.js && node tests/test_master_readiness.js"
   },
   "dependencies": {
