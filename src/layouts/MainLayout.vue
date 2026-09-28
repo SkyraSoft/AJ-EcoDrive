@@ -5,7 +5,8 @@ import {
   Home, Building2, LayoutGrid, FileText, Package, Users, 
   PlusCircle, CircleDollarSign, MessageSquare, PieChart, 
   Settings, Search, Bell, MessageCircle, Moon, Sun, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Menu, X, Lock,
-  ShoppingCart, Tag, DollarSign, Wrench, Truck, Receipt, UserPlus, FilePlus, Sparkles, CheckCircle2
+  ShoppingCart, Tag, DollarSign, Wrench, Truck, Receipt, UserPlus, FilePlus, Sparkles, CheckCircle2,
+  BookOpen, ExternalLink
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
 
@@ -697,6 +698,18 @@ const handleQuickActionCreated = (type, payload) => {
               </div>
             </div>
 
+            <!-- Guide Link Button -->
+            <a 
+              href="/guide.html" 
+              target="_blank" 
+              class="hidden lg:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border bg-amber-50/80 hover:bg-amber-100 text-amber-900 border-amber-200 dark:bg-slate-800 dark:text-amber-400 dark:border-slate-700 transition-all cursor-pointer shadow-sm text-decoration-none"
+              title="Open Client Operations & Systems Architecture Guide (400+ Q&As)"
+            >
+              <BookOpen class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>Guide</span>
+              <ExternalLink class="w-3 h-3 opacity-60" />
+            </a>
+
             <!-- Theme Toggle Button -->
             <button 
               @click="toggleTheme" 
@@ -714,11 +727,18 @@ const handleQuickActionCreated = (type, payload) => {
               <button @click="toggleDropdown('profile')" class="w-8 h-8 rounded-full bg-[#165A31] text-white flex items-center justify-center text-xs font-bold shadow-sm">
                 {{ isBranchUser ? 'BM' : userInitials }}
               </button>
-              <div v-if="openDropdown === 'profile'" class="absolute top-full right-0 mt-3 w-52 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
+              <div v-if="openDropdown === 'profile'" class="absolute top-full right-0 mt-3 w-56 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">
                 <div class="px-4 py-2 border-b border-gray-50 mb-1">
                   <div class="text-[11px] font-bold text-gray-900">{{ isBranchUser ? 'Branch Manager' : (user.name || 'Super Admin') }}</div>
                   <div class="text-[9px] text-gray-400 font-medium">{{ user.branchName ? `${user.branchName} Branch` : 'All Branches' }} &middot; {{ user.role || 'Branch Manager' }}</div>
                 </div>
+                <a href="/guide.html" target="_blank" class="w-full text-left px-4 py-2 text-xs text-amber-800 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-between font-semibold">
+                  <span class="flex items-center gap-2">
+                    <BookOpen class="w-3.5 h-3.5 text-amber-600" />
+                    Operations Guide
+                  </span>
+                  <ExternalLink class="w-3 h-3 opacity-60" />
+                </a>
                 <button @click="openDropdown = null; router.push('/system/account')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Account</button>
                 <button @click="openDropdown = null; router.push('/system/security')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Security & Sessions</button>
                 <button @click="openDropdown = null; router.push('/system/preferences')" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors">Preferences</button>

@@ -6,7 +6,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { authenticateBranch } from '@/auth.js'
 import { store } from '@/store.js'
-import { KeyRound, Sparkles, ArrowRight, ShieldCheck, Check } from 'lucide-vue-next'
+import { KeyRound, Sparkles, ArrowRight, ShieldCheck, Check, BookOpen, ExternalLink } from 'lucide-vue-next'
 
 const router = useRouter()
 const branchCode = ref('ADMIN')
@@ -178,6 +178,19 @@ const handleLogin = async () => {
           <span>Common Password for all: <strong class="font-mono text-emerald-950 dark:text-emerald-200">password123</strong></span>
           <span class="text-[10px] opacity-75 font-mono">(or "password")</span>
         </div>
+      </div>
+
+      <!-- Interactive Guide Direct Link -->
+      <div class="mt-5 text-center">
+        <a 
+          href="/guide.html" 
+          target="_blank" 
+          class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors py-1.5 px-3 rounded-lg bg-emerald-50 dark:bg-slate-800/80 border border-emerald-200 dark:border-slate-700"
+        >
+          <BookOpen class="w-3.5 h-3.5" />
+          <span>View Interactive Client Operations Guide (400+ Q&As)</span>
+          <ExternalLink class="w-3 h-3 opacity-70" />
+        </a>
       </div>
     </form>
   </AuthCard>
