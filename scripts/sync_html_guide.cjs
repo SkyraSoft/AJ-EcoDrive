@@ -6,123 +6,122 @@ const mdPath = path.join(__dirname, '..', 'AJ_ECODRIVE_COMPLETE_CLIENT_GUIDE_QA.
 let mdContent = fs.readFileSync(mdPath, 'utf8');
 
 // Strip redundant first header block and static Table of Contents from markdown body
-// (since the interactive sidebar and top hero card handle them cleanly)
-const tocIndex = mdContent.indexOf('# TABLE OF CONTENTS');
 const execIndex = mdContent.indexOf("# DEALERSHIP OWNER'S QUICK NAVIGATION & EXECUTIVE INDEX");
-
-if (tocIndex !== -1 && execIndex !== -1) {
-    // Keep from Executive Index onwards
+if (execIndex !== -1) {
     mdContent = mdContent.substring(execIndex);
 }
 
-// Configure marked options
-marked.setOptions({
-    gfm: true,
-    breaks: true
-});
+// Tokenize the markdown
+const tokens = marked.lexer(mdContent);
 
-// Custom marked renderer for clean, professional executive styling
-const renderer = new marked.Renderer();
+let htmlBody = '';
+let inQaCard = false;
 
-// Custom Heading Renderer
-renderer.heading = function({ tokens, depth, raw }) {
-    const text = this.parser.parseInline(tokens);
-    const plainText = raw.replace(/[^\w\s-]/g, '').trim();
-    const id = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+function closeQaCard() {
+    if (inQaCard) {
+        htmlBody += `</div></div>\n`;
+        inQaCard = false;
+    }
+}
 
-    // Q&A Question Detection (depth 3, e.g. ### Q27: What is...)
-    const qMatch = raw.match(/^Q([0-9A-Za-z_-]+):?\s*(.*)/i);
-    if (depth === 3 && qMatch) {
-        const qid = ('Q' + qMatch[1]).toUpperCase();
-        const titleText = qMatch[2] || plainText;
-        const anchorId = qid.toLowerCase();
-        return `
-        <div class="qa-card-anchor" id="${anchorId}"></div>
-        <div class="qa-card" data-qid="${qid}">
-            <div class="qa-header">
-                <div class="d-flex align-items-center gap-2 flex-grow-1">
-                    <span class="qid-badge">${qid}</span>
-                    <h4 class="qa-title mb-0">${titleText}</h4>
+for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+
+    // Heading token handling
+    if (token.type === 'heading') {
+        const raw = token.raw.trim();
+        const depth = token.depth;
+        const text = marked.parseInline(token.text);
+        const id = token.text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+        // Q&A Question Detection (e.g. ### Q27: What is...)
+        const qMatch = token.text.match(/^Q([0-9A-Za-z_-]+):?\s*(.*)/i);
+        if (depth === 3 && qMatch) {
+            closeQaCard();
+            inQaCard = true;
+            const qid = ('Q' + qMatch[1]).toUpperCase();
+            const titleText = qMatch[2] ? marked.parseInline(qMatch[2]) : text;
+            const anchorId = qid.toLowerCase();
+            htmlBody += `
+            <div class="qa-card-anchor" id="${anchorId}"></div>
+            <div class="qa-card" data-qid="${qid}">
+                <div class="qa-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="qid-badge">${qid}</span>
+                        <h4 class="qa-title mb-0">${titleText}</h4>
+                    </div>
+                    <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('${anchorId}')" title="Copy direct link to ${qid}">
+                        <i class="fas fa-link"></i>
+                    </button>
                 </div>
-                <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('${anchorId}')" title="Copy direct link to ${qid}">
-                    <i class="fas fa-link"></i>
-                </button>
-            </div>
-            <div class="qa-body">
-        `;
+                <div class="qa-body">
+            `;
+            continue;
+        }
+
+        // Close QA card before major banners
+        closeQaCard();
+
+        if (token.text.toUpperCase().includes('SECTION ') && depth <= 2) {
+            htmlBody += `<div class="section-banner" id="${id}"><div class="section-tag"><i class="fas fa-layer-group me-1"></i> SECTION ARCHITECTURE</div><h3 class="mb-0">${text}</h3></div>\n`;
+            continue;
+        }
+
+        if (token.text.toUpperCase().includes('PART ') && depth <= 2) {
+            htmlBody += `<div class="part-banner" id="${id}"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">${text}</h3></div>\n`;
+            continue;
+        }
+
+        if (token.text.toUpperCase().includes('APPENDIX') && depth <= 2) {
+            htmlBody += `<div class="appendix-banner" id="${id}"><div class="appendix-pill"><i class="fas fa-bookmark me-1"></i> ARCHITECTURAL APPENDIX</div><h3 class="appendix-title mb-0">${text}</h3></div>\n`;
+            continue;
+        }
+
+        if (token.text.includes("DEALERSHIP OWNER'S QUICK NAVIGATION")) {
+            htmlBody += `<div class="exec-nav-banner mb-4" id="${id}"><div class="badge bg-warning text-dark fw-bold mb-1">EXECUTIVE INDEX</div><h2 class="exec-title mb-1">${text}</h2><p class="text-muted small mb-0">Plain-English Answers for Dealership Investors, Directors &amp; Non-Technical Owners</p></div>\n`;
+            continue;
+        }
+
+        if (depth === 1) {
+            htmlBody += `<h1 class="doc-main-title mt-4 mb-3" id="${id}">${text}</h1>\n`;
+            continue;
+        }
+        if (depth === 2) {
+            htmlBody += `<h2 class="doc-section-title mt-4 mb-2 pb-2 border-bottom" id="${id}">${text}</h2>\n`;
+            continue;
+        }
+        htmlBody += `<h${depth} class="doc-sub-heading mt-3 mb-2" id="${id}">${text}</h${depth}>\n`;
+        continue;
     }
 
-    // SECTION Banner
-    if (raw.toUpperCase().includes('SECTION ') && depth <= 3) {
-        return `<div class="section-banner" id="${id}"><div class="section-tag"><i class="fas fa-layer-group me-1"></i> SECTION ARCHITECTURE</div><h3 class="mb-0">${text}</h3></div>`;
+    // Horizontal Rule token handling
+    if (token.type === 'hr') {
+        closeQaCard();
+        htmlBody += `<hr class="doc-hr my-4">\n`;
+        continue;
     }
 
-    // PART Banner
-    if (raw.toUpperCase().includes('PART ') && depth <= 3) {
-        return `<div class="part-banner" id="${id}"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">${text}</h3></div>`;
+    // Table token handling
+    if (token.type === 'table') {
+        const tableHtml = marked.parser([token]);
+        htmlBody += `<div class="table-responsive my-3 custom-table-wrapper">${tableHtml}</div>\n`;
+        continue;
     }
 
-    // APPENDIX Banner
-    if (raw.toUpperCase().includes('APPENDIX') && depth <= 3) {
-        return `<div class="appendix-banner" id="${id}"><div class="appendix-pill"><i class="fas fa-bookmark me-1"></i> ARCHITECTURAL APPENDIX</div><h3 class="appendix-title mb-0">${text}</h3></div>`;
+    // Blockquote token handling
+    if (token.type === 'blockquote') {
+        const quoteHtml = marked.parser(token.tokens);
+        htmlBody += `<div class="executive-callout my-3"><i class="fas fa-shield-halved callout-icon"></i><div class="callout-content">${quoteHtml}</div></div>\n`;
+        continue;
     }
 
-    // Executive Index Main Heading
-    if (raw.includes("DEALERSHIP OWNER'S QUICK NAVIGATION")) {
-        return `<div class="exec-nav-banner mb-4" id="${id}"><div class="badge bg-warning text-dark fw-bold mb-1">EXECUTIVE INDEX</div><h2 class="exec-title mb-1">${text}</h2><p class="text-muted small mb-0">Plain-English Answers for Dealership Investors, Directors &amp; Non-Technical Owners</p></div>`;
-    }
+    // Parse all other standard tokens (paragraphs, lists, code blocks, etc.)
+    htmlBody += marked.parser([token]);
+}
 
-    // Main document headings
-    if (depth === 1) {
-        return `<h1 class="doc-main-title mt-4 mb-3" id="${id}">${text}</h1>`;
-    }
-    if (depth === 2) {
-        return `<h2 class="doc-section-title mt-4 mb-2 pb-2 border-bottom" id="${id}">${text}</h2>`;
-    }
-    return `<h${depth} class="doc-sub-heading mt-3 mb-2" id="${id}">${text}</h${depth}>`;
-};
+closeQaCard();
 
-// Custom Table Renderer
-renderer.table = function(token) {
-    let headerHtml = '';
-    token.header.forEach(cell => {
-        headerHtml += `<th>${this.parser.parseInline(cell.tokens)}</th>`;
-    });
-
-    let bodyHtml = '';
-    token.rows.forEach(row => {
-        bodyHtml += '<tr>';
-        row.forEach(cell => {
-            bodyHtml += `<td>${this.parser.parseInline(cell.tokens)}</td>`;
-        });
-        bodyHtml += '</tr>';
-    });
-
-    return `
-    <div class="table-responsive my-3 custom-table-wrapper">
-        <table class="table table-hover custom-table mb-0 align-middle">
-            <thead><tr>${headerHtml}</tr></thead>
-            <tbody>${bodyHtml}</tbody>
-        </table>
-    </div>
-    `;
-};
-
-// Custom Blockquote Renderer
-renderer.blockquote = function(token) {
-    const quoteContent = this.parser.parse(token.tokens);
-    return `<div class="executive-callout my-3"><i class="fas fa-shield-halved callout-icon"></i><div class="callout-content">${quoteContent}</div></div>`;
-};
-
-// Custom Horizontal Rule (closes QA card if open)
-renderer.hr = function() {
-    return `</div></div><div class="qa-divider"></div>`;
-};
-
-// Parse Markdown content to HTML using marked
-const rawHtml = marked(mdContent, { renderer });
-
-// Table of Contents for Sidebar
+// Table of Contents for Sidebar Navigation
 const tocSections = [
     {
         title: "Executive Index",
@@ -231,7 +230,7 @@ const fullHtml = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ EcoDrive — Client Operations Guide & Complete Architecture Manual (400+ Q&A)</title>
+    <title>AJ EcoDrive — Client Operations Guide & Systems Architecture Manual (400+ Q&A)</title>
     
     <!-- Google Fonts & Favicon -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -260,7 +259,7 @@ const fullHtml = `<!DOCTYPE html>
             --brand-text-muted: #64748b;
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
-            --sidebar-width: 320px;
+            --sidebar-width: 310px;
         }
 
         * {
@@ -377,31 +376,31 @@ const fullHtml = `<!DOCTYPE html>
             border-color: var(--brand-gold);
         }
 
-        /* Master Layout Container */
+        /* Master Layout Structure */
         .layout-container {
             display: flex;
             width: 100%;
+            min-height: calc(100vh - 58px);
             position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Left Navigation Sidebar */
+        /* Left Navigation Sidebar (Fixed & Sticky) */
         .sidebar-left {
             width: var(--sidebar-width);
             flex-shrink: 0;
             background: #ffffff;
             border-right: 1px solid var(--brand-border);
             position: sticky;
-            top: 57px;
-            height: calc(100vh - 57px);
+            top: 58px;
+            height: calc(100vh - 58px);
             overflow-y: auto;
-            padding: 20px 16px 40px;
+            padding: 16px 14px 40px;
             scrollbar-width: thin;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: margin-left 0.25s ease, opacity 0.2s ease;
             z-index: 1020;
         }
 
-        /* Collapsed Sidebar State */
+        /* Collapsed Sidebar */
         .layout-container.sidebar-collapsed .sidebar-left {
             margin-left: calc(-1 * var(--sidebar-width));
             opacity: 0;
@@ -412,25 +411,25 @@ const fullHtml = `<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 4px 12px;
+            padding: 0 4px 10px;
             border-bottom: 1px solid var(--brand-border-subtle);
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .sidebar-section-title {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             color: var(--brand-text-muted);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             padding-left: 8px;
         }
 
         .sidebar-nav-link {
             display: block;
-            padding: 6px 10px;
-            font-size: 0.82rem;
+            padding: 5px 10px;
+            font-size: 0.81rem;
             color: #334155;
             text-decoration: none;
             border-radius: 6px;
@@ -443,82 +442,44 @@ const fullHtml = `<!DOCTYPE html>
             background: var(--brand-green-light);
             color: var(--brand-green-primary);
             font-weight: 600;
-            padding-left: 14px;
+            padding-left: 12px;
         }
 
-        /* Floating / Docked Persistent Toggle Widget */
-        .docked-index-widget {
-            position: fixed;
-            bottom: 24px;
-            left: 20px;
-            background: var(--brand-dark);
-            color: #ffffff;
-            border: 2px solid var(--brand-gold);
-            padding: 9px 16px;
-            border-radius: 30px;
-            font-size: 0.84rem;
-            font-weight: 700;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            z-index: 1030;
-            transition: all 0.2s ease;
-        }
-
-        .docked-index-widget:hover {
-            background: var(--brand-gold);
-            color: var(--brand-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(245, 158, 11, 0.35);
-        }
-
-        /* Main Content Viewport & Proportional Centering */
+        /* Main Content Viewport */
         .main-content-wrapper {
             flex-grow: 1;
             display: flex;
             justify-content: center;
-            padding: 32px 36px 100px;
+            padding: 32px 40px 100px;
             min-width: 0;
-            transition: all 0.3s ease;
+            background-color: var(--bg-body);
         }
 
         .main-content-inner {
             width: 100%;
-            max-width: 1040px;
+            max-width: 980px;
+            margin: 0 auto;
         }
 
-        /* Hero Card */
+        /* Hero Guide Card */
         .hero-guide-card {
             background: linear-gradient(135deg, #090d16 0%, #165A31 100%);
             color: #ffffff;
             border-radius: 16px;
-            padding: 32px 36px;
+            padding: 28px 32px;
             margin-bottom: 24px;
-            box-shadow: 0 10px 30px rgba(9, 13, 22, 0.15);
+            box-shadow: 0 8px 24px rgba(9, 13, 22, 0.12);
             border: 1px solid rgba(245, 158, 11, 0.25);
             position: relative;
             overflow: hidden;
         }
 
-        .hero-guide-card::after {
-            content: "";
-            position: absolute;
-            right: -20px;
-            bottom: -30px;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
         .hero-guide-card h1 {
-            font-size: 1.7rem;
+            font-size: 1.65rem;
             font-weight: 800;
             line-height: 1.25;
             letter-spacing: -0.02em;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         /* Presentation Live Access Credentials Card */
@@ -527,8 +488,8 @@ const fullHtml = `<!DOCTYPE html>
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.18);
             border-radius: 12px;
-            padding: 16px 20px;
-            margin-top: 20px;
+            padding: 14px 18px;
+            margin-top: 18px;
         }
 
         .cred-pill {
@@ -546,22 +507,22 @@ const fullHtml = `<!DOCTYPE html>
         .metric-badges-strip {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 28px;
         }
 
         .metric-badge-item {
             background: #ffffff;
             border: 1px solid var(--brand-border);
-            padding: 7px 14px;
+            padding: 6px 12px;
             border-radius: 8px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 700;
             color: var(--brand-text-main);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
         }
 
         /* Executive Navigation Banner */
@@ -570,13 +531,13 @@ const fullHtml = `<!DOCTYPE html>
             border: 1px solid var(--brand-border);
             border-left: 5px solid var(--brand-gold);
             border-radius: 12px;
-            padding: 20px 24px;
-            margin: 32px 0 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            padding: 18px 22px;
+            margin: 28px 0 18px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
 
         .exec-title {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             font-weight: 800;
             color: var(--brand-dark);
             letter-spacing: -0.01em;
@@ -587,10 +548,10 @@ const fullHtml = `<!DOCTYPE html>
             background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
             color: #ffffff;
             border-radius: 12px;
-            padding: 18px 24px;
-            margin: 44px 0 18px;
+            padding: 16px 22px;
+            margin: 40px 0 16px;
             border-left: 6px solid var(--brand-gold);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         .section-tag {
@@ -599,11 +560,11 @@ const fullHtml = `<!DOCTYPE html>
             color: var(--brand-gold);
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .section-banner h3 {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 800;
             letter-spacing: -0.01em;
         }
@@ -614,13 +575,13 @@ const fullHtml = `<!DOCTYPE html>
             border: 1px solid var(--brand-border);
             border-left: 5px solid var(--brand-green-primary);
             border-radius: 10px;
-            padding: 14px 20px;
-            margin: 30px 0 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            padding: 14px 18px;
+            margin: 28px 0 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
 
         .part-pill {
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 800;
             color: var(--brand-green-primary);
             text-transform: uppercase;
@@ -629,7 +590,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .part-title {
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-weight: 800;
             color: var(--brand-dark);
         }
@@ -640,12 +601,12 @@ const fullHtml = `<!DOCTYPE html>
             border: 1px solid #fde68a;
             border-left: 5px solid var(--brand-gold);
             border-radius: 10px;
-            padding: 14px 20px;
-            margin: 30px 0 16px;
+            padding: 14px 18px;
+            margin: 28px 0 16px;
         }
 
         .appendix-pill {
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 800;
             color: #b45309;
             text-transform: uppercase;
@@ -654,7 +615,7 @@ const fullHtml = `<!DOCTYPE html>
         }
 
         .appendix-title {
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-weight: 800;
             color: #78350f;
         }
@@ -671,14 +632,14 @@ const fullHtml = `<!DOCTYPE html>
             border: 1px solid var(--brand-border);
             border-radius: 12px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.15s ease;
             overflow: hidden;
         }
 
         .qa-card:hover {
             border-color: #cbd5e1;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
         }
 
         .qa-header {
@@ -697,14 +658,14 @@ const fullHtml = `<!DOCTYPE html>
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.78rem;
             font-weight: 800;
-            padding: 4px 8px;
+            padding: 3px 8px;
             border-radius: 6px;
             flex-shrink: 0;
             letter-spacing: 0.02em;
         }
 
         .qa-title {
-            font-size: 0.95rem;
+            font-size: 0.94rem;
             font-weight: 700;
             color: var(--brand-dark);
             line-height: 1.4;
@@ -751,43 +712,46 @@ const fullHtml = `<!DOCTYPE html>
             margin-bottom: 4px;
         }
 
-        .qa-divider {
-            height: 4px;
-        }
-
-        /* Custom Tables */
+        /* Tables */
         .custom-table-wrapper {
             border: 1px solid var(--brand-border);
             border-radius: 10px;
             overflow: hidden;
             background: #ffffff;
+            margin: 16px 0;
         }
 
-        .custom-table {
-            font-size: 0.86rem;
+        .custom-table-wrapper table {
+            width: 100%;
             margin-bottom: 0;
+            font-size: 0.86rem;
+            border-collapse: collapse;
         }
 
-        .custom-table thead th {
+        .custom-table-wrapper table thead th {
             background: #090d16;
             color: var(--brand-gold);
             font-weight: 700;
-            font-size: 0.76rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
-            padding: 11px 14px;
-            border-color: #1e293b;
-            white-space: nowrap;
-        }
-
-        .custom-table tbody td {
             padding: 10px 14px;
-            border-color: #f1f5f9;
-            color: #1e293b;
+            border: 1px solid #1e293b;
         }
 
-        .custom-table tbody tr:nth-child(even) {
+        .custom-table-wrapper table tbody td {
+            padding: 9px 14px;
+            border: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: top;
+        }
+
+        .custom-table-wrapper table tbody tr:nth-child(even) {
             background-color: #fafbfc;
+        }
+
+        .custom-table-wrapper table tbody tr:hover {
+            background-color: #f1f5f9;
         }
 
         /* Executive Callouts */
@@ -797,6 +761,7 @@ const fullHtml = `<!DOCTYPE html>
             border-left: 5px solid #2563eb;
             border-radius: 8px;
             padding: 14px 18px;
+            margin: 16px 0;
             display: flex;
             gap: 12px;
             align-items: flex-start;
@@ -813,10 +778,16 @@ const fullHtml = `<!DOCTYPE html>
             font-size: 0.9rem;
             color: #1e3a8a;
             line-height: 1.6;
+            flex-grow: 1;
         }
 
         .callout-content p:last-child {
             margin-bottom: 0;
+        }
+
+        .doc-hr {
+            border-color: var(--brand-border);
+            opacity: 0.6;
         }
 
         /* Floating Top Button */
@@ -865,7 +836,7 @@ const fullHtml = `<!DOCTYPE html>
             display: none;
         }
 
-        /* Mobile Offcanvas Drawer Backdrop */
+        /* Mobile Backdrop */
         .sidebar-backdrop {
             display: none;
             position: fixed;
@@ -902,7 +873,7 @@ const fullHtml = `<!DOCTYPE html>
                 padding: 20px 16px 80px;
             }
             .hero-guide-card {
-                padding: 24px 20px;
+                padding: 22px 18px;
             }
             .hero-guide-card h1 {
                 font-size: 1.35rem;
@@ -1016,18 +987,12 @@ const fullHtml = `<!DOCTYPE html>
 
                 <!-- Parsed Content Body -->
                 <div id="qaContentWrapper">
-                    ${rawHtml}
+                    ${htmlBody}
                 </div>
 
             </main>
         </div>
     </div>
-
-    <!-- Permanent Floating / Docked Index Widget -->
-    <button class="docked-index-widget" id="dockedIndexWidget" onclick="toggleSidebar()" title="Toggle Operational Index Drawer">
-        <i class="fas fa-book-open"></i>
-        <span id="dockedIndexLabel">Operational Index</span>
-    </button>
 
     <!-- Floating Back to Top Button -->
     <a href="#" class="floating-top-btn" title="Back to Top">
@@ -1066,9 +1031,7 @@ const fullHtml = `<!DOCTYPE html>
 
         function updateToggleLabels(isCollapsed) {
             const headerText = document.getElementById('headerToggleText');
-            const dockedLabel = document.getElementById('dockedIndexLabel');
             if (headerText) headerText.innerText = isCollapsed ? 'Show Index' : 'Index';
-            if (dockedLabel) dockedLabel.innerText = isCollapsed ? 'Open Index' : 'Operational Index';
         }
 
         // Copy direct link to clipboard
