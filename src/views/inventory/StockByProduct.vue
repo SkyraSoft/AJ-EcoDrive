@@ -1,16 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Search, ChevronDown, Check, Lock, CheckCircle2 } from 'lucide-vue-next'
 import { store } from '@/store.js'
 
 const router = useRouter()
+const route = useRoute()
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 const showToast = ref(false)
 const toastMessage = ref('')
+
+onMounted(() => {
+  if (route.query.filter === 'low-stock' || route.query.reorder === 'below') {
+    branchReorderFilter.value = 'Below Reorder'
+    selectedHealth.value = 'Below Reorder'
+  }
+})
 
 // Branch Manager Data
 const branchStockProducts = computed(() => {

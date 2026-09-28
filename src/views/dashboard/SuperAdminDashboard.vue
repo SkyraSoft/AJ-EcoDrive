@@ -1,61 +1,132 @@
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   TrendingUp, 
   TrendingDown, 
-  MoreHorizontal
+  MoreHorizontal,
+  ArrowUpRight,
+  ChevronRight,
+  ExternalLink
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
 
+const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // --- Branch Manager Specific Data ---
-const branchManagerKpis = [
-  { label: "Today's Sales", value: 'PKR 842K', change: '+12.4%' },
-  { label: 'Units Sold', value: '7', change: '+2 vs yesterday' },
-  { label: 'Payments Collected', value: 'PKR 710K', change: '84%' },
-  { label: 'Expenses', value: 'PKR 42K', change: 'Today' }
-]
+const branchManagerKpis = computed(() => [
+  { label: "Today's Sales", value: 'PKR 842K', change: '+12.4%', route: { path: '/sales/orders' } },
+  { label: 'Units Sold', value: '7', change: '+2 vs yesterday', route: { path: '/sales/orders' } },
+  { label: 'Payments Collected', value: 'PKR 710K', change: '84%', route: { path: '/sales/payments' } },
+  { label: 'Expenses', value: 'PKR 42K', change: 'Today', route: { path: '/finance/expenses' } }
+])
 
-const branchSnapshot = [
-  { label: 'Open Orders', value: '14' },
-  { label: 'Available Stock', value: '48' },
-  { label: 'Reserved', value: '7' },
-  { label: 'Incoming', value: '8' },
-  { label: 'Low Stock', value: '6 products' },
-  { label: 'Service Cases', value: '4 open' }
-]
+const branchSnapshot = computed(() => {
+  const branch = user.value?.branchName || 'Peshawar'
+  const stats = store.getInventoryStats ? store.getInventoryStats(branch) : { available: 48, reserved: 7 }
+  
+  const openOrdersCount = store.orders 
+    ? store.orders.filter(o => store.isBranchAllowed(o.branch) && o.status !== 'Completed' && o.status !== 'Cancelled' && o.status !== 'Returned').length || 14
+    : 14
+
+  const incomingCount = store.transfers
+    ? store.transfers.filter(t => (!t.to || store.isBranchAllowed(t.to)) && t.status !== 'Received').length || 8
+    : 8
+
+  const lowStockCount = store.products
+    ? store.products.filter(p => (p.available ?? 0) <= (p.reorderLevel || p.reorder || 8)).length || 6
+    : 6
+
+  const serviceCasesCount = store.cases
+    ? store.cases.filter(c => store.isBranchAllowed(c.branch) && c.status !== 'Resolved').length || 4
+    : 4
+
+  return [
+    { 
+      label: 'Open Orders', 
+      value: String(openOrdersCount), 
+      route: { path: '/sales/orders', query: { status: 'Open' } },
+      targetDesc: 'View pending and active sales orders'
+    },
+    { 
+      label: 'Available Stock', 
+      value: String(stats.available || 48), 
+      route: { path: '/inventory/serialized-units', query: { status: 'Available' } },
+      targetDesc: 'Inspect showroom inventory ready for sale'
+    },
+    { 
+      label: 'Reserved', 
+      value: String(stats.reserved || 7), 
+      route: { path: '/inventory/serialized-units', query: { status: 'Reserved' } },
+      targetDesc: 'Units assigned to customer orders'
+    },
+    { 
+      label: 'Incoming', 
+      value: String(incomingCount), 
+      route: { path: '/inventory/transfers' },
+      targetDesc: 'In-transit stock transfers awaiting receipt'
+    },
+    { 
+      label: 'Low Stock', 
+      value: `${lowStockCount} products`, 
+      route: { path: '/inventory/stock-by-product', query: { filter: 'low-stock' } },
+      targetDesc: 'SKUs below minimum reorder threshold'
+    },
+    { 
+      label: 'Service Cases', 
+      value: `${serviceCasesCount} open`, 
+      route: { path: '/after-sales/warranty' },
+      targetDesc: 'Active warranty claims and repair jobs'
+    }
+  ]
+})
 
 const actionRequiredItems = [
   {
     priority: 'High / Med',
     priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
     item: 'Incoming stock to receive • Transfer to dispatch • Low stock / request stock • Unpaid or partially paid order • Overdue customer follow-up',
+    recordBadges: [
+      { code: 'TR', route: '/inventory/transfers', label: 'Transfers' },
+      { code: 'PO', route: '/procurement/purchase-orders', label: 'Purchase Orders' },
+      { code: 'SKU', route: '/inventory/stock-requests', label: 'Stock Requests' },
+      { code: 'ORD', route: '/sales/orders', label: 'Sales Orders' },
+      { code: 'LD', route: '/sales/leads', label: 'Leads' }
+    ],
     record: 'TR / PO / SKU / ORD / LD',
     status: 'Priority actions',
-    statusClass: 'bg-[#fef3c7] text-[#b45309]'
+    statusClass: 'bg-[#fef3c7] text-[#b45309]',
+    actionRoute: { path: '/dashboard/action-centre', query: { priority: 'Critical' } }
   },
   {
     priority: 'Med / High',
     priorityClass: 'bg-[#fef3c7] text-[#b45309]',
     item: 'Expense correction • Return pending inspection • Warranty / service task • Management task from Super Admin',
+    recordBadges: [
+      { code: 'EXP', route: '/finance/expenses', label: 'Expenses' },
+      { code: 'RET', route: '/sales/returns', label: 'Returns' },
+      { code: 'SC', route: '/after-sales/warranty', label: 'Service Cases' },
+      { code: 'TASK', route: '/dashboard/action-centre', label: 'HQ Tasks' }
+    ],
     record: 'EXP / RET / SC / TASK',
     status: 'Due / overdue',
-    statusClass: 'bg-[#dbeafe] text-[#1d4ed8]'
+    statusClass: 'bg-[#dbeafe] text-[#1d4ed8]',
+    actionRoute: { path: '/dashboard/action-centre', query: { priority: 'High' } }
   }
 ]
 
 // --- Super Admin Specific Data ---
 const superAdminKpis = [
-  { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
-  { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
-  { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true },
-  { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true },
-  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true },
-  { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true },
-  { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null },
-  { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false }
+  { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true, route: '/sales/dashboard' },
+  { label: 'Units Sold', value: '184', change: '+8.2%', positive: true, route: '/sales/orders' },
+  { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true, route: '/procurement/purchase-orders' },
+  { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true, route: '/finance/expenses' },
+  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true, route: '/dashboard/business-performance' },
+  { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true, route: '/dashboard/business-performance' },
+  { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null, route: '/inventory/dashboard' },
+  { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false, route: '/sales/payments' }
 ]
 
 const branchPerformance = [
@@ -72,6 +143,15 @@ const expenseSummary = [
   { name: 'Marketing', value: 31 },
   { name: 'Logistics', value: 27 }
 ]
+
+const navigateTo = (route) => {
+  if (!route) return
+  if (typeof route === 'string') {
+    router.push(route)
+  } else {
+    router.push(route)
+  }
+}
 </script>
 
 <template>
@@ -86,13 +166,24 @@ const expenseSummary = [
       <p class="text-xs text-gray-500 mt-1">{{ user.branchName }} Branch operational overview and priorities.</p>
     </div>
 
-    <!-- 4 KPI Cards -->
+    <!-- 4 KPI Cards (Clickable) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div v-for="(kpi, index) in branchManagerKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+      <div 
+        v-for="(kpi, index) in branchManagerKpis" 
+        :key="index" 
+        @click="navigateTo(kpi.route)"
+        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+      >
+        <div class="flex items-center justify-between text-xs font-semibold text-gray-400 mb-3">
+          <span>{{ kpi.label }}</span>
+          <ArrowUpRight class="w-3.5 h-3.5 text-gray-300 group-hover:text-[#209249] transition-colors" />
+        </div>
         <div>
           <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
-          <div class="text-[11px] font-bold text-[#209249] mt-1">{{ kpi.change }}</div>
+          <div class="text-[11px] font-bold text-[#209249] mt-1 flex items-center gap-1">
+            <span>{{ kpi.change }}</span>
+            <span class="text-[10px] text-gray-400 font-normal group-hover:text-gray-600">· Click to view &rsaquo;</span>
+          </div>
         </div>
       </div>
     </div>
@@ -100,45 +191,85 @@ const expenseSummary = [
     <!-- Middle Row: Sales Trend & Branch Snapshot -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       <!-- Sales Trend -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-7 flex flex-col justify-between min-h-[260px]">
-        <h3 class="text-sm font-bold text-gray-900 mb-4">Sales Trend</h3>
+      <div 
+        @click="navigateTo('/sales/dashboard')"
+        class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-7 flex flex-col justify-between min-h-[260px] cursor-pointer hover:border-gray-200 transition-all group"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold text-gray-900">Sales Trend</h3>
+          <span class="text-[11px] text-gray-400 font-medium group-hover:text-[#209249] flex items-center gap-1">
+            View Sales Analytics <ArrowUpRight class="w-3 h-3" />
+          </span>
+        </div>
         <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-xl flex items-end justify-center gap-6 pt-8 pb-4 px-6">
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 45%;"></div>
-          <div class="w-10 bg-[#6ee7b7] rounded-t-md" style="height: 70%;"></div>
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 55%;"></div>
-          <div class="w-10 bg-[#34d399] rounded-t-md" style="height: 90%;"></div>
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 75%;"></div>
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md group-hover:bg-[#86efac] transition-all" style="height: 45%;"></div>
+          <div class="w-10 bg-[#6ee7b7] rounded-t-md group-hover:bg-[#4ade80] transition-all" style="height: 70%;"></div>
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md group-hover:bg-[#86efac] transition-all" style="height: 55%;"></div>
+          <div class="w-10 bg-[#34d399] rounded-t-md group-hover:bg-[#22c55e] transition-all" style="height: 90%;"></div>
+          <div class="w-10 bg-[#a7f3d0] rounded-t-md group-hover:bg-[#86efac] transition-all" style="height: 75%;"></div>
         </div>
       </div>
 
-      <!-- Branch Snapshot -->
+      <!-- Branch Snapshot (Clickable Interactive KPI Grid) -->
       <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-5 flex flex-col">
-        <h3 class="text-sm font-bold text-gray-900 mb-4">Branch Snapshot</h3>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold text-gray-900">Branch Snapshot</h3>
+          <span class="text-[10px] text-gray-400 font-medium">Click tile to open module</span>
+        </div>
         <div class="grid grid-cols-2 gap-3 flex-1">
-          <div v-for="(item, idx) in branchSnapshot" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
-            <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
-            <span class="text-sm font-bold text-gray-900 mt-1">{{ item.value }}</span>
+          <div 
+            v-for="(item, idx) in branchSnapshot" 
+            :key="idx" 
+            @click="navigateTo(item.route)"
+            :title="item.targetDesc"
+            class="bg-[#fbfcfc] hover:bg-[#f0fdf4] border border-gray-100/90 hover:border-[#209249]/40 rounded-lg p-3.5 flex flex-col justify-between cursor-pointer transition-all duration-150 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:shadow-sm group"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-gray-500 group-hover:text-[#165A31]">{{ item.label }}</span>
+              <ArrowUpRight class="w-3 h-3 text-gray-300 group-hover:text-[#209249] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </div>
+            <div class="flex items-baseline justify-between mt-1">
+              <span class="text-sm font-bold text-gray-900 group-hover:text-[#165A31]">{{ item.value }}</span>
+              <span class="text-[9px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity font-medium">Open &rsaquo;</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Action Required Table -->
+    <!-- Action Required Table (Clickable Rows & Direct Open Links) -->
     <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-      <h3 class="text-sm font-bold text-gray-900 mb-5">Action Required</h3>
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900">Action Required</h3>
+          <p class="text-[11px] text-gray-500 mt-0.5">Pending operational tasks, threshold warnings, and approval requests for this branch.</p>
+        </div>
+        <button 
+          @click="navigateTo('/dashboard/action-centre')"
+          class="text-xs font-semibold text-[#209249] hover:text-[#165A31] flex items-center gap-1 hover:underline cursor-pointer"
+        >
+          View Full Action Centre &rsaquo;
+        </button>
+      </div>
+
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="text-[10px] font-bold text-gray-400 border-b border-gray-100 pb-3 uppercase tracking-wider">
               <th class="pb-3 font-semibold w-28">Priority</th>
               <th class="pb-3 font-semibold">Item</th>
-              <th class="pb-3 font-semibold w-56">Record</th>
+              <th class="pb-3 font-semibold w-64">Record</th>
               <th class="pb-3 font-semibold w-40">Status</th>
-              <th class="pb-3 font-semibold w-16 text-right"></th>
+              <th class="pb-3 font-semibold w-20 text-right">Action</th>
             </tr>
           </thead>
           <tbody class="text-xs divide-y divide-gray-50">
-            <tr v-for="(action, index) in actionRequiredItems" :key="index" class="hover:bg-gray-50/50 transition-colors">
+            <tr 
+              v-for="(action, index) in actionRequiredItems" 
+              :key="index" 
+              class="hover:bg-emerald-50/20 transition-colors group cursor-pointer"
+              @click="navigateTo(action.actionRoute)"
+            >
               <td class="py-4 align-top">
                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap" :class="action.priorityClass">
                   {{ action.priority }}
@@ -147,8 +278,18 @@ const expenseSummary = [
               <td class="py-4 pr-4 align-top text-gray-700 leading-relaxed font-medium">
                 {{ action.item }}
               </td>
-              <td class="py-4 align-top text-gray-600 font-medium whitespace-nowrap">
-                {{ action.record }}
+              <td class="py-4 align-top text-gray-600 font-medium" @click.stop>
+                <div class="flex flex-wrap gap-1">
+                  <button
+                    v-for="badge in action.recordBadges"
+                    :key="badge.code"
+                    @click="navigateTo(badge.route)"
+                    :title="'Open ' + badge.label"
+                    class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-gray-100 hover:bg-[#209249] hover:text-white text-gray-600 transition-colors cursor-pointer"
+                  >
+                    {{ badge.code }}
+                  </button>
+                </div>
               </td>
               <td class="py-4 align-top">
                 <span class="px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap" :class="action.statusClass">
@@ -156,8 +297,12 @@ const expenseSummary = [
                 </span>
               </td>
               <td class="py-4 align-top text-right whitespace-nowrap">
-                <button class="text-xs font-medium text-gray-400 hover:text-gray-700 cursor-pointer flex items-center justify-end gap-0.5 ml-auto">
-                  Open &rsaquo;
+                <button 
+                  @click.stop="navigateTo(action.actionRoute)"
+                  class="text-xs font-semibold text-gray-400 group-hover:text-[#209249] cursor-pointer flex items-center justify-end gap-1 ml-auto px-2 py-1 rounded hover:bg-emerald-50 transition-colors"
+                >
+                  <span>Open</span>
+                  <ChevronRight class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#209249]" />
                 </button>
               </td>
             </tr>
@@ -180,10 +325,18 @@ const expenseSummary = [
 
     <!-- 8 KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div v-for="(kpi, index) in superAdminKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+      <div 
+        v-for="(kpi, index) in superAdminKpis" 
+        :key="index" 
+        @click="navigateTo(kpi.route)"
+        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+      >
+        <div class="flex items-center justify-between text-xs font-semibold text-gray-400 mb-3">
+          <span>{{ kpi.label }}</span>
+          <ArrowUpRight class="w-3.5 h-3.5 text-gray-300 group-hover:text-[#209249] transition-colors" />
+        </div>
         <div class="flex items-end justify-between">
-          <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
+          <div class="text-[22px] font-bold text-gray-900 leading-none group-hover:text-[#165A31] transition-colors">{{ kpi.value }}</div>
           
           <div v-if="kpi.change" class="text-[10px] font-bold flex items-center gap-0.5 pb-0.5" 
             :class="kpi.positive ? 'text-[#209249]' : 'text-red-500'">
@@ -200,8 +353,16 @@ const expenseSummary = [
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Sales Performance -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col">
-        <h3 class="text-xs font-bold text-gray-900 mb-4">Sales Performance</h3>
+      <div 
+        @click="navigateTo('/dashboard/business-performance')"
+        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col cursor-pointer hover:border-gray-200 transition-all group"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-900">Sales Performance</h3>
+          <span class="text-[10px] text-gray-400 group-hover:text-[#209249] flex items-center gap-1 font-medium">
+            Business Performance <ArrowUpRight class="w-3 h-3" />
+          </span>
+        </div>
         <div class="flex-1 min-h-[160px] bg-[#f0f9f4] rounded-lg flex items-center justify-center relative">
            <!-- Simple SVG Line placeholder -->
            <svg class="w-full h-[120px] absolute bottom-6" viewBox="0 0 100 30" preserveAspectRatio="none">
@@ -212,8 +373,16 @@ const expenseSummary = [
       </div>
       
       <!-- Branch Performance -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
-        <h3 class="text-xs font-bold text-gray-900 mb-4">Branch Performance</h3>
+      <div 
+        @click="navigateTo('/dashboard/branch-performance')"
+        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col cursor-pointer hover:border-gray-200 transition-all group"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-900">Branch Performance</h3>
+          <span class="text-[10px] text-gray-400 group-hover:text-[#209249] flex items-center gap-1 font-medium">
+            Branch Reports <ArrowUpRight class="w-3 h-3" />
+          </span>
+        </div>
         <div class="space-y-4 flex-1 flex flex-col justify-center">
           <div v-for="branch in branchPerformance" :key="branch.name" class="flex flex-wrap items-center gap-3">
             <div class="w-16 text-[10px] font-medium text-gray-800">{{ branch.name }}</div>
@@ -230,34 +399,47 @@ const expenseSummary = [
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Inventory Overview -->
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-        <h3 class="text-xs font-bold text-gray-900 mb-4">Inventory Overview</h3>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-900">Inventory Overview</h3>
+          <button @click="navigateTo('/inventory/dashboard')" class="text-[10px] font-semibold text-[#209249] hover:underline cursor-pointer">
+            View All &rsaquo;
+          </button>
+        </div>
         <div class="space-y-3">
-          <div class="flex justify-between items-center">
+          <div @click="navigateTo('/inventory/stock-by-product')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Available</span>
-            <span class="text-[11px] font-bold text-gray-900">228</span>
+            <span class="text-[11px] font-bold text-gray-900">228 &rsaquo;</span>
           </div>
-          <div class="flex justify-between items-center">
+          <div @click="navigateTo('/inventory/serialized-units')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Reserved</span>
-            <span class="text-[11px] font-bold text-gray-900">31</span>
+            <span class="text-[11px] font-bold text-gray-900">31 &rsaquo;</span>
           </div>
-          <div class="flex justify-between items-center">
+          <div @click="navigateTo('/procurement/purchase-orders')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Supplier In Transit</span>
-            <span class="text-[11px] font-bold text-gray-900">26</span>
+            <span class="text-[11px] font-bold text-gray-900">26 &rsaquo;</span>
           </div>
-          <div class="flex justify-between items-center">
+          <div @click="navigateTo('/inventory/transfers')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Transfer In Transit</span>
-            <span class="text-[11px] font-bold text-gray-900">8</span>
+            <span class="text-[11px] font-bold text-gray-900">8 &rsaquo;</span>
           </div>
-          <div class="flex justify-between items-center">
+          <div @click="navigateTo('/inventory/quarantine')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">QC / Quarantine</span>
-            <span class="text-[11px] font-bold text-gray-900">19</span>
+            <span class="text-[11px] font-bold text-gray-900">19 &rsaquo;</span>
           </div>
         </div>
       </div>
 
       <!-- Expense Summary -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-        <h3 class="text-xs font-bold text-gray-900 mb-4">Expense Summary</h3>
+      <div 
+        @click="navigateTo('/finance/expenses')"
+        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] cursor-pointer hover:border-gray-200 transition-all group"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-900">Expense Summary</h3>
+          <span class="text-[10px] text-gray-400 group-hover:text-[#209249] flex items-center gap-1 font-medium">
+            Manage Expenses <ArrowUpRight class="w-3 h-3" />
+          </span>
+        </div>
         <div class="space-y-3.5">
           <div v-for="expense in expenseSummary" :key="expense.name" class="flex flex-wrap items-center gap-3">
             <div class="w-16 text-[10px] font-medium text-gray-800">{{ expense.name }}</div>
@@ -271,28 +453,42 @@ const expenseSummary = [
 
       <!-- Action Required -->
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-        <h3 class="text-xs font-bold text-gray-900 mb-4">Action Required</h3>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-900">Action Required</h3>
+          <button @click="navigateTo('/dashboard/action-centre')" class="text-[10px] font-semibold text-[#209249] hover:underline cursor-pointer">
+            Action Centre &rsaquo;
+          </button>
+        </div>
         <div class="space-y-4">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+          <div 
+            @click="navigateTo('/inventory/stock-by-product')" 
+            class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+          >
             <div class="flex items-center gap-2">
               <span class="px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold bg-[#fef2f2] text-[#dc2626]">Critical</span>
               <span class="text-[11px] font-bold text-gray-900">2 low-stock SKUs</span>
             </div>
-            <span class="text-[9px] text-gray-400 font-medium">Open Inventory</span>
+            <span class="text-[9px] text-[#209249] font-medium">Open Inventory &rsaquo;</span>
           </div>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+          <div 
+            @click="navigateTo('/dashboard/action-centre?priority=High')" 
+            class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+          >
             <div class="flex items-center gap-2">
               <span class="px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold bg-[#fff7ed] text-[#ea580c]">High</span>
               <span class="text-[11px] font-bold text-gray-900">3 PO approvals</span>
             </div>
-            <span class="text-[9px] text-gray-400 font-medium">Action Centre</span>
+            <span class="text-[9px] text-[#209249] font-medium">Action Centre &rsaquo;</span>
           </div>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+          <div 
+            @click="navigateTo('/sales/payments')" 
+            class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+          >
             <div class="flex items-center gap-2">
               <span class="px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold bg-[#fff7ed] text-[#ea580c]">High</span>
               <span class="text-[11px] font-bold text-gray-900">5 overdue receivables</span>
             </div>
-            <span class="text-[9px] text-gray-400 font-medium">Receivables</span>
+            <span class="text-[9px] text-[#209249] font-medium">Receivables &rsaquo;</span>
           </div>
         </div>
       </div>
@@ -301,16 +497,27 @@ const expenseSummary = [
     <!-- Lowest Grids -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] md:col-span-2">
-        <h3 class="text-xs font-bold text-gray-900 mb-4">Management Communication</h3>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-900">Management Communication</h3>
+          <button @click="navigateTo('/dashboard/action-centre')" class="text-[10px] font-semibold text-[#209249] hover:underline cursor-pointer">
+            Open Tasks &rsaquo;
+          </button>
+        </div>
         <div class="space-y-4">
-          <div class="flex justify-between items-start">
+          <div 
+            @click="navigateTo('/inventory/stock-requests')"
+            class="flex justify-between items-start p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+          >
             <div class="flex gap-6">
               <span class="text-[11px] font-bold text-gray-900 w-16">Peshawar</span>
               <span class="text-[11px] text-gray-600 font-medium">Stock request SR-1048 needs review</span>
             </div>
             <span class="text-[9px] text-gray-400 font-medium">8 min</span>
           </div>
-          <div class="flex justify-between items-start">
+          <div 
+            @click="navigateTo('/finance/expenses')"
+            class="flex justify-between items-start p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+          >
             <div class="flex gap-6">
               <span class="text-[11px] font-bold text-gray-900 w-16">Islamabad</span>
               <span class="text-[11px] text-gray-600 font-medium">Expense correction submitted</span>

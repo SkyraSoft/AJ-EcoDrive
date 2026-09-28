@@ -114,6 +114,8 @@ If you are a dealership owner, board member, or business executive who does not 
 | **Defective Stock Quarantine** | Isolating factory-damaged bikes, transit scratches, or battery hazards in physical Bay Q-3. | [Jump to Q304 (CreateQuarantineRecordModal)](#q304-modal-guide--what-is-the-createquarantinerecordmodal-createquarantinerecordvue-and-what-are-its-exact-fields) |
 | **Sea Container Imports** | Purchasing CBU/CKD containers from China, tracking Bills of Lading, and batch VIN serialization. | [Jump to Q345 (CreatePurchaseOrderModal)](#q345-modal-guide--what-is-the-createpurchaseordermodal-createpurchaseordervue-and-what-are-its-exact-fields) & [Q347 (ReceivePurchaseModal)](#q347-modal-guide--what-is-the-receivepurchasemodal-receivepurchasevue-and-what-are-its-exact-fields) |
 | **Showroom Branches & Roles** | Opening new branch showrooms, provisioning staff accounts, security permissions, and internal chat. | [Jump to Q360 (CreateBranchModal)](#q360-modal-guide--what-is-the-createbranchmodal-createbranchvue-and-what-are-its-exact-fields) & [Q362 (CreateUserModal)](#q362-modal-guide--what-is-the-createusermodal-createuservue-and-what-are-its-exact-fields) |
+| **Branch Dashboard & Snapshot** | Detailed drill-down guide for Branch Snapshot (Open Orders, Available Stock, Reserved, Incoming, Low Stock, Service Cases). | [Jump to Q36A (Branch Snapshot)](#q36a-what-is-the-branch-snapshot-on-the-branch-manager-dashboard-where-does-each-kpi-tile-redirect-and-what-does-it-display) |
+| **Action Required Triage Links** | Complete routing matrix for Action Required table priority items, "Open ›" links, and direct record pills (TR, PO, SKU, ORD, LD, EXP, RET, SC, TASK). | [Jump to Q36B (Action Required)](#q36b-what-is-the-action-required-table-on-the-branch-manager-dashboard-and-where-do-the-open--buttons-and-record-badges-redirect) |
 
 
 ---
@@ -355,6 +357,55 @@ The customer walks out with a brand-new original controller without paying, and 
 
 ### Q36: How does the manager verify that receipt printers and barcode scanners are working?
 **Answer:** The manager navigates to **Settings -> Device Test**, clicks **Print Test Slip**, and confirms that the thermal receipt printer outputs a clean test voucher with the dealership logo, tax registration number, and current date.
+
+---
+
+### Q36A: What is the Branch Snapshot on the Branch Manager Dashboard, where does each KPI tile redirect, and what does it display?
+**Answer:** The **Branch Snapshot** is a 6-tile live operational widget located on the main dashboard (`/dashboard`) for branch managers. Every tile is an interactive drill-down button that navigates directly to the filtered operational workbench:
+
+| Snapshot KPI Tile | Live Metric Displayed | Redirect Target Route | Operational Purpose & Workflow |
+| :--- | :--- | :--- | :--- |
+| **Open Orders** | Total active customer orders not yet delivered | `/sales/orders?status=Open` | Opens the Sales Orders management workbench. Allows the manager to review pending customer agreements, allocate chassis VINs, and track payment balances. |
+| **Available Stock** | Total physical vehicles on the showroom floor ready for sale | `/inventory/serialized-units?status=Available` | Opens the Serialized Inventory screen filtered to Available bikes. Used to verify chassis numbers, exterior colors, and showroom display units. |
+| **Reserved** | Units locked to confirmed customer deposits | `/inventory/serialized-units?status=Reserved` | Opens the Serialized Inventory filtered to Reserved status. Verifies which VINs are locked to customer sales orders and awaiting final invoicing or PDI. |
+| **Incoming** | In-transit stock transfer shipments en route to this branch | `/inventory/transfers` | Opens the Inter-Branch Transfers view. Used by the branch manager to inspect incoming freight trucks, verify carrier manifests, and confirm inbound delivery receipts. |
+| **Low Stock** | Product models whose available units are below reorder threshold | `/inventory/stock-by-product?filter=low-stock` | Opens the Stock by Product inventory screen with low-stock alert filters applied. Allows the manager to immediately submit a Stock Replenishment Request (`CreateStockRequestModal`). |
+| **Service Cases** | Open workshop repair tickets and warranty complaints | `/after-sales/warranty` | Opens the Warranty & After-Sales Service desk. Displays customer bikes in the workshop, technician job assignments, and Lithium battery warranty claims. |
+
+*Hovering over any Branch Snapshot card highlights the tile in emerald with an interactive arrow indicator, enabling 1-click drill-down.*
+
+---
+
+### Q36B: What is the Action Required table on the Branch Manager Dashboard, and where do the "Open ›" buttons and record badges redirect?
+**Answer:** The **Action Required** table on the dashboard (`/dashboard`) is the central operational triage queue for the branch manager. It highlights urgent threshold breaches, pending regulatory approvals, and due tasks:
+
+1. **Priority Actions Row (High / Med Priority):**
+   * **Scope of Tasks:** Incoming stock waiting to be received, inter-branch transfers ready to dispatch, low-stock reorder warnings, unpaid customer balances, and overdue customer follow-ups.
+   * **Main "Open ›" Button & Row Click:** Redirects directly to `/dashboard/action-centre?priority=Critical` in the Action Centre.
+   * **Direct Record Badge Links:** Branch managers can click the individual record code pills to jump directly to specific sub-modules:
+     * `TR` &rarr; Opens **Inter-Branch Transfers** (`/inventory/transfers`)
+     * `PO` &rarr; Opens **Purchase Orders & Receipts** (`/procurement/purchase-orders`)
+     * `SKU` &rarr; Opens **Stock Replenishment Requests** (`/inventory/stock-requests`)
+     * `ORD` &rarr; Opens **Sales Orders** (`/sales/orders`)
+     * `LD` &rarr; Opens **Walk-In Leads & Pipeline** (`/sales/leads`)
+
+2. **Due / Overdue Row (Med / High Priority):**
+   * **Scope of Tasks:** Showroom petty cash expense corrections, customer vehicle returns pending physical inspection, workshop warranty escalation tasks, and official Head Office executive directives.
+   * **Main "Open ›" Button & Row Click:** Redirects directly to `/dashboard/action-centre?priority=High` in the Action Centre.
+   * **Direct Record Badge Links:**
+     * `EXP` &rarr; Opens **Showroom Expenses** (`/finance/expenses`)
+     * `RET` &rarr; Opens **Vehicle Returns & Refunds** (`/sales/returns`)
+     * `SC` &rarr; Opens **Service Cases & Workshop** (`/after-sales/warranty`)
+     * `TASK` &rarr; Opens **Action Centre Directives** (`/dashboard/action-centre`)
+
+---
+
+### Q36C: What are the 4 Top KPI Cards on the Branch Manager Dashboard and where do they redirect?
+**Answer:** At the very top of the Branch Manager Dashboard, 4 high-level daily financial and operational cards provide instant visibility. Each card is interactive and clickable:
+* **Today's Sales (PKR):** Clickable &rarr; Redirects to **Sales Orders** (`/sales/orders`) or **Sales Dashboard** (`/sales/dashboard`).
+* **Units Sold:** Clickable &rarr; Redirects to **Sales Orders** (`/sales/orders`) to review closed vehicle deliveries.
+* **Payments Collected (PKR):** Clickable &rarr; Redirects to **Customer Payments Ledger** (`/sales/payments`) to audit cash and bank collections.
+* **Expenses (PKR):** Clickable &rarr; Redirects to **Showroom Expenses** (`/finance/expenses`) to monitor daily petty cash burn.
 
 
 ---

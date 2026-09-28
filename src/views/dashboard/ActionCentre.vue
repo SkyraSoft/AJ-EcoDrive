@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { 
   ChevronDown, Search, Check, CheckCircle2, Plus, X, 
   ShieldAlert, AlertTriangle, Truck, DollarSign, Wrench, 
@@ -10,6 +10,7 @@ import {
 import { store } from '@/store.js'
 
 const router = useRouter()
+const route = useRoute()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
@@ -56,6 +57,15 @@ const selectedBranch = ref(isBranchUser.value ? user.value.branchName : 'All Bra
 const selectedStatus = ref('All')
 const searchQuery = ref('')
 const openDropdown = ref(null)
+
+onMounted(() => {
+  if (route.query.priority && priorityTabs.includes(route.query.priority)) {
+    activePriority.value = route.query.priority
+  }
+  if (route.query.flowType) {
+    selectedFlowType.value = route.query.flowType
+  }
+})
 
 const flowTypes = [
   { key: 'All Types', label: 'All Action Types' },

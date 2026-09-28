@@ -1,15 +1,24 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Search, ChevronDown, Check, CheckCircle2 } from 'lucide-vue-next'
 import { store } from '@/store.js'
 
 const router = useRouter()
+const route = useRoute()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 const showToast = ref(false)
 const toastMessage = ref('')
+
+onMounted(() => {
+  if (route.query.status) {
+    const st = String(route.query.status)
+    branchStatusFilter.value = st
+    selectedStatus.value = st
+  }
+})
 
 // Branch Manager Data
 const branchKpis = computed(() => {

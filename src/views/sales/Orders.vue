@@ -18,6 +18,15 @@ onMounted(() => {
     initialCustomer.value = route.query.customer || null
     openCreateModal()
   }
+  if (route.query.status) {
+    branchStatusFilter.value = route.query.status
+    if (tabs.includes(route.query.status)) {
+      activeTab.value = route.query.status
+    }
+  }
+  if (route.query.tab && tabs.includes(route.query.tab)) {
+    activeTab.value = route.query.tab
+  }
 })
 
 const isBranchUser = computed(() => store.isBranchUser())
