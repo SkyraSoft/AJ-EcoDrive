@@ -136,7 +136,7 @@ const tocSections = [
         parts: [
             { id: "part-1-understanding-aj-ecodrive-the-ev-dealership-model-q1-q12", title: "Part 1: Understanding AJ EcoDrive (Q1–Q12)" },
             { id: "part-2-workstation-platforms-user-login-categories-q13-q24", title: "Part 2: Workstation Platforms & Logins (Q13–Q24)" },
-            { id: "part-3-morning-showroom-opening-system-daily-start-q25-q36", title: "Part 3: Showroom Daily Opening (Q25–Q36)" }
+            { id: "part-3-morning-showroom-opening-system-daily-start-q25-q36h", title: "Part 3: Showroom Daily Opening (Q25–Q36H)" }
         ]
     },
     {

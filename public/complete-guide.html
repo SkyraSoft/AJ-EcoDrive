@@ -713,7 +713,7 @@
     <div class="sidebar-section-group mb-3">
         <div class="sidebar-section-title">SECTION I: Foundations & Getting Started</div>
         <ul class="sidebar-nav-list list-unstyled mb-0">
-    <li><a href="#part-1-understanding-aj-ecodrive-the-ev-dealership-model-q1-q12" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">Part 1: Understanding AJ EcoDrive (Q1–Q12)</a></li><li><a href="#part-2-workstation-platforms-user-login-categories-q13-q24" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">Part 2: Workstation Platforms & Logins (Q13–Q24)</a></li><li><a href="#part-3-morning-showroom-opening-system-daily-start-q25-q36" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">Part 3: Showroom Daily Opening (Q25–Q36)</a></li></ul></div>
+    <li><a href="#part-1-understanding-aj-ecodrive-the-ev-dealership-model-q1-q12" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">Part 1: Understanding AJ EcoDrive (Q1–Q12)</a></li><li><a href="#part-2-workstation-platforms-user-login-categories-q13-q24" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">Part 2: Workstation Platforms & Logins (Q13–Q24)</a></li><li><a href="#part-3-morning-showroom-opening-system-daily-start-q25-q36h" class="sidebar-nav-link" onclick="handleSidebarLinkClick()">Part 3: Showroom Daily Opening (Q25–Q36H)</a></li></ul></div>
     <div class="sidebar-section-group mb-3">
         <div class="sidebar-section-title">SECTION II: Central Command & Action Centre</div>
         <ul class="sidebar-nav-list list-unstyled mb-0">
@@ -1445,7 +1445,7 @@ The customer walks out with a brand-new original controller without paying, and 
 <hr class="doc-hr my-4">
 <p><a href="#dealership-owners-quick-navigation--executive-index">Back to Top / Navigation Index</a></p>
 <hr class="doc-hr my-4">
-<div class="part-banner" id="part-3-morning-showroom-opening-system-daily-start-q25-q36"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">PART 3: Morning Showroom Opening &amp; System Daily Start (Q25 – Q36)</h3></div>
+<div class="part-banner" id="part-3-morning-showroom-opening-system-daily-start-q25-q36h"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">PART 3: Morning Showroom Opening &amp; System Daily Start (Q25 – Q36H)</h3></div>
 
             <div class="qa-card-anchor" id="q25"></div>
             <div class="qa-card" data-qid="Q25">
@@ -1844,6 +1844,181 @@ The customer walks out with a brand-new original controller without paying, and 
 <li><strong>Expenses (PKR):</strong> Clickable &rarr; Redirects to <strong>Showroom Expenses</strong> (<code>/finance/expenses</code>) to monitor daily petty cash burn.</li>
 </ul>
 </div></div>
+<hr class="doc-hr my-4">
+
+            <div class="qa-card-anchor" id="q36d"></div>
+            <div class="qa-card" data-qid="Q36D">
+                <div class="qa-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="qid-badge">Q36D</span>
+                        <h4 class="qa-title mb-0">What are the explicit operational decision criteria for choosing between a &quot;Quick Sale (POS)&quot; and a &quot;Sales Order (Booking)&quot; at the showroom counter?</h4>
+                    </div>
+                    <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q36d')" title="Copy direct link to Q36D">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+                <div class="qa-body">
+            <p><strong>Answer:</strong> Showroom sales representatives and branch managers must evaluate four mandatory operational criteria when choosing which workflow to launch:</p>
+<pre><code>[Customer at Showroom Sales Counter]
+                │
+                ▼
+      Is physical vehicle present
+     on showroom floor right now? ────(NO: Backorder/Incoming)───► [Launch New Order / Booking]
+                │
+              (YES)
+                ▼
+    Is customer paying 100% in full
+    today (Cash/IBFT/Instant Disbursal)? ───(NO: Token Deposit)────► [Launch New Order / Booking]
+                │
+              (YES)
+                ▼
+     Is customer taking delivery
+     today (immediate PDI &amp; Gate Pass)? ───(NO: Future Delivery)───► [Launch New Order / Booking]
+                │
+              (YES)
+                ▼
+   [Launch Point of Sale (POS) / Quick Sale]
+   ↳ Instant physical VIN assigned
+   ↳ Full invoice marked Paid
+   ↳ Unit moved to Sold/Ready
+   ↳ Pre-Delivery Inspection (PDI) unlocked
+   ↳ Delivery Gate Pass eligible immediately
+</code></pre>
+<ul>
+<li><strong>When to choose Point of Sale (POS) / Quick Sale (<code>CreateSaleModal</code> in <code>mode=&quot;pos&quot;</code>):</strong><ol>
+<li>The customer selects a physical electric bike currently displayed on the showroom floor tiles.</li>
+<li>The customer settles 100% of the invoice balance on the spot (Cash, credit card, or verified bank IBFT).</li>
+<li>The customer intends to ride or transport the vehicle out of the dealership premises today.</li>
+</ol>
+</li>
+<li><strong>When to choose Sales Order / Vehicle Booking (<code>CreateSaleModal</code> in <code>mode=&quot;order&quot;</code>):</strong><ol>
+<li><strong>Advance Deposit / Partial Payment:</strong> Customer pays a booking token (e.g. PKR 25,000) and will pay the remaining balance over days or weeks.</li>
+<li><strong>Incoming Stock Allocation:</strong> Customer orders a specific color or model arriving on an upcoming sea container or inter-branch transfer truck.</li>
+<li><strong>Commercial Fleet / Institutional Bookings:</strong> Corporate clients placing batch vehicle orders pending corporate PO verification.</li>
+<li><strong>Deferred Handover:</strong> Customer buys today but requests delivery next Friday (vehicle is held in <code>Reserved</code> status so nobody else can buy it).</li>
+</ol>
+</li>
+</ul>
+</div></div>
+<hr class="doc-hr my-4">
+
+            <div class="qa-card-anchor" id="q36e"></div>
+            <div class="qa-card" data-qid="Q36E">
+                <div class="qa-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="qid-badge">Q36E</span>
+                        <h4 class="qa-title mb-0">How do the financial and accounting ledger entries differ between a Point of Sale (POS) transaction and a Sales Order booking?</h4>
+                    </div>
+                    <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q36e')" title="Copy direct link to Q36E">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+                <div class="qa-body">
+            <p><strong>Answer:</strong> AJ EcoDrive enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:</p>
+<div class="table-responsive my-3 custom-table-wrapper"><table>
+<thead>
+<tr>
+<th align="left">Financial / Accounting Aspect</th>
+<th align="left">Point of Sale (POS) / Quick Sale</th>
+<th align="left">Sales Order (Booking / Advance Order)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Revenue Recognition</strong></td>
+<td align="left"><strong>Immediate Commercial Revenue.</strong> Recognized immediately in today&#39;s Income Statement upon invoice issuance.</td>
+<td align="left"><strong>Deferred / Customer Advance Liability.</strong> Token payments are credited to <em>Customer Advance Deposits (Liability)</em> until official delivery.</td>
+</tr>
+<tr>
+<td align="left"><strong>Accounts Receivable</strong></td>
+<td align="left"><strong>Zero Balance (PKR 0).</strong> Customer account is cleared simultaneously with receipt posting.</td>
+<td align="left"><strong>Active Balance Tracked.</strong> Remaining unpaid amount sits in Accounts Receivable aging reports until final settlement.</td>
+</tr>
+<tr>
+<td align="left"><strong>Tax Invoicing</strong></td>
+<td align="left"><strong>Official FBR-Compliant Tax Invoice.</strong> Generated immediately with unique serial number, QR verification, and GST line items.</td>
+<td align="left"><strong>Pro-Forma Quotation / Booking Acknowledgment.</strong> Official tax invoice is generated only upon final settlement and delivery handover.</td>
+</tr>
+<tr>
+<td align="left"><strong>Inventory Asset Account</strong></td>
+<td align="left"><strong>Inventory &rarr; Cost of Goods Sold (COGS).</strong> Unit asset value moves immediately out of Showroom Floor Inventory into COGS.</td>
+<td align="left"><strong>Floor Stock &rarr; Reserved Inventory.</strong> Asset stays on dealership balance sheet as <em>Allocated/Reserved Stock</em> until Gate Pass issuance.</td>
+</tr>
+</tbody></table>
+</div>
+</div></div>
+<hr class="doc-hr my-4">
+
+            <div class="qa-card-anchor" id="q36f"></div>
+            <div class="qa-card" data-qid="Q36F">
+                <div class="qa-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="qid-badge">Q36F</span>
+                        <h4 class="qa-title mb-0">What are the 9 Standard Dealership Operational Goals achieved via the Quick Actions menu?</h4>
+                    </div>
+                    <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q36f')" title="Copy direct link to Q36F">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+                <div class="qa-body">
+            <p><strong>Answer:</strong> The Quick Actions menu in the top navigation bar and dashboard action grid directly serves 9 core dealership goals:</p>
+<ol>
+<li><strong>Goal 1: Instant Walk-In Customer Checkout</strong> &rarr; <code>Point of Sale (POS)</code>: Finalizes floor sales in under 60 seconds with instant VIN assignment.</li>
+<li><strong>Goal 2: Pipeline Lead Capture</strong> &rarr; <code>New Walk-In Lead</code>: Captures customer CNIC, phone number, test ride preference, and assigns a sales rep before the customer exits the door.</li>
+<li><strong>Goal 3: Binding Price Commitments</strong> &rarr; <code>New Quotation</code>: Issues formal 7-day price quotes with financing terms and automated 8% discount ceiling guards.</li>
+<li><strong>Goal 4: Scheduled Fleet &amp; Custom Bookings</strong> &rarr; <code>New Order / Booking</code>: Reserves incoming stock and records token deposits.</li>
+<li><strong>Goal 5: Cash Reconciliation &amp; Collections</strong> &rarr; <code>Record Payment</code>: Reconciles cash, cheque, and IBFT deposits directly against open customer invoices.</li>
+<li><strong>Goal 6: Floor Inventory Replenishment</strong> &rarr; <code>Stock Replenishment Request</code>: Triggers stock requisition from Central Warehouse when floor stock reaches low safety buffer.</li>
+<li><strong>Goal 7: Multi-City Stock Rebalancing</strong> &rarr; <code>Inter-Branch Transfer</code>: Moves units between cities with carrier tracking and transit discrepancy logging.</li>
+<li><strong>Goal 8: Petty Cash Governance</strong> &rarr; <code>Log Expense Voucher</code>: Logs showroom OPEX (under PKR 15,000 petty cash; over PKR 15,000 auto-routes to CFO).</li>
+<li><strong>Goal 9: After-Sales Service Intake</strong> &rarr; <code>Service Intake Case</code>: Checks customer bikes into the service bay with OBD trouble codes and technician job cards.</li>
+</ol>
+</div></div>
+<hr class="doc-hr my-4">
+
+            <div class="qa-card-anchor" id="q36g"></div>
+            <div class="qa-card" data-qid="Q36G">
+                <div class="qa-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="qid-badge">Q36G</span>
+                        <h4 class="qa-title mb-0">What is the mandatory 5-step Morning Showroom Opening Checklist every Branch Manager must complete before unlocking the customer entrance doors?</h4>
+                    </div>
+                    <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q36g')" title="Copy direct link to Q36G">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+                <div class="qa-body">
+            <p><strong>Answer:</strong> To ensure dealership security, floor safety, and zero inventory leakage, every Branch Manager follows this 5-step morning opening checklist between 08:30 AM and 09:00 AM:</p>
+<ol>
+<li><strong>Step 1: Workstation Boot &amp; Synchronization Check (08:30 AM):</strong> Power on main counter PC, verify green <strong>ONLINE</strong> connectivity badge, and download overnight Head Office price updates or incoming transfer manifests.</li>
+<li><strong>Step 2: Showroom Cash Drawer Float Count (08:35 AM):</strong> Count physical cash notes in the safe and confirm the physical total matches the system opening cash float (typically PKR 15,000 to PKR 25,000).</li>
+<li><strong>Step 3: Physical Floor Stock VIN Audit (08:45 AM):</strong> Walk the showroom floor tiles with a handheld tablet or floor sheet to verify that every physical electric scooter&#39;s chassis VIN matches the <strong>Available</strong> units ledger.</li>
+<li><strong>Step 4: Overnight Shipment &amp; Transfer Intake (08:50 AM):</strong> If carrier trucks arrived overnight, scan inbound VIN barcodes, log physical exterior condition, and confirm receipt in the system.</li>
+<li><strong>Step 5: Morning Sales Huddle &amp; Delivery Briefing (09:00 AM):</strong> Review today&#39;s scheduled delivery appointments, hot leads needing phone follow-ups, and daily sales targets with showroom sales reps and workshop technicians before opening doors.</li>
+</ol>
+</div></div>
+<hr class="doc-hr my-4">
+
+            <div class="qa-card-anchor" id="q36h"></div>
+            <div class="qa-card" data-qid="Q36H">
+                <div class="qa-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="qid-badge">Q36H</span>
+                        <h4 class="qa-title mb-0">How does the system prevent staff from confusing a Sales Quotation with a Sales Order or Official Invoice?</h4>
+                    </div>
+                    <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q36h')" title="Copy direct link to Q36H">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+                <div class="qa-body">
+            <p><strong>Answer:</strong> AJ EcoDrive establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:</p>
+<ul>
+<li><strong>Watermark &amp; Header Banners:</strong> Quotations print with a prominent watermark: <em>&quot;PRICE ESTIMATE — NOT AN INVOICE / NON-BINDING AFTER 7 DAYS&quot;</em>.</li>
+<li><strong>No Inventory Allocation:</strong> Creating a Quotation <strong>does NOT reserve or lock physical stock</strong>. Other showroom salespeople can freely sell that vehicle. Physical reservation only occurs when the quote is converted to an active Sales Order or POS transaction.</li>
+<li><strong>No Gate Pass Eligibility:</strong> Security guards will strictly confiscate any vehicle attempting to exit with a Quotation or Pro-forma document. Gate Passes require a verified Tax Invoice with zero remaining balance.</li>
+<li><strong>1-Click Order Conversion:</strong> When the customer returns within 7 days, clicking <strong>&quot;Convert to Order&quot;</strong> on the quotation screen converts it into an active Sales Order without re-entering customer CNIC, model specs, or discount terms.</li>
+</ul>
+</div></div>
+<hr class="doc-hr my-4">
 <hr class="doc-hr my-4">
 <p><a href="#dealership-owners-quick-navigation--executive-index">Back to Top / Navigation Index</a></p>
 <hr class="doc-hr my-4">

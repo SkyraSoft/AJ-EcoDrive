@@ -11,7 +11,7 @@
 ### SECTION I: FOUNDATIONS & GETTING STARTED
 1. [PART 1: Understanding AJ EcoDrive & The EV Dealership Model (Q1 – Q12)](#part-1-understanding-aj-ecodrive--the-ev-dealership-model-q1--q12)
 2. [PART 2: Workstation Platforms & User Login Categories (Q13 – Q24)](#part-2-workstation-platforms--user-login-categories-q13--q24)
-3. [PART 3: Morning Showroom Opening & System Daily Start (Q25 – Q36)](#part-3-morning-showroom-opening--system-daily-start-q25--q36)
+3. [PART 3: Morning Showroom Opening & System Daily Start (Q25 – Q36H)](#part-3-morning-showroom-opening--system-daily-start-q25--q36h)
 
 ### SECTION II: CENTRAL COMMAND & COLLABORATION (THE ACTION CENTRE)
 4. [PART 4: The Dealership Action Centre — The Command Bridge (Q37 – Q52)](#part-4-the-dealership-action-centre--the-command-bridge-q37--q52)
@@ -283,7 +283,7 @@ The customer walks out with a brand-new original controller without paying, and 
 
 ---
 
-# PART 3: Morning Showroom Opening & System Daily Start (Q25 – Q36)
+# PART 3: Morning Showroom Opening & System Daily Start (Q25 – Q36H)
 
 ### Q25: What is the very first screen a Branch Manager sees upon logging in each morning?
 **Answer:** The **Showroom Operations Dashboard** (`/dashboard`). This command dashboard displays real-time operational KPI counters:
@@ -433,6 +433,98 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 * **Units Sold:** Clickable &rarr; Redirects to **Sales Orders** (`/sales/orders`) to review closed vehicle deliveries.
 * **Payments Collected (PKR):** Clickable &rarr; Redirects to **Customer Payments Ledger** (`/sales/payments`) to audit cash and bank collections.
 * **Expenses (PKR):** Clickable &rarr; Redirects to **Showroom Expenses** (`/finance/expenses`) to monitor daily petty cash burn.
+
+---
+
+### Q36D: What are the explicit operational decision criteria for choosing between a "Quick Sale (POS)" and a "Sales Order (Booking)" at the showroom counter?
+**Answer:** Showroom sales representatives and branch managers must evaluate four mandatory operational criteria when choosing which workflow to launch:
+
+```
+[Customer at Showroom Sales Counter]
+                │
+                ▼
+      Is physical vehicle present
+     on showroom floor right now? ────(NO: Backorder/Incoming)───► [Launch New Order / Booking]
+                │
+              (YES)
+                ▼
+    Is customer paying 100% in full
+    today (Cash/IBFT/Instant Disbursal)? ───(NO: Token Deposit)────► [Launch New Order / Booking]
+                │
+              (YES)
+                ▼
+     Is customer taking delivery
+     today (immediate PDI & Gate Pass)? ───(NO: Future Delivery)───► [Launch New Order / Booking]
+                │
+              (YES)
+                ▼
+   [Launch Point of Sale (POS) / Quick Sale]
+   ↳ Instant physical VIN assigned
+   ↳ Full invoice marked Paid
+   ↳ Unit moved to Sold/Ready
+   ↳ Pre-Delivery Inspection (PDI) unlocked
+   ↳ Delivery Gate Pass eligible immediately
+```
+
+* **When to choose Point of Sale (POS) / Quick Sale (`CreateSaleModal` in `mode="pos"`):**
+  1. The customer selects a physical electric bike currently displayed on the showroom floor tiles.
+  2. The customer settles 100% of the invoice balance on the spot (Cash, credit card, or verified bank IBFT).
+  3. The customer intends to ride or transport the vehicle out of the dealership premises today.
+* **When to choose Sales Order / Vehicle Booking (`CreateSaleModal` in `mode="order"`):**
+  1. **Advance Deposit / Partial Payment:** Customer pays a booking token (e.g. PKR 25,000) and will pay the remaining balance over days or weeks.
+  2. **Incoming Stock Allocation:** Customer orders a specific color or model arriving on an upcoming sea container or inter-branch transfer truck.
+  3. **Commercial Fleet / Institutional Bookings:** Corporate clients placing batch vehicle orders pending corporate PO verification.
+  4. **Deferred Handover:** Customer buys today but requests delivery next Friday (vehicle is held in `Reserved` status so nobody else can buy it).
+
+---
+
+### Q36E: How do the financial and accounting ledger entries differ between a Point of Sale (POS) transaction and a Sales Order booking?
+**Answer:** AJ EcoDrive enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:
+
+| Financial / Accounting Aspect | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
+| :--- | :--- | :--- |
+| **Revenue Recognition** | **Immediate Commercial Revenue.** Recognized immediately in today's Income Statement upon invoice issuance. | **Deferred / Customer Advance Liability.** Token payments are credited to *Customer Advance Deposits (Liability)* until official delivery. |
+| **Accounts Receivable** | **Zero Balance (PKR 0).** Customer account is cleared simultaneously with receipt posting. | **Active Balance Tracked.** Remaining unpaid amount sits in Accounts Receivable aging reports until final settlement. |
+| **Tax Invoicing** | **Official FBR-Compliant Tax Invoice.** Generated immediately with unique serial number, QR verification, and GST line items. | **Pro-Forma Quotation / Booking Acknowledgment.** Official tax invoice is generated only upon final settlement and delivery handover. |
+| **Inventory Asset Account** | **Inventory &rarr; Cost of Goods Sold (COGS).** Unit asset value moves immediately out of Showroom Floor Inventory into COGS. | **Floor Stock &rarr; Reserved Inventory.** Asset stays on dealership balance sheet as *Allocated/Reserved Stock* until Gate Pass issuance. |
+
+---
+
+### Q36F: What are the 9 Standard Dealership Operational Goals achieved via the Quick Actions menu?
+**Answer:** The Quick Actions menu in the top navigation bar and dashboard action grid directly serves 9 core dealership goals:
+
+1. **Goal 1: Instant Walk-In Customer Checkout** &rarr; `Point of Sale (POS)`: Finalizes floor sales in under 60 seconds with instant VIN assignment.
+2. **Goal 2: Pipeline Lead Capture** &rarr; `New Walk-In Lead`: Captures customer CNIC, phone number, test ride preference, and assigns a sales rep before the customer exits the door.
+3. **Goal 3: Binding Price Commitments** &rarr; `New Quotation`: Issues formal 7-day price quotes with financing terms and automated 8% discount ceiling guards.
+4. **Goal 4: Scheduled Fleet & Custom Bookings** &rarr; `New Order / Booking`: Reserves incoming stock and records token deposits.
+5. **Goal 5: Cash Reconciliation & Collections** &rarr; `Record Payment`: Reconciles cash, cheque, and IBFT deposits directly against open customer invoices.
+6. **Goal 6: Floor Inventory Replenishment** &rarr; `Stock Replenishment Request`: Triggers stock requisition from Central Warehouse when floor stock reaches low safety buffer.
+7. **Goal 7: Multi-City Stock Rebalancing** &rarr; `Inter-Branch Transfer`: Moves units between cities with carrier tracking and transit discrepancy logging.
+8. **Goal 8: Petty Cash Governance** &rarr; `Log Expense Voucher`: Logs showroom OPEX (under PKR 15,000 petty cash; over PKR 15,000 auto-routes to CFO).
+9. **Goal 9: After-Sales Service Intake** &rarr; `Service Intake Case`: Checks customer bikes into the service bay with OBD trouble codes and technician job cards.
+
+---
+
+### Q36G: What is the mandatory 5-step Morning Showroom Opening Checklist every Branch Manager must complete before unlocking the customer entrance doors?
+**Answer:** To ensure dealership security, floor safety, and zero inventory leakage, every Branch Manager follows this 5-step morning opening checklist between 08:30 AM and 09:00 AM:
+
+1. **Step 1: Workstation Boot & Synchronization Check (08:30 AM):** Power on main counter PC, verify green **ONLINE** connectivity badge, and download overnight Head Office price updates or incoming transfer manifests.
+2. **Step 2: Showroom Cash Drawer Float Count (08:35 AM):** Count physical cash notes in the safe and confirm the physical total matches the system opening cash float (typically PKR 15,000 to PKR 25,000).
+3. **Step 3: Physical Floor Stock VIN Audit (08:45 AM):** Walk the showroom floor tiles with a handheld tablet or floor sheet to verify that every physical electric scooter's chassis VIN matches the **Available** units ledger.
+4. **Step 4: Overnight Shipment & Transfer Intake (08:50 AM):** If carrier trucks arrived overnight, scan inbound VIN barcodes, log physical exterior condition, and confirm receipt in the system.
+5. **Step 5: Morning Sales Huddle & Delivery Briefing (09:00 AM):** Review today's scheduled delivery appointments, hot leads needing phone follow-ups, and daily sales targets with showroom sales reps and workshop technicians before opening doors.
+
+---
+
+### Q36H: How does the system prevent staff from confusing a Sales Quotation with a Sales Order or Official Invoice?
+**Answer:** AJ EcoDrive establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:
+* **Watermark & Header Banners:** Quotations print with a prominent watermark: *"PRICE ESTIMATE — NOT AN INVOICE / NON-BINDING AFTER 7 DAYS"*.
+* **No Inventory Allocation:** Creating a Quotation **does NOT reserve or lock physical stock**. Other showroom salespeople can freely sell that vehicle. Physical reservation only occurs when the quote is converted to an active Sales Order or POS transaction.
+* **No Gate Pass Eligibility:** Security guards will strictly confiscate any vehicle attempting to exit with a Quotation or Pro-forma document. Gate Passes require a verified Tax Invoice with zero remaining balance.
+* **1-Click Order Conversion:** When the customer returns within 7 days, clicking **"Convert to Order"** on the quotation screen converts it into an active Sales Order without re-entering customer CNIC, model specs, or discount terms.
+
+---
+
 
 
 ---
