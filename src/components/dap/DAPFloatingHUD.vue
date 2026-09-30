@@ -114,11 +114,11 @@
                 </span>
               </div>
               <p class="text-[11px] text-slate-400 leading-snug line-clamp-1">
-                {{ mission.subtitle }}
+                {{ mission.subtitle || mission.description || mission.category }}
               </p>
               <div class="mt-2 flex items-center justify-between text-[10px] text-slate-500">
-                <span>{{ mission.steps.length }} action steps</span>
-                <span class="text-emerald-400/80 font-medium">Route: {{ mission.route }}</span>
+                <span>{{ mission.steps?.length || 0 }} practical steps</span>
+                <span class="text-emerald-400/80 font-medium">Route: {{ mission.route || mission.chapters?.[0]?.route || '/dashboard' }}</span>
               </div>
             </div>
           </div>
