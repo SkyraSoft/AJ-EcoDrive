@@ -9,6 +9,8 @@ import {
   BookOpen, ExternalLink
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
+import { dapStore } from '@/stores/dapStore.js'
+import GuidedDAPEngine from '@/components/dap/GuidedDAPEngine.vue'
 
 // Quick Action In-Context Modals
 import CreateSaleModal from '@/views/sales/CreateSale.vue'
@@ -551,6 +553,21 @@ const handleQuickActionCreated = (type, payload) => {
 
         <!-- Right Section (Actions & Profile) -->
         <div class="flex items-center gap-2 sm:gap-3 ml-4 flex-shrink-0">
+          <!-- DAP Guided Tour & Training Engine Launcher -->
+          <button
+            id="dap-header-tour-btn"
+            @click="dapStore.toggleDAP()"
+            class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+            :class="dapStore.isActive ? 'bg-emerald-50 text-[#165A31] border-emerald-300 ring-2 ring-emerald-500/20' : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'"
+            title="Launch Interactive Walkthrough & Dealership Mastery Tour"
+          >
+            <span class="text-sm">🎯</span>
+            <span class="hidden md:inline">{{ dapStore.isActive ? 'Touring...' : 'Take a Tour' }}</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold" :class="dapStore.isActive ? 'bg-emerald-200 text-[#165A31]' : 'bg-gray-100 text-gray-600'">
+              {{ dapStore.masteryPercentage }}%
+            </span>
+          </button>
+
           <!-- Quick Sale / Quick Create Button -->
           <div class="relative">
             <button 
@@ -901,5 +918,8 @@ const handleQuickActionCreated = (type, payload) => {
       @close="showPurchaseOrderModal = false"
       @created="handleQuickActionCreated('po', $event)"
     />
+
+    <!-- Guided DAP Engine & Interactive Training Overlay -->
+    <GuidedDAPEngine />
   </div>
 </template>

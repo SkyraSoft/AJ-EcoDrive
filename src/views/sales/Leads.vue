@@ -221,7 +221,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-leads-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Leads / <span class="font-medium text-gray-600">Leads & Inquiries</span>
@@ -230,6 +230,7 @@ const openLead = (lead) => {
         <p class="text-xs text-gray-500 mt-1">Manage website, walk-in and phone leads assigned to {{ user?.branchName || 'Peshawar' }} Branch.</p>
       </div>
       <button 
+        id="dap-btn-new-lead"
         @click="showCreateModal = true"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >

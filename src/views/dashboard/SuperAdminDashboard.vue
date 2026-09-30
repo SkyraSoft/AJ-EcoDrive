@@ -158,7 +158,7 @@ const navigateTo = (route) => {
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Breadcrumb & Header -->
-    <div>
+    <div id="dap-dashboard-header">
       <div class="text-[11px] text-gray-400 mb-1">
         Branch Manager / Dashboard / <span class="font-medium text-gray-600">Branch Manager Dashboard</span>
       </div>
@@ -171,6 +171,7 @@ const navigateTo = (route) => {
       <div 
         v-for="(kpi, index) in branchManagerKpis" 
         :key="index" 
+        :id="index === 3 ? 'dap-kpi-cash-float' : undefined"
         @click="navigateTo(kpi.route)"
         class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
       >
@@ -220,6 +221,7 @@ const navigateTo = (route) => {
           <div 
             v-for="(item, idx) in branchSnapshot" 
             :key="idx" 
+            :id="item.label === 'Available Stock' ? 'dap-kpi-available-stock' : (item.label === 'Open Orders' ? 'dap-kpi-open-orders' : undefined)"
             @click="navigateTo(item.route)"
             :title="item.targetDesc"
             class="bg-[#fbfcfc] hover:bg-[#f0fdf4] border border-gray-100/90 hover:border-[#209249]/40 rounded-lg p-3.5 flex flex-col justify-between cursor-pointer transition-all duration-150 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:shadow-sm group"

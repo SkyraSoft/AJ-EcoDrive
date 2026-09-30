@@ -462,7 +462,7 @@ const exportActionQueue = () => {
     </div>
 
     <!-- Header Section -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div id="dap-actioncentre-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           <span v-if="isBranchUser">Branch Manager / Dashboard / <span class="font-medium text-gray-600 dark:text-gray-300">Action Centre</span></span>
@@ -653,7 +653,7 @@ const exportActionQueue = () => {
     </div>
 
     <!-- Main Action Queue Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-[12px] border border-gray-100 dark:border-gray-800 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div id="dap-actioncentre-table" class="bg-white dark:bg-slate-900 rounded-[12px] border border-gray-100 dark:border-gray-800 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white">Active Operational Work Queue</h3>
