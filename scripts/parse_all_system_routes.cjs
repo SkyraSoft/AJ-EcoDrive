@@ -4,62 +4,101 @@ const path = require('path');
 const routerFile = path.join(__dirname, '../src/router/index.js');
 const content = fs.readFileSync(routerFile, 'utf8');
 
-// Regex to capture path, name, component, roles
-const routeRegex = /path:\s*['"]([^'"]+)['"][\s\S]*?(?:name:\s*['"]([^'"]+)['"][\s\S]*?)?component:\s*\(\)\s*=>\s*import\(['"]([^'"]+)['"]\)(?:[\s\S]*?meta:\s*\{([^}]+)\})?/g;
+// We will parse the routes by scanning top-level layouts and their children
+// AuthLayout children and MainLayout children
+const lines = content.split('\n');
 
 const routes = [];
-let match;
-
-// We will split by route block or parse line by line
-const lines = content.split('\n');
+let currentLayout = null;
 let currentRoute = null;
+let inChildren = false;
 
 for (let i = 0; i < lines.length; i++) {
   const line = lines[i];
-  if (line.includes("path:") && !line.includes("path: '/'")) {
-    const pathMatch = line.match(/path:\s*['"]([^'"]+)['"]/);
-    if (pathMatch) {
-      if (currentRoute) routes.push(currentRoute);
-      currentRoute = { path: pathMatch[1], name: '', component: '', roles: [] };
+
+  // Detect Layouts
+  if (line.includes("import('@/layouts/AuthLayout.vue')")) {
+    currentLayout = 'AuthLayout';
+  } else if (line.includes("import('@/layouts/MainLayout.vue')")) {
+    currentLayout = 'MainLayout';
+  }
+
+  // Detect path of route
+  const pathMatch = line.match(/^\s*path:\s*['"]([^'"]+)['"]/);
+  if (pathMatch) {
+    const rawPath = pathMatch[1];
+    if (rawPath === '/') {
+      // Top level layout route, flush any active route
+      if (currentRoute) {
+        routes.push(currentRoute);
+        currentRoute = null;
+      }
+      continue;
     }
-  } else if (currentRoute) {
-    if (line.includes("name:")) {
-      const nameMatch = line.match(/name:\s*['"]([^'"]+)['"]/);
-      if (nameMatch) currentRoute.name = nameMatch[1];
+
+    // This is an actual child route
+    if (currentRoute) {
+      routes.push(currentRoute);
     }
-    if (line.includes("component:")) {
-      const compMatch = line.match(/import\(['"]([^'"]+)['"]\)/);
-      if (compMatch) currentRoute.component = compMatch[1];
+
+    currentRoute = {
+      path: rawPath,
+      name: '',
+      component: '',
+      layout: currentLayout,
+      roles: [],
+      isPublic: false,
+      line: i + 1
+    };
+    continue;
+  }
+
+  // If inside a route definition
+  if (currentRoute) {
+    const nameMatch = line.match(/^\s*name:\s*['"]([^'"]+)['"]/);
+    if (nameMatch) {
+      currentRoute.name = nameMatch[1];
     }
-    if (line.includes("roles:")) {
-      const rolesMatch = line.match(/roles:\s*\[([^\]]+)\]/);
-      if (rolesMatch) {
-        currentRoute.roles = rolesMatch[1].replace(/['"\s]/g, '').split(',');
+
+    const compMatch = line.match(/import\(['"]([^'"]+)['"]\)/);
+    if (compMatch) {
+      // Only assign if it's NOT a layout
+      if (!compMatch[1].includes('Layout')) {
+        currentRoute.component = compMatch[1];
       }
     }
-    if (line.includes("isPublic: true")) {
-      currentRoute.roles = ['Public'];
+
+    const rolesMatch = line.match(/roles:\s*\[([^\]]+)\]/);
+    if (rolesMatch) {
+      currentRoute.roles = rolesMatch[1].replace(/['"\s]/g, '').split(',').filter(Boolean);
+    }
+
+    if (line.includes('isPublic: true')) {
+      currentRoute.isPublic = true;
+      if (currentRoute.roles.length === 0) {
+        currentRoute.roles = ['Public'];
+      }
     }
   }
 }
-if (currentRoute) routes.push(currentRoute);
 
-console.log(`Total System Routes Found: ${routes.length}`);
+if (currentRoute) {
+  routes.push(currentRoute);
+}
 
-const saRoutes = routes.filter(r => r.roles.includes('SuperAdmin') || r.roles.includes('Super Admin') || r.roles.includes('Public'));
-const bmRoutes = routes.filter(r => r.roles.includes('BranchManager') || r.roles.includes('Branch Manager') || r.roles.includes('Public'));
-const saOnlyRoutes = routes.filter(r => (r.roles.includes('SuperAdmin') || r.roles.includes('Super Admin')) && !r.roles.includes('BranchManager') && !r.roles.includes('Branch Manager'));
-const bmOnlyRoutes = routes.filter(r => (r.roles.includes('BranchManager') || r.roles.includes('Branch Manager')) && !r.roles.includes('SuperAdmin') && !r.roles.includes('Super Admin'));
+console.log(`Accurately Parsed Routes: ${routes.length}`);
 
-console.log(`Super Admin Accessible Routes: ${saRoutes.length}`);
-console.log(`Branch Manager Accessible Routes: ${bmRoutes.length}`);
-console.log(`Super Admin ONLY Routes: ${saOnlyRoutes.length}`);
-console.log(`Branch Manager ONLY Routes: ${bmOnlyRoutes.length}`);
+// Test Regression Case A
+const pwUpdated = routes.find(r => r.path === 'password-updated');
+console.log('Regression Case A (/password-updated):', pwUpdated);
+
+// Test Regression Case B
+const poCreate = routes.filter(r => r.component.includes('CreatePurchaseOrder'));
+console.log('Regression Case B (CreatePurchaseOrder):', poCreate);
 
 fs.writeFileSync(path.join(__dirname, '../scratch/parsed_all_system_routes.json'), JSON.stringify({
   totalRoutesCount: routes.length,
-  superAdminRoutesCount: saRoutes.length,
-  branchManagerRoutesCount: bmRoutes.length,
-  superAdminOnlyCount: saOnlyRoutes.length,
   routes
 }, null, 2), 'utf8');
+
+console.log('Saved accurately parsed routes to scratch/parsed_all_system_routes.json');

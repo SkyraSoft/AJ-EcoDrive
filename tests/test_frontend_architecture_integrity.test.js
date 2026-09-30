@@ -113,13 +113,34 @@ describe('AJ EcoDrive — Master Frontend Architecture & Integrity Gate Suite', 
       'FRONTEND_MASTER_DEFECT_REGISTRY.md',
       'FRONTEND_MASTER_TRACEABILITY_MATRIX.md',
       'FRONTEND_BACKEND_CONTRACT_REQUIREMENTS.md',
-      'FRONTEND_FINAL_VERIFICATION_REPORT.md'
+      'FRONTEND_FINAL_VERIFICATION_REPORT.md',
+      'AJ_ECODRIVE_MASTER_FRONTEND_TRUTH_AND_ARCHITECTURE.md'
     ];
 
     for (const docName of requiredDocs) {
       const p = path.join(__dirname, '..', docName);
       expect(fs.existsSync(p)).toBe(true);
     }
+  });
+
+  it('verifies Regression Cases A, B, and C against source code truth', () => {
+    // Regression Case A: /password-updated maps to PasswordUpdated.vue
+    const routerPath = path.join(__dirname, '../src/router/index.js');
+    const routerContent = fs.readFileSync(routerPath, 'utf8');
+    expect(routerContent).toContain("path: 'password-updated'");
+    expect(routerContent).toContain("component: () => import('@/views/auth/PasswordUpdated.vue')");
+
+    // Regression Case B: CreatePurchaseOrder route is procurement/purchase-orders/create
+    expect(routerContent).toContain("path: 'procurement/purchase-orders/create'");
+    expect(routerContent).toContain("path: 'procurement/create-po'");
+    expect(routerContent).not.toContain("path: 'procurement/create-order'");
+
+    // Regression Case C: CreateBranch does not contain manager CNIC
+    const createBranchPath = path.join(__dirname, '../src/views/organisation/CreateBranch.vue');
+    const createBranchContent = fs.readFileSync(createBranchPath, 'utf8');
+    expect(createBranchContent).toContain('manager:');
+    expect(createBranchContent).not.toContain('managerCnic');
+    expect(createBranchContent).not.toContain('Manager CNIC');
   });
 
 });
