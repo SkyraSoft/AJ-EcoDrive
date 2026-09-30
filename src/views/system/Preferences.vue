@@ -90,7 +90,7 @@ const savePreferences = () => {
         
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Theme</label>
-          <select 
+          <select data-tour="pref-theme" 
             v-model="preferencesForm.theme"
             @change="store.applyTheme(preferencesForm.theme)"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
@@ -103,7 +103,7 @@ const savePreferences = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Language</label>
-          <select 
+          <select data-tour="pref-language" 
             v-model="preferencesForm.language"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >
@@ -114,7 +114,7 @@ const savePreferences = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Date Format</label>
-          <select 
+          <select data-tour="pref-dateformat" 
             v-model="preferencesForm.dateFormat"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >
@@ -126,7 +126,7 @@ const savePreferences = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Table Density</label>
-          <select 
+          <select data-tour="pref-tabledensity" 
             v-model="preferencesForm.tableDensity"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >
@@ -143,7 +143,7 @@ const savePreferences = () => {
         
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Inventory Alerts</label>
-          <select 
+          <select data-tour="pref-inventoryalerts" 
             v-model="preferencesForm.inventoryAlerts"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >
@@ -154,7 +154,7 @@ const savePreferences = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Sales Alerts</label>
-          <select 
+          <select data-tour="pref-salesalerts" 
             v-model="preferencesForm.salesAlerts"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >
@@ -165,7 +165,7 @@ const savePreferences = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Service Alerts</label>
-          <select 
+          <select data-tour="pref-servicealerts" 
             v-model="preferencesForm.serviceAlerts"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >
@@ -176,7 +176,7 @@ const savePreferences = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Management Messages</label>
-          <select 
+          <select data-tour="pref-managementmessages" 
             v-model="preferencesForm.managementMessages"
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800"
           >

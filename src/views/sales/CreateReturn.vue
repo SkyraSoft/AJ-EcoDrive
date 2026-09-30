@@ -134,7 +134,7 @@ const createReturn = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Original Order No *</label>
-                  <input 
+                  <input data-tour="orderno" 
                     v-model="formData.orderNo" 
                     type="text" 
                     placeholder="e.g. ORD-2188 or SO-7702" 
@@ -146,7 +146,7 @@ const createReturn = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Customer Name *</label>
-                  <input 
+                  <input data-tour="customer" 
                     v-model="formData.customer" 
                     type="text" 
                     placeholder="e.g. Noman Ali" 
@@ -165,7 +165,7 @@ const createReturn = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Unit Serial No *</label>
-                  <input 
+                  <input data-tour="unit" 
                     v-model="formData.unit" 
                     type="text" 
                     placeholder="e.g. CH 8-BRG-26-01731" 
@@ -178,7 +178,7 @@ const createReturn = () => {
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 mb-1">Receiving Branch</label>
-                    <select v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                    <select data-tour="branch" v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                       <option value="Peshawar">Peshawar</option>
                       <option value="Islamabad">Islamabad</option>
                       <option value="Lahore">Lahore</option>
@@ -186,7 +186,7 @@ const createReturn = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 mb-1">Requested Action</label>
-                    <select v-model="formData.requested" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                    <select data-tour="requested" v-model="formData.requested" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                       <option value="Exchange">Exchange</option>
                       <option value="Refund">Refund</option>
                       <option value="Repair / Service">Repair / Service</option>
@@ -205,7 +205,7 @@ const createReturn = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Reason for Return</label>
-                  <select v-model="formData.reason" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                  <select data-tour="reason" v-model="formData.reason" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                     <option value="Battery Issue">Battery Issue</option>
                     <option value="Performance Issue">Performance Issue</option>
                     <option value="Customer Dissatisfaction">Customer Dissatisfaction</option>
@@ -215,7 +215,7 @@ const createReturn = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Inspection Status</label>
-                  <select v-model="formData.status" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                  <select data-tour="status" v-model="formData.status" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                     <option value="Inspection">Under Inspection</option>
                     <option value="Pending Approval">Pending Approval</option>
                     <option value="Refund Approved">Refund Approved</option>
@@ -226,7 +226,7 @@ const createReturn = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Inspection Notes</label>
-                <textarea v-model="formData.notes" rows="3" placeholder="Condition details, battery health or reason specifics..." class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
+                <textarea data-tour="notes" v-model="formData.notes" rows="3" placeholder="Condition details, battery health or reason specifics..." class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
               </div>
             </div>
           </div>

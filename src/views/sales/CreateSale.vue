@@ -366,7 +366,7 @@ const createOrder = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Showroom Branch *</label>
-                  <input 
+                  <input data-tour="sale-branch" 
                     v-model="saleData.branch" 
                     type="text" 
                     :disabled="isBranchUser"
@@ -383,7 +383,7 @@ const createOrder = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer (Name or Mobile #) *</label>
                   <div class="relative">
                     <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input 
+                    <input data-tour="customersearch" 
                       v-model="customerSearch"
                       @focus="showCustomerDropdown = true"
                       @blur="onCustomerBlur"
@@ -440,11 +440,11 @@ const createOrder = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Sales Executive</label>
-                  <input v-model="saleData.salesperson" type="text" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                  <input data-tour="sale-salesperson" v-model="saleData.salesperson" type="text" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Product Model *</label>
-                  <input 
+                  <input data-tour="sale-product" 
                     v-model="saleData.product" 
                     type="text" 
                     :class="['w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors text-gray-800 dark:text-gray-100', showValidation && !saleData.product ? 'border-red-500 bg-red-50/20' : 'border-gray-200 dark:border-gray-700']" 
@@ -464,19 +464,19 @@ const createOrder = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">MSRP / Catalogue Price</label>
-                  <input v-model="saleData.cataloguePrice" type="text" placeholder="e.g. PKR 240,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                  <input data-tour="sale-catalogueprice" v-model="saleData.cataloguePrice" type="text" placeholder="e.g. PKR 240,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
                 </div>
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300">Authorized Discount</label>
                     <span class="text-[10px] text-gray-400">Max 8% branch allowance</span>
                   </div>
-                  <input v-model="saleData.discount" type="text" placeholder="e.g. PKR 10,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                  <input data-tour="sale-discount" v-model="saleData.discount" type="text" placeholder="e.g. PKR 10,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
                   <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Discounts exceeding 8% will automatically prompt for Head Office Action Centre approval.</p>
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-1">Net Vehicle Sale Price (Payable)</label>
-                  <input v-model="saleData.finalPrice" type="text" placeholder="e.g. PKR 230,000" class="w-full px-3 py-2 text-[12px] bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300 font-bold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] transition-colors" />
+                  <input data-tour="sale-finalprice" v-model="saleData.finalPrice" type="text" placeholder="e.g. PKR 230,000" class="w-full px-3 py-2 text-[12px] bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300 font-bold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] transition-colors" />
                 </div>
               </div>
             </div>
@@ -522,7 +522,7 @@ const createOrder = () => {
                       </td>
                       <td class="px-4 py-3 text-right text-gray-500 dark:text-gray-400 font-medium">{{ unit.landedCost }}</td>
                       <td class="px-4 py-3 text-center">
-                        <input type="radio" :value="unit.serial" v-model="saleData.selectedUnit" class="w-3.5 h-3.5 text-[#165A31] focus:ring-[#165A31] border-gray-300 dark:border-gray-600 cursor-pointer" @click.stop="selectUnit(unit)" />
+                        <input data-tour="sale-selectedunit" type="radio" :value="unit.serial" v-model="saleData.selectedUnit" class="w-3.5 h-3.5 text-[#165A31] focus:ring-[#165A31] border-gray-300 dark:border-gray-600 cursor-pointer" @click.stop="selectUnit(unit)" />
                       </td>
                     </tr>
                   </tbody>
@@ -541,7 +541,7 @@ const createOrder = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Payment Method *</label>
-                  <select 
+                  <select data-tour="sale-paymentmethod" 
                     v-model="saleData.paymentMethod" 
                     class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -559,7 +559,7 @@ const createOrder = () => {
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
                       Bank Transaction ID / IBFT Ref # *
                     </label>
-                    <input 
+                    <input data-tour="sale-transactionid" 
                       v-model="saleData.transactionId" 
                       type="text" 
                       placeholder="e.g. TXN-984210-MEEZAN" 
@@ -570,7 +570,7 @@ const createOrder = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Target Deposit Bank Account</label>
-                    <select 
+                    <select data-tour="sale-bankaccount" 
                       v-model="saleData.bankAccount"
                       class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors cursor-pointer"
                     >
@@ -585,7 +585,7 @@ const createOrder = () => {
                 <div v-if="saleData.paymentMethod === 'Cheque / Pay Order'" class="space-y-3 p-3.5 bg-amber-50/40 dark:bg-amber-950/30 rounded-xl border border-amber-100 dark:border-amber-800/60">
                   <div>
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">Cheque / Pay Order # *</label>
-                    <input 
+                    <input data-tour="sale-chequeno" 
                       v-model="saleData.chequeNo" 
                       type="text" 
                       placeholder="e.g. CHQ-889012" 
@@ -595,7 +595,7 @@ const createOrder = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Drawee Bank Name</label>
-                    <input 
+                    <input data-tour="sale-draweebank" 
                       v-model="saleData.draweeBank" 
                       type="text" 
                       placeholder="e.g. MCB Bank Limited" 
@@ -607,11 +607,11 @@ const createOrder = () => {
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Amount Received</label>
-                    <input v-model="saleData.amountReceived" type="text" placeholder="e.g. PKR 230,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 font-semibold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                    <input data-tour="sale-amountreceived" v-model="saleData.amountReceived" type="text" placeholder="e.g. PKR 230,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 font-semibold rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Remaining Balance</label>
-                    <input v-model="saleData.balance" type="text" placeholder="PKR 0" readonly class="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-lg cursor-not-allowed" />
+                    <input data-tour="sale-balance" v-model="saleData.balance" type="text" placeholder="PKR 0" readonly class="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-lg cursor-not-allowed" />
                   </div>
                 </div>
               </div>

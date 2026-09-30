@@ -263,7 +263,7 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Date of Expense</label>
-                  <input 
+                  <input data-tour="date" 
                     v-model="form.date" 
                     type="text" 
                     placeholder="e.g. 27 Aug 2026" 
@@ -308,7 +308,7 @@ const submitForm = () => {
 
                 <div v-if="form.paymentMethod === 'Bank Transfer'" class="space-y-1 p-3 bg-emerald-50/60 dark:bg-emerald-950/40 rounded-lg border border-emerald-100 dark:border-emerald-800/60">
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-200">Bank Transaction ID / Ref *</label>
-                  <input 
+                  <input data-tour="transactionid" 
                     v-model="form.transactionId" 
                     type="text" 
                     placeholder="e.g. TXN-EXP-5591" 
@@ -320,7 +320,7 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Description / Purpose</label>
-                  <input 
+                  <input data-tour="description" 
                     v-model="form.description" 
                     type="text" 
                     placeholder="e.g. Branch electricity bill / Generator oil change" 
@@ -331,7 +331,7 @@ const submitForm = () => {
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Receipt / Invoice File Attachment</label>
                   <div class="flex items-center gap-2">
-                    <input 
+                    <input data-tour="receipt" 
                       v-model="form.receipt" 
                       type="text" 
                       placeholder="e.g. pescobill_aug.pdf" 
@@ -346,7 +346,7 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Internal Audit Notes</label>
-                  <textarea 
+                  <textarea data-tour="notes" 
                     v-model="form.notes" 
                     rows="2"
                     placeholder="Specific remarks for the CFO or finance auditor..." 

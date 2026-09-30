@@ -536,7 +536,7 @@ const filteredUnits = computed(() => {
         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
           <Search class="h-4 w-4" />
         </span>
-        <input 
+        <input data-tour="searchquery" 
           v-model="searchQuery"
           type="text" 
           placeholder="Serial, chassis, product, customer, order..." 

@@ -240,7 +240,7 @@ const saveAndSend = () => {
             <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Branch Assignment</h3>
             <div class="max-w-xs">
               <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Origin Showroom</label>
-              <select v-model="form.branch" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+              <select data-tour="branch" v-model="form.branch" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                 <option>Peshawar</option>
                 <option>Islamabad</option>
                 <option>Lahore</option>
@@ -330,7 +330,7 @@ const saveAndSend = () => {
 
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Tax / Registration Fees</label>
-                    <select v-model="form.taxRegFees" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                    <select data-tour="taxregfees" v-model="form.taxRegFees" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                       <option>Included in Quote</option>
                       <option>Excluded (Paid Separately at Excise)</option>
                     </select>
@@ -338,12 +338,12 @@ const saveAndSend = () => {
 
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Delivery Lead Time</label>
-                    <input v-model="form.deliveryLeadTime" type="text" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" placeholder="e.g. Within 3 business days" />
+                    <input data-tour="deliveryleadtime" v-model="form.deliveryLeadTime" type="text" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" placeholder="e.g. Within 3 business days" />
                   </div>
                   
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Quotation Valid Until</label>
-                    <input v-model="form.validity" type="date" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
+                    <input data-tour="validity" v-model="form.validity" type="date" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
                   </div>
                 </div>
               </div>
@@ -370,7 +370,7 @@ const saveAndSend = () => {
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="sm:col-span-2">
                       <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Product Model *</label>
-                      <select v-model="item.product" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border rounded text-xs text-gray-800 dark:text-gray-100 focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200 dark:border-gray-700'">
+                      <select data-tour="item-product" v-model="item.product" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border rounded text-xs text-gray-800 dark:text-gray-100 focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200 dark:border-gray-700'">
                         <option value="">Select a product...</option>
                         <option>BRG E-125</option>
                         <option>BRG X7</option>
@@ -383,17 +383,17 @@ const saveAndSend = () => {
                     
                     <div>
                       <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Quantity</label>
-                      <input v-model="item.quantity" type="number" min="1" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                      <input data-tour="item-quantity" v-model="item.quantity" type="number" min="1" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0" />
                     </div>
                     
                     <div>
                       <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Unit Price (PKR)</label>
-                      <input v-model="item.sellingPrice" type="number" min="0" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                      <input data-tour="item-sellingprice" v-model="item.sellingPrice" type="number" min="0" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0" />
                     </div>
                     
                     <div class="sm:col-span-2">
                       <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Warranty Package</label>
-                      <select v-model="item.warranty" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0">
+                      <select data-tour="item-warranty" v-model="item.warranty" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0">
                         <option>1-Year Standard Service</option>
                         <option>2-Year Official Battery & Motor Warranty</option>
                         <option>No Warranty (Accessories)</option>

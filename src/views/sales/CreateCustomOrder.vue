@@ -146,7 +146,7 @@ const saveOrder = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Name *</label>
-                <input 
+                <input data-tour="customer" 
                   v-model="form.customer"
                   type="text" 
                   placeholder="e.g. Jawad Khan"
@@ -158,7 +158,7 @@ const saveOrder = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Product / Specification *</label>
-                <input 
+                <input data-tour="product" 
                   v-model="form.product"
                   type="text" 
                   placeholder="e.g. BRG X7 / Matte Black"
@@ -171,7 +171,7 @@ const saveOrder = () => {
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Budget</label>
-                  <input 
+                  <input data-tour="budget" 
                     v-model="form.budget"
                     type="text" 
                     placeholder="e.g. PKR 360,000"
@@ -181,7 +181,7 @@ const saveOrder = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Target ETA / Date</label>
-                  <input 
+                  <input data-tour="desireddate" 
                     v-model="form.desiredDate"
                     type="text" 
                     placeholder="e.g. 15 Sep 2026"
@@ -198,7 +198,7 @@ const saveOrder = () => {
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Deposit Amount *</label>
-                  <input 
+                  <input data-tour="deposit" 
                     v-model="form.deposit"
                     type="text" 
                     placeholder="e.g. PKR 100,000"
@@ -210,7 +210,7 @@ const saveOrder = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Payment Method</label>
-                  <select 
+                  <select data-tour="paymentmethod" 
                     v-model="form.paymentMethod"
                     class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -225,7 +225,7 @@ const saveOrder = () => {
               <!-- Conditional Transaction ID for Bank Transfer -->
               <div v-if="form.paymentMethod === 'Bank Transfer'" class="space-y-1 p-3 bg-emerald-50/50 rounded-lg border border-emerald-100">
                 <label class="block text-[11px] font-semibold text-gray-700">Bank Transaction ID / Ref *</label>
-                <input 
+                <input data-tour="transactionid" 
                   v-model="form.transactionId"
                   type="text" 
                   placeholder="e.g. TXN-CUSTOM-8812"
@@ -238,7 +238,7 @@ const saveOrder = () => {
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Status</label>
-                  <select 
+                  <select data-tour="status" 
                     v-model="form.status"
                     class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -252,7 +252,7 @@ const saveOrder = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Reservation Rule</label>
-                  <input 
+                  <input data-tour="reservation" 
                     v-model="form.reservation"
                     type="text" 
                     placeholder="e.g. On arrival"
@@ -263,7 +263,7 @@ const saveOrder = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Notes & Special Requirements</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes"
                   rows="2"
                   placeholder="Customer notes or special specs..."

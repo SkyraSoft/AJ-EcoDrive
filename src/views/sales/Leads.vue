@@ -421,7 +421,7 @@ const openLead = (lead) => {
               :key="col.key" 
               class="flex items-center px-3.5 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
             >
-              <input 
+              <input data-tour="col-visible" 
                 type="checkbox" 
                 v-model="col.visible" 
                 class="rounded border-gray-300 text-[#165A31] focus:ring-[#165A31] mr-2.5 h-3.5 w-3.5 accent-[#165A31]"
@@ -537,7 +537,7 @@ const openLead = (lead) => {
       
       <div class="relative w-full sm:w-72">
         <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-        <input 
+        <input data-tour="searchquery" 
           v-model="searchQuery"
           type="text" 
           placeholder="Search by lead #, name, product, branch..." 

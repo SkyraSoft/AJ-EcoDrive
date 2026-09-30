@@ -65,7 +65,7 @@ const cancel = () => {
             </div>
             <div class="md:col-span-2">
               <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Reason for Return</label>
-              <input type="text" placeholder="e.g. Transit damage, QC failure" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+              <input data-tour="e-g-transit-damage-qc-failure" type="text" placeholder="e.g. Transit damage, QC failure" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
             </div>
           </div>
         </div>
@@ -88,10 +88,10 @@ const cancel = () => {
               <tbody class="text-[11px]">
                 <tr class="border-b border-gray-50">
                   <td class="px-5 py-4">
-                    <input type="text" placeholder="Select product or scan serial" class="w-full px-3 py-1.5 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31]" />
+                    <input data-tour="select-product-or-scan-serial" type="text" placeholder="Select product or scan serial" class="w-full px-3 py-1.5 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31]" />
                   </td>
                   <td class="px-5 py-4">
-                    <input type="text" placeholder="PKR" class="w-full px-3 py-1.5 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31]" />
+                    <input data-tour="pkr" type="text" placeholder="PKR" class="w-full px-3 py-1.5 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31]" />
                   </td>
                   <td class="px-5 py-4 text-right">
                     <button class="text-gray-400 hover:text-red-500 font-bold">&times;</button>

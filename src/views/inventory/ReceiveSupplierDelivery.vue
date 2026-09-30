@@ -53,7 +53,7 @@ const postReceipt = () => {
         
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Inbound</label>
-          <input 
+          <input data-tour="inbound" 
             v-model="form.inbound"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -62,7 +62,7 @@ const postReceipt = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">PO Reference</label>
-          <input 
+          <input data-tour="poreference" 
             v-model="form.poReference"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -71,7 +71,7 @@ const postReceipt = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Expected Products</label>
-          <input 
+          <input data-tour="expectedproducts" 
             v-model="form.expectedProducts"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -80,7 +80,7 @@ const postReceipt = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Receiving Location</label>
-          <input 
+          <input data-tour="receivinglocation" 
             v-model="form.receivingLocation"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -94,7 +94,7 @@ const postReceipt = () => {
         
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Serialized Units</label>
-          <input 
+          <input data-tour="serializedunits" 
             v-model="form.serializedUnits"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -103,7 +103,7 @@ const postReceipt = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Condition</label>
-          <input 
+          <input data-tour="condition" 
             v-model="form.condition"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -112,7 +112,7 @@ const postReceipt = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Photos</label>
-          <input 
+          <input data-tour="photos" 
             v-model="form.photos"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -121,7 +121,7 @@ const postReceipt = () => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Discrepancy</label>
-          <input 
+          <input data-tour="discrepancy" 
             v-model="form.discrepancy"
             type="text" 
             class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"

@@ -172,7 +172,7 @@ const saveLead = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Lead Source</label>
-                  <select v-model="formData.source" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                  <select data-tour="source" v-model="formData.source" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                     <option value="Website">Website Inquiry</option>
                     <option value="Walk-in">Walk-in Showroom</option>
                     <option value="Referral">Customer Referral</option>
@@ -189,7 +189,7 @@ const saveLead = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Branch</label>
-                  <select v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                  <select data-tour="branch" v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                     <option value="Peshawar">Peshawar</option>
                     <option value="Islamabad">Islamabad</option>
                     <option value="Lahore">Lahore</option>
@@ -198,12 +198,12 @@ const saveLead = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Assigned Sales Owner</label>
-                  <input v-model="formData.owner" type="text" placeholder="e.g. Hamza Ali" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input data-tour="owner" v-model="formData.owner" type="text" placeholder="e.g. Hamza Ali" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Stage / Status</label>
-                  <select v-model="formData.stage" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
+                  <select data-tour="stage" v-model="formData.stage" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
                     <option value="Qualified">Qualified</option>
@@ -226,7 +226,7 @@ const saveLead = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Budget Estimate</label>
-                  <input v-model="formData.budget" type="text" placeholder="e.g. PKR 220K" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input data-tour="budget" v-model="formData.budget" type="text" placeholder="e.g. PKR 220K" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
               </div>
             </div>
@@ -238,7 +238,7 @@ const saveLead = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Next Follow-up Date</label>
-                  <input v-model="formData.nextFollowUp" type="text" placeholder="e.g. Aug 30" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input data-tour="nextfollowup" v-model="formData.nextFollowUp" type="text" placeholder="e.g. Aug 30" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
               </div>
             </div>

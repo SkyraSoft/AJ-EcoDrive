@@ -126,7 +126,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Overview -->
-      <div v-if="activeTab === 'Overview'" class="p-6 bg-[#fbfbfc] space-y-6">
+      <div v-show="activeTab === 'Overview'" class="p-6 bg-[#fbfbfc] space-y-6">
         
         <!-- 4 Metric Cards -->
         <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -174,7 +174,7 @@ const editSupplier = () => {
       </div>
       
       <!-- Tab Content: Contacts -->
-      <div v-else-if="activeTab === 'Contacts'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Contacts'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Contacts</h3>
@@ -205,7 +205,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Products -->
-      <div v-else-if="activeTab === 'Products'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Products'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Supplied Products</h3>
@@ -238,7 +238,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Purchase Orders -->
-      <div v-else-if="activeTab === 'Purchase Orders'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Purchase Orders'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Purchase Orders</h3>
@@ -275,7 +275,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Receipts -->
-      <div v-else-if="activeTab === 'Receipts'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Receipts'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Receipts</h3>
@@ -310,7 +310,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Bills & Payments -->
-      <div v-else-if="activeTab === 'Bills & Payments'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Bills & Payments'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Bills & Payments</h3>
@@ -348,7 +348,7 @@ const editSupplier = () => {
       </div>
       
       <!-- Tab Content: Returns -->
-      <div v-else-if="activeTab === 'Returns'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Returns'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Purchase Returns</h3>
@@ -383,7 +383,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Performance -->
-      <div v-else-if="activeTab === 'Performance'" class="p-6 bg-[#fbfbfc] space-y-6">
+      <div v-show="activeTab === 'Performance'" class="p-6 bg-[#fbfbfc] space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
             <div class="text-[11px] font-semibold text-gray-400 mb-2">On-Time</div>
@@ -434,7 +434,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Documents -->
-      <div v-else-if="activeTab === 'Documents'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Documents'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Supplier Documents</h3>
@@ -465,7 +465,7 @@ const editSupplier = () => {
       </div>
 
       <!-- Tab Content: Activity -->
-      <div v-else-if="activeTab === 'Activity'" class="p-6 bg-[#fbfbfc]">
+      <div v-show="activeTab === 'Activity'" class="p-6 bg-[#fbfbfc]">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="px-5 py-4 border-b border-gray-100">
             <h3 class="text-[14px] font-bold text-gray-900">Supplier Activity</h3>

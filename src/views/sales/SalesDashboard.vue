@@ -121,6 +121,65 @@ const collections = [
         </div>
       </div>
     </div>
+
+    <!-- Tables Row: Top Products & Collections (Branch Scoped) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Top Products -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+          <h3 class="text-[13px] font-bold text-gray-900">Top Products</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                <th class="px-5 py-3">Product</th>
+                <th class="px-5 py-3">Revenue</th>
+                <th class="px-5 py-3">Units</th>
+                <th class="px-5 py-3">Margin</th>
+              </tr>
+            </thead>
+            <tbody class="text-[11px]">
+              <tr v-for="product in topProducts" :key="product.name" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <td class="px-5 py-4 font-semibold text-gray-800">{{ product.name }}</td>
+                <td class="px-5 py-4 text-gray-600 font-medium">{{ product.revenue }}</td>
+                <td class="px-5 py-4 text-gray-600 font-medium">{{ product.units }}</td>
+                <td class="px-5 py-4 text-gray-600 font-medium">{{ product.margin }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Collections & Outstanding -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+          <h3 class="text-[13px] font-bold text-gray-900">Collections & Outstanding</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                <th class="px-5 py-3">Branch</th>
+                <th class="px-5 py-3">Collected</th>
+                <th class="px-5 py-3">Outstanding</th>
+                <th class="px-5 py-3">Overdue</th>
+              </tr>
+            </thead>
+            <tbody class="text-[11px]">
+              <tr v-for="col in collections" :key="col.branch" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <td class="px-5 py-4 font-semibold text-gray-800">{{ col.branch }}</td>
+                <td class="px-5 py-4 text-gray-600 font-medium">{{ col.collected }}</td>
+                <td class="px-5 py-4 text-gray-600 font-medium">{{ col.outstanding }}</td>
+                <td class="px-5 py-4 text-gray-600 font-medium">{{ col.overdue }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SUPER ADMIN VIEW -->

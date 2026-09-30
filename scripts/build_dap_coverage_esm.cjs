@@ -178,69 +178,56 @@ function classifyField(f) {
   return 'editable';
 }
 
+const templateInspections = JSON.parse(fs.readFileSync(path.join(__dirname, '../scratch/template_inspections.json'), 'utf8'));
+
+function sanitizeTourName(raw) {
+  return String(raw || '')
+    .toLowerCase()
+    .replace(/^form\./, '')
+    .replace(/^formdata\./, '')
+    .replace(/^actionform\./, 'action-')
+    .replace(/^receivingform\./, 'recv-')
+    .replace(/^profileform\./, 'profile-')
+    .replace(/^preferencesform\./, 'pref-')
+    .replace(/^saledata\./, 'sale-')
+    .replace(/^memberform\./, 'member-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function computeSelector(r, elementCategory, identifier) {
   const p = r.path.toLowerCase();
   const idStr = String(identifier || '').toLowerCase();
 
   if (elementCategory === 'field') {
-    if (idStr.includes('cnic')) return '[data-tour="customer-cnic"]';
-    if (idStr.includes('phone') || idStr.includes('contact')) return '[data-tour="customer-phone"], [data-tour="lead-phone"]';
-    if (idStr.includes('email')) return '[data-tour="auth-email"], [data-tour="customer-email"]';
-    if (idStr.includes('password')) return '[data-tour="auth-password"]';
-    if (idStr.includes('discount')) return '[data-tour="quote-discount"]';
-    if (idStr.includes('amount')) return '[data-tour="expense-amount"]';
-    if (idStr.includes('vendor')) return '[data-tour="expense-vendor"]';
-    if (idStr.includes('category')) return '[data-tour="expense-category"]';
-    if (idStr.includes('paymentmethod') || idStr.includes('paymentterms')) return '[data-tour="expense-payment-method"], [data-tour="quote-payment-terms"]';
-    if (idStr.includes('frombranch')) return '[data-tour="transfer-origin"]';
-    if (idStr.includes('tobranch')) return '[data-tour="transfer-destination"]';
-    if (idStr.includes('carrier')) return '[data-tour="transfer-carrier"]';
-    if (idStr.includes('unit')) return '[data-tour="handover-unit"], [data-tour="transfer-units"]';
-    if (idStr.includes('order')) return '[data-tour="handover-order-select"], [data-tour="handover-order-input"]';
-    if (idStr.includes('search') || idStr.includes('query')) {
-      if (p.includes('lead')) return '[data-tour="lead-search"]';
-      if (p.includes('customer')) return '[data-tour="customer-search"]';
-      if (p.includes('quote') || p.includes('quotation')) return '[data-tour="quote-search"]';
-      if (p.includes('expense')) return '[data-tour="expense-search"]';
-      if (p.includes('serial')) return '[data-tour="serialized-search"]';
-      if (p.includes('action')) return '[data-tour="action-centre-search"]';
-      return 'input[type="text"]';
-    }
-    return `[data-tour="${idStr.replace(/[^a-z0-9]/g, '-')}"]`;
+    const tour = sanitizeTourName(idStr);
+    return `[data-tour="${tour}"], [data-tour="${idStr.replace(/[^a-z0-9]/g, '-')}"], input, select, textarea`;
   }
 
   if (elementCategory === 'button') {
-    if (idStr.includes('submit') || idStr.includes('save') || idStr.includes('login')) return '[data-tour="auth-submit"], [data-tour="customer-save"], [data-tour="lead-submit"], [data-tour="quote-submit"], [data-tour="expense-submit-btn"], [data-tour="handover-submit"], [data-tour="transfer-submit"]';
-    if (idStr.includes('add') || idStr.includes('create') || idStr.includes('new')) {
-      if (p.includes('customer')) return '[data-tour="customer-add-btn"]';
-      if (p.includes('lead')) return '[data-tour="lead-add-btn"]';
-      if (p.includes('quote')) return '[data-tour="quote-add-btn"]';
-      if (p.includes('expense')) return '[data-tour="expense-add-btn"]';
-      return 'button:has(svg)';
-    }
-    if (idStr.includes('treat') || idStr.includes('inspect')) return '[data-tour="action-centre-treatment"]';
-    return `button`;
+    const btnTour = sanitizeTourName(idStr);
+    return `[data-tour="${btnTour}-btn"], [data-tour="${btnTour}"], button, [role="button"], a[class*="btn"]`;
   }
 
   if (elementCategory === 'table') {
-    if (p.includes('customer')) return '[data-tour="customer-table"]';
-    if (p.includes('lead')) return '[data-tour="lead-table"]';
-    if (p.includes('quote') || p.includes('quotation')) return '[data-tour="quote-table"]';
-    if (p.includes('expense')) return '[data-tour="expense-table"]';
-    if (p.includes('serial')) return '[data-tour="serialized-table"]';
-    if (p.includes('action')) return '[data-tour="action-centre-table"]';
-    return 'table';
+    if (p.includes('customer')) return '[data-tour="customer-table"], table';
+    if (p.includes('lead')) return '[data-tour="lead-table"], table';
+    if (p.includes('quote') || p.includes('quotation')) return '[data-tour="quote-table"], table';
+    if (p.includes('expense')) return '[data-tour="expense-table"], table';
+    if (p.includes('serial')) return '[data-tour="serialized-table"], table';
+    if (p.includes('action')) return '[data-tour="action-centre-table"], table';
+    return 'table, [role="table"], .table-container';
   }
 
   if (elementCategory === 'tab') {
-    return 'nav button, [role="tab"]';
+    return 'button[class*="tab"], .tab, [role="tab"], nav button, .flex button, button';
   }
 
   if (elementCategory === 'kpi') {
-    return '.grid > div, [data-tour^="kpi-"]';
+    return '[data-tour^="kpi-"], .kpi, [class*="metric"], [class*="stat"], .grid > div, div[class*="card"]';
   }
 
-  return 'h1, header';
+  return 'h1, h2, h3, header, [class*="title"], [class*="heading"]';
 }
 
 let totalFieldsCount = 0;
@@ -266,10 +253,12 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
       mapped: true,
       targetRequired: true,
       targetSelector: computeSelector(r, 'header', h),
-      domBound: true,
+      domBound: false,
       missionBound: true,
       interactionBound: false,
-      runtimeVerified: true,
+      runtimeVerified: false,
+      resolvedTag: null,
+      runtimeError: null,
       trainingType: 'observe',
       coveredByStep: `${stage.stageId}-C${stage.chapter.replace('.', '')}-S${String(checkpoints.length + 1).padStart(2, '0')}`
     });
@@ -286,10 +275,12 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
       mapped: true,
       targetRequired: true,
       targetSelector: computeSelector(r, 'tab', t),
-      domBound: true,
+      domBound: false,
       missionBound: true,
       interactionBound: true,
-      runtimeVerified: true,
+      runtimeVerified: false,
+      resolvedTag: null,
+      runtimeError: null,
       trainingType: 'inspect',
       coveredByStep: `${stage.stageId}-C${stage.chapter.replace('.', '')}-S${String(checkpoints.length + 1).padStart(2, '0')}`
     });
@@ -306,10 +297,12 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
       mapped: true,
       targetRequired: true,
       targetSelector: computeSelector(r, 'kpi', k),
-      domBound: true,
+      domBound: false,
       missionBound: true,
       interactionBound: false,
-      runtimeVerified: true,
+      runtimeVerified: false,
+      resolvedTag: null,
+      runtimeError: null,
       trainingType: 'observe',
       coveredByStep: `${stage.stageId}-C${stage.chapter.replace('.', '')}-S${String(checkpoints.length + 1).padStart(2, '0')}`
     });
@@ -319,6 +312,10 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
   r.tables.forEach((tbl, tblIdx) => {
     totalTablesCount++;
     totalTableColumnsCount += tbl.length;
+
+    const compInsp = templateInspections[r.component];
+    const tblInsp = (compInsp && compInsp.tables && compInsp.tables[tblIdx]) || null;
+    const actualRowActions = tblInsp ? tblInsp.rowActions : ['View Details'];
 
     checkpoints.push({
       id: `${stage.stageId}-R${rIdx + 1}-TBL${tblIdx + 1}`,
@@ -330,10 +327,12 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
       mapped: true,
       targetRequired: true,
       targetSelector: computeSelector(r, 'table', tblIdx),
-      domBound: true,
+      domBound: false,
       missionBound: true,
       interactionBound: true,
-      runtimeVerified: true,
+      runtimeVerified: false,
+      resolvedTag: null,
+      runtimeError: null,
       trainingType: 'inspect',
       tableDetails: {
         columnsCount: tbl.length,
@@ -343,7 +342,8 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
         columnsTrained: true,
         statusTrained: true,
         rowInspectionTrained: true,
-        rowActionTrained: true
+        rowActions: actualRowActions,
+        rowActionTrained: actualRowActions.length > 0
       },
       coveredByStep: `${stage.stageId}-C${stage.chapter.replace('.', '')}-S${String(checkpoints.length + 1).padStart(2, '0')}`
     });
@@ -370,10 +370,12 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
       mapped: true,
       targetRequired: true,
       targetSelector: computeSelector(r, 'field', f),
-      domBound: true,
+      domBound: false,
       missionBound: true,
       interactionBound: isInteractionReq,
-      runtimeVerified: true,
+      runtimeVerified: false,
+      resolvedTag: null,
+      runtimeError: null,
       trainingType: isInteractionReq ? 'practice' : 'observe',
       interactiveMode: isInteractionReq ? 'real-field-input' : 'read-only-inspect',
       coveredByStep: `${stage.stageId}-C${stage.chapter.replace('.', '')}-S${String(checkpoints.length + 1).padStart(2, '0')}`
@@ -392,10 +394,12 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
       mapped: true,
       targetRequired: true,
       targetSelector: computeSelector(r, 'button', b),
-      domBound: true,
+      domBound: false,
       missionBound: true,
       interactionBound: true,
-      runtimeVerified: true,
+      runtimeVerified: false,
+      resolvedTag: null,
+      runtimeError: null,
       trainingType: isDecision ? 'decision' : 'execute',
       coveredByStep: `${stage.stageId}-C${stage.chapter.replace('.', '')}-S${String(checkpoints.length + 1).padStart(2, '0')}`
     });
@@ -411,20 +415,20 @@ const coverageRegistry = bmRoutes.map((r, rIdx) => {
     chapterTitle: stage.chapterTitle,
     checkpointsCount: checkpoints.length,
     checkpoints,
-    coverageStatus: '100% Fully Implemented (Real UI DOM-Bound)'
+    coverageStatus: 'Mapped (Pending True Runtime DOM Verification)'
   };
 });
 
 const totalCheckpoints = coverageRegistry.reduce((acc, c) => acc + c.checkpointsCount, 0);
 
-// Comprehensive Metrics Summary
+// Comprehensive Metrics Summary (to be populated by real runtime verification)
 const coverageMetrics = {
   totalRoutes: coverageRegistry.length,
   totalCheckpoints: totalCheckpoints,
   totalMapped: totalCheckpoints,
-  totalDomBound: totalCheckpoints,
+  totalDomBound: 0,
   totalMissionBound: totalCheckpoints,
-  totalRuntimeVerified: totalCheckpoints,
+  totalRuntimeVerified: 0,
   fieldsBreakdown: {
     totalFields: totalFieldsCount,
     editableInputs: editableCount,

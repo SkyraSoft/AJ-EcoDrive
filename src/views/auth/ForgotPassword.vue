@@ -28,7 +28,7 @@ const handleSendReset = async () => {
 <template>
   <AuthCard title="Forgot your password?" subtitle="Enter your email address to request password reset instructions.">
     <form @submit.prevent="handleSendReset">
-      <BaseInput v-model="email" label="Email" placeholder="name@ajecodrive.com" required type="email" />
+      <BaseInput data-tour="email" v-model="email" label="Email" placeholder="name@ajecodrive.com" required type="email" />
       
       <div class="flex flex-col gap-3 mt-6">
         <BaseButton type="submit" :disabled="isLoading">

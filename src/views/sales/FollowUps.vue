@@ -221,7 +221,7 @@ const toggleComplete = (item) => {
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="branchsearchquery" 
             v-model="branchSearchQuery"
             type="text" 
             placeholder="Search follow-ups..." 
@@ -399,7 +399,7 @@ const toggleComplete = (item) => {
         <!-- Search -->
         <div class="relative flex-1 max-w-[260px] min-w-[180px]">
           <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="searchquery" 
             v-model="searchQuery"
             type="text" 
             placeholder="Search follow-ups..." 

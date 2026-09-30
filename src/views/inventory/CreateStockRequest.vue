@@ -176,7 +176,7 @@ const submitRequest = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Select Vehicle / Item *</label>
-                <select 
+                <select data-tour="productid" 
                   v-model="form.productId"
                   @change="onProductSelect(form.productId)"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
@@ -189,7 +189,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Current Branch Stock State</label>
-                <input 
+                <input data-tour="currentstock" 
                   v-model="form.currentStock"
                   type="text" 
                   placeholder="e.g. 6 available / 1 reserved"
@@ -199,7 +199,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Requested Units Qty *</label>
-                <input 
+                <input data-tour="requestedqty" 
                   v-model="form.requestedQty"
                   type="number" 
                   min="1"
@@ -212,7 +212,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Urgency Level</label>
-                <select 
+                <select data-tour="urgency" 
                   v-model="form.urgency"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -230,7 +230,7 @@ const submitRequest = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Expected Demand / Pipeline</label>
-                <input 
+                <input data-tour="expecteddemand" 
                   v-model="form.expectedDemand"
                   type="text" 
                   placeholder="e.g. 2 active quotations + corporate fleet visit"
@@ -240,7 +240,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Customer / Order Link (Optional)</label>
-                <input 
+                <input data-tour="orderlink" 
                   v-model="form.orderLink"
                   type="text" 
                   placeholder="e.g. SO-9723 / QT-402"
@@ -250,7 +250,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Reason for Request *</label>
-                <textarea 
+                <textarea data-tour="reason" 
                   v-model="form.reason"
                   rows="2"
                   placeholder="Explain why stock replenishment is necessary now..."
@@ -262,7 +262,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Logistics & Handling Notes</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes" 
                   rows="2"
                   placeholder="Specific delivery gate or unloading instructions..."

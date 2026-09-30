@@ -143,12 +143,12 @@ const handleSave = (status = 'Pending Approval') => {
               
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Supplier</label>
-                <input v-model="form.supplier" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-supplier" v-model="form.supplier" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
               
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Destination</label>
-                <select v-model="form.destination" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]">
+                <select data-tour="po-destination" v-model="form.destination" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]">
                   <option value="Peshawar">Peshawar</option>
                   <option value="Islamabad">Islamabad</option>
                   <option value="Lahore">Lahore</option>
@@ -159,7 +159,7 @@ const handleSave = (status = 'Pending Approval') => {
 
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Expected Arrival</label>
-                <input v-model="form.expectedArrival" type="date" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-expected-arrival" v-model="form.expectedArrival" type="date" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
             </div>
 
@@ -169,17 +169,17 @@ const handleSave = (status = 'Pending Approval') => {
               
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">BRG DS11 - Qty</label>
-                <input v-model.number="form.qtyDs11" type="number" min="0" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-qty-ds11" v-model.number="form.qtyDs11" type="number" min="0" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
 
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">BRG EV-5 - Qty</label>
-                <input v-model.number="form.qtyEv5" type="number" min="0" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-qty-ev5" v-model.number="form.qtyEv5" type="number" min="0" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
 
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Cargo Pro - Qty</label>
-                <input v-model.number="form.qtyCargo" type="number" min="0" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-qty-cargo" v-model.number="form.qtyCargo" type="number" min="0" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
             </div>
 
@@ -189,17 +189,17 @@ const handleSave = (status = 'Pending Approval') => {
               
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Expected Product Cost</label>
-                <input v-model="form.expectedCost" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-expected-cost" v-model="form.expectedCost" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
               
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Estimated Freight</label>
-                <input v-model="form.estimatedFreight" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-estimated-freight" v-model="form.estimatedFreight" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
 
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Shipment Method</label>
-                <input v-model="form.shipmentMethod" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-shipment-method" v-model="form.shipmentMethod" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
             </div>
 
@@ -209,17 +209,17 @@ const handleSave = (status = 'Pending Approval') => {
               
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Payment Terms</label>
-                <input v-model="form.paymentTerms" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-payment-terms" v-model="form.paymentTerms" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
 
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Documents</label>
-                <input v-model="form.documents" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                <input data-tour="po-documents" v-model="form.documents" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
               </div>
 
               <div>
                 <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Notes</label>
-                <textarea v-model="form.notes" rows="2" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
+                <textarea data-tour="po-notes" v-model="form.notes" rows="2" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
               </div>
             </div>
           </div>
@@ -227,13 +227,13 @@ const handleSave = (status = 'Pending Approval') => {
           <!-- Actions Footer -->
           <div class="flex items-center justify-end pt-4">
             <div class="flex flex-wrap items-center gap-3">
-              <button @click="closeForm" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
+              <button data-tour="po-cancel-btn" @click="closeForm" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
                 Cancel
               </button>
-              <button @click="handleSave('Draft')" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
+              <button data-tour="po-draft-btn" @click="handleSave('Draft')" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
                 Save Draft
               </button>
-              <button @click="handleSave('Pending Approval')" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
+              <button data-tour="po-submit-btn" @click="handleSave('Pending Approval')" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
                 Submit for Approval
               </button>
             </div>

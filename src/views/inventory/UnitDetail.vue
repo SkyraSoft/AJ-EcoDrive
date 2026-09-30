@@ -518,7 +518,7 @@ const costs = computed(() => {
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1">Reason / Note *</label>
-          <input 
+          <input data-tour="statusreason" 
             v-model="statusReason" 
             type="text" 
             placeholder="e.g. Minor paint touchup needed, QC verification passed..."

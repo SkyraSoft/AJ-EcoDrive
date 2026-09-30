@@ -182,7 +182,7 @@ const createCustomer = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
-                    <input v-model="formData.lastName" type="text" placeholder="e.g. Khan" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors" />
+                    <input data-tour="lastname" v-model="formData.lastName" type="text" placeholder="e.g. Khan" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors" />
                   </div>
                 </div>
                 
@@ -218,17 +218,17 @@ const createCustomer = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Residential / Business Street Address</label>
-                  <textarea v-model="formData.address" rows="3" placeholder="House #, Street, Sector, Area..." class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
+                  <textarea data-tour="address" v-model="formData.address" rows="3" placeholder="House #, Street, Sector, Area..." class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">City</label>
-                    <input v-model="formData.city" type="text" placeholder="e.g. Peshawar" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors" />
+                    <input data-tour="city" v-model="formData.city" type="text" placeholder="e.g. Peshawar" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors" />
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Registered Branch</label>
-                    <select v-model="formData.branch" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer">
+                    <select data-tour="branch" v-model="formData.branch" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer">
                       <option value="Peshawar">Peshawar</option>
                       <option value="Islamabad">Islamabad</option>
                       <option value="Lahore">Lahore</option>
@@ -240,7 +240,7 @@ const createCustomer = () => {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer Lifecycle Status</label>
-                    <select v-model="formData.status" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer">
+                    <select data-tour="status" v-model="formData.status" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer">
                       <option value="Active">Active Customer</option>
                       <option value="Lead">Showroom Walk-in Lead</option>
                       <option value="Inactive">Inactive</option>
@@ -248,7 +248,7 @@ const createCustomer = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Profile Notes</label>
-                    <textarea v-model="formData.notes" rows="2" placeholder="Corporate fleet manager, VIP buyer..." class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
+                    <textarea data-tour="notes" v-model="formData.notes" rows="2" placeholder="Corporate fleet manager, VIP buyer..." class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
                   </div>
                 </div>
               </div>

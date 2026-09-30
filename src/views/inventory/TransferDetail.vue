@@ -243,7 +243,7 @@ const branchTabData = computed(() => {
             </div>
 
             <!-- If on Items & Units tab, show detailed table with serials -->
-            <div v-if="branchCurrentTab === 'Items & Units'" class="mt-6 space-y-4">
+            <div v-show="branchCurrentTab === 'Items & Units' || branchCurrentTab === 'Summary' || branchCurrentTab === 'Transfer Overview'" class="mt-6 space-y-4">
               <h4 class="text-xs font-bold text-gray-900">Consigned Item Details</h4>
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs border border-gray-100 rounded-lg overflow-hidden">

@@ -199,7 +199,7 @@ const saveMember = () => {
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="searchquery" 
             v-model="searchQuery"
             type="text" 
             placeholder="Search staff, role, contact..." 
@@ -335,7 +335,7 @@ const saveMember = () => {
           <form @submit.prevent="saveMember" class="space-y-4">
             <div>
               <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Full Name *</label>
-              <input 
+              <input data-tour="member-name" 
                 v-model="memberForm.name"
                 type="text" 
                 placeholder="e.g. Hamza Khan"
@@ -348,7 +348,7 @@ const saveMember = () => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Role / Function</label>
-                <select 
+                <select data-tour="member-role" 
                   v-model="memberForm.role"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -363,7 +363,7 @@ const saveMember = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Status</label>
-                <select 
+                <select data-tour="member-status" 
                   v-model="memberForm.status"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -376,7 +376,7 @@ const saveMember = () => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Phone Contact *</label>
-                <input 
+                <input data-tour="member-contact" 
                   v-model="memberForm.contact"
                   type="text" 
                   placeholder="e.g. 0300 111 2211"
@@ -388,7 +388,7 @@ const saveMember = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Email Address</label>
-                <input 
+                <input data-tour="member-email" 
                   v-model="memberForm.email"
                   type="email" 
                   placeholder="e.g. hamza@ecodrive.pk"

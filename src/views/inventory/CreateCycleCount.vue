@@ -136,7 +136,7 @@ const startSession = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Count Name *</label>
-                <input 
+                <input data-tour="countname" 
                   v-model="form.countName"
                   type="text" 
                   placeholder="e.g. Showroom Count"
@@ -148,7 +148,7 @@ const startSession = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Scope Area *</label>
-                <input 
+                <input data-tour="scope" 
                   v-model="form.scope"
                   type="text" 
                   placeholder="e.g. Showroom Units or Battery Storage"
@@ -160,7 +160,7 @@ const startSession = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Assigned Team / Auditor</label>
-                <input 
+                <input data-tour="assignedto" 
                   v-model="form.assignedTo"
                   type="text" 
                   placeholder="e.g. Branch Team"
@@ -170,7 +170,7 @@ const startSession = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Scheduled Date</label>
-                <input 
+                <input data-tour="scheduleddate" 
                   v-model="form.scheduledDate"
                   type="text" 
                   placeholder="e.g. Today or 30 Aug"
@@ -185,7 +185,7 @@ const startSession = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Expected Units Count</label>
-                <input 
+                <input data-tour="expectedunits" 
                   v-model="form.expectedUnits"
                   type="text" 
                   placeholder="e.g. 20 units"
@@ -195,7 +195,7 @@ const startSession = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Target Location</label>
-                <input 
+                <input data-tour="targetlocation" 
                   v-model="form.targetLocation"
                   type="text" 
                   placeholder="e.g. Main Showroom & Staging Area"
@@ -205,7 +205,7 @@ const startSession = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Instructions & Notes</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes"
                   rows="4"
                   placeholder="Instructions for team e.g. verify barcode & serial tags..."

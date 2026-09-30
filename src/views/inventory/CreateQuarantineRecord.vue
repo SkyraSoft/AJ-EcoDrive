@@ -136,7 +136,7 @@ const submitQuarantineRecord = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Unit / Serial Number *</label>
-                <input 
+                <input data-tour="unit" 
                   v-model="form.unit"
                   type="text" 
                   placeholder="e.g. M3-01014"
@@ -148,7 +148,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Product / Model *</label>
-                <input 
+                <input data-tour="product" 
                   v-model="form.product"
                   type="text" 
                   placeholder="e.g. BRG M3"
@@ -160,7 +160,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Source / Origin</label>
-                <input 
+                <input data-tour="source" 
                   v-model="form.source"
                   type="text" 
                   placeholder="e.g. TR-221, Inbound INB-083, Showroom Floor"
@@ -170,7 +170,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Condition / Defect Description *</label>
-                <input 
+                <input data-tour="condition" 
                   v-model="form.condition"
                   type="text" 
                   placeholder="e.g. Packaging damage, Body panel dent, Faulty battery"
@@ -182,7 +182,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Initial Status</label>
-                <select 
+                <select data-tour="status" 
                   v-model="form.status"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -200,7 +200,7 @@ const submitQuarantineRecord = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Proposed Decision / Route</label>
-                <select 
+                <select data-tour="decision" 
                   v-model="form.decision"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -214,7 +214,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Inspection Evidence / Attached File</label>
-                <input 
+                <input data-tour="evidence" 
                   v-model="form.evidence"
                   type="text" 
                   placeholder="e.g. Photo_Inspection_01.jpg"
@@ -224,7 +224,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Detailed Inspection Notes</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes"
                   rows="3"
                   placeholder="Describe visible damage, test results, or reason for quarantine..."
@@ -244,7 +244,7 @@ const submitQuarantineRecord = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Approval Required</label>
-                <input 
+                <input data-tour="approval" 
                   v-model="form.approval"
                   type="text" 
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors"

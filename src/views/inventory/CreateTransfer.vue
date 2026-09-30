@@ -264,7 +264,7 @@ const submitTransfer = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Requested / Dispatch Date</label>
-                  <input v-model="form.requestedDate" type="text" placeholder="e.g. Today" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input data-tour="requesteddate" v-model="form.requestedDate" type="text" placeholder="e.g. Today" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
               </div>
             </div>
@@ -281,22 +281,22 @@ const submitTransfer = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Driver Name & Mobile No.</label>
-                  <input v-model="form.driverContact" type="text" placeholder="e.g. Tariq Mehmood (0301-5558192)" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input data-tour="drivercontact" v-model="form.driverContact" type="text" placeholder="e.g. Tariq Mehmood (0301-5558192)" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Outbound Gate Pass Reference</label>
-                  <input v-model="form.gatePassNo" type="text" placeholder="e.g. GP-TR-8812" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors font-mono" />
+                  <input data-tour="gatepassno" v-model="form.gatePassNo" type="text" placeholder="e.g. GP-TR-8812" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors font-mono" />
                 </div>
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Expected Arrival Date/Time</label>
-                  <input v-model="form.expectedArrival" type="text" placeholder="e.g. Tomorrow 14:00" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input data-tour="expectedarrival" v-model="form.expectedArrival" type="text" placeholder="e.g. Tomorrow 14:00" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Handling & Priority Notes</label>
-                  <textarea v-model="form.notes" rows="2" placeholder="Secure battery tie-down ropes, avoid rain exposure..." class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
+                  <textarea data-tour="notes" v-model="form.notes" rows="2" placeholder="Secure battery tie-down ropes, avoid rain exposure..." class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors resize-none"></textarea>
                 </div>
               </div>
             </div>

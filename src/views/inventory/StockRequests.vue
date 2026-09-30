@@ -202,7 +202,7 @@ const filteredRequests = computed(() => {
         <!-- Search Input -->
         <div class="relative w-48 sm:w-64">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="branchsearchquery" 
             v-model="branchSearchQuery"
             type="text" 
             placeholder="Search request or product..." 
@@ -323,7 +323,7 @@ const filteredRequests = computed(() => {
           <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
             <Search class="h-4 w-4" />
           </span>
-          <input 
+          <input data-tour="searchquery" 
             v-model="searchQuery"
             type="text" 
             placeholder="Search request..." 

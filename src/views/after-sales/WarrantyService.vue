@@ -196,7 +196,7 @@ const handleCaseUpdated = (updatedCase) => {
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="branchsearchquery" 
             v-model="branchSearchQuery"
             type="text" 
             placeholder="Search cases..." 
@@ -398,7 +398,7 @@ const handleCaseUpdated = (updatedCase) => {
         <!-- Search Input -->
         <div class="relative flex-1 sm:max-w-xs shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="searchquery" 
             v-model="searchQuery"
             type="text" 
             placeholder="Search cases, customer, unit..." 
@@ -408,7 +408,7 @@ const handleCaseUpdated = (updatedCase) => {
 
         <!-- Branch Select -->
         <div class="relative">
-          <select 
+          <select data-tour="selectedbranch" 
             v-model="selectedBranch"
             class="text-xs font-medium text-gray-700 bg-white px-3 py-2 pr-8 rounded-lg border border-gray-200 shadow-[0_2px_4px_rgba(0,0,0,0.01)] appearance-none focus:outline-none focus:border-[#165A31] cursor-pointer"
           >

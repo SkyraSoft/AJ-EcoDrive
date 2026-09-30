@@ -219,7 +219,7 @@ const handleOrderUpdated = (updatedOrder) => {
           <!-- Search Input -->
           <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
             <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input 
+            <input data-tour="branchsearchquery" 
               v-model="branchSearchQuery"
               type="text" 
               placeholder="Search orders, customer..." 
@@ -348,7 +348,7 @@ const handleOrderUpdated = (updatedOrder) => {
           <div class="flex flex-wrap items-center gap-3 flex-1">
             <div class="relative flex-1 max-w-[300px] min-w-[200px]">
               <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input 
+              <input data-tour="searchquery" 
                 v-model="searchQuery"
                 type="text" 
                 placeholder="Search order #, customer, unit..." 

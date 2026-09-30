@@ -333,7 +333,7 @@ const submitForm = () => {
                 <div class="relative">
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Link Service Case (SC / WAR) *</label>
                   <div class="relative">
-                    <input 
+                    <input data-tour="casesearch" 
                       v-model="caseSearch"
                       type="text"
                       placeholder="Search active case (e.g. SC-229)..."
@@ -368,7 +368,7 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Customer Name *</label>
-                  <input 
+                  <input data-tour="customer" 
                     v-model="form.customer" 
                     type="text" 
                     placeholder="Enter customer name..." 
@@ -381,7 +381,7 @@ const submitForm = () => {
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Unit Serial / Chassis *</label>
-                    <input 
+                    <input data-tour="unit" 
                       v-model="form.unit" 
                       type="text" 
                       placeholder="e.g. CHS-01882" 
@@ -392,7 +392,7 @@ const submitForm = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Branch</label>
-                    <select 
+                    <select data-tour="branch" 
                       v-model="form.branch" 
                       class="w-full px-3 py-2 text-[12px] text-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] bg-white cursor-pointer"
                     >
@@ -406,7 +406,7 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Unit Model & Variant</label>
-                  <input v-model="form.unitModel" type="text" placeholder="e.g. BRG X7 Electric / Black" class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg" />
+                  <input data-tour="unitmodel" v-model="form.unitModel" type="text" placeholder="e.g. BRG X7 Electric / Black" class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg" />
                 </div>
               </div>
 
@@ -419,7 +419,7 @@ const submitForm = () => {
                 
                 <div>
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Diagnosis Category *</label>
-                  <input 
+                  <input data-tour="diagnosis" 
                     v-model="form.diagnosis" 
                     type="text" 
                     placeholder="e.g. Controller fault, Battery replacement" 
@@ -431,7 +431,7 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Fault Details</label>
-                  <input 
+                  <input data-tour="fault" 
                     v-model="form.fault" 
                     type="text" 
                     placeholder="e.g. Controller intermittently loses power under load" 
@@ -442,7 +442,7 @@ const submitForm = () => {
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Work Decision</label>
-                    <input 
+                    <input data-tour="decision" 
                       v-model="form.decision" 
                       type="text" 
                       placeholder="e.g. Replace 72V controller" 
@@ -458,7 +458,7 @@ const submitForm = () => {
                     >
                       <option v-for="t in availableTechnicians" :key="t.id" :value="t.name">{{ t.name }} ({{ t.role || 'Tech' }})</option>
                     </select>
-                    <input 
+                    <input data-tour="technician" 
                       v-else
                       v-model="form.technician" 
                       type="text" 
@@ -478,7 +478,7 @@ const submitForm = () => {
                 
                 <div>
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Required Part Name</label>
-                  <input 
+                  <input data-tour="partitem" 
                     v-model="form.partItem" 
                     type="text" 
                     placeholder="e.g. 72V Smart Controller Module" 
@@ -489,7 +489,7 @@ const submitForm = () => {
                 <div class="grid grid-cols-3 gap-3">
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Qty</label>
-                    <input 
+                    <input data-tour="partqty" 
                       v-model="form.partQty" 
                       type="number" 
                       min="1"
@@ -498,7 +498,7 @@ const submitForm = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Est. Cost</label>
-                    <input 
+                    <input data-tour="partcost" 
                       v-model="form.partCost" 
                       type="text" 
                       placeholder="18K" 
@@ -507,7 +507,7 @@ const submitForm = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Source Stock</label>
-                    <select 
+                    <select data-tour="partsource" 
                       v-model="form.partSource" 
                       class="w-full px-3 py-2 text-[12px] text-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] bg-white cursor-pointer"
                     >
@@ -529,7 +529,7 @@ const submitForm = () => {
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Target Delivery Date</label>
-                    <input 
+                    <input data-tour="readydate" 
                       v-model="form.readyDate" 
                       type="text" 
                       placeholder="e.g. 30 Aug" 
@@ -538,7 +538,7 @@ const submitForm = () => {
                   </div>
                   <div>
                     <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Job Status</label>
-                    <select 
+                    <select data-tour="status" 
                       v-model="form.status" 
                       class="w-full px-3 py-2 text-[12px] text-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] bg-white cursor-pointer"
                     >
@@ -565,7 +565,7 @@ const submitForm = () => {
                     </div>
                   </div>
                   <div class="flex gap-2">
-                    <input 
+                    <input data-tour="newtaskname" 
                       v-model="newTaskName" 
                       type="text" 
                       placeholder="Add task step..." 

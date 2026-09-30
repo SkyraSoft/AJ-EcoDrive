@@ -354,7 +354,7 @@ const resetFilters = () => {
           <!-- Search -->
           <div class="relative flex-1 max-w-[300px] min-w-[200px]">
             <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input 
+            <input data-tour="searchquery" 
               v-model="searchQuery"
               type="text" 
               placeholder="Search name, phone, branch..." 

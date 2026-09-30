@@ -479,7 +479,7 @@ const totalUnitsCount = computed(() => {
     <div class="space-y-6">
 
       <!-- 1. OVERVIEW TAB -->
-      <div v-if="activeTab === 'Overview'" class="space-y-6">
+      <div v-show="activeTab === 'Overview'" class="space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           <!-- Left: Customer Summary Profile Card -->
@@ -731,7 +731,7 @@ const totalUnitsCount = computed(() => {
       </div>
 
       <!-- 3. ORDERS & PURCHASES TAB -->
-      <div v-if="activeTab === 'Orders & Purchases'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div v-show="activeTab === 'Orders & Purchases'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="p-5 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h3 class="text-sm font-bold text-gray-900">Customer Sales Orders ({{ customerOrders.length }})</h3>
@@ -1058,7 +1058,7 @@ const totalUnitsCount = computed(() => {
       </div>
 
       <!-- 8. LEADS & INQUIRIES TAB -->
-      <div v-if="activeTab === 'Leads & Inquiries'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+      <div v-show="activeTab === 'Leads & Inquiries'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Showroom Inquiries & Lead History</h3>
         
         <div v-if="customerLeads.length > 0" class="space-y-3">

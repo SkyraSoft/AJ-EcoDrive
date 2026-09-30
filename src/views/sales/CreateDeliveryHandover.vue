@@ -230,7 +230,7 @@ const saveHandover = () => {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Scheduled Time</label>
-                  <input 
+                  <input data-tour="scheduled" 
                     v-model="form.scheduled" 
                     type="text" 
                     placeholder="e.g. Today 16:00" 
@@ -239,7 +239,7 @@ const saveHandover = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Handover Status</label>
-                  <select 
+                  <select data-tour="status" 
                     v-model="form.status"
                     class="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -262,7 +262,7 @@ const saveHandover = () => {
                 </label>
 
                 <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" v-model="form.paymentComplete" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
+                  <input data-tour="paymentcomplete" type="checkbox" v-model="form.paymentComplete" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
                   <span class="text-xs text-gray-800 font-medium">Payment completed and invoice issued</span>
                 </label>
 
@@ -272,19 +272,19 @@ const saveHandover = () => {
                 </label>
 
                 <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" v-model="form.accessoriesIncluded" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
+                  <input data-tour="accessoriesincluded" type="checkbox" v-model="form.accessoriesIncluded" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
                   <span class="text-xs text-gray-800 font-medium">Standard accessories & charger included</span>
                 </label>
 
                 <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" v-model="form.warrantyBriefed" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
+                  <input data-tour="warrantybriefed" type="checkbox" v-model="form.warrantyBriefed" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
                   <span class="text-xs text-gray-800 font-medium">Warranty terms and booklet handed over</span>
                 </label>
               </div>
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Handover Notes / Instructions</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes" 
                   rows="3" 
                   placeholder="Enter handover details or customer special requests..." 

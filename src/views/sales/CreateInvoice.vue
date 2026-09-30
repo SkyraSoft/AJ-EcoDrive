@@ -216,7 +216,7 @@ const saveAndSend = () => {
             <h3 class="text-sm font-bold text-gray-900 mb-2">Assignment</h3>
             <div class="max-w-xs">
               <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch</label>
-              <select v-model="form.branch" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+              <select data-tour="branch" v-model="form.branch" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                 <option>Peshawar</option>
                 <option>Islamabad</option>
                 <option>Lahore</option>
@@ -232,7 +232,7 @@ const saveAndSend = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Name *</label>
                 <div class="relative">
                   <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input 
+                  <input data-tour="customersearch" 
                     v-model="customerSearch"
                     @focus="showCustomerDropdown = true"
                     @blur="onCustomerBlur"
@@ -293,7 +293,7 @@ const saveAndSend = () => {
                 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Link to Order or Quotation (Optional)</label>
-                  <input v-model="form.relatedReference" type="text" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" placeholder="e.g. QT-1882 or ORD-2241" />
+                  <input data-tour="relatedreference" v-model="form.relatedReference" type="text" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" placeholder="e.g. QT-1882 or ORD-2241" />
                 </div>
               </div>
             </div>
@@ -303,7 +303,7 @@ const saveAndSend = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Payment Terms / Instructions</label>
-                <select v-model="form.paymentTerms" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                <select data-tour="paymentterms" v-model="form.paymentTerms" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                   <option>Bank Transfer (Default)</option>
                   <option>Cash on Delivery</option>
                   <option>Corporate 30-Day Credit</option>
@@ -314,17 +314,17 @@ const saveAndSend = () => {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Issue Date</label>
-                  <input v-model="form.issueDate" type="date" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
+                  <input data-tour="issuedate" v-model="form.issueDate" type="date" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Due Date</label>
-                  <input v-model="form.dueDate" type="date" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
+                  <input data-tour="duedate" v-model="form.dueDate" type="date" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Status</label>
-                <select v-model="form.status" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                <select data-tour="status" v-model="form.status" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                   <option>Unpaid</option>
                   <option>Partial</option>
                   <option>Paid</option>
@@ -350,17 +350,17 @@ const saveAndSend = () => {
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div class="sm:col-span-2">
                     <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Description *</label>
-                    <input v-model="item.description" type="text" placeholder="e.g. Advance Deposit for 5 E-Scooters" class="w-full px-3 py-1.5 bg-white border rounded text-xs focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.description ? 'border-red-300' : 'border-gray-200'" />
+                    <input data-tour="item-description" v-model="item.description" type="text" placeholder="e.g. Advance Deposit for 5 E-Scooters" class="w-full px-3 py-1.5 bg-white border rounded text-xs focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.description ? 'border-red-300' : 'border-gray-200'" />
                   </div>
                   
                   <div>
                     <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Quantity</label>
-                    <input v-model="item.quantity" type="number" min="1" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                    <input data-tour="item-quantity" v-model="item.quantity" type="number" min="1" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0" />
                   </div>
                   
                   <div>
                     <label class="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Unit Price (PKR)</label>
-                    <input v-model="item.unitPrice" type="number" min="0" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                    <input data-tour="item-unitprice" v-model="item.unitPrice" type="number" min="0" class="w-full px-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:border-[#165A31] focus:ring-0" />
                   </div>
                 </div>
               </div>
@@ -373,11 +373,11 @@ const saveAndSend = () => {
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-gray-500">Discount (Fixed)</span>
-                <input v-model="form.discount" type="number" min="0" class="w-24 px-2 py-1 bg-white border border-gray-200 rounded text-xs text-right focus:border-[#165A31] focus:ring-0" />
+                <input data-tour="discount" v-model="form.discount" type="number" min="0" class="w-24 px-2 py-1 bg-white border border-gray-200 rounded text-xs text-right focus:border-[#165A31] focus:ring-0" />
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-gray-500">Tax Amount</span>
-                <input v-model="form.tax" type="number" min="0" class="w-24 px-2 py-1 bg-white border border-gray-200 rounded text-xs text-right focus:border-[#165A31] focus:ring-0" />
+                <input data-tour="tax" v-model="form.tax" type="number" min="0" class="w-24 px-2 py-1 bg-white border border-gray-200 rounded text-xs text-right focus:border-[#165A31] focus:ring-0" />
               </div>
               <div class="flex items-center justify-between pt-2 border-t border-gray-100">
                 <span class="text-sm font-bold text-gray-900">Total Invoice Amount</span>
@@ -388,7 +388,7 @@ const saveAndSend = () => {
 
           <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
             <h3 class="text-sm font-bold text-gray-900 mb-2">Internal Notes & Custom Text</h3>
-            <textarea 
+            <textarea data-tour="notes" 
               v-model="form.notes"
               rows="2"
               placeholder="Added to the bottom of the invoice..."

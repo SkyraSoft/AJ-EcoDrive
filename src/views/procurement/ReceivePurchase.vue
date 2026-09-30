@@ -516,7 +516,7 @@ const regenerateSerials = () => {
             <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider text-gray-500">1. Inwarding Location</h3>
             <div>
               <label class="block text-[11px] font-medium text-gray-600 mb-1">Receiving Branch & Bay</label>
-              <input 
+              <input data-tour="recv-location" 
                 v-model="receivingForm.location"
                 type="text" 
                 class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors"
@@ -528,7 +528,7 @@ const regenerateSerials = () => {
             <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider text-gray-500">2. Receiving Personnel</h3>
             <div>
               <label class="block text-[11px] font-medium text-gray-600 mb-1">Receiver Name</label>
-              <input 
+              <input data-tour="recv-receiver" 
                 v-model="receivingForm.receiver"
                 type="text" 
                 class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors"
@@ -541,7 +541,7 @@ const regenerateSerials = () => {
             <div class="grid grid-cols-2 gap-2">
               <div>
                 <label class="block text-[11px] font-medium text-gray-600 mb-1">Receipt Date</label>
-                <input 
+                <input data-tour="recv-receiptdate" 
                   v-model="receivingForm.receiptDate"
                   type="date" 
                   class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors"
@@ -549,7 +549,7 @@ const regenerateSerials = () => {
               </div>
               <div>
                 <label class="block text-[11px] font-medium text-gray-600 mb-1">Delivery Note / Tracking</label>
-                <input 
+                <input data-tour="recv-deliverynote" 
                   v-model="receivingForm.deliveryNote"
                   type="text" 
                   placeholder="DN-2048-01"
@@ -605,7 +605,7 @@ const regenerateSerials = () => {
                   <td class="px-4 py-3.5 text-center text-gray-500 font-medium">{{ line.previously_received_quantity }}</td>
                   <td class="px-4 py-3.5 text-center font-bold text-[#165A31]">{{ line.outstanding_quantity }}</td>
                   <td class="px-4 py-3.5 text-center">
-                    <input 
+                    <input data-tour="line-current-received-quantity" 
                       v-model.number="line.current_received_quantity" 
                       @input="syncSerializedRows"
                       type="number" 
@@ -614,7 +614,7 @@ const regenerateSerials = () => {
                     />
                   </td>
                   <td class="px-4 py-3.5 text-center">
-                    <input 
+                    <input data-tour="line-damaged-quantity" 
                       v-model.number="line.damaged_quantity" 
                       type="number" 
                       min="0"
@@ -721,7 +721,7 @@ const regenerateSerials = () => {
                   <td class="px-5 py-3 font-mono text-gray-400 text-[11px]">{{ index + 1 }}</td>
                   <td class="px-5 py-3 font-semibold text-gray-900">{{ unit.product }}</td>
                   <td class="px-4 py-3">
-                    <input 
+                    <input data-tour="unit-chassis" 
                       v-model="unit.chassis" 
                       type="text" 
                       class="w-full px-2.5 py-1 text-xs border border-gray-200 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-[#165A31]"
@@ -729,7 +729,7 @@ const regenerateSerials = () => {
                     />
                   </td>
                   <td class="px-4 py-3">
-                    <input 
+                    <input data-tour="unit-motornumber" 
                       v-model="unit.motorNumber" 
                       type="text" 
                       class="w-full px-2.5 py-1 text-xs border border-gray-200 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-[#165A31]"
@@ -737,7 +737,7 @@ const regenerateSerials = () => {
                     />
                   </td>
                   <td class="px-4 py-3">
-                    <input 
+                    <input data-tour="unit-batterynumber" 
                       v-model="unit.batteryNumber" 
                       type="text" 
                       class="w-full px-2.5 py-1 text-xs border border-gray-200 rounded-lg font-mono focus:outline-none focus:ring-1 focus:ring-[#165A31]"
@@ -745,7 +745,7 @@ const regenerateSerials = () => {
                     />
                   </td>
                   <td class="px-4 py-3">
-                    <select 
+                    <select data-tour="unit-condition" 
                       v-model="unit.condition"
                       class="px-2.5 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31]"
                     >
@@ -756,7 +756,7 @@ const regenerateSerials = () => {
                     </select>
                   </td>
                   <td class="px-4 py-3">
-                    <select 
+                    <select data-tour="unit-qc" 
                       v-model="unit.qc"
                       class="px-2.5 py-1 text-xs font-bold rounded-lg border focus:outline-none"
                       :class="unit.qc === 'Pass' ? 'bg-[#eefcf2] text-[#165A31] border-emerald-200' : (unit.qc === 'QC Hold' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200')"
@@ -775,7 +775,7 @@ const regenerateSerials = () => {
         <!-- Notes Card -->
         <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-2">
           <label class="block text-xs font-bold text-gray-900">Receipt Inspection Notes</label>
-          <textarea 
+          <textarea data-tour="recv-notes" 
             v-model="receivingForm.notes" 
             rows="2" 
             class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] text-gray-800 placeholder:text-gray-400"

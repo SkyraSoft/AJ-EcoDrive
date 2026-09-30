@@ -286,7 +286,7 @@ const savePayment = () => {
               
               <div v-if="!isEditMode">
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Select Invoice to Settle</label>
-                <select 
+                <select data-tour="invoice-id" 
                   v-model="form.invoice_id"
                   @change="onInvoiceChange"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
@@ -309,7 +309,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Customer Name *</label>
-                <input 
+                <input data-tour="customer" 
                   v-model="form.customer"
                   type="text" 
                   placeholder="e.g. Ahsan Khan"
@@ -321,7 +321,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Linked Order / Invoice Reference *</label>
-                <input 
+                <input data-tour="order" 
                   v-model="form.order"
                   type="text" 
                   placeholder="e.g. SO-9723 / INV-0492"
@@ -333,7 +333,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Method</label>
-                <select 
+                <select data-tour="method" 
                   v-model="form.method"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -346,7 +346,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Amount Collected (PKR) *</label>
-                <input 
+                <input data-tour="e-g-pkr-280-000" 
                   :value="form.amount"
                   @input="onAmountInput"
                   type="text" 
@@ -367,7 +367,7 @@ const savePayment = () => {
                   Bank Transaction Reference / Slip Number
                   <span v-if="form.method === 'Bank Transfer'" class="text-red-500 font-bold">* (Mandatory for Bank Transfer)</span>
                 </label>
-                <input 
+                <input data-tour="transactionref" 
                   v-model="form.transactionRef"
                   type="text" 
                   placeholder="e.g. TXN-2241-BANK-01"
@@ -379,7 +379,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Deposit Bank Account / Vault</label>
-                <select 
+                <select data-tour="bankaccount" 
                   v-model="form.bankAccount"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -389,7 +389,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Date</label>
-                <input 
+                <input data-tour="date" 
                   v-model="form.date" 
                   type="text" 
                   placeholder="e.g. Today" 
@@ -399,7 +399,7 @@ const savePayment = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Collector & Reconciliation Remarks</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes" 
                   rows="3" 
                   placeholder="Counter teller notes, customer CNIC match, or installment remarks..." 

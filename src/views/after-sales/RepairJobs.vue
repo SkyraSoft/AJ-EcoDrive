@@ -423,7 +423,7 @@ const handleRepairUpdated = (updatedJob) => {
         <!-- Search Input -->
         <div class="relative w-44 sm:w-56 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="branchsearchquery" 
             v-model="branchSearchQuery"
             type="text" 
             placeholder="Search repairs..." 
@@ -463,7 +463,7 @@ const handleRepairUpdated = (updatedJob) => {
               :key="col.key" 
               class="flex items-center px-3.5 py-1.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
             >
-              <input 
+              <input data-tour="col-visible" 
                 type="checkbox" 
                 v-model="col.visible" 
                 class="rounded border-gray-300 text-[#165A31] focus:ring-[#165A31] mr-2.5 h-3.5 w-3.5 accent-[#165A31]"
@@ -619,7 +619,7 @@ const handleRepairUpdated = (updatedJob) => {
           <!-- Search Input -->
           <div class="relative w-48 sm:w-64 shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
             <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input 
+            <input data-tour="searchquery" 
               v-model="searchQuery"
               type="text" 
               placeholder="Search repair, unit, customer..." 

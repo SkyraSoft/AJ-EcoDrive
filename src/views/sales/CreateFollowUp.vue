@@ -157,7 +157,7 @@ const saveFollowUp = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Customer / Lead Name *</label>
-                <input 
+                <input data-tour="customer" 
                   v-model="form.customer" 
                   type="text" 
                   placeholder="e.g. Bilal Shah or Sajid Khan" 
@@ -169,7 +169,7 @@ const saveFollowUp = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Linked Record (Order / Lead / Quote) *</label>
-                <input 
+                <input data-tour="linkedrecord" 
                   v-model="form.linkedRecord" 
                   type="text" 
                   placeholder="e.g. ORD-2238 or LD-551" 
@@ -181,7 +181,7 @@ const saveFollowUp = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Task Type</label>
-                <select 
+                <select data-tour="tasktype" 
                   v-model="form.taskType"
                   class="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -196,7 +196,7 @@ const saveFollowUp = () => {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Priority</label>
-                  <select 
+                  <select data-tour="priority" 
                     v-model="form.priority"
                     class="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -207,7 +207,7 @@ const saveFollowUp = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Channel</label>
-                  <select 
+                  <select data-tour="channel" 
                     v-model="form.channel"
                     class="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -227,7 +227,7 @@ const saveFollowUp = () => {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Assigned Owner</label>
-                  <input 
+                  <input data-tour="owner" 
                     v-model="form.owner" 
                     type="text" 
                     placeholder="e.g. Hamza" 
@@ -236,7 +236,7 @@ const saveFollowUp = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Branch</label>
-                  <input 
+                  <input data-tour="branch" 
                     v-model="form.branch" 
                     type="text" 
                     class="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-lg text-gray-700"
@@ -247,7 +247,7 @@ const saveFollowUp = () => {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Due Date</label>
-                  <input 
+                  <input data-tour="duedate" 
                     v-model="form.dueDate" 
                     type="text" 
                     placeholder="e.g. Today or 18 Sep 2026" 
@@ -256,7 +256,7 @@ const saveFollowUp = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Due Time</label>
-                  <input 
+                  <input data-tour="duetime" 
                     v-model="form.dueTime" 
                     type="text" 
                     placeholder="e.g. 11:30 or 14:00" 
@@ -267,7 +267,7 @@ const saveFollowUp = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Follow-up Notes / Instructions</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes" 
                   rows="3" 
                   placeholder="Specify call purpose, outstanding amount or customer questions..." 
@@ -276,7 +276,7 @@ const saveFollowUp = () => {
               </div>
 
               <div class="flex items-center gap-2 pt-2">
-                <input 
+                <input data-tour="sendreminder" 
                   id="reminder" 
                   v-model="form.sendReminder" 
                   type="checkbox" 

@@ -203,7 +203,7 @@ const filteredAdjustments = computed(() => {
         <!-- Search Input -->
         <div class="relative w-48 sm:w-64">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="branchsearchquery" 
             v-model="branchSearchQuery"
             type="text" 
             placeholder="Search adjustment..." 
@@ -313,7 +313,7 @@ const filteredAdjustments = computed(() => {
       <div class="flex flex-wrap items-center gap-2">
         <div class="relative w-full sm:w-64">
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input 
+          <input data-tour="searchquery" 
             v-model="searchQuery" 
             type="text" 
             placeholder="Search adjustments..." 

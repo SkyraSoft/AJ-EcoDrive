@@ -144,7 +144,7 @@ const submitForApproval = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Product / Unit *</label>
-                <input 
+                <input data-tour="productunit" 
                   v-model="form.productUnit"
                   type="text" 
                   placeholder="e.g. BRG X5 or CHS-01882"
@@ -156,7 +156,7 @@ const submitForApproval = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Existing System State</label>
-                <input 
+                <input data-tour="existingstate" 
                   v-model="form.existingState"
                   type="text" 
                   placeholder="e.g. 6 available"
@@ -166,7 +166,7 @@ const submitForApproval = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Corrected / Physical State</label>
-                <input 
+                <input data-tour="correctedstate" 
                   v-model="form.correctedState"
                   type="text" 
                   placeholder="e.g. 5 available"
@@ -176,7 +176,7 @@ const submitForApproval = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Reason for Adjustment *</label>
-                <textarea 
+                <textarea data-tour="reason" 
                   v-model="form.reason"
                   rows="3"
                   placeholder="e.g. Physical count variance, damaged in showroom..."
@@ -193,7 +193,7 @@ const submitForApproval = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Evidence Attachment</label>
-                <input 
+                <input data-tour="evidence" 
                   v-model="form.evidence"
                   type="text" 
                   placeholder="e.g. Count_Sheet_Aug28.pdf"
@@ -203,7 +203,7 @@ const submitForApproval = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Notes</label>
-                <textarea 
+                <textarea data-tour="notes" 
                   v-model="form.notes"
                   rows="3"
                   placeholder="Additional observations or stock keeper remarks..."
@@ -213,7 +213,7 @@ const submitForApproval = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Requested By</label>
-                <input 
+                <input data-tour="requestedby" 
                   v-model="form.requestedBy"
                   type="text" 
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -222,7 +222,7 @@ const submitForApproval = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Approval Hierarchy</label>
-                <input 
+                <input data-tour="approval" 
                   v-model="form.approval"
                   type="text" 
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"

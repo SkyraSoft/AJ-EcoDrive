@@ -171,7 +171,7 @@ const submitRequest = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Proposed Product / Model *</label>
-                <input 
+                <input data-tour="productname" 
                   v-model="form.productName"
                   type="text" 
                   placeholder="e.g. BRG Urban Mini"
@@ -185,7 +185,7 @@ const submitRequest = () => {
               <div class="relative" @click.stop>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Category *</label>
                 <div class="relative">
-                  <input 
+                  <input data-tour="category" 
                     v-model="form.category"
                     type="text" 
                     placeholder="e.g. Electric Scooter"
@@ -255,7 +255,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Specifications</label>
-                <input 
+                <input data-tour="specifications" 
                   v-model="form.specifications"
                   type="text" 
                   placeholder="e.g. Compact urban electric model"
@@ -265,7 +265,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Supplier / Product Reference</label>
-                <input 
+                <input data-tour="reference" 
                   v-model="form.reference"
                   type="text" 
                   placeholder="e.g. Optional reference code"
@@ -280,7 +280,7 @@ const submitRequest = () => {
               
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Demand</label>
-                <input 
+                <input data-tour="customerdemand" 
                   v-model="form.customerDemand"
                   type="text" 
                   placeholder="e.g. 4 recent inquiries"
@@ -290,7 +290,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Urgency</label>
-                <select 
+                <select data-tour="urgency" 
                   v-model="form.urgency"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors"
                 >
@@ -303,7 +303,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Images / Evidence Attachment</label>
-                <input 
+                <input data-tour="images" 
                   v-model="form.images"
                   type="text" 
                   placeholder="e.g. 2 references attached"
@@ -313,7 +313,7 @@ const submitRequest = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Reason for Request *</label>
-                <textarea 
+                <textarea data-tour="reason" 
                   v-model="form.reason"
                   rows="3"
                   placeholder="Explain why this model should be added to the catalogue..."

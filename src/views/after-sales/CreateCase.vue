@@ -337,7 +337,7 @@ const submitForm = () => {
               <div ref="customerDropdownRef" class="relative">
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Name *</label>
                 <div class="relative">
-                  <input 
+                  <input data-tour="customersearch" 
                     v-model="customerSearch"
                     type="text"
                     placeholder="Search existing customer..."
@@ -379,11 +379,11 @@ const submitForm = () => {
               <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Phone Number</label>
-                  <input v-model="form.customerPhone" type="text" placeholder="+92 300 0000000" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
+                  <input data-tour="customerphone" v-model="form.customerPhone" type="text" placeholder="+92 300 0000000" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Email Address</label>
-                  <input v-model="form.customerEmail" type="email" placeholder="customer@example.com" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
+                  <input data-tour="customeremail" v-model="form.customerEmail" type="email" placeholder="customer@example.com" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
                 </div>
               </div>
 
@@ -391,7 +391,7 @@ const submitForm = () => {
               <div ref="unitDropdownRef" class="relative pt-2 border-t border-gray-100">
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Serialized Unit / Chassis *</label>
                 <div class="relative">
-                  <input 
+                  <input data-tour="unitsearch" 
                     v-model="unitSearch"
                     type="text"
                     placeholder="Search chassis/serial (e.g. EV5-00322)..."
@@ -446,11 +446,11 @@ const submitForm = () => {
               <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Odometer Reading (km)</label>
-                  <input v-model="form.odometer" type="text" placeholder="e.g. 4,200 km" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
+                  <input data-tour="odometer" v-model="form.odometer" type="text" placeholder="e.g. 4,200 km" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Purchase Date</label>
-                  <input v-model="form.purchaseDate" type="text" placeholder="Jan 12, 2025" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
+                  <input data-tour="purchasedate" v-model="form.purchaseDate" type="text" placeholder="Jan 12, 2025" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
                 </div>
               </div>
             </div>
@@ -464,7 +464,7 @@ const submitForm = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Issue Category *</label>
-                <select v-model="form.category" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] cursor-pointer">
+                <select data-tour="category" v-model="form.category" class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] cursor-pointer">
                   <option value="Electrical">Electrical / Controller</option>
                   <option value="Battery">Battery & BMS Telemetry</option>
                   <option value="Mechanical">Mechanical & Suspension</option>
@@ -476,7 +476,7 @@ const submitForm = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Complaint & Symptoms *</label>
-                <textarea 
+                <textarea data-tour="complaint" 
                   v-model="form.complaint" 
                   rows="3"
                   placeholder="Describe reported vehicle symptoms or complaint details..."
@@ -489,7 +489,7 @@ const submitForm = () => {
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Priority / Urgency</label>
-                  <select v-model="form.urgency" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] cursor-pointer">
+                  <select data-tour="urgency" v-model="form.urgency" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] cursor-pointer">
                     <option value="High">High (Immediate)</option>
                     <option value="Medium">Medium (Standard)</option>
                     <option value="Low">Low (Routine)</option>
@@ -497,7 +497,7 @@ const submitForm = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Location</label>
-                  <select v-model="form.branch" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] cursor-pointer">
+                  <select data-tour="branch" v-model="form.branch" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] cursor-pointer">
                     <option value="Peshawar">Peshawar</option>
                     <option value="Islamabad">Islamabad</option>
                     <option value="Lahore">Lahore</option>
@@ -509,17 +509,17 @@ const submitForm = () => {
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Assigned Technician</label>
-                  <input v-model="form.assignedTech" type="text" placeholder="e.g. Usman (Senior Tech)" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
+                  <input data-tour="assignedtech" v-model="form.assignedTech" type="text" placeholder="e.g. Usman (Senior Tech)" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Target Completion Date</label>
-                  <input v-model="form.estimatedCompletion" type="text" placeholder="e.g. 30 Aug 2026" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
+                  <input data-tour="estimatedcompletion" v-model="form.estimatedCompletion" type="text" placeholder="e.g. 30 Aug 2026" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Intake Notes & Condition</label>
-                <input v-model="form.notes" type="text" placeholder="Vehicle received with key, charger & mirror accessories..." class="w-full px-3.5 py-2 border border-gray-200 rounded-lg text-xs" />
+                <input data-tour="notes" v-model="form.notes" type="text" placeholder="Vehicle received with key, charger & mirror accessories..." class="w-full px-3.5 py-2 border border-gray-200 rounded-lg text-xs" />
               </div>
 
               <!-- Cost & Warranty Coverage Split -->

@@ -808,7 +808,7 @@ const exportActionQueue = () => {
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="sm:col-span-2">
                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Action Title *</label>
-                <input 
+                <input data-tour="action-title" 
                   v-model="actionForm.title" 
                   type="text" 
                   class="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-slate-800 dark:text-white"
@@ -818,7 +818,7 @@ const exportActionQueue = () => {
 
               <div>
                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Priority</label>
-                <select 
+                <select data-tour="action-priority" 
                   v-model="actionForm.priority"
                   class="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-slate-800 dark:text-white"
                 >
@@ -840,15 +840,15 @@ const exportActionQueue = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer / Organization Name *</label>
-                  <input v-model="actionForm.pricing.customerName" type="text" placeholder="e.g. Peshawar Logistics Co" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-customername" v-model="actionForm.pricing.customerName" type="text" placeholder="e.g. Peshawar Logistics Co" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer Phone</label>
-                  <input v-model="actionForm.pricing.customerContact" type="text" placeholder="0300-XXXXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-customercontact" v-model="actionForm.pricing.customerContact" type="text" placeholder="0300-XXXXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Vehicle Model / Category</label>
-                  <select v-model="actionForm.pricing.modelName" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-pricing-modelname" v-model="actionForm.pricing.modelName" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="BRG E-125 Urban High-Speed Scooter">BRG E-125 Urban High-Speed Scooter</option>
                     <option value="BRG Cargo Delivery Electric Trike (72V 100Ah)">BRG Cargo Delivery Electric Trike (72V 100Ah)</option>
                     <option value="BRG DS-11 Sports Commuter">BRG DS-11 Sports Commuter</option>
@@ -857,15 +857,15 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Quotation / Order Ref</label>
-                  <input v-model="actionForm.pricing.orderRef" type="text" placeholder="SO-8821 or QT-8421" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-pricing-orderref" v-model="actionForm.pricing.orderRef" type="text" placeholder="SO-8821 or QT-8421" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Unit Count</label>
-                  <input v-model.number="actionForm.pricing.unitCount" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-unitcount" v-model.number="actionForm.pricing.unitCount" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Requested Discount % (Showroom Limit: 8%)</label>
-                  <input v-model.number="actionForm.pricing.requestedDiscountPercent" type="number" min="1" max="30" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-requesteddiscountpercent" v-model.number="actionForm.pricing.requestedDiscountPercent" type="number" min="1" max="30" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
               </div>
 
@@ -893,7 +893,7 @@ const exportActionQueue = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Competitor Context & Deal Justification *</label>
-                <textarea v-model="actionForm.pricing.competitorContext" rows="2" placeholder="Why should Head Office grant this price reduction? (e.g. competitor offer, key trial deal)..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
+                <textarea data-tour="action-pricing-competitorcontext" v-model="actionForm.pricing.competitorContext" rows="2" placeholder="Why should Head Office grant this price reduction? (e.g. competitor offer, key trial deal)..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
               </div>
             </div>
 
@@ -907,7 +907,7 @@ const exportActionQueue = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Origin Source Branch / Hub *</label>
-                  <select v-model="actionForm.stock.originBranch" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-stock-originbranch" v-model="actionForm.stock.originBranch" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Lahore">Lahore Central Hub</option>
                     <option value="Islamabad">Islamabad Branch</option>
                     <option value="Rawalpindi">Rawalpindi Hub</option>
@@ -916,7 +916,7 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Destination Requesting Showroom *</label>
-                  <select v-model="actionForm.stock.destinationBranch" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-stock-destinationbranch" v-model="actionForm.stock.destinationBranch" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Peshawar">Peshawar Showroom</option>
                     <option value="Islamabad">Islamabad Showroom</option>
                     <option value="Lahore">Lahore Showroom</option>
@@ -925,23 +925,23 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Target Model SKU</label>
-                  <input v-model="actionForm.stock.modelName" type="text" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-stock-modelname" v-model="actionForm.stock.modelName" type="text" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Units Required</label>
-                  <input v-model.number="actionForm.stock.requestedQty" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-stock-requestedqty" v-model.number="actionForm.stock.requestedQty" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Specific Chassis VINs (if known)</label>
-                  <input v-model="actionForm.stock.chassisVins" type="text" placeholder="e.g. VIN-LHE-2026-00411" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-stock-chassisvins" v-model="actionForm.stock.chassisVins" type="text" placeholder="e.g. VIN-LHE-2026-00411" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Linked Customer Booking / Order Ref</label>
-                  <input v-model="actionForm.stock.linkedBookingRef" type="text" placeholder="SO-7910" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-stock-linkedbookingref" v-model="actionForm.stock.linkedBookingRef" type="text" placeholder="SO-7910" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Logistics Carrier Mode</label>
-                  <select v-model="actionForm.stock.logisticsCarrier" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-stock-logisticscarrier" v-model="actionForm.stock.logisticsCarrier" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="TCS Dedicated Inter-Branch Van">TCS Dedicated Inter-Branch Van</option>
                     <option value="Showroom Logistics Carrier">Showroom Logistics Carrier</option>
                     <option value="Flatbed Tow Truck (Heavy Trikes)">Flatbed Tow Truck (Heavy Trikes)</option>
@@ -949,13 +949,13 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Estimated Freight Cost (PKR)</label>
-                  <input v-model.number="actionForm.stock.freightCostEstimate" type="number" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-stock-freightcostestimate" v-model.number="actionForm.stock.freightCostEstimate" type="number" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Urgency & Operational Reason *</label>
-                <textarea v-model="actionForm.stock.urgencyReason" rows="2" placeholder="Why is this stock pull required urgently? Customer deposit status, delivery deadline..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
+                <textarea data-tour="action-stock-urgencyreason" v-model="actionForm.stock.urgencyReason" rows="2" placeholder="Why is this stock pull required urgently? Customer deposit status, delivery deadline..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
               </div>
             </div>
 
@@ -969,7 +969,7 @@ const exportActionQueue = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Expense Category *</label>
-                  <select v-model="actionForm.expense.expenseCategory" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-expense-expensecategory" v-model="actionForm.expense.expenseCategory" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Utilities & Power Backup">Utilities & Power Backup (Generator Fuel / Inverter)</option>
                     <option value="Facilities Repair">Facilities & Structural Glass Repair</option>
                     <option value="Emergency Logistics">Emergency Freight & Towing</option>
@@ -979,19 +979,19 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Invoice / Bill Amount (PKR) *</label>
-                  <input v-model.number="actionForm.expense.amountPkr" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-bold" />
+                  <input data-tour="action-expense-amountpkr" v-model.number="actionForm.expense.amountPkr" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-bold" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Payee Vendor / Contractor Name *</label>
-                  <input v-model="actionForm.expense.payeeVendor" type="text" placeholder="Vendor company name" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-expense-payeevendor" v-model="actionForm.expense.payeeVendor" type="text" placeholder="Vendor company name" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Vendor NTN / Tax ID</label>
-                  <input v-model="actionForm.expense.vendorNtn" type="text" placeholder="NTN-XXXXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-expense-vendorntn" v-model="actionForm.expense.vendorNtn" type="text" placeholder="NTN-XXXXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Disbursement Mode</label>
-                  <select v-model="actionForm.expense.paymentMethod" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-expense-paymentmethod" v-model="actionForm.expense.paymentMethod" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Direct Vendor Bank Transfer">Direct Vendor Bank Transfer</option>
                     <option value="Cash Petty Reimbursement">Cash Petty Reimbursement</option>
                     <option value="Head Office Cheque">Head Office Cross Cheque</option>
@@ -999,13 +999,13 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Bill / Invoice Reference #</label>
-                  <input v-model="actionForm.expense.invoiceRef" type="text" placeholder="INV-XXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-expense-invoiceref" v-model="actionForm.expense.invoiceRef" type="text" placeholder="INV-XXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Emergency Justification & Impact of Delay *</label>
-                <textarea v-model="actionForm.expense.operationalEmergencyJustification" rows="2" placeholder="Why is this emergency expenditure necessary? Explain consequence of not approving..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
+                <textarea data-tour="action-expense-operationalemergencyjustification" v-model="actionForm.expense.operationalEmergencyJustification" rows="2" placeholder="Why is this emergency expenditure necessary? Explain consequence of not approving..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
               </div>
             </div>
 
@@ -1019,19 +1019,19 @@ const exportActionQueue = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer Name & Phone *</label>
-                  <input v-model="actionForm.warranty.customerName" type="text" placeholder="Customer Name" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-warranty-customername" v-model="actionForm.warranty.customerName" type="text" placeholder="Customer Name" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Vehicle Chassis VIN *</label>
-                  <input v-model="actionForm.warranty.vehicleVin" type="text" placeholder="VIN-PK-BRG-XXXX-XXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-warranty-vehiclevin" v-model="actionForm.warranty.vehicleVin" type="text" placeholder="VIN-PK-BRG-XXXX-XXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Odometer Reading (km)</label>
-                  <input v-model.number="actionForm.warranty.odometerKm" type="number" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-warranty-odometerkm" v-model.number="actionForm.warranty.odometerKm" type="number" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Defective Component *</label>
-                  <select v-model="actionForm.warranty.defectComponent" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-warranty-defectcomponent" v-model="actionForm.warranty.defectComponent" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Main Traction Battery Module 72V">Main Traction Battery Module 72V 52Ah</option>
                     <option value="BLDC Hub Motor & Rotor Assembly">BLDC Hub Motor & Rotor Assembly</option>
                     <option value="Sine-Wave Intelligent Controller">Sine-Wave Intelligent Controller</option>
@@ -1040,17 +1040,17 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">OBD / BMS Diagnostic DTC Code</label>
-                  <input v-model="actionForm.warranty.diagnosticCode" type="text" placeholder="e.g. BMS-ERR-042: Cell Under-Voltage" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-warranty-diagnosticcode" v-model="actionForm.warranty.diagnosticCode" type="text" placeholder="e.g. BMS-ERR-042: Cell Under-Voltage" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Replacement OEM SKU Needed</label>
-                  <input v-model="actionForm.warranty.replacementSkuNeeded" type="text" placeholder="PART-BAT-7252-NMC" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-warranty-replacementskuneeded" v-model="actionForm.warranty.replacementSkuNeeded" type="text" placeholder="PART-BAT-7252-NMC" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Workshop Technician Findings & Safety Assessment *</label>
-                <textarea v-model="actionForm.warranty.technicianFindings" rows="2" placeholder="Describe cell voltage drift, temperature shutdown, lack of water damage/puncture..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
+                <textarea data-tour="action-warranty-technicianfindings" v-model="actionForm.warranty.technicianFindings" rows="2" placeholder="Describe cell voltage drift, temperature shutdown, lack of water damage/puncture..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
               </div>
             </div>
 
@@ -1064,23 +1064,23 @@ const exportActionQueue = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Affected Serialized VIN(s) / SKU *</label>
-                  <input v-model="actionForm.governance.affectedVinOrSku" type="text" placeholder="VIN-PK-BRG-2026-00941" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-governance-affectedvinorsku" v-model="actionForm.governance.affectedVinOrSku" type="text" placeholder="VIN-PK-BRG-2026-00941" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Vehicle Model</label>
-                  <input v-model="actionForm.governance.modelName" type="text" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-governance-modelname" v-model="actionForm.governance.modelName" type="text" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Discrepancy / Damaged Unit Count</label>
-                  <input v-model.number="actionForm.governance.discrepancyUnitCount" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-governance-discrepancyunitcount" v-model.number="actionForm.governance.discrepancyUnitCount" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Estimated Financial Impact (PKR)</label>
-                  <input v-model.number="actionForm.governance.estimatedVariancePkr" type="number" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-governance-estimatedvariancepkr" v-model.number="actionForm.governance.estimatedVariancePkr" type="number" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Root Cause Classification</label>
-                  <select v-model="actionForm.governance.rootCauseClassification" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-governance-rootcauseclassification" v-model="actionForm.governance.rootCauseClassification" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Transit Mishandling by Karachi Port Logistics">Transit Mishandling by Transporter</option>
                     <option value="Physical Cycle Count Variance">Physical Cycle Count Variance</option>
                     <option value="Unrecorded Inter-Branch Shift">Unrecorded Inter-Branch Shift</option>
@@ -1089,7 +1089,7 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Proposed Resolution Action</label>
-                  <select v-model="actionForm.governance.recommendedAction" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-governance-recommendedaction" v-model="actionForm.governance.recommendedAction" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="Quarantine Segregation in Bay Q-3 & Insurance Claim">Quarantine Segregation & Insurance Claim</option>
                     <option value="Inventory Write-Down to P&L">Inventory Write-Down to P&L</option>
                     <option value="Release to Active Stock After Workshop Refurbishment">Release to Stock After Refurbishment</option>
@@ -1099,7 +1099,7 @@ const exportActionQueue = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Incident Report & Evidence Description *</label>
-                <textarea v-model="actionForm.governance.incidentDescription" rows="2" placeholder="Detailed physical observations, damaged parts, crate status, delivery slip notations..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
+                <textarea data-tour="action-governance-incidentdescription" v-model="actionForm.governance.incidentDescription" rows="2" placeholder="Detailed physical observations, damaged parts, crate status, delivery slip notations..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
               </div>
             </div>
           </div>
@@ -1375,7 +1375,7 @@ const exportActionQueue = () => {
             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
               Treatment & Decision Rationale Notes
             </label>
-            <textarea 
+            <textarea data-tour="decisionnotes" 
               v-model="decisionNotes" 
               rows="2" 
               placeholder="Enter official sign-off notes, conditions, or instructions..."
@@ -1390,7 +1390,7 @@ const exportActionQueue = () => {
               <p class="text-[11px] text-blue-700 dark:text-blue-300">Set counter-cap for branch manager quotation</p>
             </div>
             <div class="flex items-center gap-2">
-              <input v-model.number="counterDiscountPercent" type="number" min="1" max="15" class="w-16 px-2 py-1 text-xs border rounded bg-white dark:bg-slate-900 font-bold" />
+              <input data-tour="counterdiscountpercent" v-model.number="counterDiscountPercent" type="number" min="1" max="15" class="w-16 px-2 py-1 text-xs border rounded bg-white dark:bg-slate-900 font-bold" />
               <span class="font-bold">%</span>
               <button 
                 @click="executeDecision('Countered', { authorizedDiscountCap: `${counterDiscountPercent}%` })"
