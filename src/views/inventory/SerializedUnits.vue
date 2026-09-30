@@ -448,7 +448,7 @@ const filteredUnits = computed(() => {
     </div>
 
     <!-- Table Card: Serialized Unit Register -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div id="dap-serialized-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Serialized Unit Register</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchUnits.length }} units</span>
@@ -521,7 +521,7 @@ const filteredUnits = computed(() => {
   <!-- SUPER ADMIN VIEW -->
   <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openDropdown = null">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-serialized-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">Super Admin / Inventory / <span class="font-bold text-gray-800">Serialized Units</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Serialized Units</h1>

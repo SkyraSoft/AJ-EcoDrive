@@ -440,7 +440,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div id="dap-leads-table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-sm font-bold text-gray-900">Branch Leads</h2>

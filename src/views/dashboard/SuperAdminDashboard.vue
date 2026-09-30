@@ -157,33 +157,36 @@ const navigateTo = (route) => {
 <template>
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
-    <!-- Breadcrumb & Header -->
-    <div id="dap-dashboard-header">
-      <div class="text-[11px] text-gray-400 mb-1">
-        Branch Manager / Dashboard / <span class="font-medium text-gray-600">Branch Manager Dashboard</span>
-      </div>
-      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Branch Manager Dashboard</h1>
-      <p class="text-xs text-gray-500 mt-1">{{ user.branchName }} Branch operational overview and priorities.</p>
-    </div>
-
-    <!-- 4 KPI Cards (Clickable) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div 
-        v-for="(kpi, index) in branchManagerKpis" 
-        :key="index" 
-        :id="index === 3 ? 'dap-kpi-cash-float' : undefined"
-        @click="navigateTo(kpi.route)"
-        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
-      >
-        <div class="flex items-center justify-between text-xs font-semibold text-gray-400 mb-3">
-          <span>{{ kpi.label }}</span>
-          <ArrowUpRight class="w-3.5 h-3.5 text-gray-300 group-hover:text-[#209249] transition-colors" />
+    <!-- Showroom Command Hub Overview Container -->
+    <div id="dap-dashboard-overview" class="space-y-6">
+      <!-- Breadcrumb & Header -->
+      <div id="dap-dashboard-header">
+        <div class="text-[11px] text-gray-400 mb-1">
+          Branch Manager / Dashboard / <span class="font-medium text-gray-600">Branch Manager Dashboard</span>
         </div>
-        <div>
-          <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
-          <div class="text-[11px] font-bold text-[#209249] mt-1 flex items-center gap-1">
-            <span>{{ kpi.change }}</span>
-            <span class="text-[10px] text-gray-400 font-normal group-hover:text-gray-600">· Click to view &rsaquo;</span>
+        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Branch Manager Dashboard</h1>
+        <p class="text-xs text-gray-500 mt-1">{{ user.branchName }} Branch operational overview and priorities.</p>
+      </div>
+
+      <!-- 4 KPI Cards (Clickable) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div 
+          v-for="(kpi, index) in branchManagerKpis" 
+          :key="index" 
+          :id="index === 3 ? 'dap-kpi-cash-float' : undefined"
+          @click="navigateTo(kpi.route)"
+          class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+        >
+          <div class="flex items-center justify-between text-xs font-semibold text-gray-400 mb-3">
+            <span>{{ kpi.label }}</span>
+            <ArrowUpRight class="w-3.5 h-3.5 text-gray-300 group-hover:text-[#209249] transition-colors" />
+          </div>
+          <div>
+            <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
+            <div class="text-[11px] font-bold text-[#209249] mt-1 flex items-center gap-1">
+              <span>{{ kpi.change }}</span>
+              <span class="text-[10px] text-gray-400 font-normal group-hover:text-gray-600">· Click to view &rsaquo;</span>
+            </div>
           </div>
         </div>
       </div>

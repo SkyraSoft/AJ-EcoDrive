@@ -251,7 +251,7 @@ const handleRepairUpdated = (updatedJob) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-repairs-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Repairs / <span class="font-medium text-gray-600">Repair Jobs</span>
@@ -483,8 +483,8 @@ const handleRepairUpdated = (updatedJob) => {
       </div>
     </div>
 
-    <!-- Table Card -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <!-- Repair Jobs Table Card -->
+    <div id="dap-repairs-table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-bold text-gray-900">Repair Jobs</h3>
         <span class="text-xs text-gray-400 font-medium">{{ filteredBranchRepairs.length }} records</span>

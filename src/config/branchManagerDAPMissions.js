@@ -1,6 +1,6 @@
 /**
  * AJ EcoDrive — Branch Manager DAP & Interactive Missions Registry
- * Chronological Dealership Lifecycle Order (Morning Start -> Leads -> POS -> PDI -> Stock -> Service -> Expenses -> Action Centre -> Z-Closing)
+ * Audited 8-Stage Chronological Lifecycle with Zero-Overlap Dynamic Placement Hints
  */
 
 export const branchManagerMissions = [
@@ -17,13 +17,14 @@ export const branchManagerMissions = [
     route: '/dashboard',
     steps: [
       {
-        target: '#dap-dashboard-header',
+        target: '#dap-dashboard-overview',
         route: '/dashboard',
         title: 'Showroom Command Hub',
         description: 'Welcome to your daily Branch Manager dashboard. Each morning, start here to assess live branch status, active alerts, and footfall metrics before opening showroom shutters.',
         dealershipContext: 'In Pakistani dealership operations, morning readiness audits ensure biometric attendance is logged and physical security locks are released on time (typically 09:00 AM PKT).',
-        actionRequired: 'Inspect your branch title and active date display.',
-        badge: 'Stage 1: Morning Startup'
+        actionRequired: 'Inspect your branch operational summary and active date.',
+        badge: 'Stage 1: Morning Startup',
+        placement: 'bottom'
       },
       {
         target: '#dap-kpi-available-stock',
@@ -32,7 +33,8 @@ export const branchManagerMissions = [
         description: 'This KPI snapshot displays physical units ready for immediate display and customer test rides (e.g., AJ E-Scooter Alpha 72V, AJ Cargo Rickshaw).',
         dealershipContext: 'Never allow floor display stock to drop below 3 units per primary model without triggering an emergency Central Warehouse requisition.',
         actionRequired: 'Review available display count.',
-        badge: 'Stock Health'
+        badge: 'Stock Health',
+        placement: 'left'
       },
       {
         target: '#dap-kpi-open-orders',
@@ -41,7 +43,8 @@ export const branchManagerMissions = [
         description: 'Displays customer orders booked in previous shifts that are awaiting final balance settlement or Pre-Delivery Inspection (PDI).',
         dealershipContext: 'Deliveries scheduled for today must have their serialized batteries charged to 100% SoC (State of Charge) by 10:00 AM.',
         actionRequired: 'Check the open delivery queue count.',
-        badge: 'Order Tracking'
+        badge: 'Order Tracking',
+        placement: 'left'
       },
       {
         target: '#dap-kpi-cash-float',
@@ -50,7 +53,8 @@ export const branchManagerMissions = [
         description: 'Verifies the physical opening cash float (default PKR 25,000 in small denominations: PKR 100, 500, 1000 notes) in the showroom cash register.',
         dealershipContext: 'Both Cashier and Branch Manager must physically count and co-sign the opening drawer balance before the first customer transaction.',
         actionRequired: 'Confirm cash drawer float is co-signed.',
-        badge: 'Cash Integrity'
+        badge: 'Cash Integrity',
+        placement: 'bottom'
       }
     ]
   },
@@ -74,7 +78,8 @@ export const branchManagerMissions = [
         description: 'Every customer entering the dealership for an EV inquiry or test ride is logged here to track footfall-to-conversion rates.',
         dealershipContext: 'Showroom sales executives are evaluated on their lead conversion ratio (target: > 28% from walk-in to test ride).',
         actionRequired: 'View the active leads roster.',
-        badge: 'Lead Registry'
+        badge: 'Lead Registry',
+        placement: 'bottom'
       },
       {
         target: '#dap-btn-new-lead',
@@ -83,17 +88,18 @@ export const branchManagerMissions = [
         description: 'Click this button to record customer contact details, model preference, budget range, and scheduled test ride time.',
         dealershipContext: 'Always capture WhatsApp numbers (+92-3XX) for automated digital brochure delivery.',
         actionRequired: 'Click or inspect the New Lead registration button.',
-        interactiveType: 'click',
-        badge: 'Lead Intake'
+        badge: 'Lead Intake',
+        placement: 'left'
       },
       {
-        target: '#dap-customers-tab',
-        route: '/sales/customers',
-        title: 'Customer Directory & NADRA KYC Hub',
-        description: 'Navigates to the verified customer database where 13-digit CNIC records and FBR tax filer statuses are maintained.',
-        dealershipContext: 'Pakistani EV regulations mandate 100% CNIC verification to bind vehicle frame VIN numbers to legal owners in excise registries.',
-        actionRequired: 'Review customer KYC profiles.',
-        badge: 'KYC Compliance'
+        target: '#dap-leads-table',
+        route: '/sales/leads',
+        title: 'Active Prospect Pipeline & Follow-ups',
+        description: 'Track lead stages from initial walk-in to test ride scheduled, price negotiation, and booking conversion.',
+        dealershipContext: 'Uncontacted leads over 24 hours trigger an amber alert on the Branch Manager Action Centre.',
+        actionRequired: 'Review follow-up due dates.',
+        badge: 'Pipeline Audit',
+        placement: 'top'
       }
     ]
   },
@@ -117,7 +123,8 @@ export const branchManagerMissions = [
         description: 'Master ledger of all vehicle sales contracts, advance payment deposits, and customer delivery schedules.',
         dealershipContext: 'Sales orders transition from Booking Deposit Received (minimum 10% or PKR 30,000) to Ready for PDI once unit is reserved.',
         actionRequired: 'Examine the sales order table.',
-        badge: 'Order Ledger'
+        badge: 'Order Ledger',
+        placement: 'bottom'
       },
       {
         target: '#dap-btn-new-sale',
@@ -126,16 +133,18 @@ export const branchManagerMissions = [
         description: 'Launches the multi-step POS wizard to select model, bind 3-way serialized hardware, apply FBR filer tax, and generate the invoice.',
         dealershipContext: 'The POS system automatically prevents selling units currently marked under Quarantine or Maintenance.',
         actionRequired: 'Inspect the POS creation action.',
-        badge: 'Point of Sale'
+        badge: 'Point of Sale',
+        placement: 'left'
       },
       {
-        target: '#dap-invoices-tab',
-        route: '/sales/invoices',
-        title: 'Commercial Invoices & Payment Receipts',
-        description: 'Review issued invoices, customer installment balances, and print official computer-generated receipts.',
-        dealershipContext: 'FBR tax compliant invoices must clearly show 18% General Sales Tax (GST) or applicable EV subsidy exemption line items.',
-        actionRequired: 'Verify outstanding invoice balances.',
-        badge: 'Finance Reconciliation'
+        target: '#dap-orders-table',
+        route: '/sales/orders',
+        title: 'Customer Order Fulfillment Status',
+        description: 'Displays customer name, reserved VIN number, deposit paid, and outstanding receivable balance.',
+        dealershipContext: 'Full payment must be verified in bank ledger or cash drawer before dispatching vehicle for Pre-Delivery Inspection (PDI).',
+        actionRequired: 'Check payment settlement column.',
+        badge: 'Order Audit',
+        placement: 'top'
       }
     ]
   },
@@ -159,25 +168,18 @@ export const branchManagerMissions = [
         description: 'The final critical stage before any electric motorcycle or rickshaw physically departs through showroom security gates.',
         dealershipContext: 'Zero vehicles may leave the premises without a Branch Manager signed digital Delivery Gate Pass.',
         actionRequired: 'Open the Delivery & Handover queue.',
-        badge: 'Delivery Control'
+        badge: 'Delivery Control',
+        placement: 'bottom'
       },
       {
-        target: '#dap-pdi-checklist-section',
+        target: '#dap-delivery-table',
         route: '/sales/delivery-handover',
-        title: '18-Point Mechanical & Electrical PDI Checklist',
-        description: 'Mandatory verification covering brake torque, tire PSI, throttle response, lighting, horn, and battery BMS state-of-health.',
-        dealershipContext: 'PDI must be signed off by a certified EV technician and verified by the Showroom Service Advisor.',
-        actionRequired: 'Verify all 18 PDI checks are marked complete.',
-        badge: 'Quality Control'
-      },
-      {
-        target: '#dap-gatepass-qr-badge',
-        route: '/sales/delivery-handover',
-        title: '3-Way Hardware Binding & Gate Pass QR Code',
-        description: 'Displays the cryptographic 3-way binding: Frame VIN + Lithium Battery Serial + Motor Controller BMS ID.',
-        dealershipContext: 'Security guards scan this QR code at the showroom gate to verify customer CNIC against the vehicle chassis.',
-        actionRequired: 'Review the digital Gate Pass authorization token.',
-        badge: 'Gate Security'
+        title: 'Handover Verification & Gate Pass Dispatch',
+        description: 'Verify the 18-point mechanical inspection (brakes, tire PSI, throttle, lights) and 3-way serialized hardware binding.',
+        dealershipContext: 'Security guards scan the QR code on the printed Gate Pass to confirm legal release.',
+        actionRequired: 'Review delivery checklist verification status.',
+        badge: 'Gate Pass Security',
+        placement: 'top'
       }
     ]
   },
@@ -201,25 +203,18 @@ export const branchManagerMissions = [
         description: 'Real-time database tracking individual frame VINs, battery pack barcodes, location bays, and warranty start dates.',
         dealershipContext: 'Every electric motorcycle is tracked as an individual serialized capital asset with live status indicators.',
         actionRequired: 'Review serialized unit statuses (Available, Reserved, Maintenance).',
-        badge: 'Asset Tracking'
+        badge: 'Asset Tracking',
+        placement: 'bottom'
       },
       {
-        target: '#dap-transfers-nav',
-        route: '/inventory/transfers',
-        title: 'Inter-Branch Stock Transfer Command',
-        description: 'Manage vehicle movements between Central Warehouse and regional branches (Peshawar, Islamabad, Lahore, Rawalpindi).',
-        dealershipContext: 'Transfers in-transit require carrier truck plate registration and driver CNIC logging for insurance coverage.',
-        actionRequired: 'Inspect incoming and outgoing transfer manifests.',
-        badge: 'Branch Logistics'
-      },
-      {
-        target: '#dap-cyclecounts-nav',
-        route: '/inventory/cycle-counts',
-        title: 'Blind Cycle Counts & Stock Audits',
-        description: 'Conduct weekly physical asset verification without system quantity previews to eliminate audit bias.',
-        dealershipContext: 'Any variance between physical scan count and ledger count triggers an automated variance inquiry to the CFO.',
-        actionRequired: 'Check scheduled cycle count audits.',
-        badge: 'Audit Control'
+        target: '#dap-serialized-table',
+        route: '/inventory/serialized-units',
+        title: 'Frame VIN & Battery Barcode Registry',
+        description: 'Detailed grid showing 17-character chassis number, lithium pack ID, and current branch storage location.',
+        dealershipContext: 'Units with showroom floor age > 45 days are highlighted for active promotional test rides.',
+        actionRequired: 'Inspect individual unit record.',
+        badge: 'VIN Ledger',
+        placement: 'top'
       }
     ]
   },
@@ -239,20 +234,22 @@ export const branchManagerMissions = [
       {
         target: '#dap-repairs-header',
         route: '/after-sales/repair-jobs',
-        title: 'Workshop Job Cards Kanban Board',
+        title: 'Workshop Job Cards Command',
         description: 'Live progress tracking of all vehicles in service bays: Intake -> Diagnostic -> Parts -> Active Repair -> QC -> Ready.',
         dealershipContext: 'EV workshop throughput target is < 4 hours for scheduled maintenance and < 24 hours for battery cell balancing.',
         actionRequired: 'Inspect active technician repair bays.',
-        badge: 'Service Workshop'
+        badge: 'Service Workshop',
+        placement: 'bottom'
       },
       {
-        target: '#dap-warranty-cases-nav',
-        route: '/after-sales/warranty-service',
-        title: 'Battery BMS Lab & Warranty Claims',
-        description: 'Specialized diagnostic suite analyzing lithium pack State-of-Health (SOH %), cell voltage deltas (mV), and cycle counts.',
-        dealershipContext: 'Lithium battery packs showing cell voltage unbalance > 35mV are quarantined for bench top equalization or warranty replacement.',
-        actionRequired: 'Review warranty diagnostic parameters.',
-        badge: 'Battery Lab'
+        target: '#dap-repairs-table',
+        route: '/after-sales/repair-jobs',
+        title: 'Repair Job Cards & Technician Assignment',
+        description: 'Manage diagnostic findings, replaced spare parts (controller, motor, battery module), and customer warranty coverage.',
+        dealershipContext: 'Repairs covered under the 3-Year Factory Warranty require zero customer out-of-pocket charges.',
+        actionRequired: 'Inspect active repair job card status.',
+        badge: 'Workshop QC',
+        placement: 'top'
       }
     ]
   },
@@ -276,7 +273,8 @@ export const branchManagerMissions = [
         description: 'Tracks all showroom utility bills, maintenance expenses, staff tea/refreshments, and minor consumable purchases.',
         dealershipContext: 'Branch Managers have direct approval authority up to PKR 15,000. Expenses above PKR 15,000 route automatically to the Head Office CFO.',
         actionRequired: 'View pending expense claims.',
-        badge: 'Expense Ledger'
+        badge: 'Expense Ledger',
+        placement: 'bottom'
       },
       {
         target: '#dap-btn-new-expense',
@@ -285,7 +283,18 @@ export const branchManagerMissions = [
         description: 'Record vendor name, expense category, PKR amount, and upload mandatory photo attachment of the physical cash receipt.',
         dealershipContext: 'No cash disbursement is permitted without an attached physical receipt or vendor cash memo.',
         actionRequired: 'Inspect expense submission fields.',
-        badge: 'Cash Voucher'
+        badge: 'Cash Voucher',
+        placement: 'left'
+      },
+      {
+        target: '#dap-expenses-table',
+        route: '/finance/expenses',
+        title: 'Expense Approval Queue & Receipt Verification',
+        description: 'Examine expense category, claimed PKR amount, and attached physical receipt photos before granting approval.',
+        dealershipContext: 'Disbursed expenses instantly deduct from the showroom petty cash ledger balance.',
+        actionRequired: 'Verify expense voucher approval status.',
+        badge: 'Expense Audit',
+        placement: 'top'
       }
     ]
   },
@@ -309,7 +318,8 @@ export const branchManagerMissions = [
         description: 'Your central managerial inbox for clearing high-priority operational bottlenecks across all 5 enterprise workflows.',
         dealershipContext: 'All SLA-bound items must be treated before 05:30 PM to maintain 100% dealership operational compliance.',
         actionRequired: 'Review priority pending action cards.',
-        badge: 'Action Centre'
+        badge: 'Action Centre',
+        placement: 'bottom'
       },
       {
         target: '#dap-actioncentre-table',
@@ -318,16 +328,8 @@ export const branchManagerMissions = [
         description: 'Select any pending case to review 3-way compliance documents, inspect initiator notes, and execute digital approval or rejection.',
         dealershipContext: 'Approved gate passes instantly notify the showroom security gate and customer via SMS.',
         actionRequired: 'Inspect the action item table.',
-        badge: 'Managerial Sign-off'
-      },
-      {
-        target: '#dap-cashbank-nav',
-        route: '/finance/cash-bank',
-        title: 'Day-End Z-Closing & Cash Vault Balancing',
-        description: 'Count physical currency denominations, verify net cash intake against POS sales, and lock the daily financial books.',
-        dealershipContext: 'Physical cash exceeding PKR 150,000 is sealed in the showroom security drop vault for morning bank deposit.',
-        actionRequired: 'Co-sign the daily Z-Closing reconciliation report.',
-        badge: 'Z-Closing Audit'
+        badge: 'Managerial Sign-off',
+        placement: 'top'
       }
     ]
   }

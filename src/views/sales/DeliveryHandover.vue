@@ -138,7 +138,7 @@ const submitHandover = () => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-delivery-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Delivery / Handover / <span class="font-medium text-gray-600">Delivery / Handover</span>
@@ -221,7 +221,7 @@ const submitHandover = () => {
     </div>
 
     <!-- Delivery / Handover Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div id="dap-delivery-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <h3 class="text-sm font-bold text-gray-900 mb-5">Delivery / Handover</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">

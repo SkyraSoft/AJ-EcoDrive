@@ -172,7 +172,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-expenses-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Expenses / <span class="font-medium text-gray-600">Expenses</span>
@@ -183,6 +183,7 @@ const handleExpenseUpdated = (updatedExpense) => {
 
       <!-- Add Expense Button -->
       <button 
+        id="dap-btn-new-expense"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -289,7 +290,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div id="dap-expenses-table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <h3 class="text-sm font-bold text-gray-900">Branch Expenses</h3>
 
       <div class="overflow-x-auto">

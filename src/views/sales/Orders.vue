@@ -256,7 +256,7 @@ const handleOrderUpdated = (updatedOrder) => {
       </div>
 
       <!-- Branch Orders Table Card -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+      <div id="dap-orders-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <h3 class="text-sm font-bold text-gray-900 mb-5">Branch Orders</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
