@@ -86,6 +86,21 @@ export const dapStore = reactive({
     return this.completedMissions.includes(this.currentMission?.id)
   },
 
+  get canAdvance() {
+    return this.isStepValidated === true
+  },
+
+  demoAssistedSteps: saved?.demoAssistedSteps || {},
+
+  recordDemoAssistance(target) {
+    if (!this.demoAssistedSteps) this.demoAssistedSteps = {}
+    this.demoAssistedSteps[target] = true
+  },
+
+  isDemoAssisted(target) {
+    return Boolean(this.demoAssistedSteps?.[target])
+  },
+
   // Actions
   startDAP(missionId = null, stepIdx = 0) {
     this.isActive = true

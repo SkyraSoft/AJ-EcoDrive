@@ -322,6 +322,7 @@ function autofillToRealField() {
       inputEl.dispatchEvent(new Event('input', { bubbles: true }))
       inputEl.dispatchEvent(new Event('change', { bubbles: true }))
       inputEl.focus()
+      dapStore.recordDemoAssistance(props.step.target)
       dapStore.handleRealFieldInput(props.step.exampleValue)
     }
   } catch (e) {

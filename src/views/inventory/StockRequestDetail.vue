@@ -22,7 +22,7 @@ const triggerToast = (msg) => {
 const requestId = computed(() => route.params.id || route.query.id || 'SR-104')
 const currentRequest = computed(() => store.getStockRequestById(requestId.value))
 
-const branchCurrentTab = ref('Request')
+const branchCurrentTab = ref('Request & Items')
 const branchTabs = ['Request & Items', 'Approval Status', 'Fulfilment', 'Timeline']
 
 const approveRequest = () => {
