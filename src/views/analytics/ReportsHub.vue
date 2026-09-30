@@ -227,48 +227,6 @@ const handleReportCreated = (newReport) => {
         </div>
       </div>
     </div>
-
-    <!-- Saved & Recent Reports Table (Branch Scoped) -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-      <div class="px-5 py-4 border-b border-gray-100">
-        <h3 class="text-[13px] font-bold text-gray-900">Saved & Recent Reports</h3>
-      </div>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-              <th class="px-5 py-3">Report</th>
-              <th class="px-5 py-3">Owner</th>
-              <th class="px-5 py-3">Scope</th>
-              <th class="px-5 py-3">Last Run</th>
-              <th class="px-5 py-3">Schedule</th>
-              <th class="px-5 py-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody class="text-[11px]">
-            <tr 
-              v-for="(report, idx) in recentReports" 
-              :key="idx" 
-              @click="router.push(report.route)"
-              class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer group"
-            >
-              <td class="px-5 py-4 font-semibold text-gray-900 group-hover:text-[#165A31] transition-colors">{{ report.report }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ report.owner }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ report.scope }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ report.lastRun }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ report.schedule }}</td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-1 text-gray-400 group-hover:text-[#165A31] font-medium tracking-wide">
-                  <span>Open</span>
-                  <span class="text-sm leading-none">&rarr;</span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <!-- SUPER ADMIN VIEW -->

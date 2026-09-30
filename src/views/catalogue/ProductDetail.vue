@@ -336,7 +336,86 @@ const editProduct = () => {
 
 <template>
   <!-- BRANCH MANAGER VIEW -->
-  <div class="max-w-[1400px] mx-auto pb-12">
+  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">
+    <!-- Header -->
+    <div>
+      <div class="text-[11px] text-gray-400 mb-1">
+        Branch Manager / Products / <span class="font-medium text-gray-600">Product Detail — BRG E9 Pro</span>
+      </div>
+      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Product Detail — BRG E9 Pro</h1>
+      <p class="text-xs text-gray-500 mt-1">{{ branchCurrentTab }} view for {{ user.branchName }} Branch.</p>
+    </div>
+
+    <!-- Tabs Navigation Bar -->
+    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-2">
+      <div class="flex items-center gap-2 overflow-x-auto">
+        <button 
+          v-for="tab in branchTabs" 
+          :key="tab"
+          @click="branchCurrentTab = tab"
+          class="px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-colors cursor-pointer"
+          :class="branchCurrentTab === tab ? 'bg-[#dcfce7] text-[#165A31] font-bold' : 'text-gray-500 hover:text-gray-900 font-medium'"
+        >
+          {{ tab }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Content: Left Box (Overview/Specs/Price/Stock/etc.) & Right Box (Branch context) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left Box -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 mb-5">{{ branchTabData.leftTitle }}</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <div v-for="(item, idx) in branchTabData.items" :key="idx" class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Notice Banner -->
+        <div v-if="branchTabData.banner" class="bg-[#f0fdf4] border border-[#dcfce7] rounded-lg p-3.5 text-[11px] text-gray-600 leading-relaxed font-medium">
+          {{ branchTabData.banner }}
+        </div>
+      </div>
+
+      <!-- Right Box -->
+      <div class="lg:col-span-4 flex flex-col">
+        <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
+          <h3 class="text-sm font-bold text-gray-900 mb-5">{{ branchTabData.rightTitle }}</h3>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Warranty</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">24 months</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Category</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">Electric Scooter</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Branch Sales</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">18 units / 30d</span>
+            </div>
+            <div class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between">
+              <span class="text-[10px] font-medium text-gray-400">Status</span>
+              <span class="text-sm font-bold text-gray-900 mt-1">Active</span>
+            </div>
+          </div>
+        </div>
+        
+        <p class="text-[11px] text-gray-400 font-medium mt-3 px-1">
+          Only {{ user.branchName }} Branch operational data is shown.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto pb-12">
     <!-- Header -->
     <div class="mb-6">
       <div class="text-[10px] text-gray-500 mb-1">
@@ -385,7 +464,7 @@ const editProduct = () => {
     <!-- TAB CONTENTS -->
 
     <!-- Overview Tab -->
-    <div v-show="currentTab === 'Overview'" class="space-y-6">
+    <div v-if="currentTab === 'Overview'" class="space-y-6">
       <!-- 4 KPI Cards -->
       <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="(kpi, index) in overviewKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[88px]">
@@ -423,7 +502,7 @@ const editProduct = () => {
     </div>
 
     <!-- Specifications Tab -->
-    <div v-show="currentTab === 'Specifications'">
+    <div v-else-if="currentTab === 'Specifications'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Technical Specifications</h3>
@@ -447,7 +526,7 @@ const editProduct = () => {
 
 
     <!-- Variants Tab -->
-    <div v-show="currentTab === 'Variants'">
+    <div v-else-if="currentTab === 'Variants'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Variants</h3>
@@ -478,7 +557,7 @@ const editProduct = () => {
     </div>
 
     <!-- Pricing Tab -->
-    <div v-show="currentTab === 'Pricing'" class="space-y-6">
+    <div v-else-if="currentTab === 'Pricing'" class="space-y-6">
       <!-- Pricing KPIs -->
       <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="(kpi, index) in pricingKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[88px]">
@@ -516,7 +595,7 @@ const editProduct = () => {
     </div>
     
     <!-- Stock by Branch Tab -->
-    <div v-show="currentTab === 'Stock by Branch'">
+    <div v-else-if="currentTab === 'Stock by Branch'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Branch Stock</h3>
@@ -551,7 +630,7 @@ const editProduct = () => {
     </div>
 
     <!-- Serialized Units Tab -->
-    <div v-show="currentTab === 'Serialized Units'">
+    <div v-else-if="currentTab === 'Serialized Units'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Units</h3>
@@ -590,7 +669,7 @@ const editProduct = () => {
     </div>
 
     <!-- Procurement Tab -->
-    <div v-show="currentTab === 'Procurement'">
+    <div v-else-if="currentTab === 'Procurement'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Procurement History</h3>
@@ -625,7 +704,7 @@ const editProduct = () => {
     </div>
 
     <!-- Sales Tab -->
-    <div v-show="currentTab === 'Sales'" class="space-y-6">
+    <div v-else-if="currentTab === 'Sales'" class="space-y-6">
       <!-- Sales KPIs -->
       <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="(kpi, index) in salesKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[88px]">
@@ -667,7 +746,7 @@ const editProduct = () => {
     </div>
     
     <!-- Warranty Tab -->
-    <div v-show="currentTab === 'Warranty'">
+    <div v-else-if="currentTab === 'Warranty'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
         <h3 class="text-[14px] font-bold text-gray-900 mb-6">Warranty Rules & Cases</h3>
         <div class="space-y-4">
@@ -680,7 +759,7 @@ const editProduct = () => {
     </div>
 
     <!-- Media & Documents Tab -->
-    <div v-show="currentTab === 'Media & Documents'">
+    <div v-else-if="currentTab === 'Media & Documents'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Media & Documents</h3>
@@ -709,7 +788,7 @@ const editProduct = () => {
     </div>
 
     <!-- Audit Tab -->
-    <div v-show="currentTab === 'Audit'">
+    <div v-else-if="currentTab === 'Audit'">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
         <h3 class="text-[14px] font-bold text-gray-900 mb-6">Product Audit</h3>
         <div class="space-y-4">
@@ -722,7 +801,7 @@ const editProduct = () => {
     </div>
 
     <!-- Empty State for Unimplemented Tabs -->
-    <div v-show="!['Overview', 'Specifications', 'Variants', 'Pricing', 'Stock by Branch', 'Serialized Units', 'Procurement', 'Sales', 'Warranty', 'Media & Documents', 'Audit'].includes(currentTab)" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-12 text-center">
+    <div v-else class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-12 text-center">
       <h3 class="text-sm font-bold text-gray-900 mb-1">{{ currentTab }} Data</h3>
       <p class="text-xs text-gray-500">This section is not implemented in the current prototype.</p>
     </div>

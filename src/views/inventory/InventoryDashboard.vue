@@ -121,44 +121,6 @@ const stockHealth = computed(() => {
         </div>
       </div>
     </div>
-
-    <!-- Aged & Low Stock Table (Branch Scoped) -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-      <div class="px-5 py-4 border-b border-gray-100">
-        <h3 class="text-[14px] font-bold text-gray-900">Aged & Low Stock</h3>
-      </div>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
-              <th class="px-5 py-3">Product</th>
-              <th class="px-5 py-3">Branch</th>
-              <th class="px-5 py-3">Available</th>
-              <th class="px-5 py-3">Reorder</th>
-              <th class="px-5 py-3">Age</th>
-              <th class="px-5 py-3">Alert</th>
-              <th class="px-5 py-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody class="text-[11px]">
-            <tr v-for="item in agedLowStock" :key="item.product + item.branch" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
-              <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.branch }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.available }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.reorder }}</td>
-              <td class="px-5 py-4 text-gray-600 font-medium">{{ item.age }}</td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold" :class="item.alertClass">
-                  {{ item.alertType }}
-                </span>
-              </td>
-              <td class="px-5 py-4 font-semibold text-gray-600 text-right">Open &rarr;</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <!-- SUPER ADMIN VIEW -->

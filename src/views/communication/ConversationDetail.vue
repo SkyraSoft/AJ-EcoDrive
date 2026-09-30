@@ -335,7 +335,7 @@ const sendReply = () => {
     </div>
 
     <!-- TAB 1: THREAD (Conversation Messages & Thread Summary) -->
-    <div v-show="currentTab === 'Thread'" class="space-y-6">
+    <div v-if="currentTab === 'Thread'" class="space-y-6">
       
       <!-- Thread Information Banner -->
       <div class="p-4 bg-gray-50/80 border border-gray-100 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -428,7 +428,7 @@ const sendReply = () => {
     </div>
 
     <!-- TAB 2: ATTACHMENTS (PROPER TABLE FORMAT AS REQUESTED) -->
-    <div v-show="currentTab === 'Attachments'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div v-if="currentTab === 'Attachments'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       
       <!-- Table Header & Actions -->
       <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -540,7 +540,7 @@ const sendReply = () => {
     </div>
 
     <!-- TAB 3: LINKED RECORD TAB -->
-    <div v-show="currentTab === 'Linked Record'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-6">
+    <div v-if="currentTab === 'Linked Record'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-6">
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
           <h3 class="text-sm font-bold text-gray-900">Linked Business Record Details</h3>
@@ -583,7 +583,7 @@ const sendReply = () => {
     </div>
 
     <!-- TAB 4: PARTICIPANTS TAB -->
-    <div v-show="currentTab === 'Participants'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-6">
+    <div v-if="currentTab === 'Participants'" class="bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-6">
       <div>
         <h3 class="text-sm font-bold text-gray-900">Multi-Branch Thread Participants</h3>
         <p class="text-xs text-gray-500 mt-0.5">Managers and executives authorized to read and participate in this thread.</p>

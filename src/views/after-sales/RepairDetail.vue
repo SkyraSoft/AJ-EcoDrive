@@ -19,7 +19,8 @@ const repairData = computed(() => {
     if (found) return found
     return null
   }
-  return store.selectedRepair || store.repairs?.[0] || null
+  if (store.selectedRepair) return store.selectedRepair
+  return null
 })
 
 const repairAuditLogs = computed(() => {
@@ -320,8 +321,129 @@ const getStatusBadgeClass = (status) => {
     </div>
   </div>
 
-  <!-- REPAIR DETAIL VIEW -->
-  <div v-if="repairData" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <!-- BRANCH MANAGER VIEW -->
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      <div>
+        <div class="text-[11px] text-gray-400 mb-1">
+          Branch Manager / Repairs / <span class="font-medium text-gray-600">Repair Job {{ repairData.repairId }}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Repair Job {{ repairData.repairId }}</h1>
+          <span 
+            class="px-2.5 py-1 rounded-full text-[10px] font-bold"
+            :class="repairData.status === 'Ready' || repairData.status === 'Completed' ? 'bg-[#eefcf2] text-[#165A31]' : repairData.status === 'Scheduled' || repairData.status === 'In Progress' ? 'bg-blue-50 text-blue-700' : 'bg-[#fef3c7] text-[#b45309]'"
+          >
+            {{ repairData.status || 'Pending' }}
+          </span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Repair job detail — {{ branchCurrentTab }}.</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button 
+          @click="router.push('/dashboard/action-centre')"
+          class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          <ArrowLeft class="w-3.5 h-3.5" /> Back
+        </button>
+
+        <span 
+          v-if="repairData.posted_to_finance" 
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+        >
+          <CheckCircle2 class="w-3.5 h-3.5" /> Posted: {{ repairData.finance_invoice_id }}
+        </span>
+        <button 
+          v-else
+          @click="postToFinance"
+          class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors shadow-sm cursor-pointer"
+        >
+          <FileText class="w-3.5 h-3.5 text-gray-500" /> Post to Finance
+        </button>
+
+        <button 
+          v-if="repairData.status !== 'Ready' && repairData.status !== 'Completed'"
+          @click="confirmSchedule"
+          class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          <Clock class="w-3.5 h-3.5 text-gray-500" /> Confirm Schedule
+        </button>
+
+        <button 
+          v-if="repairData.status !== 'Ready' && repairData.status !== 'Completed'"
+          @click="completeService"
+          class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#165A31] hover:bg-[#124a28] rounded-lg transition-colors shadow-sm cursor-pointer"
+        >
+          <Check class="w-3.5 h-3.5" /> Complete Service
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs (Exact 9 tabs matching screenshot) -->
+    <div class="border-b border-gray-100 flex items-center gap-6 overflow-x-auto no-scrollbar pb-1">
+      <button 
+        v-for="tab in branchTabs" 
+        :key="tab"
+        @click="branchCurrentTab = tab"
+        :class="[
+          'text-xs whitespace-nowrap pb-2 font-semibold transition-colors cursor-pointer relative',
+          branchCurrentTab === tab ? 'text-[#165A31] font-bold' : 'text-gray-400 hover:text-gray-700'
+        ]"
+      >
+        {{ tab }}
+        <div v-if="branchCurrentTab === tab" class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#165A31] rounded-t-full"></div>
+      </button>
+    </div>
+
+    <!-- 2-Card Layout (Matching Screenshot) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left Card (Span 8) -->
+      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900 mb-4">{{ branchTabData.title }}</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div 
+              v-for="(item, idx) in branchTabData.items" 
+              :key="idx" 
+              class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between"
+            >
+              <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
+              <span class="text-xs font-bold text-gray-900 mt-1">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Card: Related information (Span 4) -->
+      <div class="lg:col-span-4 flex flex-col">
+        <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+          <h3 class="text-sm font-bold text-gray-900 mb-4">Related information</h3>
+          
+          <div class="grid grid-cols-2 gap-3.5">
+            <div 
+              v-for="(item, idx) in branchTabData.relatedItems" 
+              :key="idx" 
+              class="bg-[#fbfcfc] border border-gray-100/80 rounded-lg p-3.5 flex flex-col justify-between"
+            >
+              <span class="text-[10px] font-medium text-gray-400">{{ item.label }}</span>
+              <span class="text-xs font-bold text-gray-900 mt-1">{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <p class="text-[11px] text-gray-400 font-medium mt-3 px-1 leading-relaxed">
+          This view is scoped only to {{ user?.branchName || 'Peshawar' }} Branch. Actions that require company-wide approval remain with management.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPER ADMIN VIEW -->
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Breadcrumb & Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -456,7 +578,7 @@ const getStatusBadgeClass = (status) => {
     <!-- TAB CONTENTS -->
 
     <!-- 1. DIAGNOSIS TAB -->
-    <div v-show="activeTab === 'Diagnosis'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Diagnosis'" class="animate-in fade-in duration-150">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Diagnosis</h3>
@@ -475,7 +597,7 @@ const getStatusBadgeClass = (status) => {
     </div>
 
     <!-- 2. WORK TAB -->
-    <div v-show="activeTab === 'Work'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Work'" class="animate-in fade-in duration-150">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Work Plan</h3>
@@ -502,7 +624,7 @@ const getStatusBadgeClass = (status) => {
     </div>
 
     <!-- 3. PARTS TAB -->
-    <div v-show="activeTab === 'Parts'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Parts'" class="animate-in fade-in duration-150">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Parts</h3>
@@ -537,7 +659,7 @@ const getStatusBadgeClass = (status) => {
     </div>
 
     <!-- 4. LABOUR TAB -->
-    <div v-show="activeTab === 'Labour'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Labour'" class="animate-in fade-in duration-150">
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="text-[14px] font-bold text-gray-900">Labour</h3>
@@ -566,7 +688,7 @@ const getStatusBadgeClass = (status) => {
     </div>
 
     <!-- 5. COST TAB -->
-    <div v-show="activeTab === 'Cost'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Cost'" class="animate-in fade-in duration-150">
       <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-[14px] font-bold text-gray-900">Cost Summary</h3>
         <div class="space-y-3 text-xs">
@@ -595,28 +717,28 @@ const getStatusBadgeClass = (status) => {
     </div>
 
     <!-- 6. WARRANTY COVERAGE TAB -->
-    <div v-show="activeTab === 'Warranty Coverage'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Warranty Coverage'" class="animate-in fade-in duration-150">
       <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-[14px] font-bold text-gray-900">OEM Warranty Claim Verification</h3>
         <div class="space-y-3 text-xs">
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">Claim Status:</span>
-            <span class="font-bold text-[#165A31]">{{ repairData.warrantyCoverage?.status }}</span>
+            <span class="font-bold text-[#165A31]">{{ repairData.warrantyCoverage.status }}</span>
           </div>
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">Policy:</span>
-            <span class="font-semibold text-gray-800">{{ repairData.warrantyCoverage?.policy }}</span>
+            <span class="font-semibold text-gray-800">{{ repairData.warrantyCoverage.policy }}</span>
           </div>
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">OEM Approval Reference:</span>
-            <span class="font-mono text-gray-800">{{ repairData.warrantyCoverage?.approvalId }}</span>
+            <span class="font-mono text-gray-800">{{ repairData.warrantyCoverage.approvalId }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 7. PHOTOS & DOCUMENTS TAB -->
-    <div v-show="activeTab === 'Photos & Documents'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Photos & Documents'" class="animate-in fade-in duration-150">
       <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-[14px] font-bold text-gray-900">Job Files & Diagnostics</h3>
@@ -654,35 +776,35 @@ const getStatusBadgeClass = (status) => {
     </div>
 
     <!-- 8. CUSTOMER APPROVAL TAB -->
-    <div v-show="activeTab === 'Customer Approval'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Customer Approval'" class="animate-in fade-in duration-150">
       <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-[14px] font-bold text-gray-900">Customer Authorization Record</h3>
         <div class="space-y-3 text-xs">
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">Approval Status:</span>
-            <span class="font-bold text-[#165A31]">{{ repairData.customerApproval?.status }}</span>
+            <span class="font-bold text-[#165A31]">{{ repairData.customerApproval.status }}</span>
           </div>
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">Authorized By:</span>
-            <span class="font-bold text-gray-900">{{ repairData.customerApproval?.approvedBy }}</span>
+            <span class="font-bold text-gray-900">{{ repairData.customerApproval.approvedBy }}</span>
           </div>
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">Timestamp:</span>
-            <span class="font-medium text-gray-800">{{ repairData.customerApproval?.approvedDate }}</span>
+            <span class="font-medium text-gray-800">{{ repairData.customerApproval.approvedDate }}</span>
           </div>
           <div class="flex justify-between py-2 border-b border-gray-50">
             <span class="text-gray-500">Method:</span>
-            <span class="font-medium text-gray-800">{{ repairData.customerApproval?.method }}</span>
+            <span class="font-medium text-gray-800">{{ repairData.customerApproval.method }}</span>
           </div>
           <div class="p-3 bg-gray-50 rounded-lg text-gray-700">
-            {{ repairData.customerApproval?.notes }}
+            {{ repairData.customerApproval.notes }}
           </div>
         </div>
       </div>
     </div>
 
     <!-- 9. TIMELINE TAB -->
-    <div v-show="activeTab === 'Timeline'" class="animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Timeline'" class="animate-in fade-in duration-150">
       <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5">
         <div class="flex items-center justify-between">
           <h3 class="text-[14px] font-bold text-gray-900">Workshop & Repair History</h3>
