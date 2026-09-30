@@ -41,13 +41,33 @@ describe('AJ EcoDrive — Master Frontend Architecture & Integrity Gate Suite', 
     expect(bmRoutes.length).toBeGreaterThanOrEqual(155);
   });
 
-  it('verifies Form Field Storage Contract covers all 473 form fields with 0 unpersisted fields', () => {
+  it('verifies Form Field Storage Contract covers all form fields with 0 unpersisted fields', () => {
     const formDocPath = path.join(__dirname, '../FRONTEND_FORM_FIELD_STORAGE_CONTRACT.md');
     expect(fs.existsSync(formDocPath)).toBe(true);
 
     const content = fs.readFileSync(formDocPath, 'utf8');
     expect(content).toContain('473');
     expect(content).toContain('Unpersisted Captured Fields:** **0');
+  });
+
+  it('verifies User Story Graph and Interaction Pattern Registries', async () => {
+    const storyMod = await import('../src/config/frontendUserStoryGraph.js');
+    expect(storyMod.userStoryGraphRegistry.length).toBeGreaterThanOrEqual(10);
+
+    const interactMod = await import('../src/config/frontendInteractionPatternRegistry.js');
+    expect(interactMod.interactionPatternRegistry.length).toBeGreaterThanOrEqual(7);
+
+    const schemaMod = await import('../src/config/frontendFormSchemaRegistry.js');
+    expect(schemaMod.formSchemaRegistry.length).toBeGreaterThanOrEqual(2);
+
+    const actionMod = await import('../src/config/frontendActionContractRegistry.js');
+    expect(actionMod.actionContractRegistry.length).toBeGreaterThanOrEqual(2);
+
+    const stateMod = await import('../src/config/frontendStateMachineRegistry.js');
+    expect(stateMod.stateMachineRegistry.length).toBeGreaterThanOrEqual(3);
+
+    const defectMod = await import('../src/config/frontendMasterDefectRegistry.js');
+    expect(defectMod.masterDefectRegistry.length).toBeGreaterThanOrEqual(2);
   });
 
   it('verifies Record Lifecycle Map covers state transitions for core business entities', () => {
@@ -72,22 +92,28 @@ describe('AJ EcoDrive — Master Frontend Architecture & Integrity Gate Suite', 
     expect(content).toContain('Commercial Discount Ceiling Override');
   });
 
-  it('verifies all required deliverable documents exist in repository', () => {
+  it('verifies all 20 required master deliverable documents exist in repository', () => {
     const requiredDocs = [
       'PLATFORM_SUPPORT_POLICY.md',
       'SUPER_ADMIN_AND_SYSTEM_FULL_UI_TREE_MAPPING.md',
       'AJ_ECODRIVE_UNIFIED_FRONTEND_ARCHITECTURE.md',
-      'FRONTEND_UI_DATA_LINEAGE_MAP.md',
+      'FRONTEND_USER_STORY_GRAPH.md',
+      'FRONTEND_INTERACTION_PATTERN_ARCHITECTURE.md',
+      'FRONTEND_INTERACTION_PATTERN_AUDIT.md',
       'FRONTEND_FORM_FIELD_STORAGE_CONTRACT.md',
-      'FRONTEND_RECORD_LIFECYCLE_MAP.md',
-      'FRONTEND_CROSS_ROLE_AND_BRANCH_FLOW_MAP.md',
+      'FRONTEND_FORM_SCHEMA_REGISTRY.md',
+      'FRONTEND_ACTION_CONTRACT_REGISTRY.md',
+      'FRONTEND_UI_DATA_LINEAGE_MAP.md',
       'FRONTEND_KPI_AND_CALCULATION_PROVENANCE.md',
-      'FRONTEND_STATE_AND_STORE_ARCHITECTURE.md',
+      'FRONTEND_RECORD_LIFECYCLE_MAP.md',
+      'FRONTEND_STATE_MACHINE_REGISTRY.md',
+      'FRONTEND_CROSS_ROLE_AND_BRANCH_FLOW_MAP.md',
       'FRONTEND_ROLE_CAPABILITY_MATRIX.md',
+      'FRONTEND_STATE_AND_STORE_ARCHITECTURE.md',
+      'FRONTEND_MASTER_DEFECT_REGISTRY.md',
+      'FRONTEND_MASTER_TRACEABILITY_MATRIX.md',
       'FRONTEND_BACKEND_CONTRACT_REQUIREMENTS.md',
-      'FRONTEND_INTEGRITY_ISSUE_REGISTRY.md',
-      'FRONTEND_MASTER_CONNECTION_GRAPH.md',
-      'FRONTEND_MASTER_TRACEABILITY_MATRIX.md'
+      'FRONTEND_FINAL_VERIFICATION_REPORT.md'
     ];
 
     for (const docName of requiredDocs) {
