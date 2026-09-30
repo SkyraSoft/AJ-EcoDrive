@@ -8,9 +8,9 @@
     "sync:guide": "node scripts/sync_html_guide.cjs",
     "build": "node scripts/sync_html_guide.cjs && vite build",
     "preview": "vite preview",
-    "test:client": "vitest run tests/test_dap_interactive_client_mount.test.js",
-    "test": "node scripts/sync_html_guide.cjs && node tests/test_dap_exhaustive_coverage.cjs && node tests/test_master_readiness.js && vitest run tests/test_dap_interactive_client_mount.test.js",
-    "test:integration": "node tests/test_cross_entity_validation.js && node tests/test_prompt7_audit.js && node tests/test_dap_exhaustive_coverage.cjs && node tests/test_master_readiness.js && vitest run tests/test_dap_interactive_client_mount.test.js"
+    "test:client": "vitest run tests/test_dap_interactive_client_mount.test.js tests/test_frontend_architecture_integrity.test.js",
+    "test": "node scripts/sync_html_guide.cjs && node tests/test_dap_exhaustive_coverage.cjs && node tests/test_master_readiness.js && vitest run",
+    "test:integration": "node tests/test_cross_entity_validation.js && node tests/test_prompt7_audit.js && node tests/test_dap_exhaustive_coverage.cjs && node tests/test_master_readiness.js && vitest run"
   },
   "dependencies": {
     "@lucide/vue": "^1.41.0",

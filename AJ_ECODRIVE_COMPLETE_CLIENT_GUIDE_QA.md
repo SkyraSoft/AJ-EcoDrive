@@ -1895,7 +1895,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ### Q164: How does the security guard verify the Gate Pass at the showroom exit?
 **Answer:** Handheld QR verification scan:
-* 📍 **System Navigation Path:** Security Guard Mobile App &rarr; `Scan Gate Pass QR`
+* 📍 **System Navigation Path:** Security Scanner Terminal / Mobile Web Browser &rarr; `Scan Gate Pass QR`
 * Security guard scans the QR code on the driver's printed gate pass. The mobile screen flashes **GREEN: AUTHORIZED EXIT** with photo of the vehicle and customer name, unlocking the barrier.
 
 ---

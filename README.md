@@ -188,7 +188,7 @@ CENTRAL SYSTEM (Head Office / Cloud Datacenter)
   • Master Pricing, User Permissions & Cryptographic Audit Vault
                        ↕ [Secure WAN / Internet]
 BRANCH OPERATIONAL CLIENTS (Showrooms & Workshops)
-  • Windows Desktop Operational Client & Android Tablet/Mobile Application
+  • Web Application (Desktop & Mobile Browser Access) & Windows Desktop Operational Client
   • Local Durable Database (e.g., SQLite / Room) with WAL
   • Fast Local Search & Local Workflow Execution (Zero Network Latency)
   • Transaction Outbox Queue (client_transaction_id)
