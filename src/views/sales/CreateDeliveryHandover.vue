@@ -180,6 +180,7 @@ const saveHandover = () => {
                 <div class="flex items-center justify-between mb-1">
                   <label class="block text-[11px] font-semibold text-gray-700">Order / Sale ID *</label>
                   <select 
+                    data-tour="handover-order-select"
                     @change="onOrderSelect($event.target.value)"
                     class="text-[10px] bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 text-gray-600 focus:outline-none cursor-pointer"
                   >
@@ -191,6 +192,7 @@ const saveHandover = () => {
                 </div>
                 <input 
                   v-model="form.order" 
+                  data-tour="handover-order-input"
                   type="text" 
                   placeholder="e.g. ORD-2241 or ORD-2235" 
                   class="w-full px-3.5 py-2 text-xs bg-white border rounded-lg focus:outline-none focus:border-[#165A31] transition-colors"
@@ -203,6 +205,7 @@ const saveHandover = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Customer Name *</label>
                 <input 
                   v-model="form.customer" 
+                  data-tour="handover-customer"
                   type="text" 
                   placeholder="e.g. Ahsan Khan or Sami Ullah" 
                   class="w-full px-3.5 py-2 text-xs bg-white border rounded-lg focus:outline-none focus:border-[#165A31] transition-colors"
@@ -215,6 +218,7 @@ const saveHandover = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Unit / Chassis Number *</label>
                 <input 
                   v-model="form.unit" 
+                  data-tour="handover-unit"
                   type="text" 
                   placeholder="e.g. CHS-01882 or CH 8-BRG-26-01731" 
                   class="w-full px-3.5 py-2 text-xs bg-white border rounded-lg focus:outline-none focus:border-[#165A31] transition-colors"
@@ -253,7 +257,7 @@ const saveHandover = () => {
 
               <div class="space-y-3 bg-gray-50/50 p-3.5 rounded-lg border border-gray-100">
                 <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" v-model="form.identityVerified" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
+                  <input type="checkbox" v-model="form.identityVerified" data-tour="handover-chk-identity" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
                   <span class="text-xs text-gray-800 font-medium">Customer CNIC / Identity verified</span>
                 </label>
 
@@ -263,7 +267,7 @@ const saveHandover = () => {
                 </label>
 
                 <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" v-model="form.chassisVerified" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
+                  <input type="checkbox" v-model="form.chassisVerified" data-tour="handover-chk-chassis" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
                   <span class="text-xs text-gray-800 font-medium">Chassis & Serial numbers verified</span>
                 </label>
 
@@ -301,6 +305,7 @@ const saveHandover = () => {
             </button>
             <button 
               type="submit" 
+              data-tour="handover-submit"
               class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm"
             >
               {{ isEditMode ? 'Update Handover' : 'Schedule Handover' }}

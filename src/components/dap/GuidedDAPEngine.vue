@@ -38,12 +38,85 @@ import DAPFloatingHUD from './DAPFloatingHUD.vue'
 
 const route = useRoute()
 const targetRect = ref(null)
-let resizeObserver = null
 let pollInterval = null
+
+let activeTargetContainer = null
+let activeInputElement = null
+
+function cleanUpTargetListeners() {
+  if (activeTargetContainer) {
+    activeTargetContainer.classList.remove('dap-interactive-target')
+  }
+  if (activeInputElement) {
+    activeInputElement.classList.remove('dap-interactive-target')
+    activeInputElement.removeEventListener('input', onFieldInput)
+    activeInputElement.removeEventListener('change', onFieldChange)
+    activeInputElement.removeEventListener('click', onFieldClick)
+  }
+  activeTargetContainer = null
+  activeInputElement = null
+}
+
+function onFieldInput(e) {
+  const val = e.target.value
+  dapStore.handleRealFieldInput(val)
+}
+
+function onFieldChange(e) {
+  const val = e.target.value !== undefined ? e.target.value : e.target.checked
+  dapStore.handleRealFieldInput(val)
+}
+
+function onFieldClick() {
+  const step = dapStore.currentStep
+  if (step && (step.trainingType === 'execute' || step.trainingType === 'inspect')) {
+    dapStore.handleRealFieldAction()
+  }
+}
+
+function bindRealElementListeners(el) {
+  if (!el) return
+  if (activeTargetContainer === el && activeInputElement) return
+
+  cleanUpTargetListeners()
+
+  activeTargetContainer = el
+  activeTargetContainer.classList.add('dap-interactive-target')
+
+  // Find the exact focusable/interactive control inside or self
+  const inputEl = (
+    el.tagName === 'INPUT' ||
+    el.tagName === 'SELECT' ||
+    el.tagName === 'TEXTAREA' ||
+    el.tagName === 'BUTTON'
+  ) ? el : (el.querySelector('input, select, textarea, button') || el)
+
+  activeInputElement = inputEl
+  activeInputElement.classList.add('dap-interactive-target')
+
+  const step = dapStore.currentStep
+  if (!step) return
+
+  // Practice fields listen for real typing & selection
+  if (step.trainingType === 'practice' || step.trainingType === 'input-practice') {
+    activeInputElement.addEventListener('input', onFieldInput)
+    activeInputElement.addEventListener('change', onFieldChange)
+
+    // Check if the actual input already has valid data in place
+    if (activeInputElement.value && String(activeInputElement.value).trim().length > 0) {
+      dapStore.handleRealFieldInput(activeInputElement.value)
+    }
+  } 
+  // Buttons and tabs listen for real click events
+  else if (step.trainingType === 'execute' || step.trainingType === 'inspect') {
+    activeInputElement.addEventListener('click', onFieldClick)
+  }
+}
 
 function updateTargetRect() {
   const step = dapStore.currentStep
   if (!dapStore.isActive || !step) {
+    cleanUpTargetListeners()
     targetRect.value = null
     return
   }
@@ -59,6 +132,8 @@ function updateTargetRect() {
   }
 
   if (el) {
+    bindRealElementListeners(el)
+
     // Scroll element into view smoothly if not visible
     const rect = el.getBoundingClientRect()
     const isVisible = (
@@ -83,12 +158,13 @@ function updateTargetRect() {
       right: finalRect.right
     }
   } else {
-    // Fallback if target element not found on current screen: create a subtle centered target
+    cleanUpTargetListeners()
     targetRect.value = null
   }
 }
 
 function handleNext() {
+  cleanUpTargetListeners()
   dapStore.nextStep()
   nextTick(() => {
     setTimeout(updateTargetRect, 200)
@@ -96,6 +172,7 @@ function handleNext() {
 }
 
 function handlePrev() {
+  cleanUpTargetListeners()
   dapStore.prevStep()
   nextTick(() => {
     setTimeout(updateTargetRect, 200)
@@ -103,16 +180,20 @@ function handlePrev() {
 }
 
 function handleClose() {
+  cleanUpTargetListeners()
   dapStore.stopDAP()
 }
 
 function handleSkipMission() {
+  cleanUpTargetListeners()
   dapStore.nextStep()
 }
 
 function handleBackdropClick() {
-  // Advance or pulse
-  handleNext()
+  // If current step is observe, advance
+  if (dapStore.currentStep?.trainingType === 'observe') {
+    handleNext()
+  }
 }
 
 // Watchers
@@ -139,8 +220,18 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  cleanUpTargetListeners()
   window.removeEventListener('resize', updateTargetRect)
   window.removeEventListener('scroll', updateTargetRect, true)
   if (pollInterval) clearInterval(pollInterval)
 })
 </script>
+
+<style>
+/* Elevate active target element so it is directly interactive above the SVG backdrop */
+.dap-interactive-target {
+  position: relative !important;
+  z-index: 9994 !important;
+  pointer-events: auto !important;
+}
+</style>

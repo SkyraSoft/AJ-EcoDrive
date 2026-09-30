@@ -235,6 +235,7 @@ const submitForm = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Category *</label>
                   <select 
                     v-model="form.category"
+                    data-tour="expense-category"
                     class="w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none focus:ring-1 transition-colors bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white border-gray-200 dark:border-gray-700 focus:ring-[#165A31] focus:border-[#165A31] cursor-pointer"
                   >
                     <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -249,6 +250,7 @@ const submitForm = () => {
                   <div class="relative">
                     <input 
                       :value="form.amount" 
+                      data-tour="expense-amount"
                       @input="onAmountInput"
                       type="text" 
                       placeholder="e.g. PKR 48,500" 
@@ -273,6 +275,7 @@ const submitForm = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Vendor / Payee Name *</label>
                   <input 
                     v-model="form.vendor" 
+                    data-tour="expense-vendor"
                     type="text" 
                     placeholder="e.g. PESCO Electric / Shell Petrol / City Landlord" 
                     class="w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none focus:ring-1 transition-colors bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white"
@@ -293,6 +296,7 @@ const submitForm = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Method *</label>
                   <select 
                     v-model="form.paymentMethod" 
+                    data-tour="expense-payment-method"
                     class="w-full px-3.5 py-2 text-xs border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white cursor-pointer"
                   >
                     <option value="Bank Transfer">Bank Transfer / Online Portal</option>
@@ -364,6 +368,7 @@ const submitForm = () => {
               </button>
               <button 
                 type="submit" 
+                data-tour="expense-submit-btn"
                 class="px-6 py-2.5 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer flex items-center gap-2"
               >
                 <Check class="w-4 h-4" />

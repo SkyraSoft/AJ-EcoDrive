@@ -261,6 +261,7 @@ const saveAndSend = () => {
                   <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input 
                     v-model="customerSearch"
+                    data-tour="quote-customer"
                     @focus="showCustomerDropdown = true"
                     @blur="onCustomerBlur"
                     @keydown.escape="showCustomerDropdown = false"
@@ -320,7 +321,7 @@ const saveAndSend = () => {
                 <div class="space-y-4">
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Terms</label>
-                    <select v-model="form.paymentTerms" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
+                    <select v-model="form.paymentTerms" data-tour="quote-payment-terms" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                       <option>100% Advance / Bank Transfer</option>
                       <option>50% Deposit / 50% on Handover</option>
                       <option>Corporate Fleet 30-Day Terms</option>
@@ -412,7 +413,7 @@ const saveAndSend = () => {
                     <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 block">Overall Discount (PKR)</span>
                     <span class="text-[10px] text-gray-400 dark:text-gray-500">Max 8% branch allowance</span>
                   </div>
-                  <input v-model="form.discount" type="number" min="0" class="w-28 px-2.5 py-1.5 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded text-xs text-right focus:border-[#165A31] focus:ring-0 font-semibold" />
+                  <input v-model="form.discount" data-tour="quote-discount" type="number" min="0" class="w-28 px-2.5 py-1.5 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded text-xs text-right focus:border-[#165A31] focus:ring-0 font-semibold" />
                 </div>
                 <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
                   <span class="text-sm font-bold text-gray-900 dark:text-white">Net Quoted Total</span>
@@ -426,6 +427,7 @@ const saveAndSend = () => {
             <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-2">Remarks & Internal Justification</h3>
             <textarea 
               v-model="form.notes"
+              data-tour="quote-notes"
               rows="3"
               placeholder="Enter customer special requests or business justification for special pricing..."
               class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#165A31] transition-colors resize-none"
@@ -443,6 +445,7 @@ const saveAndSend = () => {
             </button>
             <button 
               type="submit" 
+              data-tour="quote-submit"
               class="bg-[#165A31] hover:bg-[#124a28] text-white text-xs font-bold px-6 py-2.5 rounded-lg transition-colors shadow-sm cursor-pointer"
             >
               {{ isEditMode ? 'Update Quotation' : 'Save & Send' }}

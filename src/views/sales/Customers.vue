@@ -158,6 +158,7 @@ const resetFilters = () => {
       </div>
       <button 
         @click="openCreateModal"
+        data-tour="customer-add-btn"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
         <Plus class="w-4 h-4" /> <span>Add Customer</span>
@@ -187,6 +188,7 @@ const resetFilters = () => {
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
             v-model="branchSearchQuery"
+            data-tour="customer-search"
             type="text" 
             placeholder="Search customers..." 
             class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -240,7 +242,7 @@ const resetFilters = () => {
       <div class="p-6">
         <h2 class="text-sm font-bold text-gray-900 mb-4">Branch Customers</h2>
 
-        <div class="border border-gray-100 rounded-xl overflow-hidden">
+        <div data-tour="customer-table" class="border border-gray-100 rounded-xl overflow-hidden">
           <table class="w-full text-left">
             <thead>
               <tr class="bg-[#fbfcfc] border-b border-gray-100 text-[11px] font-semibold text-gray-400">

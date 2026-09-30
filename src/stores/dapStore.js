@@ -126,6 +126,8 @@ export const dapStore = reactive({
     }
   },
 
+  currentRealFieldValue: '',
+
   syncActiveCheckpoint() {
     const step = this.currentStep
     if (step) {
@@ -136,6 +138,7 @@ export const dapStore = reactive({
 
   initStepValidation() {
     const step = this.currentStep
+    this.currentRealFieldValue = ''
     if (!step) {
       this.isStepValidated = true
       this.stepValidationError = null
@@ -143,7 +146,7 @@ export const dapStore = reactive({
     }
 
     const tType = step.trainingType || 'observe'
-    if (tType === 'observe' || tType === 'inspect') {
+    if (tType === 'observe') {
       this.isStepValidated = true
       this.stepValidationError = null
     } else {
@@ -152,19 +155,30 @@ export const dapStore = reactive({
     }
   },
 
+  handleRealFieldInput(val) {
+    this.currentRealFieldValue = val
+    return this.validateCurrentStep(val)
+  },
+
+  handleRealFieldAction() {
+    this.isStepValidated = true
+    this.stepValidationError = null
+    return true
+  },
+
   validateCurrentStep(inputVal) {
     const step = this.currentStep
     if (!step) return true
 
     const tType = step.trainingType || 'observe'
 
-    if (tType === 'observe' || tType === 'inspect') {
+    if (tType === 'observe') {
       this.isStepValidated = true
       this.stepValidationError = null
       return true
     }
 
-    if (tType === 'execute') {
+    if (tType === 'execute' || tType === 'inspect') {
       this.isStepValidated = true
       this.stepValidationError = null
       return true
@@ -183,6 +197,7 @@ export const dapStore = reactive({
     }
 
     // Practice / input validation
+    this.currentRealFieldValue = inputVal
     const valRule = step.validation
     if (!valRule) {
       if (inputVal && String(inputVal).trim().length > 0) {
@@ -210,13 +225,14 @@ export const dapStore = reactive({
       }
     }
 
-    if (valRule.min && Number(inputVal) < valRule.min) {
+    const cleanNum = Number(String(inputVal).replace(/[^0-9.-]/g, ''))
+    if (valRule.min && !isNaN(cleanNum) && cleanNum < valRule.min) {
       this.stepValidationError = `Value must be at least ${valRule.min}.`
       this.isStepValidated = false
       return false
     }
 
-    if (valRule.max && Number(inputVal) > valRule.max) {
+    if (valRule.max && !isNaN(cleanNum) && cleanNum > valRule.max) {
       this.stepValidationError = `Value cannot exceed ${valRule.max}.`
       this.isStepValidated = false
       return false

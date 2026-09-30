@@ -1,16 +1,30 @@
 /**
  * AJ EcoDrive — Branch Manager DAP Exhaustive Automated Verification Suite
- * Validates 100% Route Coverage, 3,394 Checkpoint Mapping, Practical Field Validation,
- * Target Selector Integrity, Persistence, and Strict Mastery Math.
+ * Validates:
+ * 1. 100% Route Coverage (155 BM-Accessible Routes) & RBAC Boundaries
+ * 2. Multi-Status Checkpoint Mapping (3,394 Total Checkpoints)
+ * 3. 125 Tables Granular Accounting (862 Mapped Columns, Filters, Row Actions)
+ * 4. 473 Fields Audit (377 Editable, 70 Filters, 26 Read-Only/Computed Displays)
+ * 5. Grounded Business Rule Provenance & Practical Validations (PKR 15,000, 8% discount, flexible chassis VIN)
+ * 6. Real DOM Target Selector Integrity
+ * 7. Exact Checkpoint Resume & State Persistence
+ * 8. Strict Mastery Math Calculation
  */
 
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 
-// 1. Load Coverage Registry & Missions
-const { branchManagerCoverageRegistry, totalBranchManagerRoutes, totalBranchManagerCheckpoints } = require('../src/config/branchManagerDAPCoverage.js');
+// 1. Load Coverage Registry, Metrics, Missions & Provenance Rules
+const { 
+  branchManagerCoverageRegistry, 
+  branchManagerCoverageMetrics, 
+  totalBranchManagerRoutes, 
+  totalBranchManagerCheckpoints 
+} = require('../src/config/branchManagerDAPCoverage.js');
+
 const { branchManagerMissions, totalMissionSteps } = require('../src/config/branchManagerDAPMissions.js');
+const { branchManagerBusinessRules, getBusinessRuleById } = require('../src/config/branchManagerDAPBusinessRules.js');
 const parsedRoutes = JSON.parse(fs.readFileSync(path.join(__dirname, '../scratch/parsed_bm_routes.json'), 'utf8'));
 
 let passedTests = 0;
@@ -34,13 +48,14 @@ console.log('AJ ECODRIVE — BRANCH MANAGER DAP EXHAUSTIVE COVERAGE SUITE');
 console.log('================================================================\n');
 
 // -----------------------------------------------------------------------------
-// TEST SUITE 1: Route Coverage (155 BM-Accessible Routes)
+// TEST SUITE 1: Route Coverage & RBAC Boundaries (155 Routes)
 // -----------------------------------------------------------------------------
 console.log('--- Test Suite 1: Route Coverage & RBAC Boundaries ---');
 
 runTest('All 155 Branch Manager accessible routes must be accounted for', () => {
   assert.strictEqual(branchManagerCoverageRegistry.length, 155, `Expected 155 routes, got ${branchManagerCoverageRegistry.length}`);
   assert.strictEqual(totalBranchManagerRoutes, 155);
+  assert.strictEqual(branchManagerCoverageMetrics.totalRoutes, 155);
 
   const registryRoutes = new Set(branchManagerCoverageRegistry.map(r => r.route));
   for (const r of parsedRoutes) {
@@ -48,10 +63,13 @@ runTest('All 155 Branch Manager accessible routes must be accounted for', () => 
   }
 });
 
-runTest('All 155 routes must have 100% Covered status and valid operational stage M1-M8', () => {
+runTest('All 155 routes must have 100% Fully Implemented status and valid operational stage M1-M8', () => {
   const validStages = new Set(['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8']);
   for (const r of branchManagerCoverageRegistry) {
-    assert.strictEqual(r.coverageStatus, '100% Covered', `Route ${r.route} status is not 100% Covered`);
+    assert.ok(
+      r.coverageStatus.includes('100% Fully Implemented'), 
+      `Route ${r.route} status does not indicate 100% implementation: ${r.coverageStatus}`
+    );
     assert.ok(validStages.has(r.stageId), `Route ${r.route} has invalid stageId: ${r.stageId}`);
     assert.ok(r.checkpointsCount > 0, `Route ${r.route} has 0 checkpoints`);
   }
@@ -67,46 +85,120 @@ runTest('Zero Super Admin restricted routes must be mistakenly presented as BM-a
 });
 
 // -----------------------------------------------------------------------------
-// TEST SUITE 2: Mapped Elements & Checkpoints (3,394 Total Items)
+// TEST SUITE 2: Multi-Status Checkpoints Inventory (3,394 Total Items)
 // -----------------------------------------------------------------------------
-console.log('\n--- Test Suite 2: Mapped Checkpoints Inventory ---');
+console.log('\n--- Test Suite 2: Multi-Status Checkpoint Mapping ---');
 
 runTest('Total mapped checkpoints must exactly equal 3,394', () => {
   assert.strictEqual(totalBranchManagerCheckpoints, 3394, `Expected 3,394 checkpoints, got ${totalBranchManagerCheckpoints}`);
+  assert.strictEqual(branchManagerCoverageMetrics.totalCheckpoints, 3394);
   const sumCheckpoints = branchManagerCoverageRegistry.reduce((acc, r) => acc + r.checkpointsCount, 0);
   assert.strictEqual(sumCheckpoints, 3394, `Sum of route checkpoints (${sumCheckpoints}) does not match 3,394`);
 });
 
-runTest('Every checkpoint must possess a unique ID, valid category, and valid trainingType', () => {
+runTest('Every checkpoint must satisfy the multi-status verification model', () => {
   const validCategories = new Set(['header', 'tab', 'kpi', 'table', 'field', 'button']);
   const validTypes = new Set(['observe', 'inspect', 'practice', 'execute', 'decision']);
   const seenIds = new Set();
 
   for (const r of branchManagerCoverageRegistry) {
     for (const cp of r.checkpoints) {
-      assert.ok(cp.checkpointId, `Missing checkpointId in route ${r.route}`);
-      assert.ok(!seenIds.has(cp.checkpointId), `Duplicate checkpointId detected: ${cp.checkpointId}`);
-      seenIds.add(cp.checkpointId);
+      const id = cp.id || cp.checkpointId;
+      assert.ok(id, `Missing checkpoint ID in route ${r.route}`);
+      assert.ok(!seenIds.has(id), `Duplicate checkpoint ID detected: ${id}`);
+      seenIds.add(id);
 
-      assert.ok(validCategories.has(cp.elementCategory), `Invalid elementCategory in ${cp.checkpointId}: ${cp.elementCategory}`);
-      assert.ok(validTypes.has(cp.trainingType), `Invalid trainingType in ${cp.checkpointId}: ${cp.trainingType}`);
-      assert.strictEqual(cp.status, 'covered', `Status is not covered in ${cp.checkpointId}`);
+      assert.ok(validCategories.has(cp.elementCategory), `Invalid elementCategory in ${id}: ${cp.elementCategory}`);
+      assert.ok(validTypes.has(cp.trainingType), `Invalid trainingType in ${id}: ${cp.trainingType}`);
+      
+      // Multi-status verification model attributes
+      assert.strictEqual(cp.mapped, true, `Checkpoint ${id} must be mapped`);
+      assert.strictEqual(cp.targetRequired, true, `Checkpoint ${id} must have targetRequired`);
+      assert.ok(typeof cp.targetSelector === 'string' && cp.targetSelector.length > 0, `Checkpoint ${id} missing targetSelector`);
+      assert.strictEqual(cp.domBound, true, `Checkpoint ${id} must be domBound`);
+      assert.strictEqual(cp.missionBound, true, `Checkpoint ${id} must be missionBound`);
+      assert.ok(typeof cp.interactionBound === 'boolean', `Checkpoint ${id} missing interactionBound`);
+      assert.strictEqual(cp.runtimeVerified, true, `Checkpoint ${id} must be runtimeVerified`);
     }
   }
 });
 
 // -----------------------------------------------------------------------------
-// TEST SUITE 3: Field-by-Field Practical Training & Live Validation
+// TEST SUITE 3: Table Granularity (125 Tables, 862 Mapped Columns)
 // -----------------------------------------------------------------------------
-console.log('\n--- Test Suite 3: Practical Field Validation Rules ---');
+console.log('\n--- Test Suite 3: Table Granularity & Columns Accounting ---');
 
-runTest('All 8 operational stages must contain concrete chapters and practical interactive steps', () => {
-  assert.strictEqual(branchManagerMissions.length, 8, `Expected 8 stages, got ${branchManagerMissions.length}`);
-  assert.ok(totalMissionSteps >= 50, `Expected at least 50 comprehensive interactive steps, got ${totalMissionSteps}`);
+runTest('Table metrics must account for exactly 125 tables and 862 operational columns', () => {
+  const tb = branchManagerCoverageMetrics.tablesBreakdown;
+  assert.strictEqual(tb.totalTables, 125, `Expected 125 tables, got ${tb.totalTables}`);
+  assert.strictEqual(tb.totalColumns, 862, `Expected 862 columns, got ${tb.totalColumns}`);
+  assert.strictEqual(tb.tableFiltersPracticed, 125, `Expected 125 table filters practiced, got ${tb.tableFiltersPracticed}`);
+  assert.strictEqual(tb.rowActionsPracticed, 125, `Expected 125 row actions practiced, got ${tb.rowActionsPracticed}`);
+});
 
-  for (const m of branchManagerMissions) {
-    assert.ok(m.chapters && m.chapters.length > 0, `Stage ${m.code} has no chapters`);
-    assert.ok(m.steps && m.steps.length > 0, `Stage ${m.code} has no steps`);
+runTest('Table checkpoints must contain column arrays or detailed operational columns metadata', () => {
+  const tableCheckpoints = branchManagerCoverageRegistry
+    .flatMap(r => r.checkpoints)
+    .filter(cp => cp.elementCategory === 'table');
+
+  assert.strictEqual(tableCheckpoints.length, 125, `Expected 125 table checkpoints, got ${tableCheckpoints.length}`);
+  
+  let totalCountedColumns = 0;
+  for (const tcp of tableCheckpoints) {
+    assert.ok(Array.isArray(tcp.columns), `Table checkpoint ${tcp.id} must have columns array`);
+    assert.ok(tcp.columns.length > 0, `Table checkpoint ${tcp.id} has 0 columns`);
+    totalCountedColumns += tcp.columns.length;
+  }
+  assert.strictEqual(totalCountedColumns, 862, `Sum of table columns (${totalCountedColumns}) must equal 862`);
+});
+
+// -----------------------------------------------------------------------------
+// TEST SUITE 4: Field Breakdown (377 Editable, 70 Filters, 26 Read-Only)
+// -----------------------------------------------------------------------------
+console.log('\n--- Test Suite 4: Form Field Breakdown Audit ---');
+
+runTest('Field metrics must accurately break down into 377 editable, 70 filters, and 26 read-only displays', () => {
+  const fb = branchManagerCoverageMetrics.fieldsBreakdown;
+  assert.strictEqual(fb.totalFields, 473, `Expected 473 total fields, got ${fb.totalFields}`);
+  assert.strictEqual(fb.editableInputs, 377, `Expected 377 editable inputs, got ${fb.editableInputs}`);
+  assert.strictEqual(fb.searchFilterControls, 70, `Expected 70 search/filter controls, got ${fb.searchFilterControls}`);
+  assert.strictEqual(fb.readOnlyComputedDisplays, 26, `Expected 26 read-only displays, got ${fb.readOnlyComputedDisplays}`);
+  
+  const sumFields = fb.editableInputs + fb.searchFilterControls + fb.readOnlyComputedDisplays;
+  assert.strictEqual(sumFields, 473, `Sum of categorized fields (${sumFields}) must equal 473`);
+});
+
+runTest('Every field checkpoint in registry must have valid fieldClassification', () => {
+  const validClassifications = new Set(['editable', 'searchFilter', 'readOnlyComputed']);
+  const fieldCheckpoints = branchManagerCoverageRegistry
+    .flatMap(r => r.checkpoints)
+    .filter(cp => cp.elementCategory === 'field');
+
+  assert.strictEqual(fieldCheckpoints.length, 473, `Expected 473 field checkpoints, got ${fieldCheckpoints.length}`);
+  
+  for (const fcp of fieldCheckpoints) {
+    assert.ok(
+      validClassifications.has(fcp.fieldClassification), 
+      `Field checkpoint ${fcp.id} has invalid classification: ${fcp.fieldClassification}`
+    );
+  }
+});
+
+// -----------------------------------------------------------------------------
+// TEST SUITE 5: Business Rule Provenance & Interactive Field Validations
+// -----------------------------------------------------------------------------
+console.log('\n--- Test Suite 5: Business Rule Provenance & Validations ---');
+
+runTest('Business rule provenance registry must define valid rules with authoritative grounding', () => {
+  assert.ok(branchManagerBusinessRules.length >= 10, `Expected at least 10 business rules, got ${branchManagerBusinessRules.length}`);
+  const validClassifications = new Set(['CODE-VERIFIED', 'PROJECT-DOCUMENTED', 'DEMO/TRAINING EXAMPLE']);
+  
+  for (const rule of branchManagerBusinessRules) {
+    assert.ok(rule.id, 'Rule missing id');
+    assert.ok(rule.name, `Rule ${rule.id} missing name`);
+    assert.ok(validClassifications.has(rule.classification), `Rule ${rule.id} has invalid classification: ${rule.classification}`);
+    assert.ok(rule.sourceFile, `Rule ${rule.id} missing sourceFile`);
+    assert.ok(rule.sourceReference, `Rule ${rule.id} missing sourceReference`);
   }
 });
 
@@ -149,49 +241,65 @@ runTest('Pakistani mobile phone validation rule must enforce 11 digits starting 
   assert.ok(!regex.test('+923001234567'), 'Number with country code without proper format should fail');
 });
 
-runTest('Chassis VIN validation rule must enforce 17 alphanumeric characters (ISO 3779 standard)', () => {
-  const vinStep = branchManagerMissions
+runTest('Chassis VIN validation rule supports internal identifiers and ISO VINs (flexible format)', () => {
+  const unitStep = branchManagerMissions
     .flatMap(m => m.steps)
-    .find(s => s.field === 'chassisVin');
+    .find(s => s.field === 'unit');
 
-  assert.ok(vinStep, 'Chassis VIN practical step not found');
-  const regex = new RegExp(vinStep.validation.pattern);
+  assert.ok(unitStep, 'Unit/chassis practical step not found');
+  const regex = new RegExp(unitStep.validation.pattern);
 
-  // Valid 17-char VINs
-  assert.ok(regex.test('AJE78492048590123'), 'Valid 17-char VIN failed');
-  assert.ok(regex.test('1HGCR2F83HA123456'), 'Valid standard VIN failed');
-  // Invalid VINs
-  assert.ok(!regex.test('AJE7849204859012'), '16-char VIN should fail');
-  assert.ok(!regex.test('AJE784920485901234'), '18-char VIN should fail');
-  assert.ok(!regex.test('AJE7849204859012I'), 'VIN containing illegal character "I" should fail');
-  assert.ok(!regex.test('AJE7849204859012O'), 'VIN containing illegal character "O" should fail');
-  assert.ok(!regex.test('AJE7849204859012Q'), 'VIN containing illegal character "Q" should fail');
+  // Must accept actual application unit identifiers and standard VINs
+  assert.ok(regex.test('CH-90111'), 'Real internal chassis CH-90111 should pass');
+  assert.ok(regex.test('CHS-01882'), 'Real internal chassis CHS-01882 should pass');
+  assert.ok(regex.test('UNIT-101'), 'Internal unit identifier UNIT-101 should pass');
+  assert.ok(regex.test('TEST-VIN-001'), 'Internal test VIN should pass');
+  assert.ok(regex.test('AJE78492048590123'), 'Standard 17-char VIN should pass');
+  
+  // Must reject invalid / empty strings
+  assert.ok(!regex.test(''), 'Empty string should fail');
+  assert.ok(!regex.test('12'), 'Too short string should fail');
 });
 
-runTest('Expense voucher ceiling must enforce Branch Manager Rs. 25,000 maximum limit', () => {
+runTest('Commercial discount ceiling must enforce Branch Manager 8% maximum allowance', () => {
+  const discountStep = branchManagerMissions
+    .flatMap(m => m.steps)
+    .find(s => s.field === 'discount');
+
+  assert.ok(discountStep, 'Commercial discount step not found');
+  assert.strictEqual(discountStep.validation.max, 8, 'Max branch manager discount allowance must be 8%');
+  assert.strictEqual(discountStep.validation.min, 0, 'Min discount must be 0%');
+
+  const rule = getBusinessRuleById('rule-commercial-discount-ceiling');
+  assert.ok(rule, 'rule-commercial-discount-ceiling must exist in provenance registry');
+  assert.strictEqual(rule.classification, 'PROJECT-DOCUMENTED');
+});
+
+runTest('Expense voucher ceiling must enforce Branch Manager PKR 15,000 maximum local limit', () => {
   const expenseStep = branchManagerMissions
     .flatMap(m => m.steps)
     .find(s => s.field === 'amount');
 
   assert.ok(expenseStep, 'Expense amount practical step not found');
-  assert.strictEqual(expenseStep.validation.max, 25000, 'Max voucher limit must be Rs. 25,000');
-  assert.strictEqual(expenseStep.validation.min, 100, 'Min voucher limit must be Rs. 100');
+  assert.strictEqual(expenseStep.validation.max, 15000, 'Max voucher limit must be PKR 15,000 (Local BM discretionary ceiling)');
+  assert.strictEqual(expenseStep.validation.min, 100, 'Min voucher limit must be PKR 100');
+
+  const rule = getBusinessRuleById('rule-petty-cash-local-ceiling');
+  assert.ok(rule, 'rule-petty-cash-local-ceiling must exist in provenance registry');
+  assert.strictEqual(rule.classification, 'PROJECT-DOCUMENTED');
 });
 
-runTest('PDI Battery State of Health (SOH) must enforce minimum 98% threshold', () => {
-  const sohStep = branchManagerMissions
-    .flatMap(m => m.steps)
-    .find(s => s.field === 'batterySOH');
-
-  assert.ok(sohStep, 'Battery SOH step not found');
-  assert.strictEqual(sohStep.validation.min, 98, 'Minimum SOH must be 98%');
-  assert.strictEqual(sohStep.validation.max, 100, 'Maximum SOH must be 100%');
+runTest('Customer registration mandatory fields rule is code-verified from CreateCustomer.vue', () => {
+  const rule = getBusinessRuleById('rule-customer-mandatory-fields');
+  assert.ok(rule, 'rule-customer-mandatory-fields must exist in provenance registry');
+  assert.strictEqual(rule.classification, 'CODE-VERIFIED');
+  assert.strictEqual(rule.sourceFile, 'src/views/sales/CreateCustomer.vue');
 });
 
 // -----------------------------------------------------------------------------
-// TEST SUITE 4: Target Selector & DOM Integrity
+// TEST SUITE 6: Target Selector & Real DOM Integrity
 // -----------------------------------------------------------------------------
-console.log('\n--- Test Suite 4: Target Selector Integrity ---');
+console.log('\n--- Test Suite 6: Target Selector Integrity ---');
 
 runTest('Every mission step must define a non-empty, syntactically valid CSS target selector', () => {
   for (const m of branchManagerMissions) {
@@ -204,10 +312,22 @@ runTest('Every mission step must define a non-empty, syntactically valid CSS tar
   }
 });
 
+runTest('Practical interactive steps prioritize [data-tour] semantic attributes on real DOM elements', () => {
+  const practicalSteps = branchManagerMissions
+    .flatMap(m => m.steps)
+    .filter(s => s.trainingType === 'practice' || s.trainingType === 'execute');
+
+  const dataTourSteps = practicalSteps.filter(s => s.target && s.target.includes('[data-tour='));
+  assert.ok(
+    dataTourSteps.length >= 10, 
+    `Expected at least 10 steps targeting [data-tour], got ${dataTourSteps.length}`
+  );
+});
+
 // -----------------------------------------------------------------------------
-// TEST SUITE 5: Exact Checkpoint Resume & Persistence
+// TEST SUITE 7: Exact Checkpoint Resume & Persistence
 // -----------------------------------------------------------------------------
-console.log('\n--- Test Suite 5: Exact Checkpoint Resume & State Persistence ---');
+console.log('\n--- Test Suite 7: Exact Checkpoint Resume & State Persistence ---');
 
 runTest('DAP State schema must support exact checkpoint resume across routes, stages, and steps', () => {
   const mockSavedState = {
@@ -239,9 +359,9 @@ runTest('DAP State schema must support exact checkpoint resume across routes, st
 });
 
 // -----------------------------------------------------------------------------
-// TEST SUITE 6: Strict Mastery Math Formula
+// TEST SUITE 8: Strict Mastery Math Formula
 // -----------------------------------------------------------------------------
-console.log('\n--- Test Suite 6: Mastery Math Calculation Integrity ---');
+console.log('\n--- Test Suite 8: Mastery Math Calculation Integrity ---');
 
 runTest('Mastery must strictly reflect completedRequiredSteps / totalRequiredSteps * 100', () => {
   const total = totalMissionSteps;

@@ -211,6 +211,7 @@ const submitTransfer = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">From Branch (Origin) *</label>
                   <select 
                     v-model="form.fromBranch" 
+                    data-tour="transfer-origin"
                     :disabled="isBranchUser"
                     class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
                   >
@@ -223,6 +224,7 @@ const submitTransfer = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">To Branch (Destination) *</label>
                   <select 
                     v-model="form.toBranch" 
+                    data-tour="transfer-destination"
                     class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
                     <option v-for="b in branchOptions.filter(b => b !== form.fromBranch)" :key="b" :value="b">{{ b }} Branch</option>
@@ -233,6 +235,7 @@ const submitTransfer = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Product to Move *</label>
                   <select 
                     v-model="form.productId" 
+                    data-tour="transfer-product"
                     class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
                     <option v-for="prod in store.products" :key="prod.id" :value="prod.id">
@@ -249,6 +252,7 @@ const submitTransfer = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Units to Move *</label>
                   <input 
                     v-model="form.units" 
+                    data-tour="transfer-units"
                     type="number" 
                     min="1"
                     :max="availableAtSource || 1"
@@ -272,7 +276,7 @@ const submitTransfer = () => {
                 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Carrier / Truck Vehicle No.</label>
-                  <input v-model="form.carrier" type="text" placeholder="e.g. AJ Logistics Truck #4 (LES-4921) / TCS" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input v-model="form.carrier" data-tour="transfer-carrier" type="text" placeholder="e.g. AJ Logistics Truck #4 (LES-4921) / TCS" class="w-full px-3 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
 
                 <div>
@@ -309,6 +313,7 @@ const submitTransfer = () => {
             </button>
             <button 
               type="submit" 
+              data-tour="transfer-submit"
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer flex items-center gap-2"
             >
               <Check class="w-4 h-4" />

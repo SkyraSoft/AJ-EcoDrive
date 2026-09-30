@@ -56,81 +56,73 @@
 
     <!-- Interactive Training Checkpoint Box -->
     <div v-if="step.trainingType" class="mb-3.5 p-3 rounded-xl border transition-all" :class="trainingBoxClass">
-      <!-- Training Type Badge & Target -->
+      <!-- Training Type Badge & Target Indicator -->
       <div class="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-700/50">
         <div class="flex items-center gap-1.5 text-xs font-bold" :class="trainingTypeColor">
           <span>{{ trainingTypeIcon }}</span>
           <span class="uppercase tracking-wider text-[10px]">{{ step.trainingType }} CHECKPOINT</span>
         </div>
         <span v-if="step.field" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-          Field: {{ step.field }}
+          Target Field: {{ step.field }}
         </span>
       </div>
 
       <!-- Business Rationale -->
-      <div v-if="step.businessRationale" class="text-[11px] text-slate-300 mb-2 leading-relaxed">
+      <div v-if="step.businessRationale" class="text-[11px] text-slate-300 mb-2.5 leading-relaxed">
         <strong class="text-slate-200">Business Rationale:</strong> {{ step.businessRationale }}
       </div>
 
-      <!-- Mode 1: Practical Field Input Practice -->
-      <div v-if="step.trainingType === 'practice' || step.trainingType === 'input-practice'" class="space-y-2">
-        <label class="block text-[11px] font-semibold text-slate-200">
-          {{ step.instruction || 'Practice entering valid operational data:' }}
-        </label>
-        
-        <!-- Live Practice Input -->
-        <div class="flex items-center gap-2">
-          <!-- Dropdown if options provided -->
-          <select
-            v-if="step.options && step.options.length"
-            v-model="practiceInputValue"
-            @change="handlePracticeInput"
-            class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-          >
-            <option value="" disabled>-- Select Option --</option>
-            <option v-for="opt in step.options" :key="opt.value || opt" :value="opt.value || opt">
-              {{ opt.label || opt }}
-            </option>
-          </select>
-          <!-- Text/Number/Date input -->
-          <input
-            v-else
-            :type="step.inputType || 'text'"
-            v-model="practiceInputValue"
-            @input="handlePracticeInput"
-            :placeholder="step.exampleValue ? `e.g. ${step.exampleValue}` : 'Enter value...'"
-            class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
+      <!-- Mode 1: REAL UI Field Interaction (User interacts with the actual page input) -->
+      <div v-if="step.trainingType === 'practice' || step.trainingType === 'input-practice'" class="space-y-2.5">
+        <div class="text-[11px] text-amber-200/90 flex items-start gap-1.5">
+          <span class="text-xs mt-0.5">👉</span>
+          <div class="flex-1 font-medium">
+            {{ step.instruction || 'Interact with the highlighted field directly on the screen above:' }}
+          </div>
+        </div>
+
+        <!-- Target Guide & Example Value Banner -->
+        <div v-if="step.exampleValue" class="p-2 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-2">
+          <div class="text-[10px] text-slate-400">
+            <span class="text-slate-500">Expected Value / Format:</span>
+            <span class="font-mono text-emerald-400 font-semibold ml-1">{{ step.exampleValue }}</span>
+          </div>
           <button
-            v-if="step.exampleValue"
             type="button"
-            @click="autofillExample"
-            class="px-2 py-1.5 text-[10px] font-medium bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
-            title="Autofill required example pattern"
+            @click="autofillToRealField"
+            class="px-2 py-1 text-[10px] font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
+            title="Populate the actual form field on the screen with this example"
           >
-            Autofill
+            Autofill to Real Field
           </button>
         </div>
 
-        <!-- Real-time Validation Feedback -->
-        <div v-if="dapStore.isStepValidated" class="text-[11px] text-emerald-400 flex items-center gap-1.5 font-medium">
-          <span>✓</span>
-          <span>{{ step.successFeedback || 'Valid operational format verified.' }}</span>
+        <!-- Real-time Field Monitoring Feedback -->
+        <div v-if="dapStore.isStepValidated" class="p-2 rounded-lg bg-emerald-950/50 border border-emerald-500/40 text-[11px] text-emerald-300 flex items-center gap-2 font-medium">
+          <span class="text-emerald-400 text-sm font-bold">✓</span>
+          <div class="flex-1 leading-snug">
+            {{ step.successFeedback || 'Application field updated and validated successfully on page.' }}
+            <span v-if="dapStore.currentRealFieldValue" class="block font-mono text-[10px] text-emerald-400 mt-0.5">
+              Value: "{{ dapStore.currentRealFieldValue }}"
+            </span>
+          </div>
         </div>
-        <div v-else-if="dapStore.stepValidationError && practiceInputValue" class="text-[11px] text-rose-400 flex items-center gap-1.5 font-medium">
-          <span>⚠️</span>
-          <span>{{ step.incorrectFeedback || dapStore.stepValidationError }}</span>
+        <div v-else-if="dapStore.stepValidationError && dapStore.currentRealFieldValue" class="p-2 rounded-lg bg-rose-950/50 border border-rose-500/40 text-[11px] text-rose-300 flex items-center gap-2 font-medium">
+          <span class="text-rose-400 text-sm font-bold">⚠️</span>
+          <div class="flex-1 leading-snug">
+            {{ step.incorrectFeedback || dapStore.stepValidationError }}
+          </div>
         </div>
-        <div v-else class="text-[10px] text-slate-400 flex items-center gap-1">
-          <span>ℹ️</span>
-          <span>{{ step.validation?.rule || 'Mandatory operational field. Enter valid data to unlock next step.' }}</span>
+        <div v-else class="p-2 rounded-lg bg-slate-950/40 border border-slate-800 text-[10px] text-slate-400 flex items-center gap-1.5">
+          <span class="animate-pulse text-amber-400">●</span>
+          <span>Awaiting user input in the highlighted application field on screen...</span>
         </div>
       </div>
 
       <!-- Mode 2: Decision Scenario Practice -->
       <div v-else-if="step.trainingType === 'decision'" class="space-y-2">
         <div class="text-[11px] font-semibold text-amber-300">
-          {{ step.instruction || 'Select the correct managerial decision:' }}
+          {{ step.instruction || 'Select the correct managerial decision based on branch SOP:' }}
         </div>
         <div class="grid grid-cols-1 gap-1.5">
           <button
@@ -156,28 +148,38 @@
 
       <!-- Mode 3: Action Execution Practice -->
       <div v-else-if="step.trainingType === 'execute'" class="space-y-2">
-        <div class="text-[11px] text-slate-300">
-          {{ step.instruction || 'Execute or simulate the action on the highlighted target.' }}
+        <div class="text-[11px] text-slate-300 flex items-center gap-1.5">
+          <span>👉</span>
+          <span>{{ step.instruction || 'Click the highlighted application button on the screen to trigger this action.' }}</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div v-if="dapStore.isStepValidated" class="p-2 rounded-lg bg-emerald-950/50 border border-emerald-500/40 text-[11px] text-emerald-300 flex items-center gap-2">
+          <span>✓</span>
+          <span>Action executed and verified on application page.</span>
+        </div>
+        <div v-else class="flex items-center gap-2">
           <button
             type="button"
-            @click="handleSimulateExecution"
-            class="w-full py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            :class="isExecuted ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/40' : 'bg-purple-600 hover:bg-purple-500 text-white shadow-md'"
+            @click="simulateRealActionClick"
+            class="w-full py-1.5 px-3 rounded-lg text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
-            <span>{{ isExecuted ? '✓ Action Executed & Verified' : (step.actionName || 'Execute Action & Verify') }}</span>
+            <span>Trigger Highlighted Action On Screen</span>
           </button>
         </div>
       </div>
 
       <!-- Mode 4: Inspection Mode -->
-      <div v-else-if="step.trainingType === 'inspect'" class="text-[11px] text-slate-300 space-y-1">
+      <div v-else-if="step.trainingType === 'inspect'" class="text-[11px] text-slate-300 space-y-1.5">
         <div class="font-medium text-sky-300 flex items-center gap-1">
           <span>🔍</span> Deep Inspection Checklist:
         </div>
-        <div class="text-slate-400 leading-relaxed">
-          {{ step.instruction || 'Inspect active tab, column layout, status chips, and row actions on the highlighted view.' }}
+        <div class="text-slate-300 leading-relaxed">
+          {{ step.instruction || 'Inspect active tab, column layout, status chips, or row actions on the highlighted view.' }}
+        </div>
+        <div v-if="dapStore.isStepValidated" class="text-[10px] text-sky-400 flex items-center gap-1 mt-1">
+          <span>✓</span> Tab / Table verified and opened.
+        </div>
+        <div v-else class="text-[10px] text-slate-400 mt-1">
+          Click the highlighted tab or table row on screen to proceed.
         </div>
       </div>
 
@@ -190,12 +192,6 @@
           {{ step.instruction || 'Observe this KPI card or status block. Connect it to morning showroom readiness.' }}
         </div>
       </div>
-    </div>
-
-    <!-- Action Required Box -->
-    <div v-if="step.actionRequired && !step.trainingType" class="mb-3 px-3 py-2 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[11px] text-emerald-200 flex items-center gap-2">
-      <span class="text-emerald-400 text-xs animate-pulse font-bold">👉</span>
-      <span><strong>Action Required:</strong> {{ step.actionRequired }}</span>
     </div>
 
     <!-- Progress Bar -->
@@ -227,7 +223,7 @@
         <button
           @click="$emit('next')"
           :disabled="isNextDisabled"
-          :title="isNextDisabled ? 'Please complete the required practice action above to continue.' : ''"
+          :title="isNextDisabled ? 'Please complete the required interaction with the actual page control above to continue.' : ''"
           class="px-4 py-1.5 text-xs font-semibold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 flex items-center gap-1.5 transition-all transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           <span>{{ isLastStep ? 'Complete Stage &rsaquo;' : 'Next Step &rarr;' }}</span>
@@ -253,18 +249,16 @@ const props = defineProps({
 defineEmits(['next', 'prev', 'close', 'skip-mission'])
 
 const cardRef = ref(null)
-const practiceInputValue = ref('')
 const selectedDecisionOpt = ref(null)
-const isExecuted = ref(false)
 
 const isFirstStep = computed(() => props.stepIndex === 0)
 const isLastStep = computed(() => props.stepIndex >= props.totalSteps - 1)
 
-// Whether Next button is disabled due to incomplete required practice
+// Whether Next button is disabled due to incomplete required interaction with the real UI
 const isNextDisabled = computed(() => {
   if (!props.step) return false
   const tType = props.step.trainingType
-  if (tType === 'practice' || tType === 'input-practice' || tType === 'decision') {
+  if (tType === 'practice' || tType === 'input-practice' || tType === 'decision' || tType === 'execute') {
     return !dapStore.isStepValidated
   }
   return false
@@ -304,26 +298,34 @@ const trainingBoxClass = computed(() => {
 // Sync step changes with local practice state
 watch(
   () => props.step,
-  (newStep) => {
-    practiceInputValue.value = (newStep?.target && dapStore.interactiveInputValues[newStep.target]) || ''
+  () => {
     selectedDecisionOpt.value = null
-    isExecuted.value = false
     dapStore.initStepValidation()
-    if (practiceInputValue.value) {
-      dapStore.validateCurrentStep(practiceInputValue.value)
-    }
   },
   { immediate: true }
 )
 
-function handlePracticeInput() {
-  dapStore.validateCurrentStep(practiceInputValue.value)
-}
+function autofillToRealField() {
+  if (!props.step?.exampleValue || !props.step?.target) return
 
-function autofillExample() {
-  if (props.step?.exampleValue) {
-    practiceInputValue.value = props.step.exampleValue
-    dapStore.validateCurrentStep(props.step.exampleValue)
+  try {
+    const rawEl = document.querySelector(props.step.target)
+    if (!rawEl) return
+
+    const inputEl = (rawEl.tagName === 'INPUT' || rawEl.tagName === 'SELECT' || rawEl.tagName === 'TEXTAREA')
+      ? rawEl
+      : (rawEl.querySelector('input, select, textarea') || rawEl)
+
+    if (inputEl) {
+      inputEl.value = props.step.exampleValue
+      // Dispatch input and change events so Vue v-model updates
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }))
+      inputEl.dispatchEvent(new Event('change', { bubbles: true }))
+      inputEl.focus()
+      dapStore.handleRealFieldInput(props.step.exampleValue)
+    }
+  } catch (e) {
+    console.warn('Autofill to real field error:', e)
   }
 }
 
@@ -332,19 +334,17 @@ function handleDecisionOption(opt) {
   dapStore.validateCurrentStep(opt)
 }
 
-function handleSimulateExecution() {
-  isExecuted.value = true
-  dapStore.validateCurrentStep(true)
-
-  // Trigger click on target element if it exists in DOM
+function simulateRealActionClick() {
   if (props.step?.target) {
     try {
       const el = document.querySelector(props.step.target)
-      if (el && typeof el.click === 'function') {
+      if (el) {
         el.click()
+        dapStore.handleRealFieldAction()
       }
     } catch (e) {
       console.warn('Execution click simulated:', e)
+      dapStore.handleRealFieldAction()
     }
   }
 }
@@ -362,14 +362,11 @@ const computedPlacement = computed(() => {
   const windowH = window.innerHeight
   const target = props.targetRect
 
-  // Target center coordinates
   const targetCenterX = target.left + (target.width / 2)
   const targetCenterY = target.top + (target.height / 2)
 
-  // Preferred placement from step config (or auto-calculate)
   let pref = props.step?.placement || 'auto'
 
-  // Calculate free space in all 4 directions
   const spaceLeft = target.left
   const spaceRight = windowW - target.right
   const spaceTop = target.top
@@ -378,24 +375,15 @@ const computedPlacement = computed(() => {
   let chosenPlacement = pref
 
   if (pref === 'auto') {
-    // If target is in right half of screen, prefer LEFT placement so target is completely visible
     if (targetCenterX > windowW * 0.55 && spaceLeft >= cardWidth + gap) {
       chosenPlacement = 'left'
-    } 
-    // If target is in left half of screen, prefer RIGHT placement
-    else if (targetCenterX < windowW * 0.45 && spaceRight >= cardWidth + gap) {
+    } else if (targetCenterX < windowW * 0.45 && spaceRight >= cardWidth + gap) {
       chosenPlacement = 'right'
-    } 
-    // If target is near top, prefer BOTTOM placement
-    else if (spaceBottom >= cardHeight + gap) {
+    } else if (spaceBottom >= cardHeight + gap) {
       chosenPlacement = 'bottom'
-    } 
-    // If target is near bottom, prefer TOP placement
-    else if (spaceTop >= cardHeight + gap) {
+    } else if (spaceTop >= cardHeight + gap) {
       chosenPlacement = 'top'
-    } 
-    else {
-      // Pick direction with largest free space
+    } else {
       const maxSpace = Math.max(spaceLeft, spaceRight, spaceBottom, spaceTop)
       if (maxSpace === spaceLeft) chosenPlacement = 'left'
       else if (maxSpace === spaceRight) chosenPlacement = 'right'
@@ -420,7 +408,6 @@ const computedPlacement = computed(() => {
     top = Math.max(20, target.top - cardHeight - gap)
     left = Math.min(Math.max(20, targetCenterX - (cardWidth / 2)), windowW - cardWidth - 20)
   } else {
-    // center
     return { placement: 'center', top: '50%', left: '50%', isCenter: true }
   }
 

@@ -35,6 +35,8 @@ const computedType = computed(() => {
   }
   return props.type
 })
+
+defineOptions({ inheritAttrs: false })
 </script>
 
 <template>
@@ -42,6 +44,7 @@ const computedType = computed(() => {
     <label class="block text-sm font-semibold text-gray-900 dark:text-slate-200 mb-1.5">{{ label }}</label>
     <div class="relative">
       <input 
+        v-bind="$attrs"
         :type="computedType"
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"

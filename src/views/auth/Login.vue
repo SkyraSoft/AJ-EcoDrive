@@ -91,6 +91,7 @@ const handleLogin = async () => {
     <form @submit.prevent="handleLogin">
       <BaseInput 
         v-model="branchCode"
+        data-tour="auth-email"
         label="Branch Code / Username" 
         placeholder="e.g. ADMIN, PEW-01, ISB-01" 
         :has-error="hasError" 
@@ -98,6 +99,7 @@ const handleLogin = async () => {
       
       <BaseInput 
         v-model="password"
+        data-tour="auth-password"
         label="Password" 
         type="password" 
         placeholder="••••••••••••" 
@@ -114,7 +116,7 @@ const handleLogin = async () => {
         </RouterLink>
       </div>
 
-      <BaseButton type="submit" :disabled="isLoading" class="w-full">
+      <BaseButton type="submit" data-tour="auth-submit" :disabled="isLoading" class="w-full">
         {{ isLoading ? 'Authenticating...' : (hasError ? 'Try Again' : 'Login') }}
       </BaseButton>
 

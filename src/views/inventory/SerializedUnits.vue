@@ -388,6 +388,7 @@ const filteredUnits = computed(() => {
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
             v-model="branchSearchQuery"
+            data-tour="serialized-search"
             type="text" 
             placeholder="Search serial, chassis, product..." 
             class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -448,7 +449,7 @@ const filteredUnits = computed(() => {
     </div>
 
     <!-- Table Card: Serialized Unit Register -->
-    <div id="dap-serialized-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div id="dap-serialized-table" data-tour="serialized-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Serialized Unit Register</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchUnits.length }} units</span>

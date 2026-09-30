@@ -172,6 +172,7 @@ const createCustomer = () => {
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
                     <input 
                       v-model="formData.firstName" 
+                      data-tour="customer-name"
                       type="text" 
                       placeholder="e.g. Ahsan" 
                       class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors"
@@ -189,6 +190,7 @@ const createCustomer = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Mobile Phone Number *</label>
                   <input 
                     v-model="formData.phone" 
+                    data-tour="customer-phone"
                     type="text" 
                     placeholder="e.g. 0300 1234567" 
                     class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors"
@@ -199,12 +201,12 @@ const createCustomer = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-                  <input v-model="formData.email" type="email" placeholder="customer@example.com" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <input v-model="formData.email" data-tour="customer-email" type="email" placeholder="customer@example.com" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors" />
                 </div>
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">CNIC / National Identity Card</label>
-                  <input v-model="formData.cnic" type="text" placeholder="17301-XXXXXXX-X" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors font-mono" />
+                  <input v-model="formData.cnic" data-tour="customer-cnic" type="text" placeholder="17301-XXXXXXX-X" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors font-mono" />
                 </div>
               </div>
             </div>
@@ -264,6 +266,7 @@ const createCustomer = () => {
             </button>
             <button 
               type="submit" 
+              data-tour="customer-save"
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer flex items-center gap-2"
             >
               <Check class="w-4 h-4" />

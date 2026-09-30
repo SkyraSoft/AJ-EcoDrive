@@ -624,6 +624,7 @@ const exportActionQueue = () => {
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
             v-model="searchQuery"
+            data-tour="action-centre-search"
             type="text" 
             placeholder="Search actions, records, VINs..." 
             class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-800 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -653,7 +654,7 @@ const exportActionQueue = () => {
     </div>
 
     <!-- Main Action Queue Table -->
-    <div id="dap-actioncentre-table" class="bg-white dark:bg-slate-900 rounded-[12px] border border-gray-100 dark:border-gray-800 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div id="dap-actioncentre-table" data-tour="action-centre-table" class="bg-white dark:bg-slate-900 rounded-[12px] border border-gray-100 dark:border-gray-800 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white">Active Operational Work Queue</h3>
@@ -722,6 +723,7 @@ const exportActionQueue = () => {
               <td class="px-5 py-4 align-middle text-right whitespace-nowrap">
                 <button 
                   @click.stop="openTreatmentModal(item)"
+                  data-tour="action-centre-treatment"
                   class="text-xs font-bold text-[#165A31] dark:text-emerald-400 hover:underline flex items-center justify-end gap-1 ml-auto cursor-pointer"
                 >
                   Treat / Inspect &rarr;

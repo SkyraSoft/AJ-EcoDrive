@@ -231,6 +231,7 @@ const openLead = (lead) => {
       </div>
       <button 
         id="dap-btn-new-lead"
+        data-tour="lead-add-btn"
         @click="showCreateModal = true"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -381,6 +382,7 @@ const openLead = (lead) => {
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
             v-model="branchSearchQuery"
+            data-tour="lead-search"
             type="text" 
             placeholder="Search leads..." 
             class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -440,7 +442,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Table Card -->
-    <div id="dap-leads-table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div id="dap-leads-table" data-tour="lead-table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-sm font-bold text-gray-900">Branch Leads</h2>

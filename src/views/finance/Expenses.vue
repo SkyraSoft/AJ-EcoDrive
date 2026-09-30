@@ -184,6 +184,7 @@ const handleExpenseUpdated = (updatedExpense) => {
       <!-- Add Expense Button -->
       <button 
         id="dap-btn-new-expense"
+        data-tour="expense-add-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -212,6 +213,7 @@ const handleExpenseUpdated = (updatedExpense) => {
           <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input 
             v-model="branchSearchQuery"
+            data-tour="expense-search"
             type="text" 
             placeholder="Search expenses..." 
             class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -290,7 +292,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- Table Card -->
-    <div id="dap-expenses-table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div id="dap-expenses-table" data-tour="expense-table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <h3 class="text-sm font-bold text-gray-900">Branch Expenses</h3>
 
       <div class="overflow-x-auto">
