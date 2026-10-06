@@ -26,11 +26,23 @@ const errorMessage = ref('')
 
 const branchOptions = computed(() => ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi'])
 
+const defaultFromBranch = () => {
+  const userBr = user.value?.branchName
+  if (userBr && userBr.toLowerCase() !== 'all branches' && userBr.toLowerCase() !== 'all') {
+    return userBr
+  }
+  const active = store.getActiveBranch()
+  if (active && active.toLowerCase() !== 'all branches' && active.toLowerCase() !== 'all') {
+    return active
+  }
+  return 'Peshawar'
+}
+
 const form = ref({
   id: '',
-  fromBranch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
+  fromBranch: defaultFromBranch(),
   toBranch: '',
-  productId: '',
+  productId: store.products?.[0]?.id || '',
   units: '1',
   requestedDate: 'Today',
   carrier: '',
@@ -100,13 +112,23 @@ const submitTransfer = () => {
   errorMessage.value = ''
   showValidation.value = true
 
-  if (!form.value.fromBranch.trim() || !form.value.toBranch.trim() || !String(form.value.units).trim()) {
+  if (!form.value.fromBranch?.trim() || !form.value.toBranch?.trim() || !String(form.value.units).trim()) {
     errorMessage.value = 'Please fill in all required transfer fields.'
+    return
+  }
+
+  if (form.value.fromBranch === 'All Branches' || form.value.toBranch === 'All Branches') {
+    errorMessage.value = 'Origin and destination branches must be concrete operating branches, not All Branches.'
     return
   }
 
   if (form.value.fromBranch.trim().toLowerCase() === form.value.toBranch.trim().toLowerCase()) {
     errorMessage.value = 'Origin and destination branches must be different.'
+    return
+  }
+
+  if (!form.value.productId || !selectedProduct.value) {
+    errorMessage.value = 'Please select a valid catalogue product to transfer.'
     return
   }
 
@@ -125,10 +147,10 @@ const submitTransfer = () => {
     id: form.value.id || `TR-${Math.floor(225 + Math.random() * 100)}`,
     from: form.value.fromBranch,
     to: form.value.toBranch,
-    product_id: selectedProduct.value?.id || 'PROD-003',
-    product: selectedProduct.value?.name || 'BRG DS11',
-    sku: selectedProduct.value?.sku || 'SKU-DS11-BLU',
-    isSerialized: selectedProduct.value?.isSerialized !== false,
+    product_id: selectedProduct.value.id,
+    product: selectedProduct.value.name,
+    sku: selectedProduct.value.sku,
+    isSerialized: selectedProduct.value.isSerialized !== false,
     units: String(requestedCount),
     requestedBy: user.value?.name || (isBranchUser.value ? 'Branch Manager' : 'Super Admin'),
     dispatched: form.value.requestedDate || 'Today',

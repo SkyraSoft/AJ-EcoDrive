@@ -188,12 +188,23 @@ const saveLead = () => {
               
               <div class="space-y-4">
                 <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Branch</label>
-                  <select data-tour="branch" v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
-                    <option value="Peshawar">Peshawar</option>
-                    <option value="Islamabad">Islamabad</option>
-                    <option value="Lahore">Lahore</option>
-                  </select>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1">Branch *</label>
+                  <div v-if="isBranchUser">
+                    <input data-tour="branch" 
+                      :value="formData.branch" 
+                      type="text" 
+                      disabled
+                      readonly
+                      class="w-full px-3.5 py-2 text-[12px] bg-gray-50 border border-gray-200 rounded-lg text-gray-600 cursor-not-allowed"
+                    />
+                  </div>
+                  <div v-else>
+                    <select data-tour="branch" v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer">
+                      <option v-for="b in (store.branches || []).filter(b => b.name && b.name.toLowerCase() !== 'all branches')" :key="b.id || b.name" :value="b.name">
+                        {{ b.name }} Branch
+                      </option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -221,7 +232,12 @@ const saveLead = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Interested Product</label>
-                  <input v-model="formData.product" data-tour="lead-product" type="text" placeholder="e.g. BRG X7 / EV-5" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors" />
+                  <select v-model="formData.product" data-tour="lead-product" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer">
+                    <option value="">-- Select Interested Catalogue Product --</option>
+                    <option v-for="p in (store.products || [])" :key="p.id" :value="p.name">
+                      {{ p.name }} &bull; {{ p.sku }} &bull; {{ p.price }}
+                    </option>
+                  </select>
                 </div>
 
                 <div>

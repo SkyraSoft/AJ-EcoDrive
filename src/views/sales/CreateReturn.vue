@@ -23,12 +23,26 @@ const user = computed(() => store.currentUser)
 const showValidation = ref(false)
 const isEditMode = ref(false)
 
+const branchOptions = computed(() => ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi'])
+
+const defaultBranch = () => {
+  const userBr = user.value?.branchName
+  if (userBr && userBr.toLowerCase() !== 'all branches' && userBr.toLowerCase() !== 'all') {
+    return userBr
+  }
+  const active = store.getActiveBranch()
+  if (active && active.toLowerCase() !== 'all branches' && active.toLowerCase() !== 'all') {
+    return active
+  }
+  return 'Peshawar'
+}
+
 const formData = ref({
   returnNo: '',
   orderNo: '',
   customer: '',
   unit: '',
-  branch: user.value?.branchName || 'Peshawar',
+  branch: defaultBranch(),
   reason: 'Performance Issue',
   requested: 'Exchange',
   status: 'Inspection',
@@ -78,13 +92,20 @@ const createReturn = () => {
     return
   }
   
+  const canonicalBranchId = store.resolveCanonicalBranchId(formData.value.branch)
+  if (!canonicalBranchId || canonicalBranchId === 'ALL') {
+    showValidation.value = true
+    return
+  }
+
   const payload = {
     returnNo: formData.value.returnNo || `RET-${Math.floor(100 + Math.random() * 900)}`,
     order: formData.value.orderNo,
     orderNo: formData.value.orderNo,
     customer: formData.value.customer,
     unit: formData.value.unit,
-    branch: formData.value.branch || user.value?.branchName || 'Peshawar',
+    branch: formData.value.branch,
+    branch_id: canonicalBranchId,
     reason: formData.value.reason,
     requested: formData.value.requested || 'Exchange',
     status: formData.value.status || 'Inspection',
@@ -178,11 +199,15 @@ const createReturn = () => {
                 <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 mb-1">Receiving Branch</label>
-                    <select data-tour="branch" v-model="formData.branch" class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors">
-                      <option value="Peshawar">Peshawar</option>
-                      <option value="Islamabad">Islamabad</option>
-                      <option value="Lahore">Lahore</option>
+                    <select 
+                      data-tour="branch" 
+                      v-model="formData.branch" 
+                      :disabled="isBranchUser"
+                      class="w-full px-3.5 py-2 text-[12px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors disabled:opacity-75 disabled:cursor-not-allowed"
+                    >
+                      <option v-for="b in branchOptions" :key="b" :value="b">{{ b }}</option>
                     </select>
+                    <p v-if="isBranchUser" class="text-[10px] text-gray-400 mt-1">Locked to current branch session.</p>
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-gray-700 mb-1">Requested Action</label>

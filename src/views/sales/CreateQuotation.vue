@@ -28,6 +28,20 @@ const user = computed(() => store.currentUser)
 const isEditMode = ref(false)
 const showValidation = ref(false)
 
+const branchOptions = computed(() => ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi'])
+
+const defaultBranch = () => {
+  const userBr = user.value?.branchName
+  if (userBr && userBr.toLowerCase() !== 'all branches' && userBr.toLowerCase() !== 'all') {
+    return userBr
+  }
+  const active = store.getActiveBranch()
+  if (active && active.toLowerCase() !== 'all branches' && active.toLowerCase() !== 'all') {
+    return active
+  }
+  return 'Peshawar'
+}
+
 const form = ref({
   id: '',
   quote: '',
@@ -40,8 +54,16 @@ const form = ref({
   deliveryLeadTime: '',
   notes: '',
   status: 'Draft',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: defaultBranch()
 })
+
+const onProductChange = (item) => {
+  const prod = store.products.find(p => p.name === item.product)
+  if (prod) {
+    const price = typeof prod.price === 'number' ? prod.price : (parseInt(String(prod.price || 0).replace(/[^\d.]/g, '')) || 0)
+    item.sellingPrice = price
+  }
+}
 
 const customerSearch = ref('')
 const showCustomerDropdown = ref(false)
@@ -165,9 +187,21 @@ const saveAndSend = () => {
     return
   }
 
+  if (!form.value.branch || form.value.branch === 'All Branches' || form.value.branch === 'ALL') {
+    showValidation.value = true
+    return
+  }
+
   const subtotal = form.value.items.reduce((acc, curr) => acc + (Number(curr.sellingPrice) * Number(curr.quantity)), 0)
   const discount = Number(form.value.discount) || 0
   const netTotal = Math.max(0, subtotal - discount)
+
+  const firstProd = store.products.find(p => p.name === form.value.items[0]?.product) || store.getProductById(form.value.items[0]?.product)
+  const canonicalBranchId = store.resolveCanonicalBranchId(form.value.branch)
+  if (!canonicalBranchId || canonicalBranchId === 'ALL') {
+    showValidation.value = true
+    return
+  }
 
   const payload = {
     id: form.value.quote || `QT-${Math.floor(1885 + Math.random() * 100)}`,
@@ -176,8 +210,8 @@ const saveAndSend = () => {
     customer: form.value.customer,
     customer_id: selectedCustomer.value?.id || (store.customers.find(c => c.name === form.value.customer)?.id) || 'CUST-101',
     items: form.value.items,
-    product: form.value.items[0]?.product || 'BRG E-125',
-    product_id: store.getProductById(form.value.items[0]?.product)?.id || 'PROD-001',
+    product: firstProd?.name || form.value.items[0]?.product || 'Catalogue Product',
+    product_id: firstProd?.id || null,
     quantity: form.value.items.reduce((acc, curr) => acc + Number(curr.quantity), 0) + ' units',
     sellingPrice: `PKR ${subtotal.toLocaleString()}`,
     subtotal: `PKR ${subtotal.toLocaleString()}`,
@@ -195,8 +229,8 @@ const saveAndSend = () => {
     notes: form.value.notes,
     status: form.value.status || 'Sent',
     statusClass: form.value.status === 'Accepted' ? 'bg-[#dcfce7] text-[#165A31]' : 'bg-[#eff6ff] text-[#2563eb]',
-    branch: form.value.branch || user.value?.branchName || 'Peshawar',
-    branch_id: form.value.branch === 'Islamabad' ? 'BR-02' : form.value.branch === 'Lahore' ? 'BR-03' : form.value.branch === 'Rawalpindi' ? 'BR-04' : 'BR-01',
+    branch: form.value.branch,
+    branch_id: canonicalBranchId,
     date: 'Today'
   }
 
@@ -320,6 +354,19 @@ const saveAndSend = () => {
                 
                 <div class="space-y-4">
                   <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Issuing Branch *</label>
+                    <select 
+                      data-tour="quote-branch" 
+                      v-model="form.branch" 
+                      :disabled="isBranchUser"
+                      class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0 disabled:opacity-75 disabled:cursor-not-allowed"
+                    >
+                      <option v-for="b in branchOptions" :key="b" :value="b">{{ b }} Branch</option>
+                    </select>
+                    <p v-if="isBranchUser" class="text-[10px] text-gray-400 mt-1">Locked to current branch session.</p>
+                  </div>
+
+                  <div>
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Payment Terms</label>
                     <select v-model="form.paymentTerms" data-tour="quote-payment-terms" class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg text-xs focus:border-[#165A31] focus:ring-0">
                       <option>100% Advance / Bank Transfer</option>
@@ -370,14 +417,9 @@ const saveAndSend = () => {
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="sm:col-span-2">
                       <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Product Model *</label>
-                      <select data-tour="item-product" data-tour-id="bm.quote.form.product" v-model="item.product" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border rounded text-xs text-gray-800 dark:text-gray-100 focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200 dark:border-gray-700'">
+                      <select data-tour="item-product" data-tour-id="bm.quote.form.product" v-model="item.product" @change="onProductChange(item)" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border rounded text-xs text-gray-800 dark:text-gray-100 focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200 dark:border-gray-700'">
                         <option value="">Select a product...</option>
-                        <option>BRG E-125</option>
-                        <option>BRG X7</option>
-                        <option>BRG M3</option>
-                        <option>BRG DS11</option>
-                        <option>Standard Fast Charger 72V</option>
-                        <option>Safety Helmet (Certified)</option>
+                        <option v-for="prod in store.products" :key="prod.id" :value="prod.name">{{ prod.name }}</option>
                       </select>
                     </div>
                     

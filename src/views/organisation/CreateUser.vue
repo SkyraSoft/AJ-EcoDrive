@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { X, Check } from 'lucide-vue-next'
+import { store } from '@/store'
 
 const props = defineProps({
   isModal: {
@@ -48,8 +49,12 @@ const submitForm = () => {
   showValidation.value = true
   if (!validate()) return
 
+  const canonicalBranch = (store.branches || []).find(b => b.name?.toLowerCase() === form.value.branch?.trim().toLowerCase())
+  const branch_id = canonicalBranch ? (canonicalBranch.id || canonicalBranch.branch_id) : (form.value.branch === 'All Branches' ? 'ALL' : null)
+
   const newUser = {
     ...form.value,
+    branch_id,
     lastLogin: 'Never'
   }
 
@@ -138,11 +143,10 @@ const submitForm = () => {
                 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Assigned Branch *</label>
-                  <select v-model="form.branch" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
-                    <option value="Peshawar">Peshawar Branch</option>
-                    <option value="Islamabad">Islamabad Branch</option>
-                    <option value="Lahore">Lahore Branch</option>
-                    <option value="Rawalpindi">Rawalpindi Branch</option>
+                  <select v-model="form.branch" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+                    <option v-for="b in (store.branches || []).filter(b => b.name && b.name.toLowerCase() !== 'all branches')" :key="b.id || b.name" :value="b.name">
+                      {{ b.name }} Branch
+                    </option>
                     <option value="Unassigned">Unassigned</option>
                   </select>
                 </div>

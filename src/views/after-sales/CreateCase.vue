@@ -247,7 +247,7 @@ const submitForm = () => {
     customer_id: form.value.customer_id || 'CUST-101',
     unit_id: form.value.unit_id || form.value.serializedUnit,
     warranty_id: form.value.warranty_id || 'WAR-101',
-    branch_id: form.value.branch_id || 'BR-01',
+    branch_id: form.value.branch_id || store.resolveCanonicalBranchId(form.value.branch) || null,
     branch: form.value.branch,
     customer: form.value.customer,
     customerPhone: form.value.customerPhone,

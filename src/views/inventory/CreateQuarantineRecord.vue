@@ -93,6 +93,7 @@ const submitQuarantineRecord = () => {
     evidence: form.value.evidence,
     decision: form.value.decision,
     branch: form.value.branch || user.value?.branchName || 'Peshawar',
+    branch_id: store.resolveCanonicalBranchId(form.value.branch || user.value?.branchName || 'Peshawar'),
     date: 'Today'
   }
 
@@ -134,6 +135,29 @@ const submitQuarantineRecord = () => {
             <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
               <h3 class="text-sm font-bold text-gray-900 mb-2">Affected Unit Details</h3>
               
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch *</label>
+                <div v-if="isBranchUser">
+                  <input data-tour="quarantine-branch" 
+                    :value="form.branch" 
+                    type="text" 
+                    disabled 
+                    readonly 
+                    class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 cursor-not-allowed" 
+                  />
+                </div>
+                <div v-else>
+                  <select data-tour="quarantine-branch" 
+                    v-model="form.branch" 
+                    class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
+                  >
+                    <option v-for="b in (store.branches || []).filter(b => b.name && b.name.toLowerCase() !== 'all branches')" :key="b.id || b.name" :value="b.name">
+                      {{ b.name }} Branch
+                    </option>
+                  </select>
+                </div>
+              </div>
+
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Unit / Serial Number *</label>
                 <input data-tour="unit" 

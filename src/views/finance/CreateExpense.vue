@@ -46,7 +46,7 @@ const form = ref({
   description: '',
   receipt: '',
   notes: '',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: isBranchUser.value ? (user.value?.branchName || 'Peshawar') : ''
 })
 
 // Clean numeric amount parsing
@@ -120,6 +120,12 @@ const submitForm = () => {
     return
   }
 
+  const canonicalBranchId = store.resolveCanonicalBranchId(form.value.branch)
+  if (!canonicalBranchId || canonicalBranchId === 'ALL') {
+    showValidation.value = true
+    return
+  }
+
   const rawAmount = parsedAmount.value || 48500
 
   if (isEditMode.value) {
@@ -143,6 +149,7 @@ const submitForm = () => {
   const newExpense = {
     id: newId,
     branch: form.value.branch,
+    branch_id: canonicalBranchId,
     category: form.value.category,
     vendor: form.value.vendor,
     amount: form.value.amount,
@@ -192,9 +199,27 @@ const submitForm = () => {
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submit or update a showroom expense with receipt evidence and clear disbursement routing.</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80">
-                Branch: {{ form.branch }}
-              </span>
+              <div v-if="isBranchUser">
+                <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80">
+                  Branch: {{ form.branch }}
+                </span>
+              </div>
+              <div v-else class="flex items-center gap-2">
+                <label class="text-[11px] font-semibold text-gray-700 dark:text-gray-300">Operating Branch *</label>
+                <select 
+                  v-model="form.branch" 
+                  data-tour="expense-branch" 
+                  :class="[
+                    'px-3 py-1 text-xs border rounded-lg bg-white dark:bg-[#0f172a] text-gray-900 dark:text-white cursor-pointer focus:outline-none focus:border-[#165A31]',
+                    showValidation && (!form.branch || form.branch.toLowerCase() === 'all branches') ? 'border-red-500 bg-red-50/20' : 'border-gray-200 dark:border-gray-700'
+                  ]"
+                >
+                  <option value="" disabled>-- Select Concrete Branch * --</option>
+                  <option v-for="b in (store.branches || []).filter(b => b.name && b.name.toLowerCase() !== 'all branches')" :key="b.id || b.name" :value="b.name">
+                    {{ b.name }} Branch
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
 

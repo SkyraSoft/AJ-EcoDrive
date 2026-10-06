@@ -21,10 +21,10 @@ const activeProducts = computed(() => {
   return (store.products || []).filter(p => p.status === 'Active' || !p.status)
 })
 
-// Destination branch options
+// Destination branch options (strictly concrete branches, never All Branches)
 const branchOptions = computed(() => {
   if (store.branches && store.branches.length > 0) {
-    return store.branches.map(b => b.name || b.branchName || b.id)
+    return store.branches.filter(b => b.name && b.name.toLowerCase() !== 'all branches' && b.name.toLowerCase() !== 'all').map(b => b.name)
   }
   return ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
 })
@@ -38,9 +38,17 @@ const getVariantsForProduct = (productId) => {
 }
 
 // Form state
+const initialDest = () => {
+  const active = store.getActiveBranch()
+  if (active && active.toLowerCase() !== 'all branches' && active.toLowerCase() !== 'all') {
+    return active
+  }
+  return branchOptions.value[0] || 'Peshawar'
+}
+
 const form = ref({
   supplier: '',
-  destination: store.getActiveBranch() || 'Peshawar',
+  destination: initialDest(),
   expectedArrival: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
   items: [
     {
@@ -138,9 +146,21 @@ const validateForm = () => {
   const errors = []
   if (!form.value.supplier || !form.value.supplier.trim()) {
     errors.push('Supplier name is required.')
+  } else {
+    const rawSup = form.value.supplier.trim().toLowerCase()
+    const canonicalSup = (store.suppliers || []).find(s => 
+      s.name?.toLowerCase() === rawSup || 
+      s.id?.toLowerCase() === rawSup ||
+      s.supplier_id?.toLowerCase() === rawSup
+    )
+    if (!canonicalSup) {
+      errors.push(`Supplier "${form.value.supplier}" is not recognized. Please select a registered canonical supplier.`)
+    }
   }
-  if (!form.value.destination) {
-    errors.push('Destination branch is required.')
+
+  const destCanon = store.resolveCanonicalBranchId(form.value.destination)
+  if (!destCanon || destCanon === 'ALL') {
+    errors.push('Destination branch must be a concrete operating branch.')
   }
   if (!form.value.items || form.value.items.length === 0) {
     errors.push('Purchase order must contain at least one product line.')
@@ -244,11 +264,23 @@ const handleSave = (status = 'Pending Approval') => {
     docs = [{ name: `${poNumber}.pdf`, type: 'Purchase Order', uploaded: 'Today' }]
   }
 
+  const rawSup = form.value.supplier?.trim().toLowerCase()
+  const supObj = (store.suppliers || []).find(s => 
+    s.name?.toLowerCase() === rawSup || 
+    s.id?.toLowerCase() === rawSup ||
+    s.supplier_id?.toLowerCase() === rawSup
+  )
+  if (!supObj) {
+    formErrors.value = [`Supplier "${form.value.supplier}" is not recognized. Please select a registered canonical supplier.`]
+    return
+  }
+  const supplierId = supObj.id || supObj.supplier_id
+
   const newPo = store.addPurchaseOrder({
     po: poNumber,
     po_id: poNumber,
-    supplier_id: 'SUP-01',
-    supplier: form.value.supplier,
+    supplier_id: supplierId,
+    supplier: supObj.name,
     destination: form.value.destination,
     branch_id: store.resolveCanonicalBranchId(form.value.destination),
     branch: form.value.destination,
@@ -340,7 +372,16 @@ defineExpose({
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Supplier</label>
-                  <input data-tour="po-supplier" v-model="form.supplier" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                  <input data-tour="po-supplier" 
+                    list="canonical-po-suppliers"
+                    v-model="form.supplier" 
+                    type="text" 
+                    placeholder="e.g. PowerCell Co. or RoadMaster EV"
+                    class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" 
+                  />
+                  <datalist id="canonical-po-suppliers">
+                    <option v-for="sup in (store.suppliers || [])" :key="sup.id" :value="sup.name">{{ sup.id }} &bull; {{ sup.contact || '' }}</option>
+                  </datalist>
                 </div>
                 
                 <div>

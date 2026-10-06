@@ -37,21 +37,40 @@ const modalTitle = computed(() => {
 })
 const modalSubtitle = computed(() => {
   if (isOrderMode.value) {
-    return 'Record advance customer vehicle booking, custom allocation, commercial order, or deposit reservation.'
+    return 'Record advance customer vehicle booking, custom allocation, commercial order, or confirmed customer allocation.'
   }
   return 'Instant walk-in showroom floor vehicle sale against physical chassis VIN, customer profile, and instant payment receipt.'
 })
 
 const isEditMode = ref(false)
 const showValidation = ref(false)
+const validationError = ref('')
+
+// Canonical concrete branches (dynamically sourced, excluding 'All Branches')
+const concreteBranches = computed(() => {
+  return (store.branches || []).filter(b => b.name && b.name.toLowerCase() !== 'all branches' && b.name.toLowerCase() !== 'all' && b.status === 'Active')
+})
+
+const getInitialBranch = () => {
+  if (isBranchUser.value) {
+    return user.value?.branchName || store.getActiveBranch() || 'Peshawar'
+  }
+  const active = store.getActiveBranch()
+  if (active && active.toLowerCase() !== 'all branches' && active.toLowerCase() !== 'all') {
+    return active
+  }
+  return ''
+}
 
 const saleData = ref({
   orderNo: '',
-  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
+  branch: getInitialBranch(),
   customer: '',
   customer_id: '',
-  salesperson: user.value?.name || '',
+  salesperson: user.value?.name || 'Authorized Operator',
+  processedBy: user.value?.name || 'Authorized Operator',
   product: '',
+  product_id: '',
   selectedUnit: '',
   cataloguePrice: '',
   discount: '',
@@ -66,21 +85,84 @@ const saleData = ref({
   status: 'Ready'
 })
 
-const units = computed(() => {
-  const branch = (saleData.value.branch || store.getActiveBranch()).toLowerCase()
-  return store.serializedUnits.filter(u => {
-    const uBranch = (u.branch || '').toLowerCase()
-    if (branch && branch !== 'all branches' && uBranch && uBranch !== branch) {
-      return false
+const selectedBranchObj = computed(() => {
+  if (!saleData.value.branch || saleData.value.branch.toLowerCase() === 'all branches' || saleData.value.branch.toLowerCase() === 'all') return null
+  return store.branches?.find(b => b.name?.toLowerCase() === saleData.value.branch.toLowerCase()) || null
+})
+
+const onBranchChange = () => {
+  saleData.value.selectedUnit = ''
+}
+
+const onProductChange = () => {
+  const p = store.products?.find(prod => prod.name === saleData.value.product || prod.id === saleData.value.product)
+  if (p) {
+    saleData.value.product = p.name
+    saleData.value.product_id = p.id
+    if (p.price) {
+      saleData.value.cataloguePrice = p.price
     }
+  } else {
+    saleData.value.product_id = ''
+  }
+  // Clear selected unit if it does not belong to this product
+  if (saleData.value.selectedUnit) {
+    const curUnit = store.getUnitById(saleData.value.selectedUnit)
+    if (!curUnit || (curUnit.product !== saleData.value.product && curUnit.product_id !== saleData.value.product_id)) {
+      saleData.value.selectedUnit = ''
+    }
+  }
+}
+
+const units = computed(() => {
+  const branch = (saleData.value.branch || '').toLowerCase()
+  if (!branch || branch === 'all branches' || branch === 'all') {
+    return []
+  }
+
+  const prodName = (saleData.value.product || '').toLowerCase()
+  const prodId = (saleData.value.product_id || '').toLowerCase()
+
+  return store.serializedUnits.filter(u => {
+    // 1. Branch filter: must strictly match selected concrete branch
+    const uBranch = (u.branch || '').toLowerCase()
+    const uBranchId = (u.branch_id || '').toLowerCase()
+    const matchesBranch = uBranch === branch || (selectedBranchObj.value && uBranchId === selectedBranchObj.value.id.toLowerCase())
+    if (!matchesBranch) return false
+
+    // 2. Product filter: must match selected product (if product is selected)
+    if (prodName || prodId) {
+      const uProdName = (u.product || u.modelName || '').toLowerCase()
+      const uProdId = (u.product_id || '').toLowerCase()
+      const matchesProd = (prodName && uProdName === prodName) || (prodId && uProdId === prodId)
+      if (!matchesProd) return false
+    }
+
     return true
-  }).map(u => ({
-    ...u,
-    serial: u.serial || u.unit_id || u.id,
-    chassis: u.chassisNumber || u.chassis || '—',
-    statusColor: u.status === 'Available' ? 'bg-[#eefcf2] text-[#165A31]' : (u.statusClass || 'bg-gray-100 text-gray-700'),
-    landedCost: u.landedCost || '145.8K'
-  }))
+  }).map(u => {
+    const isAvailable = u.status === 'Available'
+    let unavailReason = ''
+    if (!isAvailable) {
+      unavailReason = u.status === 'QC Hold' ? 'Receiving / QC or QC Hold: not currently available for sale until the unit returns to an eligible Available state through the authorized workflow'
+        : u.status === 'Reserved' ? 'Reserved: This physical unit is already allocated to another confirmed order/customer transaction and is not available for a new sale.'
+        : u.status === 'Sold' ? 'Sold / customer-owned'
+        : u.status === 'Damaged' ? 'Damaged / In Quarantine'
+        : u.status === 'In Transit' ? 'In Transfer Transit'
+        : `Status: ${u.status}`
+    }
+
+    return {
+      ...u,
+      serial: u.serial || u.unit_id || u.id,
+      chassis: u.chassisNumber || u.chassis || '—',
+      isAvailable,
+      unavailReason,
+      statusColor: isAvailable 
+        ? 'bg-[#eefcf2] text-[#165A31] dark:bg-emerald-950/60 dark:text-emerald-300' 
+        : (u.statusClass || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'),
+      landedCost: u.landedCost || '145.8K'
+    }
+  })
 })
 
 const customerSearch = ref('')
@@ -172,11 +254,15 @@ watch(() => saleData.value.amountReceived, (newRecv) => {
 })
 
 const selectUnit = (unit) => {
+  if (!unit || !unit.isAvailable) return
   saleData.value.selectedUnit = unit.serial
-  if (unit.product) saleData.value.product = unit.product
-  const p = store.products.find(prod => prod.name === unit.product || prod.id === unit.product_id)
-  if (p && p.price) {
-    saleData.value.cataloguePrice = p.price
+  if (unit.product && (!saleData.value.product || saleData.value.product !== unit.product)) {
+    saleData.value.product = unit.product
+    saleData.value.product_id = unit.product_id || store.products.find(p => p.name === unit.product)?.id || ''
+    const p = store.products.find(prod => prod.name === unit.product || prod.id === unit.product_id)
+    if (p && p.price) {
+      saleData.value.cataloguePrice = p.price
+    }
   }
 }
 
@@ -215,8 +301,75 @@ const close = () => {
 }
 
 const createOrder = () => {
-  if (!saleData.value.branch || !saleData.value.customer || !saleData.value.selectedUnit || !saleData.value.product) {
+  validationError.value = ''
+
+  // 1. Validate Concrete Branch
+  if (!saleData.value.branch || saleData.value.branch.toLowerCase() === 'all branches' || saleData.value.branch.toLowerCase() === 'all') {
     showValidation.value = true
+    validationError.value = 'Please select a concrete showroom branch. "All Branches" is not permitted for transactions.'
+    return
+  }
+
+  const canonicalBranch = store.branches?.find(b => b.name?.toLowerCase() === saleData.value.branch?.toLowerCase())
+  if (!canonicalBranch) {
+    showValidation.value = true
+    validationError.value = `Selected branch "${saleData.value.branch}" does not exist in canonical branches.`
+    return
+  }
+
+  // 2. Validate Customer
+  if (!saleData.value.customer || !saleData.value.customer.trim()) {
+    showValidation.value = true
+    validationError.value = 'Customer selection is required.'
+    return
+  }
+
+  // 3. Validate Product
+  if (!saleData.value.product || !saleData.value.product.trim()) {
+    showValidation.value = true
+    validationError.value = 'Product selection is required.'
+    return
+  }
+
+  const canonicalProduct = store.products?.find(p => p.name?.toLowerCase() === saleData.value.product?.toLowerCase() || p.id?.toLowerCase() === saleData.value.product_id?.toLowerCase())
+  if (!canonicalProduct) {
+    showValidation.value = true
+    validationError.value = `Selected product "${saleData.value.product}" does not exist in master catalogue.`
+    return
+  }
+
+  // 4. Validate Unit Selection
+  if (!saleData.value.selectedUnit) {
+    showValidation.value = true
+    validationError.value = 'Please select an available physical vehicle unit from the showroom floor.'
+    return
+  }
+
+  // Revalidate selected unit status strictly against current store inventory
+  const unit = store.getUnitById(saleData.value.selectedUnit)
+  if (!unit) {
+    showValidation.value = true
+    validationError.value = `Selected unit ${saleData.value.selectedUnit} could not be found in active inventory.`
+    return
+  }
+
+  if (unit.status !== 'Available') {
+    showValidation.value = true
+    validationError.value = `Unit ${unit.serial || saleData.value.selectedUnit} cannot be sold because its status is "${unit.status}". Only Available units can be sold.`
+    return
+  }
+
+  const uBranch = (unit.branch || '').toLowerCase()
+  if (uBranch !== canonicalBranch.name.toLowerCase()) {
+    showValidation.value = true
+    validationError.value = `Unit ${unit.serial} belongs to branch "${unit.branch}", not selected branch "${canonicalBranch.name}".`
+    return
+  }
+
+  const uProduct = (unit.product || unit.modelName || '').toLowerCase()
+  if (uProduct && canonicalProduct.name.toLowerCase() !== uProduct) {
+    showValidation.value = true
+    validationError.value = `Unit ${unit.serial} is model "${unit.product}", which does not match selected product "${canonicalProduct.name}".`
     return
   }
 
@@ -231,13 +384,6 @@ const createOrder = () => {
     return
   }
 
-  // Prevent selling an already sold or delivered unit
-  const unit = store.getUnitById(saleData.value.selectedUnit)
-  if (unit && (unit.status === 'Sold' || unit.status === 'Delivered')) {
-    alert(`Unit ${unit.serial || saleData.value.selectedUnit} has already been sold and delivered. It cannot be sold again.`)
-    return
-  }
-
   const totalNum = parseFloat(String(saleData.value.finalPrice || '0').replace(/[^0-9.]/g, '')) || 230000
   const paidNum = parseFloat(String(saleData.value.amountReceived || '0').replace(/[^0-9.]/g, '')) || 0
   const balanceNum = Math.max(0, totalNum - paidNum)
@@ -248,14 +394,16 @@ const createOrder = () => {
     order: isEditMode.value ? (saleData.value.orderNo || 'ORD-2241') : newOrderNo,
     order_id: isEditMode.value ? (saleData.value.orderNo || 'ORD-2241') : newOrderNo,
     orderNo: isEditMode.value ? (saleData.value.orderNo || 'ORD-2241') : newOrderNo,
-    branch: saleData.value.branch,
-    branch_id: saleData.value.branch === 'Islamabad' ? 'BR-02' : saleData.value.branch === 'Lahore' ? 'BR-03' : saleData.value.branch === 'Rawalpindi' ? 'BR-04' : 'BR-01',
+    branch: canonicalBranch.name,
+    branch_id: canonicalBranch.id || canonicalBranch.branch_id,
     customer: saleData.value.customer,
     customer_id: selectedCustomer.value?.id || (store.customers.find(c => c.name === saleData.value.customer)?.id) || 'CUST-101',
-    product: saleData.value.product,
-    product_id: store.getProductById(saleData.value.product)?.id || 'PROD-001',
+    product: canonicalProduct.name,
+    product_id: canonicalProduct.id || canonicalProduct.product_id,
     unit: saleData.value.selectedUnit,
     unit_id: saleData.value.selectedUnit,
+    processedBy: user.value?.name || 'Authorized Operator',
+    operator: user.value?.name || 'Authorized Operator',
     total: saleData.value.finalPrice || `PKR ${totalNum.toLocaleString()}`,
     rawTotal: totalNum,
     paid: saleData.value.amountReceived || `PKR ${paidNum.toLocaleString()}`,
@@ -351,6 +499,12 @@ const createOrder = () => {
           <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">{{ modalSubtitle }}</p>
         </div>
 
+        <!-- Validation Error Banner -->
+        <div v-if="showValidation && validationError" class="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-300 text-xs rounded-xl flex items-center gap-2">
+          <span class="font-bold">Validation Error:</span>
+          <span>{{ validationError }}</span>
+        </div>
+
         <!-- 2-Column Grid Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           
@@ -366,17 +520,32 @@ const createOrder = () => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Showroom Branch *</label>
-                  <input data-tour="sale-branch" 
-                    v-model="saleData.branch" 
-                    type="text" 
-                    :disabled="isBranchUser"
-                    :class="[
-                      'w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors text-gray-900 dark:text-gray-100',
-                      showValidation && !saleData.branch ? 'border-red-500 bg-red-50/20' : 'border-gray-200 dark:border-gray-700',
-                      isBranchUser ? 'bg-gray-50 dark:bg-gray-900/60 text-gray-500 dark:text-gray-400 cursor-not-allowed' : ''
-                    ]" 
-                  />
-                  <p v-if="showValidation && !saleData.branch" class="text-[10px] text-red-500 mt-0.5">Branch is required</p>
+                  <div v-if="isBranchUser">
+                    <input data-tour="sale-branch" 
+                      :value="saleData.branch" 
+                      type="text" 
+                      disabled
+                      readonly
+                      class="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 cursor-not-allowed" 
+                    />
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Operating branch context locked to assigned branch.</p>
+                  </div>
+                  <div v-else>
+                    <select data-tour="sale-branch" 
+                      v-model="saleData.branch" 
+                      @change="onBranchChange"
+                      :class="[
+                        'w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors text-gray-900 dark:text-gray-100 cursor-pointer',
+                        showValidation && (!saleData.branch || saleData.branch.toLowerCase() === 'all branches') ? 'border-red-500 bg-red-50/20' : 'border-gray-200 dark:border-gray-700'
+                      ]" 
+                    >
+                      <option value="" disabled>-- Select Concrete Showroom Branch * --</option>
+                      <option v-for="b in concreteBranches" :key="b.id || b.name" :value="b.name">
+                        {{ b.name }} ({{ b.code }})
+                      </option>
+                    </select>
+                    <p v-if="showValidation && (!saleData.branch || saleData.branch.toLowerCase() === 'all branches')" class="text-[10px] text-red-500 mt-0.5">Please select a concrete showroom branch ("All Branches" not permitted)</p>
+                  </div>
                 </div>
                 
                 <div ref="customerDropdownRef" class="relative">
@@ -439,17 +608,29 @@ const createOrder = () => {
                 </div>
 
                 <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Sales Executive</label>
-                  <input data-tour="sale-salesperson" v-model="saleData.salesperson" type="text" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                  <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Processed By (Operator)</label>
+                  <input data-tour="sale-salesperson" 
+                    :value="user?.name || 'Authorized Operator'" 
+                    type="text" 
+                    readonly
+                    disabled
+                    class="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-lg cursor-not-allowed" 
+                  />
+                  <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Authenticated staff member processing this transaction.</p>
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Product Model *</label>
-                  <input data-tour="sale-product" 
+                  <select data-tour="sale-product" 
                     v-model="saleData.product" 
-                    type="text" 
-                    :class="['w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors text-gray-800 dark:text-gray-100', showValidation && !saleData.product ? 'border-red-500 bg-red-50/20' : 'border-gray-200 dark:border-gray-700']" 
-                  />
-                  <p v-if="showValidation && !saleData.product" class="text-[10px] text-red-500 mt-0.5">Product is required</p>
+                    @change="onProductChange"
+                    :class="['w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors text-gray-800 dark:text-gray-100 cursor-pointer', showValidation && !saleData.product ? 'border-red-500 bg-red-50/20' : 'border-gray-200 dark:border-gray-700']" 
+                  >
+                    <option value="" disabled>-- Select Master Catalogue Product * --</option>
+                    <option v-for="p in store.products" :key="p.id" :value="p.name">
+                      {{ p.name }} &bull; {{ p.sku }} &bull; {{ p.price }}
+                    </option>
+                  </select>
+                  <p v-if="showValidation && !saleData.product" class="text-[10px] text-red-500 mt-0.5">Product selection is required</p>
                 </div>
               </div>
             </div>
@@ -506,14 +687,32 @@ const createOrder = () => {
                     </tr>
                   </thead>
                   <tbody class="text-[11px]">
+                    <tr v-if="!saleData.branch || saleData.branch.toLowerCase() === 'all branches'">
+                      <td colspan="5" class="px-4 py-6 text-center text-gray-400 dark:text-gray-500 text-xs">
+                        Please select a concrete showroom branch above to view available physical units.
+                      </td>
+                    </tr>
+                    <tr v-else-if="units.length === 0">
+                      <td colspan="5" class="px-4 py-6 text-center text-gray-400 dark:text-gray-500 text-xs">
+                        No serialized units found at {{ saleData.branch }}{{ saleData.product ? ' for ' + saleData.product : '' }}.
+                      </td>
+                    </tr>
                     <tr 
                       v-for="unit in units" 
                       :key="unit.serial" 
-                      class="border-b border-gray-50 dark:border-gray-800/60 hover:bg-gray-50/50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors"
-                      :class="saleData.selectedUnit === unit.serial ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''"
-                      @click="selectUnit(unit)"
+                      :class="[
+                        'border-b border-gray-50 dark:border-gray-800/60 transition-colors',
+                        unit.isAvailable ? 'cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/40' : 'opacity-60 bg-gray-50/60 dark:bg-gray-900/40 cursor-not-allowed',
+                        saleData.selectedUnit === unit.serial ? 'bg-emerald-50/40 dark:bg-emerald-950/30' : ''
+                      ]"
+                      @click="unit.isAvailable && selectUnit(unit)"
                     >
-                      <td class="px-4 py-3 text-gray-900 dark:text-gray-100 font-semibold">{{ unit.serial }}</td>
+                      <td class="px-4 py-3 text-gray-900 dark:text-gray-100 font-semibold">
+                        {{ unit.serial }}
+                        <div v-if="!unit.isAvailable" class="text-[9px] text-amber-600 dark:text-amber-400 font-medium">
+                          &bull; {{ unit.unavailReason }}
+                        </div>
+                      </td>
                       <td class="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium font-mono text-[10px]">{{ unit.chassis }}</td>
                       <td class="px-4 py-3 text-center">
                         <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold', unit.statusColor]">
@@ -522,7 +721,17 @@ const createOrder = () => {
                       </td>
                       <td class="px-4 py-3 text-right text-gray-500 dark:text-gray-400 font-medium">{{ unit.landedCost }}</td>
                       <td class="px-4 py-3 text-center">
-                        <input data-tour="sale-selectedunit" type="radio" :value="unit.serial" v-model="saleData.selectedUnit" class="w-3.5 h-3.5 text-[#165A31] focus:ring-[#165A31] border-gray-300 dark:border-gray-600 cursor-pointer" @click.stop="selectUnit(unit)" />
+                        <input data-tour="sale-selectedunit" 
+                          type="radio" 
+                          :value="unit.serial" 
+                          v-model="saleData.selectedUnit" 
+                          :disabled="!unit.isAvailable"
+                          :class="[
+                            'w-3.5 h-3.5 text-[#165A31] focus:ring-[#165A31] border-gray-300 dark:border-gray-600',
+                            unit.isAvailable ? 'cursor-pointer' : 'cursor-not-allowed opacity-40'
+                          ]"
+                          @click.stop="unit.isAvailable && selectUnit(unit)" 
+                        />
                       </td>
                     </tr>
                   </tbody>
@@ -629,7 +838,7 @@ const createOrder = () => {
             <button @click="close" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer shadow-sm">
               Cancel
             </button>
-            <button @click="createOrder" class="bg-[#165A31] hover:bg-[#124a28] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-md flex items-center gap-2">
+            <button data-tour="confirmsale" @click="createOrder" class="bg-[#165A31] hover:bg-[#124a28] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-md flex items-center gap-2">
               <Check class="w-4 h-4" />
               {{ isEditMode ? 'Update Order' : 'Create Order & Reserve Unit' }}
             </button>

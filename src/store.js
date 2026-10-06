@@ -6027,7 +6027,7 @@ export const store = reactive({
         priority: poObj.priority || 'High',
         sourceEntity: 'purchaseOrders',
         sourceRecordId: id,
-        branch_id: poObj.branch_id || this.resolveCanonicalBranchId(poObj.destination || poObj.branch || 'BR-01'),
+        branch_id: poObj.branch_id || this.resolveCanonicalBranchId(poObj.destination || poObj.branch) || null,
         branch: poObj.destination || poObj.branch || 'Peshawar',
         recipientRole: 'Super Admin',
         recipientBranch_id: 'ALL',

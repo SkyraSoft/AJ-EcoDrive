@@ -145,7 +145,7 @@ describe('AJ EcoDrive — Wave 4 CreatePurchaseOrder Mount & Dynamic Lines Suite
     // 1. Set form fields via DOM inputs and reactive form state
     const supplierInput = wrapper.find('[data-tour="po-supplier"]')
     if (supplierInput.exists()) {
-      await supplierInput.setValue('Shenzhen EV Industrial Group')
+      await supplierInput.setValue('BRG Factory')
     }
     const destSelect = wrapper.find('[data-tour="po-destination"]')
     if (destSelect.exists()) {
@@ -158,7 +158,7 @@ describe('AJ EcoDrive — Wave 4 CreatePurchaseOrder Mount & Dynamic Lines Suite
 
     if (wrapper.vm.form) {
       if (wrapper.vm.form.value) {
-        wrapper.vm.form.value.supplier = 'Shenzhen EV Industrial Group'
+        wrapper.vm.form.value.supplier = 'BRG Factory'
         wrapper.vm.form.value.destination = 'Peshawar'
         wrapper.vm.form.value.expectedArrival = '2026-11-20'
         wrapper.vm.form.value.shipmentMethod = 'Air & Sea Freight'
@@ -196,7 +196,7 @@ describe('AJ EcoDrive — Wave 4 CreatePurchaseOrder Mount & Dynamic Lines Suite
           }
         ]
       } else {
-        wrapper.vm.form.supplier = 'Shenzhen EV Industrial Group'
+        wrapper.vm.form.supplier = 'BRG Factory'
         wrapper.vm.form.destination = 'Peshawar'
         wrapper.vm.form.expectedArrival = '2026-11-20'
         wrapper.vm.form.shipmentMethod = 'Air & Sea Freight'
@@ -252,7 +252,7 @@ describe('AJ EcoDrive — Wave 4 CreatePurchaseOrder Mount & Dynamic Lines Suite
     // 4. Retrieve created PO from store
     const createdPo = store.purchaseOrders[0]
     expect(createdPo).toBeDefined()
-    expect(createdPo.supplier).toBe('Shenzhen EV Industrial Group')
+    expect(createdPo.supplier).toBe('BRG Factory')
     expect(createdPo.destination).toBe('Peshawar')
     expect(createdPo.expectedArrival).toBe('2026-11-20')
     expect(createdPo.shipmentMethod).toBe('Air & Sea Freight')

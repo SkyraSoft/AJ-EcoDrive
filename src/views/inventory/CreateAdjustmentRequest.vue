@@ -23,6 +23,20 @@ const user = computed(() => store.currentUser)
 const isEditMode = ref(false)
 const showValidation = ref(false)
 
+const branchOptions = computed(() => ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi'])
+
+const defaultBranch = () => {
+  const userBr = user.value?.branchName
+  if (userBr && userBr.toLowerCase() !== 'all branches' && userBr.toLowerCase() !== 'all') {
+    return userBr
+  }
+  const active = store.getActiveBranch()
+  if (active && active.toLowerCase() !== 'all branches' && active.toLowerCase() !== 'all') {
+    return active
+  }
+  return 'Peshawar'
+}
+
 const form = ref({
   id: '',
   productUnit: '',
@@ -34,7 +48,7 @@ const form = ref({
   requestedBy: user.value?.name || 'Branch Manager',
   approval: 'Required before posting',
   status: 'Pending',
-  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
+  branch: defaultBranch()
 })
 
 const loadData = (data) => {
@@ -82,6 +96,12 @@ const submitForApproval = () => {
     return
   }
 
+  const canonicalBranchId = store.resolveCanonicalBranchId(form.value.branch)
+  if (!canonicalBranchId || canonicalBranchId === 'ALL') {
+    showValidation.value = true
+    return
+  }
+
   const payload = {
     id: form.value.id || `ADJ-${Math.floor(100 + Math.random() * 900)}`,
     adjNo: form.value.id || `ADJ-${Math.floor(100 + Math.random() * 900)}`,
@@ -94,9 +114,10 @@ const submitForApproval = () => {
     reason: form.value.reason,
     evidence: form.value.evidence,
     notes: form.value.notes,
-    requestedBy: form.value.requestedBy || `${user.value?.branchName || 'Peshawar'} Branch Manager`,
+    requestedBy: form.value.requestedBy || `${form.value.branch} Branch Manager`,
     status: form.value.status || 'Pending',
-    branch: form.value.branch || user.value?.branchName || 'Peshawar',
+    branch: form.value.branch,
+    branch_id: canonicalBranchId,
     date: 'Today'
   }
 
@@ -209,6 +230,19 @@ const submitForApproval = () => {
                   placeholder="Additional observations or stock keeper remarks..."
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors resize-none"
                 ></textarea>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch *</label>
+                <select 
+                  data-tour="adjustment-branch" 
+                  v-model="form.branch" 
+                  :disabled="isBranchUser"
+                  class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <option v-for="b in branchOptions" :key="b" :value="b">{{ b }} Branch</option>
+                </select>
+                <p v-if="isBranchUser" class="text-[10px] text-gray-400 mt-1">Locked to current branch session.</p>
               </div>
 
               <div>

@@ -140,7 +140,7 @@ const branchTabData = computed(() => {
           { label: 'Logged By', value: 'System Audit' },
           { label: 'Total Events', value: '4 Entries' },
           { label: 'Branch', value: `${branchName} Branch` },
-          { label: 'Integrity', value: 'Tamper-Proof Log' }
+          { label: 'Audit Trail', value: 'Chronological Audit Log' }
         ]
       }
     default:

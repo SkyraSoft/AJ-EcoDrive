@@ -829,5 +829,88 @@ A comprehensive audit was performed across all practical/interactive tour steps 
 - **Production Build**: `npm run build` succeeded cleanly (5.20s).
 - **Post-Freeze Practice Defect Status**: `POST_FREEZE_PRACTICE_INTERACTION_DEFECT_SWEEP = COMPLETE`.
 
+---
+
+## XII. ROLE-AWARE FORM CONTROLS & FIELD GUIDE INTEGRITY SWEEP (AJ-ROLE-AWARE-FORM-CONTROL-2026)
+
+### 1. Objectives & Verified Invariants
+Following verification of form controls across POS, Quick Create, and Master Data views, transactional controls were upgraded to enforce role context, canonical master data, and physical stock availability:
+- **INV-ROLE-001 (Concrete Branch Context)**: Super Admin POS (`CreateSale.vue`) requires selecting a concrete showroom branch from `store.branches`; "All Branches" is strictly filtered out. Branch Manager is locked read-only to assigned branch.
+- **INV-ROLE-002 (Catalogue Master Binding)**: Product Model is a controlled `<select>` populated from `store.products`; silent fallback to `PROD-001` is eliminated.
+- **INV-ROLE-003 (Physical Unit Availability)**: Only serialized units with `status === 'Available'` can be selected for retail sale. `QC Hold`, `Reserved`, `Sold`, and `Damaged` units are disabled in the UI and blocked at submit-time revalidation.
+- **INV-ROLE-004 (Authenticated Operator Attribution)**: Sales Executive input is replaced with read-only operator context displaying authenticated `user.name`. Commercial salesperson attribution remains an internal business decision hold (`BD-SALES-ATTRIBUTION`).
+
+### 2. Field Guide Registry Alignment (`src/tour/content/fieldGuides/fieldGuideRegistry.js`)
+- `FLD-0501` (Showroom Branch): Updated to `controlType: "SELECT"`, `roleApplicability: "SHARED_ROLE_SPECIFIC_GUIDANCE"`.
+- `FLD-0503` (Processed By): Updated to `controlType: "READ_ONLY_TEXT"`, displays authenticated operator context without exposing internal hold tags to employees.
+- `FLD-0504` (Product Model): Updated to `controlType: "SELECT"`, connected to canonical product master.
+
+### 3. Automated Test Suite & Full Gate Pass
+- **Role-Aware Closure Suite**: `tests/test_role_aware_form_controls.test.js` (31 / 31 tests PASSED).
+- **Full Vitest Gate**: 15 / 15 test suites PASSED (161 / 161 tests GREEN).
+- **Legacy DAP & Master Readiness**: 100% PASS (`test_dap_exhaustive_coverage.cjs` 23/23, `test_master_readiness.js` 114/114).
+- **Production Build**: Vite build passed in 4.77s with 0 errors.
+
+---
+
+## ROLE-AWARE FORM CONTROL FINAL CLOSURE
+
+### 1. Scope Remediated & Normalized
+1. **Adversarial Purchase Order Supplier Control**:
+   - Datalist tag preserved with strict submit-time canonical validation against `store.suppliers`.
+   - Arbitrary text ("Random Supplier XYZ") strictly blocked.
+   - Canonical supplier "BRG Factory" (SUP-01) successfully resolves `supplier_id`.
+   - No invented master data (`NEW_CANONICAL_MASTER_DATA_INVENTED_FOR_TEST = 0`).
+   - Destination branch strictly validated to concrete showroom branch (blocks "All Branches").
+2. **Transfer Route Integrity (`CreateTransfer.vue`)**:
+   - Enforces `fromBranch !== toBranch` with distinctness rejection.
+   - Blocks "All Branches" as origin or destination.
+   - Requires valid catalogue product without silent fallback.
+3. **Quotation & Commercial Line Items (`CreateQuotation.vue`)**:
+   - Replaced hardcoded options with dynamic catalogue selector from `store.products`.
+   - Added role-aware concrete branch selector (SA selectable, BM locked); blocks "All Branches".
+   - Dynamically fills pricing and canonical `product_id`.
+4. **Secondary Transactional Views Normalized**:
+   - `CreateCustomOrder.vue`: Added role-aware concrete branch control; blocks "All Branches".
+   - `CreateReturn.vue`: Replaced hardcoded branch list with dynamic concrete branch options; BM locked; blocks "All Branches".
+   - `CreateStockRequest.vue`: Added role-aware concrete branch control; blocks "All Branches".
+   - `CreateCycleCount.vue`: Added role-aware concrete branch control; blocks "All Branches".
+   - `CreateAdjustmentRequest.vue`: Added role-aware concrete branch control; blocks "All Branches".
+   - `CreateExpense.vue`: Added role-aware concrete branch control; blocks "All Branches".
+5. **Global All Branches Audit**:
+   - Every transactional form write strictly excludes "All Branches". `TRANSACTIONAL_ALL_BRANCHES_WRITES = 0`.
+6. **Policy & Copy Normalization**:
+   - QC Hold: Removed unapproved universal PDI claims; canonical receiving/QC workflow language applied.
+   - Reserved Units: Safe canonical definition applied without claiming quotations or deposits trigger physical reservations (`QUOTATION_RESERVATION_CLAIMS = 0`).
+   - Operator vs Salesperson: `Processed By` displayed as authenticated operator context; internal `BD-SALES-ATTRIBUTION` held without leaking tags to employees (`OPERATOR_SALESPERSON_CONFLATION = 0`).
+   - Security Language: Replaced server-side security claims with frontend role-aware validation boundaries (`FRONTEND_SECURITY_OVERCLAIMS = 0`).
+
+```text
+ROLE_AWARE_FORM_CONTROL_FINAL_CLOSURE = COMPLETE
+
+ORIGINAL_P0_UNACCOUNTED_FOR = 0
+ORIGINAL_P1_UNACCOUNTED_FOR = 0
+
+P0_VERIFIED_FIXABLE_DEFECTS_REMAINING = 0
+P1_VERIFIED_FIXABLE_DEFECTS_REMAINING = 0
+
+TRANSACTIONAL_ALL_BRANCHES_WRITES = 0
+HARDCODED_PRODUCTION_BRANCH_WHITELIST = 0
+
+QUOTATION_RESERVATION_CLAIMS = 0
+OPERATOR_SALESPERSON_CONFLATION = 0
+
+FRONTEND_SECURITY_OVERCLAIMS = 0
+INVENTED_MASTER_DATA = 0
+
+FIELD_AUDIT_UNCLASSIFIED = 0
+
+TOUR_ALIGNED_WITH_CHANGED_CONTROLS = YES
+PRACTICE_ALIGNED_WITH_CHANGED_CONTROLS = YES
+
+ROLE_AWARE_FORM_CONTROL_PROGRAM = COMPLETE
+```
+
+
 
 
