@@ -32,14 +32,14 @@ const form = ref({
   id: '',
   quote: '',
   customer: '',
-  items: [{ product: 'BRG E-125', quantity: 1, sellingPrice: 280000, warranty: '1-Year Standard Service' }],
-  discount: 5000,
+  items: [{ product: '', quantity: 1, sellingPrice: 0, warranty: '1-Year Standard Service' }],
+  discount: 0,
   validity: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   paymentTerms: '100% Advance / Bank Transfer',
   taxRegFees: 'Included in Quote',
-  deliveryLeadTime: 'Within 3 business days',
-  notes: 'Customer requested delivery within 3 days',
-  status: 'Open',
+  deliveryLeadTime: '',
+  notes: '',
+  status: 'Draft',
   branch: user.value?.branchName || 'Peshawar'
 })
 
@@ -261,7 +261,7 @@ const saveAndSend = () => {
                   <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input 
                     v-model="customerSearch"
-                    data-tour="quote-customer"
+                    data-tour="quote-customer" data-tour-id="bm.quote.form.customer"
                     @focus="showCustomerDropdown = true"
                     @blur="onCustomerBlur"
                     @keydown.escape="showCustomerDropdown = false"
@@ -370,7 +370,7 @@ const saveAndSend = () => {
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="sm:col-span-2">
                       <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Product Model *</label>
-                      <select data-tour="item-product" v-model="item.product" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border rounded text-xs text-gray-800 dark:text-gray-100 focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200 dark:border-gray-700'">
+                      <select data-tour="item-product" data-tour-id="bm.quote.form.product" v-model="item.product" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border rounded text-xs text-gray-800 dark:text-gray-100 focus:border-[#165A31] focus:ring-0" :class="showValidation && !item.product ? 'border-red-300' : 'border-gray-200 dark:border-gray-700'">
                         <option value="">Select a product...</option>
                         <option>BRG E-125</option>
                         <option>BRG X7</option>

@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { Search, ChevronDown, Eye, Pencil, MoreHorizontal, Check, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
-import CreateBranch from './CreateBranch.vue'
 import EditBranch from './EditBranch.vue'
 
 const router = useRouter()
@@ -15,7 +14,6 @@ const selectedCity = ref('All Cities')
 const selectedManager = ref('All Managers')
 const openDropdown = ref(null)
 
-const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const selectedBranchToEdit = ref(null)
 
@@ -33,7 +31,7 @@ const kpis = computed(() => {
     { label: 'Total Branches', value: String(total) },
     { label: 'Active', value: String(activeCount) },
     { label: 'Inactive', value: String(inactiveCount) },
-    { label: 'This Month Sales', value: 'PKR 28.4M' }
+    { label: 'Total Sales', value: store.formatCurrency(store.calculateFinancialMetrics({ branch_id: 'ALL' }).netSales) }
   ]
 })
 
@@ -74,11 +72,6 @@ const filteredBranches = computed(() => {
   })
 })
 
-const handleBranchCreated = (newBranch) => {
-  store.addBranch(newBranch)
-  showCreateModal.value = false
-}
-
 const editBranch = (branch) => {
   selectedBranchToEdit.value = branch
   store.originalEditBranch = branch
@@ -117,7 +110,8 @@ const executeArchive = () => {
         <p class="text-sm text-gray-500 mt-1">Manage physical locations, their managers and branch-specific performance.</p>
       </div>
       <button 
-        @click="showCreateModal = true" 
+        data-tour-id="sa.organisation.branches.create-btn"
+        @click="router.push('/organisation/branches/create')" 
         class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
         <Plus class="w-4 h-4" /> <span>Add Branch</span>
@@ -225,7 +219,7 @@ const executeArchive = () => {
         </div>
         
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table data-tour-id="sa.organisation.branches.table" class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <th class="px-5 py-3">Branch</th>
@@ -306,14 +300,6 @@ const executeArchive = () => {
         </div>
       </div>
     </div>
-
-    <!-- Create Branch Modal -->
-    <CreateBranch 
-      v-if="showCreateModal" 
-      :is-modal="true" 
-      @close="showCreateModal = false" 
-      @created="handleBranchCreated" 
-    />
 
     <!-- Edit Branch Modal (Preloaded) -->
     <EditBranch 

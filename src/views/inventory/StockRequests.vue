@@ -395,7 +395,7 @@ const filteredRequests = computed(() => {
       </div>
       
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table data-tour-id="sa.inventory.requests.table" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
               <th class="px-5 py-3">Request</th>

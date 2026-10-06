@@ -3,38 +3,16 @@ import { ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck, FileText, Package,
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
 
-const receiptId = computed(() => route.params.id || route.query.id || 'GR-991')
+const receiptId = computed(() => route.params.id || route.query.id || '')
 
 const receipt = computed(() => {
-  return store.getReceiptById(receiptId.value) || store.receipts[0] || {
-    id: 'GR-991',
-    receipt_id: 'GR-991',
-    po_id: 'PO-2048',
-    po: 'PO-2048',
-    supplier: 'BRG Factory',
-    branch: 'Peshawar',
-    receipt_date: '2026-08-29',
-    received_by: 'Ahsan Khan',
-    status: 'Posted',
-    notes: 'Consignment received at bay 1 and verified.',
-    lines: [
-      { product: 'BRG DS11', ordered_quantity: 8, previously_received_quantity: 0, current_received_quantity: 8, short_quantity: 0, excess_quantity: 0, damaged_quantity: 0, accepted_quantity: 8, status: 'Complete' },
-      { product: 'BRG EV-5', ordered_quantity: 5, previously_received_quantity: 0, current_received_quantity: 5, short_quantity: 0, excess_quantity: 0, damaged_quantity: 0, accepted_quantity: 5, status: 'Complete' },
-      { product: 'Cargo Pro', ordered_quantity: 3, previously_received_quantity: 0, current_received_quantity: 3, short_quantity: 0, excess_quantity: 0, damaged_quantity: 0, accepted_quantity: 3, status: 'Complete' }
-    ],
-    serializedUnits: [
-      { product: 'BRG DS11', serial: 'DS11-01001', chassis: 'CH-90111', condition: 'Good', qc: 'Pass', status: 'Available' },
-      { product: 'BRG EV-5', serial: 'EVS-00441', chassis: 'CH-81104', condition: 'Good', qc: 'Pass', status: 'Available' }
-    ],
-    qcRecords: [
-      { serial: 'CH-90111', check: 'Visual + Functional EV Diagnostic', finding: 'Pass (100%)', decision: 'Pass', inspector: 'Ahsan Khan' },
-      { serial: 'CH-81104', check: 'Visual + Functional EV Diagnostic', finding: 'Pass (100%)', decision: 'Pass', inspector: 'Ahsan Khan' }
-    ]
-  }
+  if (!receiptId.value) return null
+  return store.getReceiptById(receiptId.value) || null
 })
 
 const activeTab = ref('Summary')
@@ -87,7 +65,14 @@ const openPo = () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!receipt"
+    title="Goods Receipt Not Found"
+    message="The requested goods receipt could not be found or is not accessible from your current branch context."
+    back-link="/procurement/purchase-orders"
+    back-text="Back to Purchase Orders"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

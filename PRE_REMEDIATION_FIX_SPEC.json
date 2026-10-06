@@ -1,0 +1,672 @@
+[
+  {
+    "fixId": "FIX-SEC-001",
+    "defectGroupIds": [
+      "DG-SEC-001"
+    ],
+    "defectInstanceIds": [
+      "DI-001",
+      "DI-002",
+      "DI-003",
+      "DI-004",
+      "DI-005",
+      "DI-006",
+      "DI-007",
+      "DI-008",
+      "DI-009",
+      "DI-010",
+      "DI-011",
+      "DI-012",
+      "DI-013",
+      "DI-014",
+      "DI-015",
+      "DI-016",
+      "DI-017",
+      "DI-018",
+      "DI-019",
+      "DI-020",
+      "DI-021"
+    ],
+    "title": "Centralized Branch Scoping & Authorization for Store Getters, Mutations, and Router Navigation",
+    "wave": "WAVE 1",
+    "currentBehavior": "Branch isolation is enforced solely at the view list level. Direct getter calls (e.g. getCustomerById, getSaleById) and store mutations do not verify branch ownership. A Branch Manager can view or modify records belonging to other branches by navigating to direct URLs or invoking store actions.",
+    "expectedBehavior": "Implement centralized access control in store.js (canAccessRecord, assertRecordAccess, getScopedRecordById). Super Admin has global access; Branch Managers and staff are strictly restricted to records matching currentUser.branchId. Unauthorized access attempts trigger an audit event and return null or reject the mutation.",
+    "approvedRequirementSource": "AJ EcoDrive Security & Branch Isolation Policy; branch_authorization_contract.json",
+    "filesLikelyAffected": [
+      "src/store.js",
+      "src/router/index.js",
+      "src/views/CustomerDetail.vue",
+      "src/views/SaleDetail.vue",
+      "src/views/InventoryDetail.vue"
+    ],
+    "schemaChanges": "None to persistent storage; adds branchId enforcement to all 21 branch-scoped entity getters and mutations.",
+    "backwardCompatibility": "Super Admin retains unrestricted global access across all branches. System-wide entities (Users, Roles, Global Settings) remain accessible as defined by role permissions.",
+    "risks": "Potential UI regressions if views fail to handle null return values gracefully when a user attempts to access an unauthorized record.",
+    "testsBefore": [
+      "tests/unit/branch_isolation_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/branch_authorization_centralized.spec.js"
+    ],
+    "rollbackConsideration": "Revert store.js getter/mutation wrappers to original unscoped array find operations.",
+    "authority": "ARCHITECTURAL"
+  },
+  {
+    "fixId": "FIX-RECORD-001",
+    "defectGroupIds": [
+      "DG-RECORD-001",
+      "DG-RECORD-002",
+      "DG-RECORD-003"
+    ],
+    "defectInstanceIds": [
+      "DI-241",
+      "DI-242",
+      "DI-243",
+      "DI-244",
+      "DI-245",
+      "DI-246",
+      "DI-247",
+      "DI-248",
+      "DI-249",
+      "DI-250",
+      "DI-251",
+      "DI-252"
+    ],
+    "title": "Eliminate Fallback to First Record (array[0]) and Fabricated Record Display on Invalid Route ID",
+    "wave": "WAVE 1",
+    "currentBehavior": "When an invalid, non-existent, or cross-branch ID is passed in the route params, detail views (PaymentDetail, DeliveryDetail, SupplierDetail, BranchDetail, UserDetail) silently fall back to records[0] or render hardcoded demo fixtures, leaking real personal/financial data or displaying false information.",
+    "expectedBehavior": "Detail views must verify that the record exists and is authorized. If the record is not found or access is denied, render an explicit \"Record Not Found / Access Denied\" 404 state with a return button. Zero fallback to records[0] or synthetic demo records.",
+    "approvedRequirementSource": "Zero-Trust Forensic Data Privacy Contract; DG-RECORD Root-Cause Remediation Spec",
+    "filesLikelyAffected": [
+      "src/views/PaymentDetail.vue",
+      "src/views/DeliveryDetail.vue",
+      "src/views/SupplierDetail.vue",
+      "src/views/BranchDetail.vue",
+      "src/views/UserDetail.vue",
+      "src/components/common/NotFoundState.vue"
+    ],
+    "schemaChanges": "None.",
+    "backwardCompatibility": "Valid IDs continue to resolve and display correct domain data. Invalid URLs stop exposing unrelated customer/financial records.",
+    "risks": "Existing tests expecting automatic default data rendering on empty routes will fail and must be updated to expect the 404 state.",
+    "testsBefore": [
+      "tests/unit/detail_view_fallback_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/detail_view_not_found_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Restore original route parameter fallback defaults in the target detail components.",
+    "authority": "DETERMINISTIC"
+  },
+  {
+    "fixId": "FIX-DATA-001",
+    "defectGroupIds": [
+      "DG-DATA-001",
+      "DG-DATA-003"
+    ],
+    "defectInstanceIds": [
+      "DI-022",
+      "DI-023",
+      "DI-024",
+      "DI-025",
+      "DI-026",
+      "DI-030",
+      "DI-031",
+      "DI-032",
+      "DI-033",
+      "DI-034",
+      "DI-035",
+      "DI-036",
+      "DI-037",
+      "DI-038",
+      "DI-039",
+      "DI-040",
+      "DI-041",
+      "DI-042",
+      "DI-043",
+      "DI-044",
+      "DI-045",
+      "DI-046",
+      "DI-047",
+      "DI-048",
+      "DI-049",
+      "DI-050",
+      "DI-051",
+      "DI-052",
+      "DI-053",
+      "DI-054",
+      "DI-055",
+      "DI-056",
+      "DI-057",
+      "DI-058",
+      "DI-059",
+      "DI-060",
+      "DI-061",
+      "DI-062",
+      "DI-063",
+      "DI-064",
+      "DI-065",
+      "DI-066"
+    ],
+    "title": "Fix Silent Form Field Discarding on Submit and Broken Edit Round-Trip Lifecycle",
+    "wave": "WAVE 2",
+    "currentBehavior": "Form fields captured in UI inputs (e.g. ReceiveTransfer receiverLocation, CreateSupplier taxNumber/notes, CreateCustomer secondaryPhone/cnic, CreateSale paymentNotes) are dropped before payload dispatch or ignored during store mutation. Edit forms fail to preload existing properties.",
+    "expectedBehavior": "Ensure complete causal transmission: Input Model -> Form Payload -> Store Mutation -> Entity State -> Edit Preload -> Update -> Redisplay. Every persistent entity field must be stored and preserved.",
+    "approvedRequirementSource": "field_lifecycle.json causal audit; fieldOwnershipDecisions.json",
+    "filesLikelyAffected": [
+      "src/views/ReceiveTransfer.vue",
+      "src/views/CreateSupplier.vue",
+      "src/views/EditSupplier.vue",
+      "src/views/CreateCustomer.vue",
+      "src/views/EditCustomer.vue",
+      "src/views/CreateSale.vue",
+      "src/store.js"
+    ],
+    "schemaChanges": "Align entity state schemas in store.js to store all captured business fields (taxNumber, secondaryPhone, cnic, paymentNotes, receiverLocation, etc.).",
+    "backwardCompatibility": "Existing stored records without these fields will default to empty strings/nulls gracefully without crashing.",
+    "risks": "Minor validation adjustments if previously ignored fields now enforce data formats.",
+    "testsBefore": [
+      "tests/unit/field_lifecycle_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/field_lifecycle_causal_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Revert store mutation payload mappings to previous subsets.",
+    "authority": "DETERMINISTIC"
+  },
+  {
+    "fixId": "FIX-DATA-002",
+    "defectGroupIds": [
+      "DG-DATA-002"
+    ],
+    "defectInstanceIds": [
+      "DI-027",
+      "DI-028",
+      "DI-029"
+    ],
+    "title": "Decouple Procurement and Inbound Receiving from Hardwired 3-Model Product Line",
+    "wave": "WAVE 4",
+    "currentBehavior": "Procurement creation forms and PO line items are hardwired to only 3 static vehicle models (EcoStandard, EcoDeluxe, EcoCargo), making it impossible to procure newly configured catalog models, parts, or accessories.",
+    "expectedBehavior": "Procurement forms dynamically source available products from store.catalog / store.products with category and supplier filtering. Line items support any active product.",
+    "approvedRequirementSource": "AJ EcoDrive Dynamic Product Catalogue Contract; DG-DATA-002 Forensic Finding",
+    "filesLikelyAffected": [
+      "src/views/CreatePurchaseOrder.vue",
+      "src/views/ReceivePurchaseOrder.vue",
+      "src/store.js"
+    ],
+    "schemaChanges": "Ensure PO line items reference productId, productCode, and title dynamically from catalog state.",
+    "backwardCompatibility": "Existing PO records with standard model names remain valid and render seamlessly.",
+    "risks": "If catalog has zero items loaded, PO form must display a friendly empty-catalogue warning.",
+    "testsBefore": [
+      "tests/unit/procurement_products_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/procurement_dynamic_catalog.spec.js"
+    ],
+    "rollbackConsideration": "Restore static product options dropdown in CreatePurchaseOrder.vue.",
+    "authority": "ARCHITECTURAL"
+  },
+  {
+    "fixId": "FIX-WORKFLOW-001",
+    "defectGroupIds": [
+      "DG-WORKFLOW-001",
+      "DG-WORKFLOW-002"
+    ],
+    "defectInstanceIds": [
+      "DI-067",
+      "DI-068",
+      "DI-069",
+      "DI-070",
+      "DI-071",
+      "DI-072",
+      "DI-073",
+      "DI-074",
+      "DI-075"
+    ],
+    "title": "Establish Live Action Centre Producers, Resolvers, and Downstream Domain Mutations",
+    "wave": "WAVE 3",
+    "currentBehavior": "Action Centre items are seeded with static mock fixtures. Live operational events (sale discount >8%, expense approval >15k, credit limit override, warranty claim, transfer approval) do not create queue items. Resolving items in Action Centre does not mutate source domain records.",
+    "expectedBehavior": "Implement live event emission in source workflows using action_centre_business_contract.json. When Action Centre approve/reject is triggered, execute transactional mutations on the source entity (Sale, Expense, Customer, Warranty, Transfer) and log audit events.",
+    "approvedRequirementSource": "action_centre_business_contract.json; AJ EcoDrive Cross-Role Operational Governance Policy",
+    "filesLikelyAffected": [
+      "src/store.js",
+      "src/views/ActionCenter.vue",
+      "src/views/CreateSale.vue",
+      "src/views/CreateExpense.vue",
+      "src/views/InventoryTransfers.vue"
+    ],
+    "schemaChanges": "Add sourceEntity, sourceEntityId, requestPayload, and auditLog tracking to Action Centre queue items.",
+    "backwardCompatibility": "Mock initial seed records replaced with realistic initial items or empty state if clean queue.",
+    "risks": "Asynchronous approval flow requires sales/expenses to remain in Pending state until resolved.",
+    "testsBefore": [
+      "tests/unit/action_centre_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/action_centre_end_to_end_chains.spec.js"
+    ],
+    "rollbackConsideration": "Decouple Action Centre resolution handler from source store mutations.",
+    "authority": "ARCHITECTURAL"
+  },
+  {
+    "fixId": "FIX-OPERATIONAL-001",
+    "defectGroupIds": [
+      "DG-OPERATIONAL-001"
+    ],
+    "defectInstanceIds": [
+      "DI-076",
+      "DI-077",
+      "DI-078",
+      "DI-079",
+      "DI-080",
+      "DI-081",
+      "DI-082",
+      "DI-083",
+      "DI-084",
+      "DI-085",
+      "DI-086",
+      "DI-087",
+      "DI-088",
+      "DI-089",
+      "DI-090",
+      "DI-091",
+      "DI-092",
+      "DI-093",
+      "DI-094",
+      "DI-095",
+      "DI-096",
+      "DI-097",
+      "DI-098",
+      "DI-099",
+      "DI-100",
+      "DI-101",
+      "DI-102",
+      "DI-103",
+      "DI-104",
+      "DI-105",
+      "DI-106",
+      "DI-107",
+      "DI-108",
+      "DI-109",
+      "DI-110",
+      "DI-111",
+      "DI-112",
+      "DI-113",
+      "DI-114",
+      "DI-115"
+    ],
+    "title": "Replace Hardcoded Dashboard Metrics and Counters with Real Dynamic Store Aggregations",
+    "wave": "WAVE 5",
+    "currentBehavior": "Executive, Branch Manager, and Service dashboards render static hardcoded numbers (e.g. fixed 42 deliveries, 1,240,000 PKR revenue, 98% efficiency) regardless of actual store data.",
+    "expectedBehavior": "Derive all dashboard KPI cards, summary charts, and counters dynamically from scoped store entities (sales, deliveries, inventory, expenses, service jobs) using reactive computed getters.",
+    "approvedRequirementSource": "AJ EcoDrive Executive KPI Reporting Contract; DG-OPERATIONAL-001 Forensic Finding",
+    "filesLikelyAffected": [
+      "src/views/Dashboard.vue",
+      "src/views/ServiceDashboard.vue",
+      "src/views/InventoryDashboard.vue",
+      "src/store.js"
+    ],
+    "schemaChanges": "Add reusable getter aggregations to store.js (e.g. getBranchRevenue, getActiveDeliveriesCount).",
+    "backwardCompatibility": "Zero visual regression; metrics reflect actual operational state rather than unmoving constants.",
+    "risks": "If store has empty datasets, KPIs will display 0 or empty state instead of impressive mock metrics.",
+    "testsBefore": [
+      "tests/unit/dashboard_metrics_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/dashboard_metrics_dynamic_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Restore static metric constants in dashboard view templates.",
+    "authority": "DETERMINISTIC"
+  },
+  {
+    "fixId": "FIX-OPERATIONAL-002",
+    "defectGroupIds": [
+      "DG-OPERATIONAL-002"
+    ],
+    "defectInstanceIds": [
+      "DI-116",
+      "DI-117",
+      "DI-118",
+      "DI-119",
+      "DI-120",
+      "DI-121",
+      "DI-122",
+      "DI-123",
+      "DI-124",
+      "DI-125",
+      "DI-126",
+      "DI-127",
+      "DI-128",
+      "DI-129",
+      "DI-130",
+      "DI-131",
+      "DI-132",
+      "DI-133",
+      "DI-134",
+      "DI-135",
+      "DI-136",
+      "DI-137",
+      "DI-138",
+      "DI-139",
+      "DI-140",
+      "DI-141",
+      "DI-142",
+      "DI-143",
+      "DI-144",
+      "DI-145",
+      "DI-146",
+      "DI-147",
+      "DI-148",
+      "DI-149",
+      "DI-150",
+      "DI-151",
+      "DI-152",
+      "DI-153",
+      "DI-154",
+      "DI-155",
+      "DI-156",
+      "DI-157",
+      "DI-158",
+      "DI-159",
+      "DI-160",
+      "DI-161",
+      "DI-162",
+      "DI-163",
+      "DI-164",
+      "DI-165",
+      "DI-166",
+      "DI-167",
+      "DI-168",
+      "DI-169",
+      "DI-170",
+      "DI-171",
+      "DI-172",
+      "DI-173",
+      "DI-174",
+      "DI-175",
+      "DI-176",
+      "DI-177",
+      "DI-178",
+      "DI-179",
+      "DI-180",
+      "DI-181",
+      "DI-182",
+      "DI-183",
+      "DI-184",
+      "DI-185",
+      "DI-186",
+      "DI-187",
+      "DI-188",
+      "DI-189",
+      "DI-190",
+      "DI-191",
+      "DI-192",
+      "DI-193",
+      "DI-194",
+      "DI-195",
+      "DI-196",
+      "DI-197",
+      "DI-198",
+      "DI-199",
+      "DI-200",
+      "DI-201",
+      "DI-202",
+      "DI-203",
+      "DI-204",
+      "DI-205",
+      "DI-206",
+      "DI-207",
+      "DI-208",
+      "DI-209",
+      "DI-210",
+      "DI-211",
+      "DI-212",
+      "DI-213",
+      "DI-214",
+      "DI-215",
+      "DI-216",
+      "DI-217",
+      "DI-218",
+      "DI-219",
+      "DI-220",
+      "DI-221",
+      "DI-222",
+      "DI-223",
+      "DI-224",
+      "DI-225",
+      "DI-226",
+      "DI-227",
+      "DI-228",
+      "DI-229",
+      "DI-230",
+      "DI-231",
+      "DI-232",
+      "DI-233",
+      "DI-234",
+      "DI-235",
+      "DI-236",
+      "DI-237",
+      "DI-238",
+      "DI-239",
+      "DI-240"
+    ],
+    "title": "Purge 125 Dangerous Prefills and 62 Demo Data Fixtures from Production Creation Forms",
+    "wave": "WAVE 5",
+    "currentBehavior": "Creation forms (CreateSale, CreateCustomer, CreateSupplier, CreateExpense, CreateJobCard, etc.) initialize with pre-filled names, CNICs, phone numbers, fixed future dates, and preset financial amounts. Users submitting without editing inadvertently create duplicate garbage records.",
+    "expectedBehavior": "All operational creation forms must initialize with empty input fields or valid business defaults (e.g. today's date, logged-in user's branch, default unit 1). Placeholders provide guidance without submitting fake data.",
+    "approvedRequirementSource": "form_defaults.json audit; AJ EcoDrive Data Governance Directive",
+    "filesLikelyAffected": [
+      "src/views/CreateSale.vue",
+      "src/views/CreateCustomer.vue",
+      "src/views/CreateSupplier.vue",
+      "src/views/CreateExpense.vue",
+      "src/views/CreateRepairJob.vue",
+      "src/views/CreatePurchaseOrder.vue"
+    ],
+    "schemaChanges": "None.",
+    "backwardCompatibility": "All form submission handlers and field validators function identically; users enter genuine data.",
+    "risks": "Forms with required field validation will now require manual user entry before submit is enabled.",
+    "testsBefore": [
+      "tests/unit/form_prefill_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/form_clean_initialization_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Re-insert default mock strings into reactive ref initializers.",
+    "authority": "DETERMINISTIC"
+  },
+  {
+    "fixId": "FIX-STATE-001",
+    "defectGroupIds": [
+      "DG-STATE-001"
+    ],
+    "defectInstanceIds": [
+      "DI-253",
+      "DI-254",
+      "DI-255",
+      "DI-256",
+      "DI-257",
+      "DI-258",
+      "DI-259",
+      "DI-260",
+      "DI-261",
+      "DI-262",
+      "DI-263",
+      "DI-264",
+      "DI-265",
+      "DI-266",
+      "DI-267",
+      "DI-268",
+      "DI-269"
+    ],
+    "title": "Implement Valid State Transitions and Eliminate Unreachable State Badges",
+    "wave": "WAVE 4",
+    "currentBehavior": "Various domain entities (Sale, Delivery, Warranty, JobCard) display badge colors for states that cannot be reached through UI actions, or trap records in dead-end states. Meanwhile, filter dropdowns list states not supported by business workflows.",
+    "expectedBehavior": "Apply decisions from state_remediation_decisions.json: remove invalid UI filter options (e.g. Invoice.Draft, Expense.Draft), preserve intentional terminal states (Delivered, Paid, Rejected, Cancelled), and implement verified business transitions (e.g. PDI.Scheduled -> In_Progress -> Passed).",
+    "approvedRequirementSource": "state_remediation_decisions.json (21 verified state decisions)",
+    "filesLikelyAffected": [
+      "src/store.js",
+      "src/views/Deliveries.vue",
+      "src/views/Invoices.vue",
+      "src/views/Expenses.vue",
+      "src/views/PDIInspection.vue",
+      "src/views/JobCardDetail.vue"
+    ],
+    "schemaChanges": "Ensure state machine enum in store.js contains only valid business states and allowed transitions.",
+    "backwardCompatibility": "Existing records in terminal states remain undisturbed. Unreachable fake badges removed from UI.",
+    "risks": "State transition guards must prevent illegal out-of-order jumps.",
+    "testsBefore": [
+      "tests/unit/state_machine_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/state_machine_transitions_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Revert state validation logic in store mutation handlers.",
+    "authority": "DETERMINISTIC"
+  },
+  {
+    "fixId": "FIX-FINANCE-001",
+    "defectGroupIds": [
+      "DG-FINANCE-001"
+    ],
+    "defectInstanceIds": [
+      "DI-270",
+      "DI-271",
+      "DI-272",
+      "DI-273",
+      "DI-274",
+      "DI-275",
+      "DI-276",
+      "DI-277",
+      "DI-278",
+      "DI-279",
+      "DI-280",
+      "DI-281",
+      "DI-282",
+      "DI-283",
+      "DI-284",
+      "DI-285",
+      "DI-286",
+      "DI-287",
+      "DI-288",
+      "DI-289",
+      "DI-290",
+      "DI-291",
+      "DI-292",
+      "DI-293",
+      "DI-294",
+      "DI-295",
+      "DI-296",
+      "DI-297",
+      "DI-298",
+      "DI-299"
+    ],
+    "title": "Standardize Monetary Fields to Canonical Whole-Integer PKR and Centralize Formatters",
+    "wave": "WAVE 4",
+    "currentBehavior": "Monetary amounts are stored inconsistently across the codebase as raw numbers, strings with currency symbols (e.g. \"PKR 1,500,000\"), or floating-point numbers subject to rounding anomalies.",
+    "expectedBehavior": "Store all domain money fields as non-negative whole-integer PKR (0 decimal places, Math.round). Use standard input parsing (parseCurrency) and presentation formatting (formatCurrency) helpers.",
+    "approvedRequirementSource": "financial_value_contract.json; AJ EcoDrive Financial Data Integrity Standard",
+    "filesLikelyAffected": [
+      "src/store.js",
+      "src/utils/formatters.js",
+      "src/views/CreateSale.vue",
+      "src/views/CreateExpense.vue",
+      "src/views/Sales.vue",
+      "src/views/Invoices.vue"
+    ],
+    "schemaChanges": "Normalize store initial data and mutation payloads to store clean integer values for all 30 audited financial fields.",
+    "backwardCompatibility": "Formatters ensure visual representation in UI continues to display \"Rs. X,XXX,XXX\" or \"PKR X,XXX,XXX\" consistently.",
+    "risks": "Existing code doing direct string concatenation with currency values must be refactored to use formatters.",
+    "testsBefore": [
+      "tests/unit/financial_fields_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/financial_fields_canonical_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Revert store payload sanitizers in financial mutations.",
+    "authority": "ARCHITECTURAL"
+  },
+  {
+    "fixId": "FIX-INTERACTION-001",
+    "defectGroupIds": [
+      "DG-INTERACTION-001"
+    ],
+    "defectInstanceIds": [
+      "DI-300",
+      "DI-301",
+      "DI-302",
+      "DI-303"
+    ],
+    "title": "Remediate Confirmed Wrong-Pattern Modals to Dedicated Responsive Workflow Views",
+    "wave": "WAVE 6",
+    "currentBehavior": "Four complex operational workflows (CreateSale, CreateCase, CreateRepairJob, CreateBranch) are constrained within cramped modal overlays, causing scroll traps, poor mobile ergonomics, and data loss upon accidental backdrop dismissal.",
+    "expectedBehavior": "Provide dedicated full-page routes for complex multi-step workflows while retaining lightweight modals strictly for quick confirmations and simple atomic actions. Ensure form state persistence or exit confirmation.",
+    "approvedRequirementSource": "architecture_decision_backlog.json (ADB-001..ADB-004); UX Pattern Contract",
+    "filesLikelyAffected": [
+      "src/router/index.js",
+      "src/views/Sales.vue",
+      "src/views/Cases.vue",
+      "src/views/RepairJobs.vue",
+      "src/views/Branches.vue"
+    ],
+    "schemaChanges": "None.",
+    "backwardCompatibility": "Existing modal triggers can redirect to full-page route or open responsive view container seamlessly.",
+    "risks": "Navigation flow change from in-place modal to full page requires proper back-button breadcrumb support.",
+    "testsBefore": [
+      "tests/unit/modal_interaction_baseline.spec.js"
+    ],
+    "testsAfter": [
+      "tests/unit/workflow_navigation_integrity.spec.js"
+    ],
+    "rollbackConsideration": "Revert router entries and re-enable modal dialog wrappers.",
+    "authority": "DETERMINISTIC"
+  },
+  {
+    "fixId": "FIX-DOC-001",
+    "defectGroupIds": [
+      "DG-DOC-001"
+    ],
+    "defectInstanceIds": [
+      "INST-DOC-001"
+    ],
+    "title": "Align PDI Inspection Scope in Documentation with Source Truth Pending Business Decision",
+    "wave": "BACKLOG / QUARANTINED",
+    "currentBehavior": "Documentation claims an 18-point comprehensive PDI inspection process, whereas source code implements a 5-point verification checklist.",
+    "expectedBehavior": "Update documentation to accurately reflect the 5-point verification checklist currently implemented in source code. Do NOT implement 18-point checklist until formal business approval is granted.",
+    "approvedRequirementSource": "architecture_decision_backlog.json (ADB-006); Directive Instruction 24 & 26",
+    "filesLikelyAffected": [
+      "AJ_ECODRIVE_MASTER_FRONTEND_TRUTH_AND_ARCHITECTURE.md",
+      "AJ_ECODRIVE_COMPLETE_CLIENT_GUIDE_QA.md"
+    ],
+    "schemaChanges": "None.",
+    "backwardCompatibility": "Source code remains untouched; documentation aligns with reality.",
+    "risks": "None.",
+    "testsBefore": [],
+    "testsAfter": [],
+    "rollbackConsideration": "Revert documentation edits.",
+    "authority": "BUSINESS_DECISION_REQUIRED"
+  },
+  {
+    "fixId": "FIX-DOC-002",
+    "defectGroupIds": [
+      "DG-DOC-002"
+    ],
+    "defectInstanceIds": [
+      "INST-DOC-002"
+    ],
+    "title": "Synchronize Cryptographic Ledger Claims in Documentation with In-Memory Structured Audit Log",
+    "wave": "BACKLOG / QUARANTINED",
+    "currentBehavior": "Documentation references a future cryptographic tamper-evident blockchain/hash-chained audit ledger, whereas frontend source implements in-memory structured audit logs.",
+    "expectedBehavior": "Update documentation to document structured audit event logging as CURRENT truth and classify cryptographic ledger as FUTURE_BACKEND_DEPENDENT. Zero cryptographic code added to frontend.",
+    "approvedRequirementSource": "architecture_decision_backlog.json (ADB-007); Directive Instruction 25 & 27",
+    "filesLikelyAffected": [
+      "AJ_ECODRIVE_MASTER_FRONTEND_TRUTH_AND_ARCHITECTURE.md",
+      "PLATFORM_SUPPORT_POLICY.md"
+    ],
+    "schemaChanges": "None.",
+    "backwardCompatibility": "Source code remains untouched; documentation claims accurate.",
+    "risks": "None.",
+    "testsBefore": [],
+    "testsAfter": [],
+    "rollbackConsideration": "Revert documentation edits.",
+    "authority": "BACKEND_DEPENDENT"
+  }
+]

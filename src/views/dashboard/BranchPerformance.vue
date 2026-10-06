@@ -6,34 +6,65 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager KPIs
-const branchManagerKpis = [
-  { label: 'Period Sales', value: 'PKR 8.7M', change: '+10% vs prior' },
-  { label: 'Units Sold', value: '31', change: '+4' },
-  { label: 'Operating Expenses', value: 'PKR 482K', change: '+6%' },
-  { label: 'Net Operating Profit', value: 'PKR 1.28M', change: '14.7% margin' }
-]
+const branchManagerKpis = computed(() => {
+  const branchName = user.value?.branchName || 'Peshawar'
+  const branchId = store.resolveCanonicalBranchId ? store.resolveCanonicalBranchId(branchName) : user.value?.branchCode
+  const fin = store.calculateFinancialMetrics({ branch_id: branchId || branchName })
+  const unitsSold = store.serializedUnits.filter(u => store.isBranchAllowed(u.branch) && store.normalizeUnitStatus(u.status) === 'Sold').length
+
+  return [
+    { label: 'Period Sales', value: store.formatCurrency(fin.netSales), change: '+10% vs prior' },
+    { label: 'Units Sold', value: String(unitsSold), change: '+4' },
+    { label: 'Operating Expenses', value: store.formatCurrency(fin.operatingExpenses), change: '+6%' },
+    { label: 'Net Operating Profit', value: store.formatCurrency(fin.netOperatingProfit), change: fin.grossMarginFormatted }
+  ]
+})
 
 // Super Admin KPIs
-const superAdminKpis = [
-  { label: 'Organisation Sales', value: 'PKR 28.4M', change: '+12.8%' },
-  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%' },
-  { label: 'Net Profit', value: 'PKR 3.7M', change: '+21.4%' },
-  { label: 'Units Sold', value: '184', change: '+8.2%' }
-]
+const superAdminKpis = computed(() => {
+  const fin = store.calculateFinancialMetrics({ branch_id: 'ALL' })
+  const unitsSold = store.serializedUnits.filter(u => store.normalizeUnitStatus(u.status) === 'Sold').length
 
-const branchRanking = [
-  { name: 'Peshawar', value: 94, percentage: 100 },
-  { name: 'Islamabad', value: 81, percentage: 86 },
-  { name: 'Lahore', value: 68, percentage: 72 },
-  { name: 'Rawalpindi', value: 55, percentage: 58 }
-]
+  return [
+    { label: 'Organisation Sales', value: store.formatCurrency(fin.netSales), change: '+12.8%' },
+    { label: 'Gross Profit', value: store.formatCurrency(fin.grossProfit), change: '+15.0%' },
+    { label: 'Net Profit', value: store.formatCurrency(fin.netOperatingProfit), change: '+21.4%' },
+    { label: 'Units Sold', value: String(unitsSold), change: '+8.2%' }
+  ]
+})
 
-const detailedComparison = [
-  { branch: 'Peshawar', sales: '9.8M', cogs: '5.7M', grossProfit: '2.4M', opex: '1.0M', netProfit: '1.4M', units: '68', margin: '24.5%', inventory: '14.2M' },
-  { branch: 'Islamabad', sales: '7.6M', cogs: '4.5M', grossProfit: '1.8M', opex: '0.9M', netProfit: '0.9M', units: '51', margin: '23.7%', inventory: '11.8M' },
-  { branch: 'Lahore', sales: '6.2M', cogs: '3.8M', grossProfit: '1.4M', opex: '0.7M', netProfit: '0.7M', units: '39', margin: '22.8%', inventory: '9.1M' },
-  { branch: 'Rawalpindi', sales: '4.8M', cogs: '2.9M', grossProfit: '1.3M', opex: '0.6M', netProfit: '0.7M', units: '28', margin: '27.1%', inventory: '8.9M' }
-]
+const detailedComparison = computed(() => {
+  const branches = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
+  return branches.map(b => {
+    const fin = store.calculateFinancialMetrics({ branch_id: b })
+    const val = store.getInventoryValuation({ branch_id: b })
+    const units = store.serializedUnits.filter(u => (u.branch || '').toLowerCase() === b.toLowerCase() && store.normalizeUnitStatus(u.status) === 'Sold').length
+    return {
+      branch: b,
+      sales: store.formatCurrency(fin.netSales),
+      cogs: store.formatCurrency(fin.cogs),
+      grossProfit: store.formatCurrency(fin.grossProfit),
+      opex: store.formatCurrency(fin.operatingExpenses),
+      netProfit: store.formatCurrency(fin.netOperatingProfit),
+      units: String(units),
+      margin: fin.grossMarginFormatted,
+      inventory: store.formatCurrency(val.onHandValue)
+    }
+  })
+})
+
+const branchRanking = computed(() => {
+  const list = detailedComparison.value
+  const max = Math.max(...list.map(b => store.parseMoney(b.sales)), 1)
+  return list.map(b => {
+    const val = store.parseMoney(b.sales)
+    return {
+      name: b.branch,
+      value: val > 0 ? Math.round((val / max) * 100) : 0,
+      percentage: val > 0 ? Math.round((val / max) * 100) : 0
+    }
+  })
+})
 </script>
 
 <template>

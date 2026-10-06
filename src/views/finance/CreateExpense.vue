@@ -38,14 +38,14 @@ const categories = [
 const form = ref({
   id: '',
   category: 'Utilities (Electricity / Water / Internet)',
-  amount: 'PKR 48,500',
-  date: '27 Aug 2026',
-  vendor: 'PESCO',
+  amount: '',
+  date: new Date().toISOString().split('T')[0],
+  vendor: '',
   paymentMethod: 'Bank Transfer',
-  transactionId: 'TXN-PESCO-9812',
-  description: 'Showroom 3-phase electricity consumption bill',
-  receipt: 'pescobill_aug.pdf',
-  notes: 'Submit for Super Admin / CFO approval',
+  transactionId: '',
+  description: '',
+  receipt: '',
+  notes: '',
   branch: user.value?.branchName || 'Peshawar'
 })
 

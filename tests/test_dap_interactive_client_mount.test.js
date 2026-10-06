@@ -101,11 +101,11 @@ describe('AJ EcoDrive — Master Client-Mounted DAP Interactive Suite', () => {
       await dateEls[0].setValue('2026-10-15')
       expect(wrapper.vm.form.expectedArrival).toBe('2026-10-15')
 
-      // 4. Number input: Quantity DS11
-      const qtyEls = wrapper.findAll('[data-tour="po-qty-ds11"]')
+      // 4. Number input: Quantity of first dynamic line
+      const qtyEls = wrapper.findAll('[data-tour="po-line-qty"]')
       expect(qtyEls.length).toBe(1)
       await qtyEls[0].setValue('12')
-      expect(wrapper.vm.form.qtyDs11).toBe(12)
+      expect(wrapper.vm.form.items[0].quantity).toBe(12)
 
       // 5. Textarea: Notes
       const notesEls = wrapper.findAll('[data-tour="po-notes"]')

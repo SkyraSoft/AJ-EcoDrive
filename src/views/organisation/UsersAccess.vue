@@ -217,7 +217,7 @@ const handleUserUpdated = (updatedUser) => {
         <span class="text-[11px] text-gray-400 font-medium">Showing {{ filteredUsers.length }} users</span>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table data-tour-id="sa.organisation.users.table" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
               <th class="px-6 py-3">User</th>

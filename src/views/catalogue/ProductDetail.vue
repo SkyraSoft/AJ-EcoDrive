@@ -3,14 +3,15 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { FileText, Clock, AlertCircle } from 'lucide-vue-next'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const productId = computed(() => route.params.id || route.query.id || 'PROD-001')
-const productRecord = computed(() => store.getProductById(productId.value))
+const productId = computed(() => route.params.id || route.query.id || '')
+const productRecord = computed(() => productId.value ? store.getProductById(productId.value) : null)
 
 // Branch Manager Tab configuration
 const branchCurrentTab = ref('Overview')
@@ -335,8 +336,14 @@ const editProduct = () => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!productRecord"
+    title="Product Not Found"
+    message="The requested product record does not exist in the catalogue."
+    backRoute="/catalogue/products"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">
     <!-- Header -->
     <div>
       <div class="text-[11px] text-gray-400 mb-1">

@@ -4,12 +4,14 @@ import { useRouter, useRoute } from 'vue-router'
 import { ChevronDown, Check, ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, DollarSign, ShieldCheck, FileText, User } from 'lucide-vue-next'
 import { store } from '@/store'
 import CreateCustomOrderModal from './CreateCustomOrder.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
 const showEditModal = ref(false)
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+const orderFound = ref(false)
 
 const activeTab = ref('Requirement')
 
@@ -27,34 +29,41 @@ const tabs = [
 ]
 
 const orderData = ref({
-  orderNo: 'CO-118',
+  orderNo: '',
   status: 'Sourcing',
   statusClass: 'bg-[#fef3c7] text-[#b45309]',
   statusColor: 'bg-yellow-50 text-yellow-700',
-  customer: 'Jawad Khan',
-  phone: '+92 300 9876543',
-  cnic: '17301-8899221-3',
-  city: 'Peshawar',
-  requirement: 'BRG X7 / Black',
-  product: 'BRG X7 / Black',
-  branch: 'Peshawar',
-  budget: 'PKR 360,000',
-  deposit: 'PKR 100,000',
-  balance: 'PKR 260,000',
-  desiredDate: '15 Sep 2026',
-  eta: '15 Sep 2026',
-  productRequest: 'PR-088',
-  stockRequest: 'SR-122',
-  reservation: 'Pending arrival',
-  owner: 'Hamza',
-  notes: 'Customer accepts equivalent trim if approved'
+  customer: '',
+  phone: '',
+  cnic: '',
+  city: '',
+  requirement: '',
+  product: '',
+  branch: '',
+  budget: '',
+  deposit: '',
+  balance: '',
+  desiredDate: '',
+  eta: '',
+  productRequest: '',
+  stockRequest: '',
+  reservation: '',
+  owner: '',
+  notes: ''
 })
 
 const loadOrder = () => {
   const paramId = route.params.id || route.query.id
-  const found = (paramId && store.getCustomOrderById(paramId)) || store.customOrders[0]
+  if (!paramId) {
+    orderFound.value = false
+    return
+  }
+  const found = store.getCustomOrderById(paramId)
   if (found) {
     orderData.value = { ...orderData.value, ...found }
+    orderFound.value = true
+  } else {
+    orderFound.value = false
   }
 }
 
@@ -81,8 +90,15 @@ const backToList = () => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!orderFound"
+    title="Custom Order Not Found"
+    message="The requested custom order could not be found or is not accessible from your current branch context."
+    back-link="/sales/custom-orders"
+    back-text="Back to Custom Orders"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

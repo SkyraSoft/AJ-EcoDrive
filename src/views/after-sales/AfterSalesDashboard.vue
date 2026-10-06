@@ -7,54 +7,71 @@ const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-// Branch Manager KPIs (Matching Screenshot 1)
-const branchKpis = [
-  { label: 'Open Cases', value: '14', sub: '4 high priority', isGreen: true },
-  { label: 'Repairs In Progress', value: '9', sub: '3 due today', isGreen: true },
-  { label: 'Awaiting Parts', value: '5', sub: '2 overdue', isGreen: true },
-  { label: 'Ready', value: '6', sub: 'Notify customers', isGreen: false }
-]
+// Branch Manager KPIs
+const branchKpis = computed(() => {
+  const branchCases = store.cases.filter(c => store.isBranchAllowed(c.branch))
+  const branchRepairs = store.repairs.filter(r => store.isBranchAllowed(r.branch))
+  const openCases = branchCases.filter(c => c.status !== 'Resolved' && c.status !== 'Cancelled').length
+  const inProgress = branchRepairs.filter(r => r.status === 'In Progress' || r.status === 'In Repair').length
+  const awaitingParts = branchRepairs.filter(r => r.status === 'Waiting for Parts' || r.status === 'Awaiting Parts').length
+  const ready = branchRepairs.filter(r => r.status === 'Ready' || r.status === 'Ready for Customer').length
+
+  return [
+    { label: 'Open Cases', value: String(openCases), sub: `${branchCases.filter(c => c.priority === 'High' || c.urgency === 'High').length} high priority`, isGreen: true },
+    { label: 'Repairs In Progress', value: String(inProgress), sub: 'Active repair jobs', isGreen: true },
+    { label: 'Awaiting Parts', value: String(awaitingParts), sub: 'Parts procurement', isGreen: true },
+    { label: 'Ready', value: String(ready), sub: 'Notify customers', isGreen: false }
+  ]
+})
 
 // Branch Manager Service Workload Table
-const branchWorkloadList = [
-  {
-    caseJob: 'SC-229',
-    customer: 'Ahsan Khan',
-    unit: 'CHS-01882',
-    issue: 'Controller fault',
-    status: 'Diagnosis',
-    statusClass: 'bg-[#fef3c7] text-[#b45309]',
-    route: '/after-sales/warranty/detail?id=SC-229'
-  },
-  {
-    caseJob: 'RJ-188',
-    customer: 'Bilal Shah',
-    unit: 'CHS-01790',
-    issue: 'Brake service',
-    status: 'Ready',
-    statusClass: 'bg-[#dcfce7] text-[#165A31]',
-    route: '/after-sales/repairs/detail?id=RJ-188'
-  }
-]
+const branchWorkloadList = computed(() => {
+  return store.repairs
+    .filter(r => store.isBranchAllowed(r.branch))
+    .slice(0, 5)
+    .map(r => ({
+      caseJob: r.repairId || r.id || 'RJ-100',
+      customer: r.customer || 'Customer',
+      unit: r.unit || r.unit_id || '—',
+      issue: r.diagnosis || r.fault || r.issue || 'Inspection',
+      status: r.status || 'Diagnosis',
+      statusClass: r.status === 'Ready' ? 'bg-[#dcfce7] text-[#165A31]' : 'bg-[#fef3c7] text-[#b45309]',
+      route: `/after-sales/repairs/${r.repairId || r.id}`
+    }))
+})
 
 const openItem = (item) => {
   router.push(item.route)
 }
 
 // Super Admin Data
-const kpis = computed(() => [
-  { label: 'Open Warranty', value: store.cases.filter(c => c.type === 'Warranty').length.toString() || '18' },
-  { label: 'Open Repairs', value: store.repairs.length.toString() || '23' },
-  { label: 'Overdue Service', value: '6' },
-  { label: 'Ready for Customer', value: store.cases.filter(c => c.status === 'Ready').length.toString() || '11' }
-])
+const kpis = computed(() => {
+  const openWarranty = store.cases.filter(c => (c.type === 'Warranty' || c.isWarranty) && c.status !== 'Resolved').length
+  const openRepairs = store.repairs.filter(r => r.status !== 'Completed' && r.status !== 'Cancelled').length
+  const overdueService = store.repairs.filter(r => r.status === 'Waiting for Parts' || r.isOverdue).length
+  const readyForCustomer = store.repairs.filter(r => r.status === 'Ready' || r.status === 'Ready for Customer').length
 
-const branchWorkload = [
-  { name: 'Peshawar', value: 18, percentage: 100 },
-  { name: 'Islamabad', value: 14, percentage: 77 },
-  { name: 'Lahore', value: 10, percentage: 55 },
-  { name: 'Rawalpindi', value: 7, percentage: 38 }
-]
+  return [
+    { label: 'Open Warranty', value: String(openWarranty) },
+    { label: 'Open Repairs', value: String(openRepairs) },
+    { label: 'Overdue Service', value: String(overdueService) },
+    { label: 'Ready for Customer', value: String(readyForCustomer) }
+  ]
+})
+
+const branchWorkload = computed(() => {
+  const branches = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
+  const counts = branches.map(b => ({
+    name: b,
+    value: store.repairs.filter(r => (r.branch || '').toLowerCase() === b.toLowerCase()).length
+  }))
+  const max = Math.max(...counts.map(c => c.value), 1)
+  return counts.map(c => ({
+    name: c.name,
+    value: c.value,
+    percentage: c.value > 0 ? Math.round((c.value / max) * 100) : 0
+  }))
+})
 
 const responseTime = [
   { name: 'Same day', value: 72, percentage: 100 },

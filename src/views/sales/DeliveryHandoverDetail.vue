@@ -3,14 +3,15 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '@/store'
 import { CheckCircle2, ArrowLeft } from 'lucide-vue-next'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const rawId = computed(() => route.params.id || route.query.id || 'DEL-2241')
-const deliveryRecord = computed(() => store.getDeliveryById(rawId.value) || (route.query.id ? null : store.deliveries[0]))
+const rawId = computed(() => route.params.id || route.query.id || '')
+const deliveryRecord = computed(() => rawId.value ? store.getDeliveryById(rawId.value) : null)
 const orderRecord = computed(() => deliveryRecord.value?.order ? store.getOrderById(deliveryRecord.value.order) : null)
 
 const showToast = ref(false)
@@ -120,13 +121,13 @@ const completeHandover = () => {
 </script>
 
 <template>
-  <div v-if="!deliveryRecord" class="max-w-[1400px] mx-auto py-16 text-center space-y-4">
-    <h2 class="text-2xl font-bold text-gray-900">Delivery Handover Record Not Found</h2>
-    <p class="text-sm text-gray-500">No delivery or handover record matches identifier "{{ rawId }}".</p>
-    <button @click="router.push('/sales/delivery')" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28]">
-      <ArrowLeft class="w-4 h-4" /> Back to Delivery List
-    </button>
-  </div>
+  <NotFoundState
+    v-if="!deliveryRecord"
+    title="Delivery Handover Record Not Found"
+    message="The requested delivery handover record could not be found or is not accessible from your current branch context."
+    back-link="/sales/delivery"
+    back-text="Back to Delivery List"
+  />
 
   <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Toast Notification -->

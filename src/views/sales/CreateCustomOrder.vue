@@ -25,17 +25,17 @@ const showValidation = ref(false)
 
 const form = ref({
   orderNo: '',
-  customer: 'Jawad Khan',
-  product: 'BRG X7 / Black',
-  budget: 'PKR 360,000',
-  desiredDate: '15 Sep 2026',
-  deposit: 'PKR 100,000',
+  customer: '',
+  product: '',
+  budget: '',
+  desiredDate: '',
+  deposit: '',
   paymentMethod: 'Bank Transfer',
   transactionId: '',
   reservation: 'On arrival',
-  notes: 'Customer accepts equivalent trim if approved',
+  notes: '',
   status: 'Sourcing',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
 })
 
 const loadData = (data) => {

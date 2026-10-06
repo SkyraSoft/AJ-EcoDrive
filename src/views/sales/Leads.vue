@@ -232,6 +232,7 @@ const openLead = (lead) => {
       <button 
         id="dap-btn-new-lead"
         data-tour="lead-add-btn"
+        data-tour-id="bm.sales.leads.create-btn"
         @click="showCreateModal = true"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >

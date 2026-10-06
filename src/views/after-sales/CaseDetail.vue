@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '@/store'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { 
   ChevronDown, ArrowLeft, CheckCircle2, AlertCircle, Clock, User, 
   ShieldCheck, Wrench, FileText, MessageSquare, DollarSign, Cpu, 
@@ -30,7 +31,7 @@ const tabs = [
 const caseData = computed(() => {
   const paramId = route.params.id || route.query.id
   if (paramId) {
-    const found = store.getCaseById(paramId) || store.cases.find(c => c.caseId === paramId || c.id === paramId)
+    const found = store.getCaseById(paramId)
     if (found) return found
     return null
   }
@@ -95,22 +96,13 @@ const commLogs = ref([
 
 <template>
   <!-- NOT FOUND STATE -->
-  <div v-if="!caseData" class="max-w-[800px] mx-auto py-16 px-4 text-center">
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-4">
-      <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto">
-        <ShieldCheck class="w-6 h-6" />
-      </div>
-      <h2 class="text-xl font-bold text-gray-900">Service Case Not Found</h2>
-      <p class="text-xs text-gray-500 max-w-md mx-auto">
-        The requested service case could not be located. It may have been resolved, deleted or the link is invalid.
-      </p>
-      <div class="pt-2">
-        <router-link to="/after-sales/warranty" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28] transition-colors">
-          <ArrowLeft class="w-4 h-4" /> Back to Warranty & Cases
-        </router-link>
-      </div>
-    </div>
-  </div>
+  <NotFoundState
+    v-if="!caseData"
+    title="Service Case Not Found"
+    message="The requested service case could not be found or is not accessible from your current branch context."
+    back-link="/after-sales/warranty"
+    back-text="Back to Warranty & Cases"
+  />
 
   <!-- BRANCH MANAGER VIEW -->
   <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">

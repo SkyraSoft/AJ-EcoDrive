@@ -1,0 +1,67 @@
+{
+  "baselineCommit": "480b57f",
+  "branch": "main",
+  "timestamp": "2026-09-30T19:34:08.199Z",
+  "repository": "SkyraSoft/AJ-EcoDrive",
+  "forensicScope": {
+    "vueFilesCount": 147,
+    "routeDeclarationsCount": 194,
+    "canonicalNavigableRoutesCount": 189,
+    "rawControlsCount": 583,
+    "rawActionTriggersCount": 987,
+    "hardcodedLiteralsCount": 458,
+    "actionCentreItemsInitialCount": 5
+  },
+  "layers": {
+    "layerA": "OBSERVED_SOURCE_TRUTH",
+    "layerB": "OBSERVED_RUNTIME_TRUTH",
+    "layerC": "EXPECTED_BUSINESS_ARCHITECTURE",
+    "layerD": "GAP_REMEDIATION"
+  },
+  "rawForensicDatasets": [
+    "scratch/forensic/routes.json",
+    "scratch/forensic/components.json",
+    "scratch/forensic/controls.json",
+    "scratch/forensic/actions.json",
+    "scratch/forensic/dynamic_values.json",
+    "scratch/forensic/states.json",
+    "scratch/forensic/transitions.json",
+    "scratch/forensic/business_rules.json",
+    "scratch/forensic/interaction_surfaces.json",
+    "scratch/forensic/action_centre.json",
+    "scratch/forensic/data_sources.json",
+    "scratch/forensic/hardcoded_operational_values.json"
+  ],
+  "verifiedRegressionCases": [
+    {
+      "case": "Regression Case A",
+      "subject": "/password-updated component mapping",
+      "result": "src/views/auth/PasswordUpdated.vue (Fixed parser boundary leak)"
+    },
+    {
+      "case": "Regression Case B",
+      "subject": "CreatePurchaseOrder route & fields",
+      "result": "/procurement/purchase-orders/create with 12 fields (No /procurement/create-order; No 5M rule)"
+    },
+    {
+      "case": "Regression Case C",
+      "subject": "CreateBranch actual fields",
+      "result": "14 fields with manager select (No Manager CNIC)"
+    },
+    {
+      "case": "Regression Case D",
+      "subject": "Actual System Roles",
+      "result": "Super Admin & Branch Manager only (Personas are contextual)"
+    },
+    {
+      "case": "Regression Case E",
+      "subject": "PDI Checklist Count",
+      "result": "5 verification checkboxes in code (18-point is expected business rule)"
+    },
+    {
+      "case": "Regression Case F",
+      "subject": "Cryptographic Audit Claim",
+      "result": "In-memory audit log in code (Cryptographic hash chaining is expected backend capability)"
+    }
+  ]
+}

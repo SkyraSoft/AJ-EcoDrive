@@ -2,23 +2,14 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
-const userId = computed(() => route.params.id || route.query.id || 'USR-01')
+const userId = computed(() => route.params.id || route.query.id || '')
 const userRecord = computed(() => {
-  return store.getUserById(userId.value) || store.users[0] || {
-    name: 'Ahsan Khan',
-    email: 'ahsan@ajecodrive.com',
-    mobile: '+92 300 555 0191',
-    role: 'Branch Manager',
-    branch: 'Peshawar',
-    mfa: 'On',
-    lastLogin: 'Today 22:01',
-    status: 'Active',
-    invitation: 'Accepted',
-    sessionPolicy: 'Standard'
-  }
+  if (!userId.value) return null
+  return store.getUserById(userId.value)
 })
 
 const activeTab = ref('Profile')
@@ -43,7 +34,14 @@ const userAuditLogs = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!userRecord"
+    title="User Not Found"
+    :message="`User '${userId}' was not found.`"
+    back-path="/organisation/users"
+    back-label="Back to Users"
+  />
+  <div v-else class="max-w-7xl mx-auto space-y-6 pb-12">
     
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
@@ -52,7 +50,7 @@ const userAuditLogs = computed(() => {
           Super Admin / Organisation / Users & Access / <span class="font-bold text-gray-800">User Detail — {{ activeTab }}</span>
         </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">User Detail — {{ activeTab }}</h1>
-        <p class="text-[13px] text-gray-500 mt-1">Ahsan Khan - {{ activeTab }}</p>
+        <p class="text-[13px] text-gray-500 mt-1">{{ userRecord?.name || 'User' }} - {{ activeTab }}</p>
       </div>
     </div>
 
@@ -60,9 +58,9 @@ const userAuditLogs = computed(() => {
     <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-[20px] font-bold text-gray-900 leading-none mb-2">Ahsan Khan</h2>
+          <h2 class="text-[20px] font-bold text-gray-900 leading-none mb-2">{{ userRecord?.name || 'User' }}</h2>
           <div class="text-[11px] font-medium text-gray-500">
-            Branch Manager · Peshawar Branch · ahsan@ajecodrive.com
+            {{ userRecord?.role || 'Staff' }} · {{ userRecord?.branch || userRecord?.branchName || 'All Branches' }} · {{ userRecord?.email || '' }}
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3">

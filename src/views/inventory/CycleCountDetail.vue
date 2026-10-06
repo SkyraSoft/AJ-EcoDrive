@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -9,7 +10,11 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager Data & Logic
-const countId = computed(() => route.params.id || route.query.id || 'CC-031')
+const countId = computed(() => route.params.id || route.query.id || '')
+const isValidCount = computed(() => {
+  if (!countId.value) return false
+  return countId.value === 'CC-030' || countId.value === 'CC-031'
+})
 const isCC030 = computed(() => countId.value === 'CC-030')
 const branchCurrentTab = ref('Count Summary')
 const branchTabs = ['Count Summary', 'Expected Inventory', 'Physical Count', 'Serialized Confirmation', 'Discrepancy', 'Notes', 'Submit Count']
@@ -218,8 +223,14 @@ const adminTabData = computed(() => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!isValidCount"
+    title="Cycle Count Not Found"
+    message="The requested cycle count does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/inventory/cycle-counts"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

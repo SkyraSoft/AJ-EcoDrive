@@ -2,11 +2,12 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import EditSupplier from './EditSupplier.vue'
 
 const router = useRouter()
 const route = useRoute()
-const supplierId = computed(() => route.params.id || route.query.id || 'SUP-01')
+const supplierId = computed(() => route.params.id || route.query.id || '')
 
 const activeTab = ref('Overview')
 const showEditModal = ref(false)
@@ -55,19 +56,8 @@ const activities = [
 ]
 
 const supplierRecord = computed(() => {
-  return store.getSupplierById(supplierId.value) || store.suppliers[0] || {
-    name: 'BRG Factory',
-    code: 'SUP-BRG-001',
-    category: 'OEM / Bikes',
-    status: 'Active',
-    rating: '4.8',
-    terms: 'Net 30',
-    contact: 'Li Wei',
-    phone: '+86 188 0000 0000',
-    email: 'sales@brgfactory.example',
-    address: 'Shenzhen, China',
-    notes: 'Primary supplier for E-Bikes'
-  }
+  if (!supplierId.value) return null
+  return store.getSupplierById(supplierId.value) || null
 })
 
 const editSupplier = () => {
@@ -77,7 +67,14 @@ const editSupplier = () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!supplierRecord"
+    title="Supplier Not Found"
+    message="The requested supplier could not be found or is not accessible."
+    back-link="/procurement/suppliers"
+    back-text="Back to Suppliers"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

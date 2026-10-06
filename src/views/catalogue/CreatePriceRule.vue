@@ -1,19 +1,57 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { store } from '../../store.js'
 
 const router = useRouter()
+const emit = defineEmits(['close', 'created'])
+
+const form = ref({
+  product: '',
+  branchOverride: 'None',
+  effective: new Date().toISOString().split('T')[0],
+  sellingPrice: '',
+  minimum: '',
+  landedCostRef: '',
+  markup: '',
+  margin: '',
+  reason: ''
+})
+
+const showValidation = ref(false)
+
+const saveRule = () => {
+  if (!form.value.product || !form.value.sellingPrice || !form.value.minimum) {
+    showValidation.value = true
+    return
+  }
+
+  const ruleObj = {
+    ...form.value,
+    sellingPrice: String(form.value.sellingPrice).includes('K') ? form.value.sellingPrice : `${form.value.sellingPrice}K`,
+    minimum: String(form.value.minimum).includes('K') ? form.value.minimum : `${form.value.minimum}K`
+  }
+
+  if (store.pricingRules && Array.isArray(store.pricingRules)) {
+    store.pricingRules.unshift(ruleObj)
+  }
+
+  emit('created', ruleObj)
+  router.push('/catalogue/pricing')
+}
 
 const cancel = () => {
+  emit('close')
   router.push('/catalogue/pricing')
 }
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="router.back()">
+  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="cancel">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close button on top right -->
-      <button @click="router.back()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors">
+      <button @click="cancel" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -41,27 +79,28 @@ const cancel = () => {
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Target Product</label>
-          <select class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
-            <option>Select a product...</option>
+          <select v-model="form.product" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
             <option>BRG DS11</option>
             <option>BRG EV-5</option>
             <option>Cargo Pro</option>
+            <option>City Mini E-Scoot</option>
           </select>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Branch Override</label>
-            <select class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
-              <option>None (All Branches)</option>
-              <option>Peshawar</option>
-              <option>Islamabad</option>
-              <option>Lahore</option>
+            <select v-model="form.branchOverride" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
+              <option value="None">None (All Branches)</option>
+              <option value="Peshawar">Peshawar</option>
+              <option value="Islamabad">Islamabad</option>
+              <option value="Lahore">Lahore</option>
+              <option value="Rawalpindi">Rawalpindi</option>
             </select>
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Effective Date</label>
-            <input type="date" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.effective" type="date" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
       </div>
@@ -73,11 +112,11 @@ const cancel = () => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Selling Price (PKR)</label>
-            <input type="text" placeholder="e.g. 185,000" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.sellingPrice" type="text" placeholder="e.g. 185,000" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Minimum Allowed Floor (PKR)</label>
-            <input type="text" placeholder="e.g. 176,000" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.minimum" type="text" placeholder="e.g. 176,000" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
         
@@ -88,17 +127,17 @@ const cancel = () => {
           </div>
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-2">
             <span class="text-[11px] font-medium text-gray-500">Calculated Markup</span>
-            <span class="text-[12px] font-bold text-gray-900">26.7%</span>
+            <span class="text-[12px] font-bold text-gray-900">{{ form.markup }}</span>
           </div>
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
             <span class="text-[11px] font-medium text-gray-500">Calculated Margin</span>
-            <span class="text-[12px] font-bold text-gray-900">21.1%</span>
+            <span class="text-[12px] font-bold text-gray-900">{{ form.margin }}</span>
           </div>
         </div>
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Reason for Change</label>
-          <input type="text" placeholder="e.g. Market update, Promo" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.reason" type="text" placeholder="e.g. Market update, Promo" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
       </div>
     </div>
@@ -106,13 +145,13 @@ const cancel = () => {
     <!-- Actions Footer -->
     <div class="flex items-center justify-end pt-4">
       <div class="flex flex-wrap items-center gap-3">
-        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Cancel
         </button>
-        <button class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="saveRule" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Save Draft
         </button>
-        <button class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+        <button @click="saveRule" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
           Create Price Rule
         </button>
       </div>

@@ -2,33 +2,15 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { ChevronDown } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
-const branchId = computed(() => route.params.id || route.query.id || 'PEW-01')
+const branchId = computed(() => route.params.id || route.query.id || '')
 const branchRecord = computed(() => {
-  return store.getBranchById(branchId.value) || store.branches[0] || {
-    name: 'Peshawar',
-    code: 'PEW-01',
-    city: 'Peshawar',
-    manager: 'Ahsan Khan',
-    sales: '9.8M',
-    inventory: '14.2M',
-    expenses: '1.0M',
-    profit: '1.4M',
-    status: 'Active',
-    address: '123 Main St', 
-    area: 'Hayatabad', 
-    phone: '+92 300 1234567', 
-    email: 'pew@ajecodrive.com', 
-    defaultLocation: 'Main Warehouse', 
-    hours: '9 AM - 6 PM', 
-    expenseLimit: '100000', 
-    discountLimit: '10%', 
-    salesRules: 'Standard', 
-    changeNote: ''
-  }
+  if (!branchId.value) return null
+  return store.getBranchById(branchId.value)
 })
 
 const tabs = [
@@ -44,13 +26,20 @@ const editBranch = () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!branchRecord"
+    title="Branch Not Found"
+    :message="`Branch '${branchId}' was not found.`"
+    back-path="/organisation/branches"
+    back-label="Back to Branches"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">Super Admin / Organisation / Branches / <span class="font-bold text-gray-800">Branch Detail &mdash; {{ activeTab }}</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Branch Detail &mdash; {{ activeTab }}</h1>
-        <p class="text-[13px] text-gray-500 mt-1">Peshawar Branch - {{ activeTab }}</p>
+        <p class="text-[13px] text-gray-500 mt-1">{{ branchRecord?.name || 'Branch' }} - {{ activeTab }}</p>
       </div>
     </div>
 
@@ -60,9 +49,9 @@ const editBranch = () => {
       <!-- Card Header: Title & Actions -->
       <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
-          <h2 class="text-[20px] font-bold text-gray-900 leading-none mb-2">Peshawar Branch</h2>
+          <h2 class="text-[20px] font-bold text-gray-900 leading-none mb-2">{{ branchRecord?.name || 'Branch' }}</h2>
           <div class="text-[11px] font-medium text-gray-500">
-            PEW-01 &middot; Peshawar &middot; Manager: Ahsan Khan
+            {{ branchRecord?.id || branchRecord?.code }} &middot; {{ branchRecord?.city }} &middot; Manager: {{ branchRecord?.manager || 'Unassigned' }}
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-3">

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import { ArrowLeft, Plus } from 'lucide-vue-next'
 import CreatePaymentModal from './CreatePayment.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,8 +14,8 @@ const showCreateModal = ref(false)
 
 const rawPayId = computed(() => route.params.id || route.query.id)
 const currentPayment = computed(() => {
-  if (rawPayId.value) return store.getPaymentById(rawPayId.value)
-  return store.payments[0] || null
+  if (!rawPayId.value) return null
+  return store.getPaymentById(rawPayId.value)
 })
 
 const paymentId = computed(() => currentPayment.value?.id || currentPayment.value?.payment || rawPayId.value || 'PAY-7791')
@@ -124,13 +125,13 @@ const tabs = ['Summary', 'Allocation', 'Bank Details', 'Customer Account', 'Acti
 </script>
 
 <template>
-  <div v-if="!currentPayment" class="max-w-[1400px] mx-auto py-16 text-center space-y-4">
-    <h2 class="text-2xl font-bold text-gray-900">Payment Not Found</h2>
-    <p class="text-sm text-gray-500">No payment transaction matches identifier "{{ rawPayId }}".</p>
-    <button @click="router.push('/sales/payments')" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28]">
-      <ArrowLeft class="w-4 h-4" /> Back to Payments
-    </button>
-  </div>
+  <NotFoundState
+    v-if="!currentPayment"
+    title="Payment Not Found"
+    :message="`Payment '${rawPayId}' was not found or is not accessible for your branch.`"
+    back-path="/sales/payments"
+    back-label="Back to Payments"
+  />
 
   <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->

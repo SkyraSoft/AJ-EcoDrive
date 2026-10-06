@@ -365,7 +365,7 @@ const handleQuickActionCreated = (type, payload) => {
     ></div>
 
     <!-- Sidebar -->
-    <aside 
+    <aside data-tour-id="shared.layout.nav.sidebar" 
       :class="[
         'bg-[#f9fafb] border-r border-gray-100 flex flex-col flex-shrink-0 fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out lg:relative',
         isSidebarCollapsed ? 'w-[72px]' : 'w-[280px]',
@@ -479,7 +479,7 @@ const handleQuickActionCreated = (type, payload) => {
             </div>
             <div v-else class="relative">
               <button 
-                @click="toggleDropdown('branch')" 
+                @click="toggleDropdown('branch')" data-tour-id="shared.layout.header.branch-switcher" 
                 class="flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 transition-colors hover:text-gray-900 cursor-pointer"
               >
                 <span class="hidden xl:inline">Viewing: </span>
@@ -678,10 +678,9 @@ const handleQuickActionCreated = (type, payload) => {
               <span>Messages</span>
               <span v-if="unreadMessagesCount > 0" class="px-1.5 py-0.2 bg-blue-100 text-blue-700 font-bold rounded-full text-[10px]">{{ unreadMessagesCount }}</span>
             </button>
-            
-            <!-- Notifications / Alerts -->
+                       <!-- Notifications / Alerts -->
             <div class="relative">
-              <button @click="toggleDropdown('notifications')" class="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200 cursor-pointer">
+              <button @click="toggleDropdown('notifications')" data-tour-id="shared.layout.header.action-centre" class="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200 cursor-pointer">
                 <span class="hidden sm:inline">Alerts</span>
                 <span v-if="unreadNotificationCount > 0" class="px-1.5 py-0.2 bg-emerald-100 text-[#165A31] font-bold rounded-full text-[10px]">{{ unreadNotificationCount }}</span>
               </button>
@@ -693,7 +692,7 @@ const handleQuickActionCreated = (type, payload) => {
                 <div class="max-h-64 overflow-y-auto">
                   <div 
                     v-for="alert in topAlerts" 
-                    :key="alert.id"
+                    :key="alert.id" 
                     @click="handleAlertClick(alert)"
                     class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors flex items-start justify-between cursor-pointer"
                     :class="{ 'bg-emerald-50/40': alert.status === 'Unread' || alert.read === 'No' }"
@@ -741,7 +740,7 @@ const handleQuickActionCreated = (type, payload) => {
             
             <!-- Profile -->
             <div class="relative ml-1">
-              <button @click="toggleDropdown('profile')" class="w-8 h-8 rounded-full bg-[#165A31] text-white flex items-center justify-center text-xs font-bold shadow-sm">
+              <button @click="toggleDropdown('profile')" data-tour-id="shared.layout.header.role-badge" class="w-8 h-8 rounded-full bg-[#165A31] text-white flex items-center justify-center text-xs font-bold shadow-sm">
                 {{ isBranchUser ? 'BM' : userInitials }}
               </button>
               <div v-if="openDropdown === 'profile'" class="absolute top-full right-0 mt-3 w-56 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 py-2 z-50">

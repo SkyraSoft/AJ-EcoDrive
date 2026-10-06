@@ -54,62 +54,58 @@ const onCaseBlur = () => {
 
 const selectCaseRef = (c) => {
   if (caseBlurTimer) clearTimeout(caseBlurTimer)
-  form.value.caseRef = c.caseId || c.id
-  form.value.case_id = c.id || c.caseId
-  form.value.customer = c.customer
-  form.value.customer_id = c.customer_id || 'CUST-101'
-  form.value.customerPhone = c.customerPhone || c.phone || '+92 300 1234567'
-  form.value.unit = c.unitSerial || c.unit || 'CH 8-BRG-26-01731'
-  form.value.unit_id = c.unit_id || c.unitSerial || c.unit || 'CH 8-BRG-26-01731'
-  form.value.unitModel = c.unitModel || `BRG ${c.unit}`
-  form.value.warranty_id = c.warranty_id || 'WAR-101'
-  form.value.branch = c.branch || user.value?.branchName || 'Peshawar'
-  form.value.diagnosis = c.issue || 'Controller fault'
-  form.value.fault = c.notes || c.issue || 'Intake issue inspection required'
-  form.value.decision = `Execute ${c.type || 'Service'} Repair`
-  form.value.technician = c.assignedTech || 'Usman'
+  form.value.caseRef = c.caseId || c.id || ''
+  form.value.case_id = c.id || c.caseId || ''
+  form.value.customer = c.customer || ''
+  form.value.customer_id = c.customer_id || ''
+  form.value.customerPhone = c.customerPhone || c.phone || ''
+  form.value.unit = c.unitSerial || c.unit || ''
+  form.value.unit_id = c.unit_id || c.unitSerial || c.unit || ''
+  form.value.unitModel = c.unitModel || (c.unit ? `BRG ${c.unit}` : '')
+  form.value.warranty_id = c.warranty_id || ''
+  form.value.branch = c.branch || user.value?.branchName || store.getActiveBranch() || 'Peshawar'
+  form.value.diagnosis = c.issue || ''
+  form.value.fault = c.notes || c.issue || ''
+  form.value.decision = c.type ? `Execute ${c.type} Repair` : ''
+  form.value.technician = c.assignedTech || ''
   caseSearch.value = `${c.caseId || c.id} - ${c.customer}`
   showCaseDropdown.value = false
 }
 
 const form = ref({
   repairId: '',
-  caseRef: 'SC-229',
-  case_id: 'SC-229',
-  customer_id: 'CUST-101',
-  customer: 'Ahsan Khan',
-  customerPhone: '+92 312 553 8198',
-  unit: 'CH 8-BRG-26-01731',
-  unit_id: 'CH 8-BRG-26-01731',
-  unitModel: 'BRG X7 Electric (2026 Edition)',
-  warranty_id: 'WAR-101',
-  branch: user.value?.branchName || 'Peshawar',
-  branch_id: 'BR-01',
-  diagnosis: 'Controller fault',
-  fault: 'Controller intermittently loses power under load',
-  decision: 'Replace 72V MOSFET controller unit',
-  technician: 'Usman',
-  partsName: 'Controller & Harness',
-  partItem: '72V Smart Controller Module',
+  caseRef: '',
+  case_id: '',
+  customer_id: '',
+  customer: '',
+  customerPhone: '',
+  unit: '',
+  unit_id: '',
+  unitModel: '',
+  warranty_id: '',
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
+  branch_id: user.value?.branchId || 'BR-01',
+  diagnosis: '',
+  fault: '',
+  decision: '',
+  technician: '',
+  partsName: '',
+  partItem: '',
   partQty: 1,
-  partCost: '18000',
+  partCost: '0',
   partSource: 'Service Stock',
-  labourWork: 'Controller replacement & wiring harness test',
-  labourHours: 1.5,
+  labourWork: '',
+  labourHours: 0,
   labourRate: '2,000/hr',
-  labourAmount: '3500',
-  readyDate: '30 Aug',
+  labourAmount: '0',
+  readyDate: '',
   status: 'In Progress',
-  warrantyStatus: '100% Covered Under Warranty',
-  warrantyPolicy: '2-Year Electrical Component Warranty',
-  customerApprovalStatus: 'Approved',
+  warrantyStatus: 'Pending Verification',
+  warrantyPolicy: '',
+  customerApprovalStatus: 'Pending',
   customerApprovalMethod: 'In-Person Intake Form',
-  customerApprovalNotes: 'Customer dropped vehicle with charger and key.',
-  tasks: [
-    { name: 'Inspect wiring harness and throttle feed', tech: 'Usman' },
-    { name: 'Replace 72V MOSFET controller unit', tech: 'Usman' },
-    { name: 'Bench test and road calibration', tech: 'Usman' }
-  ]
+  customerApprovalNotes: '',
+  tasks: []
 })
 
 const loadData = (data) => {

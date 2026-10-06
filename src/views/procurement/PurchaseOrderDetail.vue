@@ -3,25 +3,15 @@ import { Pencil, ArrowLeft, PackageCheck, Truck, ShieldCheck, Eye } from 'lucide
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
 
-const poId = computed(() => route.params.id || route.query.id || 'PO-2048')
+const poId = computed(() => route.params.id || route.query.id || '')
 const poRecord = computed(() => {
-  return store.getPurchaseOrderById(poId.value) || store.purchaseOrders[0] || {
-    id: 'PO-2048',
-    po: 'PO-2048',
-    supplier: 'BRG Factory',
-    destination: 'Peshawar',
-    amount: 'PKR 2.8M',
-    units: '16',
-    totalOrdered: 16,
-    totalReceived: 0,
-    remainingUnits: 16,
-    expected: 'Aug 29',
-    status: 'In Transit'
-  }
+  if (!poId.value) return null
+  return store.getPurchaseOrderById(poId.value)
 })
 
 const activeTab = ref('Summary')
@@ -32,27 +22,29 @@ const tabs = ['Summary', 'Items', 'Shipment', 'Receipts', 'Landed Costs', 'Vendo
 // Reactive items from canonical PO
 const poItems = computed(() => {
   if (poRecord.value?.items && poRecord.value.items.length > 0) {
-    return poRecord.value.items.map(item => {
-      const ordered = parseInt(item.ordered || item.qty || 0)
+    return poRecord.value.items.map((item, idx) => {
+      const ordered = parseInt(item.ordered || item.quantity || item.qty || 0)
       const received = parseInt(item.received || item.previouslyReceived || 0)
       const remaining = Math.max(0, ordered - received)
+      const variantDesc = item.variantName || (item.variant_id && item.variant_id !== 'NOT_APPLICABLE' ? item.variant_id : '')
       return {
-        product: item.product || item.name,
+        id: item.lineId || item.id || `LINE-${idx + 1}`,
+        product_id: item.product_id || item.productId,
+        product: item.product || item.productName || item.name,
+        variant_id: item.variant_id || item.variantId || 'NOT_APPLICABLE',
+        variantName: item.variantName || '',
         sku: item.sku || 'SKU-GEN',
         qty: String(ordered),
         ordered,
         received,
         remaining,
-        cost: item.cost || item.unitCost || 'PKR 150K',
-        subtotal: item.subtotal || 'PKR 0'
+        expectedUnitCost: item.expectedUnitCost,
+        cost: item.cost || item.unitCost || (item.expectedUnitCost !== undefined ? `PKR ${item.expectedUnitCost.toLocaleString()}` : 'PKR 150K'),
+        subtotal: item.subtotal || (item.subtotalAmount !== undefined ? `PKR ${item.subtotalAmount.toLocaleString()}` : 'PKR 0')
       }
     })
   }
-  return [
-    { product: 'BRG DS11', sku: 'BRG-DS11', qty: '8', ordered: 8, received: 0, remaining: 8, cost: '146K', subtotal: '1.168M' },
-    { product: 'BRG EV-5', sku: 'BRG-EV5', qty: '5', ordered: 5, received: 0, remaining: 5, cost: '168K', subtotal: '840K' },
-    { product: 'Cargo Pro', sku: 'BRG-CARGO', qty: '3', ordered: 3, received: 0, remaining: 3, cost: '214K', subtotal: '642K' }
-  ]
+  return []
 })
 
 // Reactive receipts associated with this PO
@@ -88,7 +80,14 @@ const handleReceiveShipment = () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!poRecord"
+    title="Purchase Order Not Found"
+    :message="`Purchase Order '${poId}' was not found or is not accessible.`"
+    back-path="/procurement/purchase-orders"
+    back-label="Back to Purchase Orders"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -258,7 +257,7 @@ const handleReceiveShipment = () => {
             </thead>
             <tbody class="text-[11px] divide-y divide-gray-50">
               <tr v-for="item in poItems" :key="item.sku" class="hover:bg-gray-50/50">
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
+                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }} <span v-if="item.variantName && item.variant_id !== 'NOT_APPLICABLE'" class="ml-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700">Variant: {{ item.variantName }}</span></td>
                 <td class="px-5 py-4 text-gray-600 font-mono text-[10px]">{{ item.sku }}</td>
                 <td class="px-4 py-4 text-center font-bold text-gray-800">{{ item.ordered }}</td>
                 <td class="px-4 py-4 text-center font-bold text-blue-700">{{ item.received }}</td>

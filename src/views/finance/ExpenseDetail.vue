@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '@/store'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { ChevronDown, ArrowLeft, CheckCircle2, FileText } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -14,34 +15,8 @@ const toastMessage = ref('')
 
 const currentExpense = computed(() => {
   const paramId = route.params.id || route.query.id
-  if (paramId) {
-    const found = store.getExpenseById(paramId) || store.expenses.find(e => e.id === paramId || e.expenseId === paramId)
-    if (found) return found
-  }
-  if (store.selectedExpense) return store.selectedExpense
-  return store.expenses[0] || {
-    id: 'EXP-402',
-    branch: 'Peshawar',
-    category: 'Utilities',
-    vendor: 'PESCO',
-    amount: 'PKR 48,500',
-    rawAmount: '48,500',
-    date: '27 Aug',
-    fullDate: '27 Aug 2026',
-    approval: 'Pending',
-    approvalClass: 'bg-[#fef3c7] text-[#92400e]',
-    payment: 'Unpaid',
-    paymentClass: 'text-gray-900 font-medium',
-    branchLimit: 'PKR 100K',
-    decision: 'Awaiting management',
-    paymentMethod: 'Bank',
-    description: 'Branch electricity bill',
-    receiptFile: 'pescobill_aug.pdf',
-    receiptType: 'PDF Document',
-    submittedBy: 'Branch Manager',
-    lastUpdate: 'Today 08:20',
-    notes: 'Submit for approval'
-  }
+  if (!paramId) return null
+  return store.getExpenseById(paramId)
 })
 
 // --- BRANCH MANAGER TABS & DATA ---
@@ -209,8 +184,14 @@ const rejectExpense = () => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!currentExpense"
+    title="Expense Not Found"
+    message="The requested expense record does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/finance/expenses"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

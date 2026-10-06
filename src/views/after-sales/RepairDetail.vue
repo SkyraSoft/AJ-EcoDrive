@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { 
   ChevronDown, ArrowLeft, Check, CheckCircle2, Clock, 
   Wrench, FileText, Plus, Download, ShieldCheck, User
@@ -15,7 +16,7 @@ const user = computed(() => store.currentUser)
 const repairData = computed(() => {
   const paramId = route.params.id || route.query.id
   if (paramId) {
-    const found = store.getRepairById(paramId) || store.repairs.find(r => r.repairId === paramId || r.id === paramId)
+    const found = store.getRepairById(paramId)
     if (found) return found
     return null
   }
@@ -304,22 +305,13 @@ const getStatusBadgeClass = (status) => {
   </div>
 
   <!-- NOT FOUND STATE -->
-  <div v-if="!repairData" class="max-w-[800px] mx-auto py-16 px-4 text-center">
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-4">
-      <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto">
-        <Wrench class="w-6 h-6" />
-      </div>
-      <h2 class="text-xl font-bold text-gray-900">Repair Job Not Found</h2>
-      <p class="text-xs text-gray-500 max-w-md mx-auto">
-        The requested repair job could not be located. It may have been deleted or the link is invalid.
-      </p>
-      <div class="pt-2">
-        <router-link to="/after-sales/repairs" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28] transition-colors">
-          <ArrowLeft class="w-4 h-4" /> Back to Repairs
-        </router-link>
-      </div>
-    </div>
-  </div>
+  <NotFoundState
+    v-if="!repairData"
+    title="Repair Job Not Found"
+    message="The requested repair job could not be found or is not accessible from your current branch context."
+    back-link="/after-sales/repairs"
+    back-text="Back to Repairs"
+  />
 
   <!-- BRANCH MANAGER VIEW -->
   <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">

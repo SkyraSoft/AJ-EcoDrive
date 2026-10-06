@@ -94,19 +94,21 @@ const clearFilters = () => {
 // DATA COMPUTATIONS
 // -------------------------------------------------------------
 const actionItems = computed(() => {
-  return store.actionQueue || []
+  return store.getActionTasksForUser() || []
 })
 
 const filteredQueue = computed(() => {
   const branchScope = isBranchUser.value ? user.value.branchName : selectedBranch.value
 
   return actionItems.value.filter(item => {
-    // Branch filter
+    // Branch filter using canonical resolution
     if (branchScope && branchScope !== 'All Branches') {
-      const matchBranch = item.branch?.toLowerCase() === branchScope.toLowerCase() ||
-                          item.originBranch?.toLowerCase() === branchScope.toLowerCase() ||
-                          item.branch === 'All Branches'
-      if (!matchBranch) return false
+      const scopeCanon = store.resolveCanonicalBranchId(branchScope)
+      const itemRecipientCanon = store.resolveCanonicalBranchId(item.recipientBranchId || item.recipientBranch_id || item.recipientBranch || item.branchId || item.branch_id || item.branch)
+      const itemOriginCanon = store.resolveCanonicalBranchId(item.originBranchId || item.originBranch_id || item.originBranch)
+      if (itemRecipientCanon !== 'ALL' && itemRecipientCanon !== scopeCanon && itemOriginCanon !== scopeCanon) {
+        return false
+      }
     }
 
     // Priority filter
@@ -142,13 +144,11 @@ const filteredQueue = computed(() => {
 
 // Dynamic KPIs
 const kpiStats = computed(() => {
-  const all = actionItems.value
-  const branchScope = isBranchUser.value ? user.value.branchName : null
-  const scoped = branchScope ? all.filter(a => a.branch === branchScope || a.originBranch === branchScope || a.branch === 'All Branches') : all
+  const scoped = actionItems.value
 
   const pending = scoped.filter(a => a.status === 'Pending').length
   const critical = scoped.filter(a => a.priority === 'Critical' && a.status === 'Pending').length
-  const dueToday = scoped.filter(a => a.due === 'Today' && a.status === 'Pending').length
+  const dueToday = scoped.filter(a => (a.due === 'Today' || a.due === 'Same Day') && a.status === 'Pending').length
   const resolved = scoped.filter(a => a.status === 'Approved' || a.status === 'Resolved' || a.status === 'Dispatched').length
 
   return {
@@ -411,10 +411,13 @@ const executeDecision = (status, customResult = {}) => {
   if (!selectedActionForTreatment.value) return
 
   try {
-    store.resolveActionItem(selectedActionForTreatment.value.id, {
+    store.resolveWorkflowTask(selectedActionForTreatment.value.id, status, {
       status,
       decisionNotes: decisionNotes.value,
-      treatmentResult: customResult
+      notes: decisionNotes.value,
+      reason: decisionNotes.value,
+      treatmentResult: customResult,
+      ...customResult
     })
 
     triggerToast(`Action [${selectedActionForTreatment.value.id}] treated as: ${status}!`)
@@ -654,7 +657,7 @@ const exportActionQueue = () => {
     </div>
 
     <!-- Main Action Queue Table -->
-    <div id="dap-actioncentre-table" data-tour="action-centre-table" class="bg-white dark:bg-slate-900 rounded-[12px] border border-gray-100 dark:border-gray-800 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div id="dap-actioncentre-table" data-tour="action-centre-table" data-tour-id="sa.action-centre.queue.list" class="bg-white dark:bg-slate-900 rounded-[12px] border border-gray-100 dark:border-gray-800 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
         <div>
           <h3 class="text-sm font-bold text-gray-900 dark:text-white">Active Operational Work Queue</h3>
@@ -723,7 +726,7 @@ const exportActionQueue = () => {
               <td class="px-5 py-4 align-middle text-right whitespace-nowrap">
                 <button 
                   @click.stop="openTreatmentModal(item)"
-                  data-tour="action-centre-treatment"
+                  data-tour="action-centre-treatment" data-tour-id="sa.action-centre.drawer.approve-btn"
                   class="text-xs font-bold text-[#165A31] dark:text-emerald-400 hover:underline flex items-center justify-end gap-1 ml-auto cursor-pointer"
                 >
                   Treat / Inspect &rarr;
@@ -1451,25 +1454,27 @@ const exportActionQueue = () => {
             <!-- TYPE 2: STOCK REALLOCATION ACTIONS -->
             <template v-else-if="selectedActionForTreatment.flowType === 'stock_reallocation'">
               <button 
-                @click="executeDecision('Declined', { reason: 'Origin showroom required minimum buffer' })"
-                class="px-3.5 py-1.5 text-xs font-semibold text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
+                v-if="selectedActionForTreatment.workflowType === 'inter_branch_transfer' || selectedActionForTreatment.sourceEntity === 'transfers'"
+                @click="executeDecision('receive', { receiverLocation: 'Showroom Floor', receiverNotes: decisionNotes })"
+                class="px-4 py-1.5 text-xs font-semibold text-white bg-[#165A31] hover:bg-[#124a28] rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                Decline Transfer
+                <CheckCircle2 class="w-3.5 h-3.5" />
+                <span>Receive & Inward Inventory</span>
               </button>
               <button 
-                @click="executeDecision('Approved', { authorizedUnits: 1, note: 'Partial 1 unit authorized' })"
-                class="px-3.5 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
-              >
-                Partial Allocation (1 Unit)
-              </button>
-              <button 
-                @click="executeDecision('Dispatched', { transferPermit: 'TR-PERMIT-8841', carrier: 'TCS Dedicated Van' })"
+                v-else
+                @click="executeDecision('Approved', { authorizedUnits: 1 })"
                 class="px-4 py-1.5 text-xs font-semibold text-white bg-[#165A31] hover:bg-[#124a28] rounded-lg shadow-sm transition-colors cursor-pointer"
               >
-                Authorize & Dispatch Units
+                Approve Stock Request
+              </button>
+              <button 
+                @click="executeDecision('Rejected', { reason: 'Declined based on stock review' })"
+                class="px-3.5 py-1.5 text-xs font-semibold text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer"
+              >
+                Reject Request
               </button>
             </template>
-
             <!-- TYPE 3: OPERATIONAL EXPENSE ACTIONS -->
             <template v-else-if="selectedActionForTreatment.flowType === 'operational_expense'">
               <button 

@@ -20,38 +20,13 @@ const branchKpis = [
   { label: 'Rejected', value: '1', sub: 'This quarter' }
 ]
 
-const branchRequests = ref([
-  {
-    id: 'PR-028',
-    request: 'PR-028',
-    product: 'BRG Urban Mini',
-    category: 'Electric Scooter',
-    specifications: 'Compact urban electric model',
-    reference: 'REF-EV-2026',
-    customerDemand: '4 recent inquiries',
-    urgency: 'Medium',
-    images: '2 references attached',
-    reason: 'Customer demand',
-    submitted: '26 Aug',
-    status: 'Submitted',
-    statusClass: 'bg-[#e0e7ff] text-[#3730a3]'
-  },
-  {
-    id: 'PR-024',
-    request: 'PR-024',
-    product: 'BRG X5 / Sand Beige',
-    category: 'Electric Motorcycle',
-    specifications: 'Special paint edition',
-    reference: 'REF-X5-BEIGE',
-    customerDemand: '6 advance deposits',
-    urgency: 'High',
-    images: '1 color swatch',
-    reason: 'Requested variant',
-    submitted: '20 Aug',
-    status: 'Approved',
-    statusClass: 'bg-[#dcfce7] text-[#165A31]'
-  }
-])
+const branchRequests = computed(() => {
+  return (store.productRequests || []).map(r => ({
+    ...r,
+    request: r.requestId || r.id,
+    submitted: r.submittedDate || '26 Aug'
+  }))
+})
 
 const branchStatusFilter = ref('All')
 const openBranchDropdown = ref(null)
@@ -69,9 +44,9 @@ const filteredBranchRequests = computed(() => {
     if (branchSearchQuery.value.trim()) {
       const q = branchSearchQuery.value.toLowerCase()
       const match = item.request.toLowerCase().includes(q) ||
-                    item.product.toLowerCase().includes(q) ||
-                    item.reason.toLowerCase().includes(q) ||
-                    item.status.toLowerCase().includes(q)
+                    (item.product && item.product.toLowerCase().includes(q)) ||
+                    (item.reason && item.reason.toLowerCase().includes(q)) ||
+                    (item.status && item.status.toLowerCase().includes(q))
       if (!match) return false
     }
     return true
@@ -89,23 +64,11 @@ const openEditModal = (req) => {
 }
 
 const handleCreated = (item) => {
-  branchRequests.value.unshift({
-    ...item,
-    request: item.id,
-    submitted: 'Today',
-    statusClass: 'bg-[#e0e7ff] text-[#3730a3]'
-  })
+  store.addProductRequest(item)
 }
 
 const handleUpdated = (item) => {
-  const idx = branchRequests.value.findIndex(r => r.id === item.id || r.request === item.id)
-  if (idx !== -1) {
-    branchRequests.value[idx] = {
-      ...branchRequests.value[idx],
-      ...item,
-      request: item.id
-    }
-  }
+  store.updateProductRequest(item.id, item)
 }
 
 // Super Admin Data
@@ -117,12 +80,20 @@ const openDropdown = ref(null)
 
 const branches = ['All Branches', 'Peshawar', 'Islamabad', 'Lahore']
 
-const requestsData = ref([
-  { id: 'PR-0181', request: 'PR-0181', branch: 'Peshawar', product: 'BRG DS12', category: 'Electric Motorcycle', specifications: 'High torque version', reason: 'Customer demand', submitted: 'Aug 27', status: 'Pending', action: 'Review' },
-  { id: 'PR-0178', request: 'PR-0178', branch: 'Lahore', product: 'BRG Cargo Max', category: 'Electric Cargo', specifications: 'Extended payload bed', reason: 'Commercial lead', submitted: 'Aug 20', status: 'Pending', action: 'Review' },
-  { id: 'PR-0162', request: 'PR-0162', branch: 'Islamabad', product: 'BRG City Mini', category: 'Electric Scooter', specifications: 'Foldable commuter model', reason: 'New segment', submitted: 'Aug 19', status: 'Approved', action: 'Open' },
-  { id: 'PR-0155', request: 'PR-0155', branch: 'Peshawar', product: 'BRG HyperSport', category: 'Electric Superbike', specifications: 'Track spec package', reason: 'Custom racing request', submitted: 'Aug 10', status: 'Rejected', action: 'View' }
-])
+const requestsData = computed(() => {
+  return (store.productRequests || []).map(r => ({
+    id: r.id,
+    request: r.requestId || r.id,
+    branch: r.branch || 'Peshawar',
+    product: r.product || r.productName,
+    category: r.category || 'Electric Scooter',
+    specifications: r.specifications || '',
+    reason: r.reason || 'Customer demand',
+    submitted: r.submittedDate || 'Aug 27',
+    status: r.status === 'Submitted' ? 'Pending' : r.status,
+    action: r.status === 'Submitted' ? 'Review' : (r.status === 'Approved' ? 'Open' : 'View')
+  }))
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -385,7 +356,7 @@ const filteredRequests = computed(() => {
       </div>
       
       <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table data-tour-id="sa.catalogue.requests.queue" class="w-full text-left">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
               <th class="px-5 py-3">Request</th>

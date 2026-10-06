@@ -1,5 +1,15 @@
 import { store } from '../src/store.js'
 
+// Set authenticated session for test suite
+store.setSession({
+  name: 'Super Admin',
+  role: 'Super Admin',
+  branchName: 'All Branches',
+  branchCode: 'ALL',
+  isAuthenticated: true,
+  isSuperAdmin: true
+})
+
 console.log('=====================================================')
 console.log('AJ ECODRIVE — CROSS-ENTITY VALIDATION TEST SUITE')
 console.log('=====================================================\n')

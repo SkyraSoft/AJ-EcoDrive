@@ -4,26 +4,19 @@ import { useRoute, useRouter } from 'vue-router'
 import { ChevronDown } from 'lucide-vue-next'
 import { store } from '@/store'
 import CreateLeadModal from './CreateLead.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const leadId = computed(() => route.params.id || route.query.id || 'LD-551')
-const currentLead = computed(() => store.getLeadById(leadId.value) || store.leads[0] || {
-  id: leadId.value,
-  name: 'Sajid Khan',
-  customer: 'Sajid Khan',
-  phone: '0312 553 8198',
-  product: 'BRG X7',
-  budget: 'PKR 350,000',
-  source: 'Website',
-  owner: 'Hamza',
-  stage: 'New',
-  branch: 'Peshawar'
+const leadId = computed(() => route.params.id || route.query.id || '')
+const currentLead = computed(() => {
+  if (!leadId.value) return null
+  return store.getLeadById(leadId.value)
 })
-const leadCustomer = computed(() => route.query.name || currentLead.value.name || currentLead.value.customer || 'Sajid Khan')
+const leadCustomer = computed(() => route.query.name || currentLead.value?.name || currentLead.value?.customer || '')
 
 const branchCurrentTab = ref('Requirement')
 const branchTabs = ['Requirement', 'Contact', 'Messages', 'Follow-ups', 'Quotation', 'Conversion']
@@ -158,8 +151,14 @@ const createQuotation = () => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!currentLead"
+    title="Lead Not Found"
+    message="The requested lead does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/sales/leads"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

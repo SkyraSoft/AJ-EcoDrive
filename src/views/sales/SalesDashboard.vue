@@ -6,43 +6,89 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager Data
-const branchKpis = [
-  { label: "Today's Sales", value: 'PKR 1.84M', sub: '+12% vs yesterday' },
-  { label: 'Units Sold', value: '7', sub: '+2 vs yesterday' },
-  { label: 'Collections', value: 'PKR 1.32M', sub: '72% collected' },
-  { label: 'Outstanding', value: 'PKR 520K', sub: '6 open balances' }
-]
+const branchKpis = computed(() => {
+  const branchName = user.value?.branchName || 'Peshawar'
+  const branchId = store.resolveCanonicalBranchId ? store.resolveCanonicalBranchId(branchName) : user.value?.branchCode
+  const bmFin = store.calculateFinancialMetrics({ branch_id: branchId || branchName })
+  const bmSoldUnits = store.serializedUnits.filter(u => store.isBranchAllowed(u.branch) && store.normalizeUnitStatus(u.status) === 'Sold').length
+  const bmPayments = store.payments.filter(p => store.isBranchAllowed(p.branch))
+  const bmCollections = bmPayments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : (store.parseMoney(p.amount) || 0)), 0)
+  const bmInvoices = store.invoices.filter(i => store.isBranchAllowed(i.branch) && i.status !== 'Paid' && i.status !== 'Cancelled')
+  const bmOutstanding = bmInvoices.reduce((sum, i) => sum + (i.outstandingAmount !== undefined ? i.outstandingAmount : (store.parseMoney(i.amount || i.total) - (i.paidAmount || 0))), 0)
+
+  return [
+    { label: "Today's Sales", value: store.formatCurrency(bmFin.netSales), sub: 'Net Sales' },
+    { label: 'Units Sold', value: String(bmSoldUnits), sub: 'Units delivered' },
+    { label: 'Collections', value: store.formatCurrency(bmCollections), sub: 'Recorded payments' },
+    { label: 'Outstanding', value: store.formatCurrency(bmOutstanding), sub: `${bmInvoices.length} open balances` }
+  ]
+})
 
 // Super Admin Data
-const kpis = [
-  { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true },
-  { label: 'Units Sold', value: '184', change: '+8.2%', positive: true },
-  { label: 'Orders', value: '197', change: '+6.4%', positive: true },
-  { label: 'Avg Sale', value: 'PKR 144K', change: '+4.1%', positive: true },
-  { label: 'Discounts', value: 'PKR 0.9M' },
-  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true },
-  { label: 'Collections', value: 'PKR 25.5M' },
-  { label: 'Outstanding', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false }
-]
+const kpis = computed(() => {
+  const globalFin = store.calculateFinancialMetrics({ branch_id: 'ALL' })
+  const globalOrders = store.orders.filter(o => o.status !== 'Cancelled' && o.status !== 'Draft')
+  const globalSoldUnits = store.serializedUnits.filter(u => store.normalizeUnitStatus(u.status) === 'Sold').length
+  const avgSale = globalOrders.length > 0 ? globalFin.netSales / globalOrders.length : 0
+  const globalPayments = store.payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : (store.parseMoney(p.amount) || 0)), 0)
+  const globalOutstandingInvoices = store.invoices.filter(i => i.status !== 'Paid' && i.status !== 'Cancelled')
+  const globalOutstanding = globalOutstandingInvoices.reduce((sum, i) => sum + (i.outstandingAmount !== undefined ? i.outstandingAmount : (store.parseMoney(i.amount || i.total) - (i.paidAmount || 0))), 0)
 
-const branchSales = [
-  { name: 'Peshawar', value: 98, percentage: 100 },
-  { name: 'Islamabad', value: 76, percentage: 78 },
-  { name: 'Lahore', value: 62, percentage: 63 },
-  { name: 'Rawalpindi', value: 49, percentage: 50 }
-]
+  return [
+    { label: 'Net Sales', value: store.formatCurrency(globalFin.netSales), change: '+12.8%', positive: true },
+    { label: 'Units Sold', value: String(globalSoldUnits), change: '+8.2%', positive: true },
+    { label: 'Orders', value: String(globalOrders.length), change: '+6.4%', positive: true },
+    { label: 'Avg Sale', value: store.formatCurrency(avgSale), change: '+4.1%', positive: true },
+    { label: 'Discounts', value: store.formatCurrency(globalFin.discounts) },
+    { label: 'Gross Profit', value: store.formatCurrency(globalFin.grossProfit), change: '+15.0%', positive: true },
+    { label: 'Collections', value: store.formatCurrency(globalPayments) },
+    { label: 'Outstanding', value: store.formatCurrency(globalOutstanding), subtitle: `${globalOutstandingInvoices.length} open balances`, positive: false }
+  ]
+})
 
-const topProducts = [
-  { name: 'BRG DS11', revenue: '6.4M', units: '41', margin: '18.8%' },
-  { name: 'BRG EV-5', revenue: '5.1M', units: '35', margin: '16.4%' },
-  { name: 'Cargo Pro', revenue: '3.8M', units: '21', margin: '20.2%' }
-]
+const branchSales = computed(() => {
+  const branches = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
+  const counts = branches.map(b => {
+    const fin = store.calculateFinancialMetrics({ branch_id: b })
+    return { name: b, sales: fin.netSales }
+  })
+  const max = Math.max(...counts.map(c => c.sales), 1)
+  return counts.map(c => ({
+    name: c.name,
+    value: c.sales > 0 ? Math.round((c.sales / max) * 100) : 0,
+    percentage: c.sales > 0 ? Math.round((c.sales / max) * 100) : 0
+  }))
+})
 
-const collections = [
-  { branch: 'Peshawar', collected: '8.9M', outstanding: '0.9M', overdue: '3' },
-  { branch: 'Islamabad', collected: '6.8M', outstanding: '0.8M', overdue: '5' },
-  { branch: 'Lahore', collected: '5.8M', outstanding: '0.6M', overdue: '4' }
-]
+const topProducts = computed(() => {
+  return store.products.slice(0, 3).map(p => {
+    const units = store.serializedUnits.filter(u => u.product_id === p.id && store.normalizeUnitStatus(u.status) === 'Sold').length
+    const price = typeof p.price === 'number' ? p.price : (store.parseMoney(p.price) || 0)
+    return {
+      name: p.name,
+      revenue: store.formatCurrency(units * price),
+      units: String(units),
+      margin: '18.8%'
+    }
+  })
+})
+
+const collections = computed(() => {
+  const branches = ['Peshawar', 'Islamabad', 'Lahore']
+  return branches.map(b => {
+    const payments = store.payments
+      .filter(p => (p.branch || '').toLowerCase() === b.toLowerCase())
+      .reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : (store.parseMoney(p.amount) || 0)), 0)
+    const invoices = store.invoices.filter(i => (i.branch || '').toLowerCase() === b.toLowerCase() && i.status !== 'Paid')
+    const outstanding = invoices.reduce((sum, i) => sum + (i.outstandingAmount !== undefined ? i.outstandingAmount : (store.parseMoney(i.amount || i.total) - (i.paidAmount || 0))), 0)
+    return {
+      branch: b,
+      collected: store.formatCurrency(payments),
+      outstanding: store.formatCurrency(outstanding),
+      overdue: String(invoices.length)
+    }
+  })
+})
 </script>
 
 <template>

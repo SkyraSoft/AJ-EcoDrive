@@ -25,6 +25,7 @@ import CreateCustomerModal from './CreateCustomer.vue'
 import CreateSaleModal from './CreateSale.vue'
 import CreateQuotationModal from './CreateQuotation.vue'
 import CreatePaymentModal from './CreatePayment.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,34 +33,11 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Resolve Customer Record
-const customerId = computed(() => route.params.id || route.query.id || 'CUST-101')
+const customerId = computed(() => route.params.id || route.query.id || '')
 
 const customerRecord = computed(() => {
-  const c = store.getCustomerById(customerId.value)
-  if (c) return c
-  // Fallback if not found by direct ID
-  const all = store.customers || []
-  return all.find(item => item.id === customerId.value || item.customer_id === customerId.value || item.code === customerId.value || item.name === customerId.value) || all[0] || {
-    id: customerId.value,
-    code: customerId.value,
-    name: 'Customer',
-    firstName: 'Valued',
-    lastName: 'Customer',
-    phone: '0300 0000000',
-    email: 'customer@example.com',
-    cnic: '17301-0000000-1',
-    address: 'Main Showroom',
-    city: 'Peshawar',
-    branch: 'Peshawar',
-    status: 'Active',
-    statusClass: 'bg-[#dcfce7] text-[#165A31]',
-    orders: 0,
-    ordersCount: 0,
-    totalPurchases: 'PKR 0',
-    ltv: '0',
-    outstanding: 'PKR 0',
-    units: 0
-  }
+  if (!customerId.value) return null
+  return store.getCustomerById(customerId.value)
 })
 
 const customerName = computed(() => customerRecord.value?.name || `${customerRecord.value?.firstName || ''} ${customerRecord.value?.lastName || ''}`.trim() || 'Customer')
@@ -335,7 +313,14 @@ const totalUnitsCount = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12 animate-in fade-in duration-200">
+  <NotFoundState
+    v-if="!customerRecord"
+    title="Customer Not Found"
+    :message="`Customer '${customerId}' was not found or is not accessible for your branch.`"
+    back-path="/sales/customers"
+    back-label="Back to Customers"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12 animate-in fade-in duration-200">
     
     <!-- Toast Notification -->
     <div 

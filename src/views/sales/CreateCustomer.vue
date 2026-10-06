@@ -33,8 +33,8 @@ const formData = ref({
   email: '',
   cnic: '',
   address: '',
-  city: 'Peshawar',
-  branch: user.value?.branchName || 'Peshawar',
+  city: '',
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
   status: 'Active',
   notes: ''
 })
@@ -172,7 +172,7 @@ const createCustomer = () => {
                     <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
                     <input 
                       v-model="formData.firstName" 
-                      data-tour="customer-name"
+                      data-tour="customer-name" data-tour-id="bm.customer.form.first-name"
                       type="text" 
                       placeholder="e.g. Ahsan" 
                       class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors"
@@ -190,7 +190,7 @@ const createCustomer = () => {
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Mobile Phone Number *</label>
                   <input 
                     v-model="formData.phone" 
-                    data-tour="customer-phone"
+                    data-tour="customer-phone" data-tour-id="bm.customer.form.phone"
                     type="text" 
                     placeholder="e.g. 0300 1234567" 
                     class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors"
@@ -206,7 +206,7 @@ const createCustomer = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">CNIC / National Identity Card</label>
-                  <input v-model="formData.cnic" data-tour="customer-cnic" type="text" placeholder="17301-XXXXXXX-X" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors font-mono" />
+                  <input v-model="formData.cnic" data-tour="customer-cnic" data-tour-id="bm.customer.form.cnic" type="text" placeholder="17301-XXXXXXX-X" class="w-full px-3.5 py-2 text-xs bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:border-[#165A31] transition-colors font-mono" />
                 </div>
               </div>
             </div>

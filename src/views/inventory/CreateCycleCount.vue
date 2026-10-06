@@ -25,15 +25,15 @@ const showValidation = ref(false)
 
 const form = ref({
   id: '',
-  countName: 'Showroom Count',
+  countName: '',
   scope: 'Showroom Units',
-  assignedTo: 'Branch Team',
+  assignedTo: user.value?.name || 'Branch Team',
   scheduledDate: 'Today',
-  expectedUnits: '20 units',
-  targetLocation: 'Main Showroom',
-  notes: 'Verify chassis & serial tags on all displayed EV units.',
-  status: 'In Progress',
-  branch: user.value?.branchName || 'Peshawar'
+  expectedUnits: '',
+  targetLocation: '',
+  notes: '',
+  status: 'Scheduled',
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
 })
 
 const loadData = (data) => {

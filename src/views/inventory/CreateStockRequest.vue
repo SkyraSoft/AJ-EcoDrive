@@ -25,17 +25,17 @@ const showValidation = ref(false)
 
 const form = ref({
   id: '',
-  productId: 'PROD-001',
-  product: 'BRG X5',
-  currentStock: '6 available / 1 reserved',
-  requestedQty: '4',
-  urgency: 'High',
-  expectedDemand: '2 customer showroom walk-ins + 1 fleet quotation',
+  productId: '',
+  product: '',
+  currentStock: '',
+  requestedQty: '1',
+  urgency: 'Medium',
+  expectedDemand: '',
   orderLink: '',
-  reason: 'Stock is below showroom safety threshold (5 units)',
-  notes: 'Dispatch via internal logistics truck as priority',
+  reason: '',
+  notes: '',
   status: 'Pending',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
 })
 
 const onProductSelect = (prodId) => {

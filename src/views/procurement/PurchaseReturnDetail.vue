@@ -2,17 +2,14 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import CreatePurchaseReturn from './CreatePurchaseReturn.vue'
 
 const route = useRoute()
-const returnId = computed(() => route.params.id || route.query.id || 'PRTN-044')
+const returnId = computed(() => route.params.id || route.query.id || '')
 const returnRecord = computed(() => {
-  return store.getPurchaseReturnById(returnId.value) || store.purchaseReturns[0] || {
-    returnNo: 'PRTN-044',
-    supplier: 'BRG Factory',
-    po: 'PO-2022',
-    status: 'Approved'
-  }
+  if (!returnId.value) return null
+  return store.getPurchaseReturnById(returnId.value) || null
 })
 
 const activeTab = ref('Summary')
@@ -42,7 +39,14 @@ const activities = [
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!returnRecord"
+    title="Purchase Return Not Found"
+    message="The requested purchase return could not be found or is not accessible from your current branch context."
+    back-link="/procurement/purchase-orders"
+    back-text="Back to Purchase Orders"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

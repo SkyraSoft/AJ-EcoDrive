@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { Plus } from 'lucide-vue-next'
 import CreateQuarantineRecordModal from './CreateQuarantineRecord.vue'
 
@@ -12,7 +13,11 @@ const user = computed(() => store.currentUser)
 const showCreateModal = ref(false)
 
 // Branch Manager Data & Logic
-const unitId = computed(() => route.params.id || route.query.id || 'M3-01014')
+const unitId = computed(() => route.params.id || route.query.id || '')
+const isValidQuarantineUnit = computed(() => {
+  if (!unitId.value) return false
+  return unitId.value === 'M3-01014' || unitId.value === 'X5-00401'
+})
 const isX5 = computed(() => unitId.value === 'X5-00401')
 const branchCurrentTab = ref('Summary')
 const branchTabs = ['Summary', 'Defect & Condition', 'Evidence & Inspection', 'Disposition & Approval', 'Activity & History']
@@ -185,8 +190,14 @@ const adminTabData = computed(() => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!isValidQuarantineUnit"
+    title="Quarantine Record Not Found"
+    message="The requested quarantine unit record does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/inventory/quarantine"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

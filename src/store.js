@@ -1,4 +1,5 @@
 import { reactive } from 'vue'
+import { normalizeRole, isSuperAdmin, isBranchUser, matchBranch, canReadRecord, canMutateRecord, assertRecordMutationAccess, getRecordBranchIdentity, resolveCanonicalBranchId, setActiveBranchRegistry, ENTITY_BRANCH_PROPERTY_MAP } from './utils/branchAuth.js'
 
 // Load initial session from storage if available
 const savedSession = (() => {
@@ -73,9 +74,112 @@ export const store = reactive({
     }
   },
 
-  // Helper to check if current user is a Branch Manager / branch-scoped user
-  isBranchUser() {
-    return !!(this.currentUser && this.currentUser.isAuthenticated && !this.currentUser.isSuperAdmin)
+  // Centralized Authorization & Scoping Primitives
+  isSuperAdminUser(user = this.currentUser) {
+    return isSuperAdmin(user)
+  },
+
+  isBranchUser(user = this.currentUser) {
+    return isBranchUser(user)
+  },
+
+  resolveCanonicalBranchId(branchInput) {
+    return resolveCanonicalBranchId(branchInput, this.branches)
+  },
+
+  resolveTrustedCreationBranch(payload = {}, user = this.currentUser) {
+    // 1. If user is Super Admin: SA may explicitly assign branch in payload
+    if (this.isSuperAdminUser(user)) {
+      const explicitBranch = payload.branch_id || payload.branchId || payload.branch || payload.branchName
+      if (explicitBranch) {
+        const canonicalId = this.resolveCanonicalBranchId(explicitBranch)
+        const branchObj = this.branches.find(b => b.id === canonicalId || b.branch_id === canonicalId)
+        return {
+          branch_id: canonicalId || explicitBranch,
+          branchId: canonicalId || explicitBranch,
+          branch: branchObj?.name || explicitBranch,
+          branchName: branchObj?.name || explicitBranch,
+          branchCode: branchObj?.code || canonicalId || explicitBranch
+        }
+      }
+      const saBranch = user.branchId || user.branchCode || user.branchName || user.branch
+      if (saBranch && saBranch !== 'ALL' && saBranch !== 'All') {
+        const canonicalId = this.resolveCanonicalBranchId(saBranch)
+        const branchObj = this.branches.find(b => b.id === canonicalId || b.branch_id === canonicalId)
+        return {
+          branch_id: canonicalId || saBranch,
+          branchId: canonicalId || saBranch,
+          branch: branchObj?.name || user.branchName || user.branch,
+          branchName: branchObj?.name || user.branchName || user.branch,
+          branchCode: branchObj?.code || user.branchCode || canonicalId
+        }
+      }
+      return {
+        branch_id: 'BR-01',
+        branchId: 'BR-01',
+        branch: 'Peshawar',
+        branchName: 'Peshawar',
+        branchCode: 'PEW'
+      }
+    }
+
+    // 2. For Branch Manager / operational branch users:
+    // Session context MUST control ownership. Payload cannot forge another branch!
+    const userBranch = user.branchId || user.branchCode || user.branchName || user.branch
+    const canonicalId = this.resolveCanonicalBranchId(userBranch)
+    const branchObj = this.branches.find(b => b.id === canonicalId || b.branch_id === canonicalId)
+
+    return {
+      branch_id: canonicalId || user.branchCode || 'BR-01',
+      branchId: canonicalId || user.branchCode || 'BR-01',
+      branch: branchObj?.name || user.branchName || user.branch || 'Peshawar',
+      branchName: branchObj?.name || user.branchName || user.branch || 'Peshawar',
+      branchCode: branchObj?.code || user.branchCode || canonicalId || 'PEW'
+    }
+  },
+
+  canReadRecord(user = this.currentUser, entityType, record) {
+    return canReadRecord(user, entityType, record, this.branches)
+  },
+
+  canMutateRecord(user = this.currentUser, entityType, record, operation = 'update') {
+    return canMutateRecord(user, entityType, record, operation, this.branches)
+  },
+
+  assertRecordMutationAccess(entityType, record, operation = 'update', user = this.currentUser) {
+    assertRecordMutationAccess(user, entityType, record, operation, this.addAuditLog.bind(this), this.branches)
+  },
+
+  getScopedRecordById(entityType, id, user = this.currentUser) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    const collection = this[entityType] || []
+    const record = collection.find(item => {
+      if (!item) return false
+      return (
+        (item.id && String(item.id).toLowerCase().trim() === target) ||
+        (item.code && String(item.code).toLowerCase().trim() === target) ||
+        (item.orderNo && String(item.orderNo).toLowerCase().trim() === target) ||
+        (item.invoiceNo && String(item.invoiceNo).toLowerCase().trim() === target) ||
+        (item.paymentNo && String(item.paymentNo).toLowerCase().trim() === target) ||
+        (item.leadNo && String(item.leadNo).toLowerCase().trim() === target) ||
+        (item.quote && String(item.quote).toLowerCase().trim() === target) ||
+        (item.po && String(item.po).toLowerCase().trim() === target) ||
+        (item.returnNo && String(item.returnNo).toLowerCase().trim() === target) ||
+        (item.caseId && String(item.caseId).toLowerCase().trim() === target) ||
+        (item.jobId && String(item.jobId).toLowerCase().trim() === target) ||
+        (item.serial && String(item.serial).toLowerCase().trim() === target) ||
+        (item.vin && String(item.vin).toLowerCase().trim() === target) ||
+        (item.chassisNumber && String(item.chassisNumber).toLowerCase().trim() === target) ||
+        (item.chassis && String(item.chassis).toLowerCase().trim() === target) ||
+        (item.name && String(item.name).toLowerCase().trim() === target)
+      )
+    })
+    if (!record) return null
+    if (!this.canReadRecord(user, entityType, record)) {
+      return null
+    }
+    return record
   },
 
   // Helper to get active branch name
@@ -86,9 +190,8 @@ export const store = reactive({
   // Helper to check if record matches current user's branch
   isBranchAllowed(recordBranch) {
     if (!this.isBranchUser()) return true
-    if (!recordBranch) return true
-    const userBranch = this.getActiveBranch().toLowerCase()
-    return recordBranch.toLowerCase() === userBranch || recordBranch.toLowerCase() === 'all branches' || recordBranch.toLowerCase() === 'all'
+    if (!recordBranch) return false
+    return matchBranch(recordBranch, this.getActiveBranch(), this.branches)
   },
 
   // Dynamic Branch List helper
@@ -501,346 +604,754 @@ export const store = reactive({
   // ==========================================
   actionQueue: [
     {
-      id: 'ACT-PRC-1082',
+      id: 'ACT-PR-PR-028',
+      workflowType: 'product_request_approval',
       flowType: 'commercial_pricing',
-      typeLabel: 'Commercial & Pricing Exception',
-      title: 'Special Fleet Discount for Khyber Courier Service (5x BRG Cargo)',
-      priority: 'Critical',
-      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      typeLabel: 'Product Request Approval',
+      title: 'Product Request PR-028: BRG Urban Mini',
+      priority: 'Medium',
+      priorityClass: 'bg-[#fef3c7] text-[#b45309]',
       status: 'Pending',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      sourceEntity: 'productRequests',
+      sourceRecordId: 'PR-028',
+      recordRef: 'PR-028',
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
       branch: 'Peshawar',
-      originBranch: null,
-      initiator: 'Asad Khan (Branch Manager)',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Ahsan Khan (Peshawar)',
       assignedTo: 'Super Admin',
-      createdAt: '24 Sep 2026, 09:30 AM',
+      createdAt: '2026-08-26, 14:15',
       due: 'Today',
-      recordRef: 'SO-8821',
-      summary: '12% discount waiver requested on 5 BRG Cargo units (gross margin drops from 24.5% to 14.2%)',
-      pricingData: {
-        customerName: 'Khyber Courier & Logistics Ltd',
-        customerContact: '0301-8829104',
-        quotationRef: 'QT-8421',
-        orderRef: 'SO-8821',
-        modelName: 'BRG Cargo Delivery Electric Trike (72V 100Ah)',
-        unitCount: 5,
-        listPricePerUnit: 490000,
-        totalListPrice: 2450000,
-        requestedDiscountPercent: 12,
-        requestedDiscountAmount: 294000,
-        proposedDealValue: 2156000,
-        standardMarginPercent: 24.5,
-        projectedMarginPercent: 14.2,
-        competitorContext: 'RoadPrince EV offered competitor trike at 10% discount. Key fleet trial order with 20 unit potential in Q4.',
-        branchMaxAllowedDiscount: 8
-      },
+      summary: 'Product request PR-028 for compact urban electric scooter model submitted by Peshawar branch.',
       resolution: null
     },
     {
-      id: 'ACT-STK-2041',
+      id: 'ACT-TR-221',
+      workflowType: 'inter_branch_transfer',
       flowType: 'stock_reallocation',
-      typeLabel: 'Inter-Branch Stock Reallocation',
-      title: 'Emergency Reallocation of 2x BRG E-125 (Gloss Emerald Green)',
+      typeLabel: 'Inter-Branch Stock Transfer',
+      title: 'Inward 4x BRG DS11 from Islamabad',
       priority: 'Critical',
       priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
       status: 'Pending',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
-      branch: 'Islamabad',
-      originBranch: 'Lahore',
-      initiator: 'Bilal Ahmed (Branch Manager)',
-      assignedTo: 'Super Admin',
-      createdAt: '24 Sep 2026, 10:15 AM',
-      due: 'Today',
+      sourceEntity: 'transfers',
+      sourceRecordId: 'TR-221',
       recordRef: 'TR-221',
-      summary: 'Urgent pull of 2 BRG E-125 units from Lahore to Islamabad for diplomat delivery booking',
+      originBranchId: 'BR-02',
+      originBranch_id: 'BR-02',
+      originBranch: 'Islamabad',
+      originBranchName: 'Islamabad',
+      destinationBranchId: 'BR-01',
+      destinationBranch_id: 'BR-01',
+      destinationBranch: 'Peshawar',
+      destinationBranchName: 'Peshawar',
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Branch Manager',
+      recipientBranchId: 'BR-01',
+      recipientBranch_id: 'BR-01',
+      recipientBranch: 'Peshawar',
+      recipientBranchName: 'Peshawar',
+      initiator: 'Islamabad Depot',
+      assignedTo: 'Peshawar Branch Manager',
+      createdAt: '2026-08-27, 17:40',
+      due: 'Today',
+      summary: '4 units of BRG DS11 dispatched from Islamabad awaiting receipt and inspection at Peshawar showroom',
       stockData: {
-        originBranch: 'Lahore Central Hub',
-        destinationBranch: 'Islamabad Branch',
-        modelSku: 'BRG-EV-E125-GRN',
-        modelName: 'BRG E-125 Urban High-Speed Scooter',
-        requestedQty: 2,
-        chassisVins: 'VIN-LHE-2026-00411, VIN-LHE-2026-00412',
-        linkedBookingRef: 'SO-7910',
-        requiredByDate: '25 Sep 2026, 05:00 PM',
-        logisticsCarrier: 'TCS Dedicated Inter-Branch Van',
-        urgencyReason: 'Customer deposit received; customer departing on foreign diplomatic mission on Friday. Islamabad showroom has 0 green units in stock.',
-        freightCostEstimate: 36000
+        originBranch: 'Islamabad',
+        destinationBranch: 'Peshawar',
+        modelSku: 'SKU-DS11-BLU',
+        modelName: 'BRG DS11',
+        requestedQty: 4,
+        linkedBookingRef: 'TR-221',
+        carrier: 'Internal logistics / AJ Logistics Truck #4'
       },
       resolution: null
     },
     {
-      id: 'ACT-EXP-3095',
-      flowType: 'operational_expense',
-      typeLabel: 'Emergency Operational Expenditure',
-      title: 'Showroom Emergency Grid Inverter & Generator Fuel Requisition',
+      id: 'ACT-SR-104',
+      workflowType: 'stock_request_approval',
+      flowType: 'stock_reallocation',
+      typeLabel: 'Stock Request Approval',
+      title: 'Stock Replenishment Request: 4x BRG DS11',
       priority: 'High',
       priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
       status: 'Pending',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
-      branch: 'Rawalpindi',
+      sourceEntity: 'stockRequests',
+      sourceRecordId: 'SR-104',
+      recordRef: 'SR-104',
+      originBranchId: null,
+      originBranch_id: null,
       originBranch: null,
-      initiator: 'Tariq Mehmood (Branch Manager)',
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Ahsan Khan (Branch Manager)',
       assignedTo: 'Super Admin',
-      createdAt: '24 Sep 2026, 08:45 AM',
+      createdAt: '2026-08-26, 14:10',
       due: 'Today',
-      recordRef: 'EXP-221',
-      summary: 'PKR 148,500 emergency backup power diesel & inverter replacement following grid transformer explosion',
-      expenseData: {
-        expenseCategory: 'Utilities & Power Backup',
-        amountPkr: 148500,
-        payeeVendor: 'Rawalpindi Solar & Heavy Generators Ltd',
-        vendorNtn: 'NTN-8812740-2',
-        paymentMethod: 'Direct Vendor Bank Transfer',
-        invoiceRef: 'INV-GEN-9921',
-        operationalEmergencyJustification: 'Grid transformer explosion on Peshawar Road caused complete power blackout. High-voltage showroom chargers and customer delivery bay offline during 40°C heatwave.',
-        delayImpact: 'Showroom unable to charge delivery bikes; customer test rides suspended.'
-      },
+      summary: 'Showroom stock below minimum threshold for high-demand season (4x BRG DS11)',
       resolution: null
     },
     {
-      id: 'ACT-WAR-4018',
-      flowType: 'warranty_escalation',
-      typeLabel: 'Critical Warranty Claim',
-      title: 'High-Voltage Traction Battery Pack Replacement (72V 52Ah Lithium NMC)',
-      priority: 'Critical',
+      id: 'ACT-SR-301',
+      workflowType: 'stock_request_approval',
+      flowType: 'stock_reallocation',
+      typeLabel: 'Stock Request Approval',
+      title: 'Advance Stock Replenishment: 5x BRG E-125',
+      priority: 'Medium',
+      priorityClass: 'bg-[#fef3c7] text-[#b45309]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      sourceEntity: 'stockRequests',
+      sourceRecordId: 'SR-301',
+      recordRef: 'SR-301',
+      originBranchId: null,
+      originBranch_id: null,
+      originBranch: null,
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Ahsan Khan (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '2026-08-28, 16:00',
+      due: 'Tomorrow',
+      summary: 'Low showroom stock for expected weekend rush (5x BRG E-125)',
+      resolution: null
+    },
+    {
+      id: 'ACT-PO-2049',
+      workflowType: 'purchase_order_approval',
+      flowType: 'commercial_pricing',
+      typeLabel: 'Purchase Order Approval',
+      title: 'Purchase Order Approval: PO-2049 (BRG Factory)',
+      priority: 'High',
       priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
       status: 'Pending',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
-      branch: 'Peshawar',
+      sourceEntity: 'purchaseOrders',
+      sourceRecordId: 'PO-2049',
+      recordRef: 'PO-2049',
+      originBranchId: null,
+      originBranch_id: null,
       originBranch: null,
-      initiator: 'Farhan Ullah (Lead Diagnostic Technician)',
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Ahsan Khan (Branch Manager)',
       assignedTo: 'Super Admin',
-      createdAt: '24 Sep 2026, 09:10 AM',
+      createdAt: '2026-08-28, 15:30',
       due: 'Today',
-      recordRef: 'RJ-109',
-      summary: 'Battery cell thermal imbalance (>450mV drift) on Dr. Imran Shah\'s BRG E-125 under 3-year warranty',
-      warrantyData: {
-        customerName: 'Dr. Imran Shah',
-        customerPhone: '0300-5918274',
-        vehicleVin: 'VIN-PK-BRG-2025-00192',
-        modelName: 'BRG E-125 (Purchased Dec 2025)',
-        odometerKm: 6420,
-        defectComponent: 'Main Traction Battery Module 72V 52Ah',
-        diagnosticCode: 'BMS-ERR-042: Cell Bank 4 Voltage Imbalance (>450mV drift)',
-        technicianFindings: 'Battery drops from 80% to 15% under acceleration load. Thermal sensor triggered 62°C safe shutdown. No casing damage or water ingress. Genuine internal cell degradation.',
-        replacementSkuNeeded: 'PART-BAT-7252-NMC',
-        estimatedPartCost: 185000,
-        safetyRiskLevel: 'High (Vehicle shut down on highway; risk of thermal runaway if continued)'
+      summary: 'Purchase Order PO-2049 awaiting executive sign-off for supplier BRG Factory',
+      resolution: null
+    },
+    {
+      id: 'ACT-EXP-402',
+      workflowType: 'expense_approval',
+      flowType: 'operational_expense',
+      typeLabel: 'Emergency Operational Expenditure',
+      title: 'Branch Utility Bill Requisition: PESCO Electricity',
+      priority: 'High',
+      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      sourceEntity: 'expenses',
+      sourceRecordId: 'EXP-402',
+      recordRef: 'EXP-402',
+      originBranchId: null,
+      originBranch_id: null,
+      originBranch: null,
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Branch Manager (Peshawar)',
+      assignedTo: 'Super Admin',
+      createdAt: '2026-08-27, 08:20',
+      due: 'Today',
+      summary: 'PKR 48,500 electricity utility bill for Peshawar showroom',
+      expenseData: {
+        expenseCategory: 'Utilities',
+        amountPkr: 48500,
+        payeeVendor: 'PESCO',
+        paymentMethod: 'Bank',
+        invoiceRef: 'EXP-402',
+        operationalEmergencyJustification: 'Branch electricity bill'
       },
       resolution: null
     },
     {
-      id: 'ACT-GOV-5034',
+      id: 'ACT-EXP-8831',
+      workflowType: 'expense_approval',
+      flowType: 'operational_expense',
+      typeLabel: 'Emergency Operational Expenditure',
+      title: 'Monthly Logistics Transport Charges Requisition',
+      priority: 'High',
+      priorityClass: 'bg-[#fee2e2] text-[#dc2626]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      sourceEntity: 'expenses',
+      sourceRecordId: 'EXP-8831',
+      recordRef: 'EXP-8831',
+      originBranchId: null,
+      originBranch_id: null,
+      originBranch: null,
+      branchId: 'BR-02',
+      branch_id: 'BR-02',
+      branch: 'Islamabad',
+      branchName: 'Islamabad',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Branch Manager (Islamabad)',
+      assignedTo: 'Super Admin',
+      createdAt: '2026-08-27, 10:00',
+      due: 'Today',
+      summary: 'PKR 95,000 monthly logistics transport charges for inventory transfer',
+      expenseData: {
+        expenseCategory: 'Logistics',
+        amountPkr: 95000,
+        payeeVendor: 'Pak Logistics',
+        paymentMethod: 'Bank',
+        invoiceRef: 'EXP-8831',
+        operationalEmergencyJustification: 'Monthly logistics transport charges for inventory transfer'
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-ADJ-018',
+      workflowType: 'stock_adjustment_approval',
       flowType: 'inventory_governance',
-      typeLabel: 'Inventory Governance & Quarantine',
-      title: 'Transit Discrepancy & Quarantine Sign-Off for 3 Inbound BRG DS-11 Units',
+      typeLabel: 'Inventory Governance & Stock Adjustment',
+      title: 'Physical Stock Count Variance Sign-Off: PowerCell 72V',
       priority: 'Medium',
       priorityClass: 'bg-[#fef3c7] text-[#b45309]',
       status: 'Pending',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
-      branch: 'Lahore',
+      sourceEntity: 'stockAdjustments',
+      sourceRecordId: 'ADJ-018',
+      recordRef: 'ADJ-018',
+      originBranchId: null,
+      originBranch_id: null,
       originBranch: null,
-      initiator: 'Kamran Rafiq (Warehouse Supervisor)',
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Ahsan Khan (Branch Manager)',
       assignedTo: 'Super Admin',
-      createdAt: '23 Sep 2026, 04:30 PM',
+      createdAt: '2026-08-28, 09:15',
       due: 'Tomorrow',
-      recordRef: 'QA-102',
-      summary: '3 units arrived from port with ruptured transit straps and cracked fairings; quarantined in Bay Q-3 pending insurance write-down',
+      summary: 'Variance of -2 units detected during quarterly physical cycle count on PowerCell 72V',
       governanceData: {
-        auditDate: '22 Sep 2026',
-        affectedVinOrSku: 'VIN-PK-BRG-2026-00941, 00942, 00943',
-        modelName: 'BRG DS-11 Sports Commuter',
-        systemRecordedQty: 3,
-        physicalFoundQty: 3,
-        discrepancyUnitCount: 3,
-        estimatedVariancePkr: 72000,
-        rootCauseClassification: 'Transit Mishandling by Karachi Port Logistics Transporter',
-        recommendedAction: 'Quarantine Segregation in Bay Q-3 & Insurance Recovery Claim against Port Carrier',
-        incidentDescription: 'Container cargo straps severed during rough transit. Crates tipped over inside container, cracking ABS front fairings and bending right mirrors on 3 units.',
-        managerCertification: 'Certified by Haris Siddiqui (BM Lahore) and Kamran Rafiq (QC Officer)'
+        affectedVinOrSku: 'PROD-007',
+        modelName: 'PowerCell 72V 30Ah',
+        discrepancyUnitCount: 2,
+        estimatedVariancePkr: 50000,
+        rootCauseClassification: 'Physical Count Correction',
+        recommendedAction: 'Adjust inventory ledger'
       },
       resolution: null
     },
     {
-      id: 'ACT-PRC-1079',
-      flowType: 'commercial_pricing',
-      typeLabel: 'Commercial & Pricing Exception',
-      title: 'Government Employee Promotional Rebate (KPK Police Welfare Order)',
+      id: 'ACT-ADJ-021',
+      workflowType: 'stock_adjustment_approval',
+      flowType: 'inventory_governance',
+      typeLabel: 'Inventory Governance & Stock Adjustment',
+      title: 'Found Stock Reconcile Sign-Off: BRG E9 Pro',
       priority: 'Medium',
       priorityClass: 'bg-[#fef3c7] text-[#b45309]',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      sourceEntity: 'stockAdjustments',
+      sourceRecordId: 'ADJ-021',
+      recordRef: 'ADJ-021',
+      originBranchId: null,
+      originBranch_id: null,
+      originBranch: null,
+      branchId: 'BR-02',
+      branch_id: 'BR-02',
+      branch: 'Islamabad',
+      branchName: 'Islamabad',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Bilal Shah (Branch Manager)',
+      assignedTo: 'Super Admin',
+      createdAt: '2026-08-28, 11:30',
+      due: 'Tomorrow',
+      summary: 'One unrecorded unit (+1) identified during bay reorganization on BRG E9 Pro',
+      governanceData: {
+        affectedVinOrSku: 'PROD-004',
+        modelName: 'BRG E9 Pro',
+        discrepancyUnitCount: 1,
+        estimatedVariancePkr: 220000,
+        rootCauseClassification: 'Found Stock',
+        recommendedAction: 'Incorporate into available inventory'
+      },
+      resolution: null
+    },
+    {
+      id: 'ACT-EXP-398',
+      workflowType: 'expense_approval',
+      flowType: 'operational_expense',
+      typeLabel: 'Emergency Operational Expenditure',
+      title: 'Local Showroom Delivery Transport Voucher',
+      priority: 'Low',
+      priorityClass: 'bg-gray-100 text-gray-700',
       status: 'Approved',
       statusClass: 'bg-[#dcfce7] text-[#165A31]',
-      branch: 'Peshawar',
+      sourceEntity: 'expenses',
+      sourceRecordId: 'EXP-398',
+      recordRef: 'EXP-398',
+      originBranchId: null,
+      originBranch_id: null,
       originBranch: null,
-      initiator: 'Asad Khan (Branch Manager)',
+      branchId: 'BR-01',
+      branch_id: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      recipientRole: 'Super Admin',
+      recipientBranchId: 'ALL',
+      recipientBranch_id: 'ALL',
+      recipientBranch: 'All Branches',
+      recipientBranchName: 'All Branches',
+      initiator: 'Branch Manager (Peshawar)',
       assignedTo: 'Super Admin',
-      createdAt: '22 Sep 2026, 11:20 AM',
+      createdAt: '2026-08-25, 16:40',
       due: 'Resolved',
-      recordRef: 'SO-8790',
-      summary: 'PKR 85,000 corporate rebate approved by Super Admin for KPK Police Welfare Foundation',
-      pricingData: {
-        customerName: 'KPK Police Welfare Foundation',
-        customerContact: '091-9212000',
-        quotationRef: 'QT-8380',
-        orderRef: 'SO-8790',
-        modelName: 'BRG E-125 Urban High-Speed Scooter',
-        unitCount: 2,
-        listPricePerUnit: 340000,
-        totalListPrice: 680000,
-        requestedDiscountPercent: 12.5,
-        requestedDiscountAmount: 85000,
-        proposedDealValue: 595000,
-        standardMarginPercent: 22.0,
-        projectedMarginPercent: 15.5,
-        competitorContext: 'Institutional fleet MOU agreement',
-        branchMaxAllowedDiscount: 8
-      },
+      summary: 'PKR 18,000 local showroom delivery transport charges',
       resolution: {
         decision: 'Approved',
-        decisionNotes: 'Approved under Institutional Welfare Program MoU. Margin remains within acceptable 15% threshold.',
+        decisionNotes: 'Approved per branch policy limit',
         decidedBy: 'Super Admin',
-        decidedAt: '22 Sep 2026, 02:40 PM',
-        treatmentResult: { discountGranted: '12.5%', effectivePkr: 595000 }
+        decidedAt: '2026-08-25, 17:00'
       }
     },
     {
-      id: 'ACT-EXP-3088',
-      flowType: 'operational_expense',
-      typeLabel: 'Emergency Operational Expenditure',
-      title: 'Showroom Glass Facade Structural Repair Voucher',
-      priority: 'Low',
-      priorityClass: 'bg-gray-100 text-gray-700',
+      id: 'ACT-TR-219',
+      workflowType: 'inter_branch_transfer',
+      flowType: 'stock_reallocation',
+      typeLabel: 'Inter-Branch Stock Transfer',
+      title: 'Inward 2x BRG E-125 at Lahore Showroom',
+      priority: 'Medium',
+      priorityClass: 'bg-[#fef3c7] text-[#b45309]',
       status: 'Resolved',
       statusClass: 'bg-[#dcfce7] text-[#165A31]',
-      branch: 'Peshawar',
-      originBranch: null,
-      initiator: 'Asad Khan (Branch Manager)',
-      assignedTo: 'Super Admin',
-      createdAt: '20 Sep 2026, 03:15 PM',
+      sourceEntity: 'transfers',
+      sourceRecordId: 'TR-219',
+      recordRef: 'TR-219',
+      originBranchId: 'BR-01',
+      originBranch_id: 'BR-01',
+      originBranch: 'Peshawar',
+      originBranchName: 'Peshawar',
+      destinationBranchId: 'BR-03',
+      destinationBranch_id: 'BR-03',
+      destinationBranch: 'Lahore',
+      destinationBranchName: 'Lahore',
+      branchId: 'BR-03',
+      branch_id: 'BR-03',
+      branch: 'Lahore',
+      branchName: 'Lahore',
+      recipientRole: 'Branch Manager',
+      recipientBranchId: 'BR-03',
+      recipientBranch_id: 'BR-03',
+      recipientBranch: 'Lahore',
+      recipientBranchName: 'Lahore',
+      initiator: 'Peshawar Depot',
+      assignedTo: 'Lahore Branch Manager',
+      createdAt: '2026-08-20, 11:15',
       due: 'Resolved',
-      recordRef: 'EXP-198',
-      summary: 'PKR 45,000 paid to Al-Rehman Glass Works for cracked tempered glass replacement',
-      expenseData: {
-        expenseCategory: 'Facilities Repair',
-        amountPkr: 45000,
-        payeeVendor: 'Al-Rehman Glass Works Peshawar',
-        vendorNtn: 'NTN-7391820-1',
-        paymentMethod: 'Cash Petty Reimbursement',
-        invoiceRef: 'INV-GLS-401',
-        operationalEmergencyJustification: 'Tempered glass door cracked during windstorm, posing customer safety hazard.',
-        delayImpact: 'Immediate hazard rectified.'
-      },
+      summary: 'Received in full at Lahore Showroom (2x BRG E-125)',
       resolution: {
-        decision: 'Approved & Disbursed',
-        decisionNotes: 'Safety urgent work approved and disbursed from Head Office imprest fund.',
-        decidedBy: 'Super Admin',
-        decidedAt: '20 Sep 2026, 04:30 PM',
-        treatmentResult: { voucherNumber: 'VOUCH-EXP-198', paymentStatus: 'Disbursed' }
+        decision: 'Received',
+        decisionNotes: 'Received and verified at showroom floor',
+        decidedBy: 'Ali Raza',
+        decidedAt: '2026-08-22, 14:00'
       }
     }
   ],
 
+  // Scoped tasks visible to current user based on RBAC role and branch ownership
+  getActionTasksForUser(user = this.currentUser) {
+    if (!user || !user.isAuthenticated) {
+      if (this.isSuperAdminUser()) {
+        return this.actionQueue
+      }
+      return []
+    }
+
+    if (this.isSuperAdminUser(user)) {
+      // Super Admin sees tasks directed to Super Admin, global tasks, and all operational tasks under oversight
+      return this.actionQueue
+    }
+
+    // Role enforcement: only authenticated 'Super Admin' and 'Branch Manager' have workflow inbox access
+    const normalizedRole = this.normalizeRole ? this.normalizeRole(user.role) : user.role
+    if (normalizedRole !== 'Branch Manager') {
+      // Unapproved role-like labels (e.g. Technician, Sales Representative, Inventory Controller) receive NO Action Centre elevated access
+      return []
+    }
+
+    // For Branch Manager:
+    const userBranchCanon = this.resolveCanonicalBranchId(user.branchId || user.branchCode || user.branchName || user.branch)
+    if (!userBranchCanon || userBranchCanon === 'ALL') {
+      return []
+    }
+
+    return this.actionQueue.filter(task => {
+      // Branch Manager only receives tasks specifically routed to Branch Manager
+      if (task.recipientRole !== 'Branch Manager') {
+        return false
+      }
+      // Must match user's canonical branch ID
+      const taskRecipientBranchCanon = this.resolveCanonicalBranchId(
+        task.recipientBranchId || task.recipientBranch_id || task.recipientBranch || task.branchId || task.branch_id || task.branch
+      )
+      return taskRecipientBranchCanon === userBranchCanon
+    })
+  },
+
   getActionQueue(branch = null) {
-    if (!branch || branch === 'All Branches') return this.actionQueue
-    return this.actionQueue.filter(item => 
-      item.branch?.toLowerCase() === branch.toLowerCase() || 
-      item.originBranch?.toLowerCase() === branch.toLowerCase() ||
-      item.branch === 'All Branches'
-    )
+    if (!branch || branch === 'All Branches') {
+      return this.getActionTasksForUser()
+    }
+    const branchCanon = this.resolveCanonicalBranchId(branch)
+    return this.actionQueue.filter(item => {
+      const itemBranchCanon = this.resolveCanonicalBranchId(item.recipientBranchId || item.branchId || item.branch_id || item.branch)
+      const itemOriginCanon = this.resolveCanonicalBranchId(item.originBranchId || item.originBranch_id || item.originBranch)
+      return itemBranchCanon === branchCanon || itemOriginCanon === branchCanon
+    })
   },
 
   getActionById(id) {
     if (!id) return null
-    return this.actionQueue.find(a => a.id === id || a.recordRef === id) || null
+    const target = String(id).toLowerCase().trim()
+    return this.actionQueue.find(a => 
+      (a.id && a.id.toLowerCase() === target) || 
+      (a.recordRef && a.recordRef.toLowerCase() === target) ||
+      (a.sourceRecordId && a.sourceRecordId.toLowerCase() === target)
+    ) || null
   },
 
-  createActionItem(itemData) {
+  createWorkflowTask(taskData) {
+    const { workflowType, sourceEntity, sourceRecordId } = taskData
+    if (!workflowType || !sourceEntity || !sourceRecordId) {
+      throw new Error('MISSING_WORKFLOW_METADATA: workflowType, sourceEntity, and sourceRecordId are required.')
+    }
+
+    // Idempotency: Prevent duplicate active pending tasks for the exact same source record and workflow
+    const existingPending = this.actionQueue.find(t => 
+      t.workflowType === workflowType &&
+      t.sourceEntity === sourceEntity &&
+      String(t.sourceRecordId).toLowerCase() === String(sourceRecordId).toLowerCase() &&
+      t.status === 'Pending'
+    )
+    if (existingPending) {
+      return existingPending
+    }
+
     const typePrefixMap = {
+      inter_branch_transfer: 'ACT-TR-',
+      stock_request_approval: 'ACT-SR-',
+      purchase_order_approval: 'ACT-PO-',
+      expense_approval: 'ACT-EXP-',
+      stock_adjustment_approval: 'ACT-ADJ-',
+      product_request_approval: 'ACT-PR-',
       commercial_pricing: 'ACT-PRC-',
       stock_reallocation: 'ACT-STK-',
       operational_expense: 'ACT-EXP-',
       warranty_escalation: 'ACT-WAR-',
       inventory_governance: 'ACT-GOV-'
     }
-    const prefix = typePrefixMap[itemData.flowType] || 'ACT-GEN-'
-    const newId = `${prefix}${Math.floor(1000 + Math.random() * 9000)}`
+    const prefix = typePrefixMap[workflowType] || typePrefixMap[taskData.flowType] || 'ACT-WF-'
     
-    const newItem = {
-      id: newId,
-      status: 'Pending',
-      statusClass: 'bg-[#fef3c7] text-[#b45309]',
-      priorityClass: itemData.priority === 'Critical' ? 'bg-[#fee2e2] text-[#dc2626]' : 
-                     itemData.priority === 'High' ? 'bg-[#fee2e2] text-[#dc2626]' : 
-                     itemData.priority === 'Medium' ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-gray-100 text-gray-700',
-      createdAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      due: itemData.due || 'Today',
-      resolution: null,
-      ...itemData
+    // Deterministic collision-safe task ID based on prefix and source ID
+    let newId = `${prefix}${sourceRecordId}`
+    if (this.actionQueue.some(t => t.id === newId)) {
+      newId = `${prefix}${sourceRecordId}-${Math.floor(100 + Math.random() * 900)}`
     }
 
-    this.actionQueue.unshift(newItem)
+    const branchCanon = this.resolveCanonicalBranchId(taskData.branchId || taskData.branch_id || taskData.branch)
+    const branchObj = this.branches.find(b => b.id === branchCanon || b.branch_id === branchCanon)
+    const originCanon = taskData.originBranchId || taskData.originBranch_id || (taskData.originBranch ? this.resolveCanonicalBranchId(taskData.originBranch) : null)
+    const originObj = originCanon ? this.branches.find(b => b.id === originCanon || b.branch_id === originCanon) : null
+    const destCanon = taskData.destinationBranchId || taskData.destinationBranch_id || (taskData.destinationBranch ? this.resolveCanonicalBranchId(taskData.destinationBranch) : branchCanon)
+    const destObj = destCanon ? this.branches.find(b => b.id === destCanon || b.branch_id === destCanon) : branchObj
+    
+    const recipientRole = taskData.recipientRole || (workflowType === 'inter_branch_transfer' ? 'Branch Manager' : 'Super Admin')
+    const recipientBranchId = taskData.recipientBranchId || taskData.recipientBranch_id || (recipientRole === 'Branch Manager' ? (destCanon || branchCanon) : 'ALL')
+
+    const newTask = {
+      id: newId,
+      workflowType,
+      flowType: taskData.flowType || (workflowType === 'inter_branch_transfer' ? 'stock_reallocation' :
+                                     workflowType === 'stock_request_approval' ? 'stock_reallocation' :
+                                     workflowType === 'product_request_approval' ? 'commercial_pricing' :
+                                     workflowType === 'expense_approval' ? 'operational_expense' :
+                                     workflowType === 'stock_adjustment_approval' ? 'inventory_governance' : 'commercial_pricing'),
+      typeLabel: taskData.typeLabel || (workflowType === 'inter_branch_transfer' ? 'Inter-Branch Stock Transfer' :
+                                        workflowType === 'stock_request_approval' ? 'Stock Request Approval' :
+                                        workflowType === 'product_request_approval' ? 'Product Request Approval' :
+                                        workflowType === 'purchase_order_approval' ? 'Purchase Order Approval' :
+                                        workflowType === 'expense_approval' ? 'Emergency Operational Expenditure' :
+                                        workflowType === 'stock_adjustment_approval' ? 'Inventory Governance & Stock Adjustment' : 'Enterprise Action Item'),
+      title: taskData.title || `Workflow Action for ${sourceRecordId}`,
+      priority: taskData.priority || 'High',
+      priorityClass: taskData.priority === 'Critical' ? 'bg-[#fee2e2] text-[#dc2626]' : 
+                     taskData.priority === 'High' ? 'bg-[#fee2e2] text-[#dc2626]' : 
+                     taskData.priority === 'Medium' ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-gray-100 text-gray-700',
+      status: 'Pending',
+      statusClass: 'bg-[#fef3c7] text-[#b45309]',
+      sourceEntity,
+      sourceRecordId,
+      recordRef: sourceRecordId,
+      originBranchId: originCanon,
+      originBranch_id: originCanon,
+      originBranch: originObj?.name || taskData.originBranch || null,
+      originBranchName: originObj?.name || taskData.originBranch || null,
+      destinationBranchId: destCanon,
+      destinationBranch_id: destCanon,
+      destinationBranch: destObj?.name || taskData.destinationBranch || null,
+      destinationBranchName: destObj?.name || taskData.destinationBranch || null,
+      branchId: branchCanon || 'BR-01',
+      branch_id: branchCanon || 'BR-01',
+      branch: branchObj?.name || taskData.branch || 'Peshawar',
+      branchName: branchObj?.name || taskData.branch || 'Peshawar',
+      recipientRole,
+      recipientBranchId,
+      recipientBranch_id: recipientBranchId,
+      recipientBranch: recipientBranchId === 'ALL' ? 'All Branches' : (branchObj?.name || 'Peshawar'),
+      recipientBranchName: recipientBranchId === 'ALL' ? 'All Branches' : (branchObj?.name || 'Peshawar'),
+      initiator: taskData.initiator || this.currentUser?.name || 'System',
+      assignedTo: taskData.assignedTo || (recipientRole === 'Branch Manager' ? `${branchObj?.name || 'Branch'} Branch Manager` : 'Super Admin'),
+      createdAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      due: taskData.due || 'Today',
+      summary: taskData.summary || `Action pending on ${sourceEntity} ${sourceRecordId}`,
+      resolution: null,
+      ...taskData
+    }
+
+    this.actionQueue.unshift(newTask)
 
     if (typeof this.addAuditLog === 'function') {
       this.addAuditLog({
         action: 'Created',
-        event_type: 'ACTION_ITEM_CREATED',
-        entity_type: 'action_item',
+        event_type: 'WORKFLOW_TASK_CREATED',
+        entity_type: 'action_task',
         entity_id: newId,
         module: 'Action Centre',
-        description: `Action [${newItem.title}] raised under [${newItem.typeLabel}].`,
-        metadata: { flowType: newItem.flowType, priority: newItem.priority, branch: newItem.branch }
+        branch: newTask.branchName || newTask.branch,
+        description: `Workflow task [${newTask.title}] created for [${newTask.sourceEntity}:${newTask.sourceRecordId}].`,
+        metadata: { taskId: newId, workflowType, sourceEntity, sourceRecordId, recipientRole: newTask.recipientRole, recipientBranchId: newTask.recipientBranchId }
       })
     }
 
-    return newItem
+    return newTask
   },
 
-  resolveActionItem(id, decisionData) {
-    const item = this.getActionById(id)
-    if (!item) throw new Error('Action item not found')
+  createActionItem(itemData) {
+    return this.createWorkflowTask({
+      workflowType: itemData.flowType || 'commercial_pricing',
+      sourceEntity: itemData.sourceEntity || (itemData.recordRef?.startsWith('SO') ? 'orders' :
+                                              itemData.recordRef?.startsWith('TR') ? 'transfers' :
+                                              itemData.recordRef?.startsWith('EXP') ? 'expenses' :
+                                              itemData.recordRef?.startsWith('SR') ? 'stockRequests' : 'orders'),
+      sourceRecordId: itemData.recordRef || this.generateDocumentId('order'),
+      ...itemData
+    })
+  },
 
-    item.status = decisionData.status || 'Resolved'
-    if (item.status === 'Approved' || item.status === 'Resolved' || item.status === 'Dispatched') {
-      item.statusClass = 'bg-[#dcfce7] text-[#165A31]'
-    } else if (item.status === 'Countered') {
-      item.statusClass = 'bg-blue-50 text-blue-700'
-    } else if (item.status === 'Rejected' || item.status === 'Declined') {
-      item.statusClass = 'bg-[#fee2e2] text-[#dc2626]'
-    } else {
-      item.statusClass = 'bg-[#fef3c7] text-[#b45309]'
+  resolveWorkflowTask(taskId, resolutionAction = 'approve', payload = {}, user = this.currentUser) {
+    const task = this.getActionById(taskId)
+    if (!task) {
+      throw new Error(`TASK_NOT_FOUND: Task [${taskId}] does not exist in action queue.`)
     }
 
-    item.due = 'Resolved'
-    item.resolution = {
-      decision: decisionData.status,
-      decisionNotes: decisionData.decisionNotes || '',
-      decidedBy: this.currentUser?.name || (this.isBranchUser() ? 'Branch Manager' : 'Super Admin'),
-      decidedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      treatmentResult: decisionData.treatmentResult || {}
+    if (task.status !== 'Pending') {
+      throw new Error(`TASK_ALREADY_RESOLVED: Task [${taskId}] is already in [${task.status}] state. Double-resolution refused.`)
     }
 
-    // Apply side-effects to linked entities if applicable
-    if (item.flowType === 'commercial_pricing' && item.recordRef) {
-      const order = this.orders?.find(o => o.id === item.recordRef)
-      if (order && (decisionData.status === 'Approved' || decisionData.status === 'Countered')) {
-        order.approvalStatus = 'Approved'
-        order.specialDiscountApproved = true
+    // Role authorization: enforce authenticated workspace roles strictly
+    const normalizedRole = this.normalizeRole ? this.normalizeRole(user?.role) : user?.role
+    if (normalizedRole !== 'Super Admin' && normalizedRole !== 'Branch Manager') {
+      throw new Error(`UNAUTHORIZED_ROLE: Role [${user?.role || 'Unknown'}] is not an authorized task resolver role.`)
+    }
+
+    // 1. Recipient Authorization Verification
+    if (task.recipientRole === 'Super Admin' && !this.isSuperAdminUser(user)) {
+      throw new Error(`UNAUTHORIZED_RESOLVER: Super Admin authority required to resolve [${task.workflowType}] on task [${taskId}].`)
+    }
+
+    if (task.recipientRole === 'Branch Manager') {
+      if (!this.isBranchUser(user) && !this.isSuperAdminUser(user)) {
+        throw new Error(`UNAUTHORIZED_RESOLVER: Branch Manager authority required for task [${taskId}].`)
       }
+      if (this.isBranchUser(user)) {
+        const userBranchCanon = this.resolveCanonicalBranchId(user.branchId || user.branchCode || user.branchName || user.branch)
+        const taskRecipientBranchCanon = this.resolveCanonicalBranchId(
+          task.recipientBranchId || task.recipientBranch_id || task.recipientBranch || task.branchId || task.branch_id || task.branch
+        )
+        if (!userBranchCanon || userBranchCanon === 'ALL' || userBranchCanon !== taskRecipientBranchCanon) {
+          throw new Error(`UNAUTHORIZED_RESOLVER_BRANCH: Branch Manager of [${user.branchName || userBranchCanon}] is not authorized to resolve tasks for [${task.recipientBranchName || task.recipientBranch || taskRecipientBranchCanon}].`)
+        }
+      }
+    }
+
+    // 2. Load Real Canonical Source Record
+    const sourceCollection = this[task.sourceEntity]
+    if (!Array.isArray(sourceCollection)) {
+      task.status = 'Stale'
+      task.statusClass = 'bg-gray-100 text-gray-500'
+      throw new Error(`SOURCE_ENTITY_NOT_FOUND: Source collection [${task.sourceEntity}] is missing.`)
+    }
+
+    const sourceRecord = this.getScopedRecordById(task.sourceEntity, task.sourceRecordId, user)
+    if (!sourceRecord) {
+      task.status = 'Stale'
+      task.statusClass = 'bg-gray-100 text-gray-500'
+      throw new Error(`SOURCE_RECORD_NOT_FOUND: Source record [${task.sourceEntity}:${task.sourceRecordId}] does not exist or access is denied.`)
+    }
+
+    const normAction = String(resolutionAction).toLowerCase().trim()
+
+    // 3. Workflow action validation
+    if (task.workflowType === 'inter_branch_transfer' || task.sourceEntity === 'transfers') {
+      if (normAction === 'reject' || normAction === 'cancel') {
+        throw new Error(`UNSUPPORTED_TRANSFER_ACTION: Rejection is not supported on in-transit transfers. Receiving with condition checking must be used.`)
+      }
+    }
+
+    // 4. Check Mutation Authorization on Source Record
+    this.assertRecordMutationAccess(task.sourceEntity, sourceRecord, resolutionAction, user)
+
+    // 5. Dispatch to Verified Domain Method (Atomicity: domain mutation executes before task marked resolved)
+    let domainResult = null
+
+    if (task.workflowType === 'inter_branch_transfer' || task.sourceEntity === 'transfers') {
+      domainResult = this.receiveTransfer(task.sourceRecordId, payload)
+    } else if (task.workflowType === 'stock_request_approval' || task.sourceEntity === 'stockRequests') {
+      if (normAction === 'reject' || normAction === 'rejected' || normAction === 'decline') {
+        domainResult = this.rejectStockRequest(task.sourceRecordId, payload.reason || payload.decisionNotes || '')
+      } else {
+        domainResult = this.approveStockRequest(task.sourceRecordId, payload)
+      }
+    } else if (task.workflowType === 'purchase_order_approval' || task.sourceEntity === 'purchaseOrders') {
+      if (normAction === 'reject' || normAction === 'rejected' || normAction === 'decline') {
+        domainResult = this.rejectPurchaseOrder(task.sourceRecordId, payload.reason || payload.decisionNotes || '')
+      } else {
+        domainResult = this.approvePurchaseOrder(task.sourceRecordId)
+      }
+    } else if (task.workflowType === 'expense_approval' || task.sourceEntity === 'expenses') {
+      if (normAction === 'reject' || normAction === 'rejected' || normAction === 'decline') {
+        domainResult = this.rejectExpense(task.sourceRecordId, payload.reason || payload.decisionNotes || '')
+      } else {
+        domainResult = this.approveExpense(task.sourceRecordId)
+      }
+    } else if (task.workflowType === 'stock_adjustment_approval' || task.sourceEntity === 'stockAdjustments') {
+      if (normAction === 'reject' || normAction === 'rejected' || normAction === 'decline') {
+        domainResult = this.rejectStockAdjustment(task.sourceRecordId, payload.reason || payload.decisionNotes || '')
+      } else {
+        domainResult = this.approveStockAdjustment(task.sourceRecordId)
+      }
+    } else if (task.workflowType === 'product_request_approval' || task.sourceEntity === 'productRequests') {
+      if (normAction === 'reject' || normAction === 'rejected' || normAction === 'decline') {
+        domainResult = this.rejectProductRequest(task.sourceRecordId, payload.reason || payload.decisionNotes || '')
+      } else {
+        domainResult = this.approveProductRequest(task.sourceRecordId, payload.decisionNotes || payload.notes || '')
+      }
+    } else {
+      // Fallback for generic items
+      domainResult = { status: resolutionAction }
+    }
+
+    if (!domainResult) {
+      throw new Error(`DOMAIN_EXECUTION_FAILED: Domain operation failed for ${task.workflowType} on ${task.sourceRecordId}. Task remains Pending.`)
+    }
+
+    // 5. Update Task Technical State ONLY AFTER Successful Domain Mutation
+    const isApproved = normAction === 'approve' || normAction === 'approved'
+    const isRejected = normAction === 'reject' || normAction === 'rejected' || normAction === 'declined' || normAction === 'decline'
+    const isReceived = normAction === 'receive' || normAction === 'received' || normAction === 'resolved' || normAction === 'dispatched'
+
+    if (task.workflowType === 'product_request_approval' || task.sourceEntity === 'productRequests') {
+      task.status = isRejected ? 'Rejected' : 'Resolved'
+    } else {
+      task.status = isRejected ? 'Rejected' : (isApproved ? 'Approved' : 'Resolved')
+    }
+    task.statusClass = isRejected ? 'bg-[#fee2e2] text-[#dc2626]' : 'bg-[#dcfce7] text-[#165A31]'
+    task.due = 'Resolved'
+    task.resolvedAt = new Date().toISOString()
+    task.resolvedBy = user?.name || (this.isSuperAdminUser(user) ? 'Super Admin' : `${user?.branchName || 'Branch'} Manager`)
+    task.resolution = {
+      decision: resolutionAction,
+      decisionNotes: payload.decisionNotes || payload.notes || payload.reason || '',
+      decidedBy: task.resolvedBy,
+      decidedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      treatmentResult: payload.treatmentResult || {}
     }
 
     if (typeof this.addAuditLog === 'function') {
       this.addAuditLog({
         action: 'Resolved',
-        event_type: 'ACTION_ITEM_RESOLVED',
-        entity_type: 'action_item',
-        entity_id: item.id,
+        event_type: 'WORKFLOW_TASK_RESOLVED',
+        entity_type: 'action_task',
+        entity_id: task.id,
         module: 'Action Centre',
-        description: `Action [${item.id}] marked as [${item.status}]: ${decisionData.decisionNotes || 'Treatment applied'}.`,
-        metadata: { id: item.id, status: item.status, flowType: item.flowType }
+        branch: task.branchName || task.branch,
+        description: `Workflow task [${task.id}] resolved as [${task.status}] for [${task.sourceEntity}:${task.sourceRecordId}].`,
+        metadata: { taskId: task.id, workflowType: task.workflowType, sourceRecordId: task.sourceRecordId, status: task.status, resolvedBy: task.resolvedBy }
       })
     }
 
-    return item
+    return { success: true, task, sourceRecord: domainResult || sourceRecord }
+  },
+
+  resolveActionItem(id, decisionData) {
+    return this.resolveWorkflowTask(id, decisionData.status || 'Resolved', decisionData)
   },
 
   formatCurrency(amount) {
@@ -1073,12 +1584,16 @@ export const store = reactive({
 
   addCustomer(newCustomer) {
     const id = newCustomer.id || newCustomer.customer_id || `CUST-${Math.floor(100 + Math.random() * 900)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newCustomer)
     const customerObj = {
       ...newCustomer,
       id,
       customer_id: id,
       code: newCustomer.code || `CUS-${Math.floor(1000 + Math.random() * 9000)}`,
-      branch_id: newCustomer.branch_id || (newCustomer.branch === 'Islamabad' ? 'BR-02' : newCustomer.branch === 'Lahore' ? 'BR-03' : newCustomer.branch === 'Rawalpindi' ? 'BR-04' : 'BR-01'),
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
       status: newCustomer.status || 'Active',
       statusClass: newCustomer.statusClass || 'bg-[#dcfce7] text-[#165A31]',
       createdAt: newCustomer.createdAt || new Date().toISOString().split('T')[0]
@@ -1102,32 +1617,24 @@ export const store = reactive({
   updateCustomer(id, updatedData) {
     const index = this.customers.findIndex(c => c.id === id || c.customer_id === id || c.code === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('customers', this.customers[index], 'update')
       this.customers[index] = { ...this.customers[index], ...updatedData }
-
-      this.addAuditLog({
-        action: 'Updated',
-        entity_type: 'customer',
-        entity_id: this.customers[index].id,
-        module: 'Sales',
-        branch: this.customers[index].branch || 'Peshawar',
-        description: `Customer profile for ${this.customers[index].name} (${this.customers[index].id}) updated.`,
-        metadata: { updatedFields: Object.keys(updatedData) }
-      })
-
       return this.customers[index]
     }
     return null
   },
 
-  getCustomerById(id) {
+  getCustomerById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.customers.find(c => 
+    const found = this.customers.find(c => 
       (c.id && c.id.toLowerCase() === target) ||
       (c.customer_id && c.customer_id.toLowerCase() === target) ||
       (c.code && c.code.toLowerCase() === target) ||
       (c.name && c.name.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'customers', found) ? found : null
   },
 
   canDeleteCustomer(customerId) {
@@ -1502,8 +2009,25 @@ export const store = reactive({
     }
   ],
 
+  generateProductId() {
+    let maxNum = 0
+    this.products.forEach(p => {
+      const match = String(p.id || p.product_id || '').match(/PROD-(\d+)/i)
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    })
+    return `PROD-${String(maxNum + 1).padStart(3, '0')}`
+  },
+
   addProduct(newProduct) {
-    const id = newProduct.id || newProduct.product_id || `PROD-${String(this.products.length + 1).padStart(3, '0')}`
+    this.assertRecordMutationAccess('products', newProduct, 'create')
+    const explicitId = newProduct.id || newProduct.product_id
+    if (explicitId && this.products.some(p => p.id === explicitId || p.product_id === explicitId)) {
+      throw new Error(`Duplicate Product ID ${explicitId} already exists.`)
+    }
+    const id = explicitId || this.generateProductId()
     const productObj = {
       ...newProduct,
       id,
@@ -1517,8 +2041,9 @@ export const store = reactive({
   },
 
   updateProduct(id, updatedData) {
-    const index = this.products.findIndex(p => p.id === id || p.product_id === id || p.modelName === id || p.name === id)
+    const index = this.products.findIndex(p => p.id === id || p.product_id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('products', this.products[index], 'update')
       this.products[index] = { ...this.products[index], ...updatedData }
       return this.products[index]
     }
@@ -2433,6 +2958,7 @@ export const store = reactive({
 
     const id = newUnit.id || `UNIT-${Math.floor(100 + Math.random() * 900)}`
     const unit_id = newUnit.unit_id || newUnit.serial || chassis || id
+    const branchMeta = this.resolveTrustedCreationBranch(newUnit)
     const unitObj = {
       ...newUnit,
       id,
@@ -2444,6 +2970,10 @@ export const store = reactive({
       vin: vin || chassis || unit_id,
       motorNumber: motor || '—',
       batteryNumber: battery || '—',
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
       status: newUnit.status || 'Available',
       statusClass: newUnit.statusClass || (newUnit.status === 'QC Hold' ? 'bg-amber-50 text-amber-700' : 'bg-[#dcfce7] text-[#165A31]'),
       location: newUnit.location || (newUnit.status === 'QC Hold' ? 'QC Inspection Bay' : 'Showroom Floor'),
@@ -2474,6 +3004,7 @@ export const store = reactive({
       u.id === id || u.unit_id === id || u.serial === id || u.chassisNumber === id || u.chassis === id || u.chassisNo === id
     )
     if (index !== -1) {
+      this.assertRecordMutationAccess('serializedUnits', this.serializedUnits[index], 'update')
       // Disallow manual Sold update
       if (updatedData.status === 'Sold' && this.serializedUnits[index].status !== 'Sold') {
         throw new Error('Direct status update to "Sold" is blocked outside of Sales.')
@@ -2486,18 +3017,20 @@ export const store = reactive({
     return null
   },
 
-  getUnitById(id) {
+  getUnitById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.serializedUnits.find(u => 
+    const found = this.serializedUnits.find(u => 
       (u.id && u.id.toLowerCase() === target) ||
       (u.unit_id && u.unit_id.toLowerCase() === target) ||
       (u.serial && u.serial.toLowerCase() === target) ||
+      (u.vin && u.vin.toLowerCase() === target) ||
       (u.chassisNumber && u.chassisNumber.toLowerCase() === target) ||
       (u.chassis && u.chassis.toLowerCase() === target) ||
-      (u.chassisNo && u.chassisNo.toLowerCase() === target) ||
-      (u.vin && u.vin.toLowerCase() === target)
+      (u.chassisNo && u.chassisNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'serializedUnits', found) ? found : null
   },
 
   // Dynamic inventory reconciliation method
@@ -2511,7 +3044,7 @@ export const store = reactive({
           (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase()) ||
           (u.modelName && u.modelName.toLowerCase() === (prod.modelName || '').toLowerCase())
         )
-        const nonSoldUnits = matchingUnits.filter(u => u.status !== 'Sold')
+        const nonSoldUnits = matchingUnits.filter(u => u.status !== 'Sold' && u.status !== 'Scrapped')
         
         prod.total = nonSoldUnits.length
         prod.available = nonSoldUnits.filter(u => u.status === 'Available').length
@@ -2552,34 +3085,84 @@ export const store = reactive({
   },
 
   // Global & Branch inventory KPI stats helper
-  getInventoryStats(branchName = null) {
-    const effectiveBranch = branchName && branchName !== 'All Branches' ? branchName.toLowerCase() : null
+  getInventoryStats(branchInput = null) {
+    const isGlobal = !branchInput || branchInput === 'All Branches' || branchInput === 'ALL' || branchInput === 'All' || branchInput === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(branchInput) : null
+    
+    if (!isGlobal && !targetBranchId) {
+      return {
+        available: 0,
+        reserved: 0,
+        transferInTransit: 0,
+        supplierInTransit: 0,
+        receivingQc: 0,
+        damagedQuarantine: 0,
+        inService: 0,
+        sold: 0,
+        returned: 0,
+        expected: 0,
+        scrapped: 0,
+        onHandUnits: 0,
+        inTransitUnits: 0,
+        totalUnits: 0
+      }
+    }
     
     const units = this.serializedUnits.filter(u => {
-      if (!effectiveBranch) return true
-      return (u.branch || '').toLowerCase() === effectiveBranch
+      if (isGlobal) return true
+      const unitBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(u, 'serializedUnits') || u.branch_id || u.branchId || u.branch)
+      return unitBranchId === targetBranchId
     })
 
-    const totalUnits = units.filter(u => u.status !== 'Sold').length
-    const available = units.filter(u => u.status === 'Available').length
-    const reserved = units.filter(u => u.status === 'Reserved').length
-    const inTransit = units.filter(u => u.status === 'In Transit').length
-    const qcHold = units.filter(u => u.status === 'QC Hold').length
-    const maintenance = units.filter(u => u.status === 'Maintenance' || u.status === 'In Service').length
-    const sold = units.filter(u => u.status === 'Sold').length
-    const returned = units.filter(u => u.status === 'Returned').length
+    let available = 0
+    let reserved = 0
+    let transferInTransit = 0
+    let supplierInTransit = 0
+    let receivingQc = 0
+    let damagedQuarantine = 0
+    let inService = 0
+    let sold = 0
+    let returned = 0
+    let expected = 0
+    let scrapped = 0
+
+    units.forEach(u => {
+      const status = this.normalizeUnitStatus(u.status)
+      if (status === 'Available') available++
+      else if (status === 'Reserved') reserved++
+      else if (status === 'Transfer In Transit') transferInTransit++
+      else if (status === 'Supplier In Transit') supplierInTransit++
+      else if (status === 'Receiving / QC') receivingQc++
+      else if (status === 'Damaged / Quarantine') damagedQuarantine++
+      else if (status === 'In Service') inService++
+      else if (status === 'Sold') sold++
+      else if (status === 'Returned') returned++
+      else if (status === 'Expected') expected++
+      else if (status === 'Scrapped') scrapped++
+    })
+
+    const onHandUnits = available + reserved + receivingQc + damagedQuarantine + inService + returned
+    const totalActiveUnits = onHandUnits + transferInTransit + supplierInTransit
 
     return {
-      total: totalUnits,
-      totalUnits,
-      serialized: totalUnits,
+      total: totalActiveUnits,
+      totalUnits: totalActiveUnits,
+      serialized: totalActiveUnits,
+      onHand: onHandUnits,
       available,
       reserved,
-      inTransit,
-      qcHold,
-      maintenance,
+      inTransit: transferInTransit,
+      transferInTransit,
+      supplierInTransit,
+      qcHold: receivingQc,
+      receivingQc,
+      damagedQuarantine,
+      maintenance: inService,
+      inService,
       sold,
-      returned
+      returned,
+      expected,
+      scrapped
     }
   },
 
@@ -3081,8 +3664,25 @@ export const store = reactive({
     }
   ],
 
+  generateSupplierId() {
+    let maxNum = 0
+    this.suppliers.forEach(s => {
+      const match = String(s.id || s.supplier_id || '').match(/SUP-(\d+)/i)
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    })
+    return `SUP-${String(maxNum + 1).padStart(2, '0')}`
+  },
+
   addSupplier(newSupplier) {
-    const id = newSupplier.id || newSupplier.supplier_id || `SUP-${String(this.suppliers.length + 1).padStart(2, '0')}`
+    this.assertRecordMutationAccess('suppliers', newSupplier, 'create')
+    const explicitId = newSupplier.id || newSupplier.supplier_id
+    if (explicitId && this.suppliers.some(s => s.id === explicitId || s.supplier_id === explicitId)) {
+      throw new Error(`Duplicate Supplier ID ${explicitId} already exists.`)
+    }
+    const id = explicitId || this.generateSupplierId()
     const supplierObj = {
       ...newSupplier,
       id,
@@ -3095,8 +3695,9 @@ export const store = reactive({
   },
 
   updateSupplier(id, updatedData) {
-    const index = this.suppliers.findIndex(s => s.id === id || s.supplier_id === id || s.name === id)
+    const index = this.suppliers.findIndex(s => s.id === id || s.supplier_id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('suppliers', this.suppliers[index], 'update')
       this.suppliers[index] = { ...this.suppliers[index], ...updatedData }
       return this.suppliers[index]
     }
@@ -3189,12 +3790,17 @@ export const store = reactive({
 
   addOrder(newOrder) {
     const id = newOrder.id || newOrder.order_id || newOrder.order || this.generateDocumentId('order')
+    const branchMeta = this.resolveTrustedCreationBranch(newOrder)
     const orderObj = {
       ...newOrder,
       id,
       order: id,
       order_id: id,
       orderNo: id,
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
       status: newOrder.status || 'Ready',
       statusClass: newOrder.statusClass || 'bg-[#dcfce7] text-[#165A31]',
       createdAt: newOrder.createdAt || new Date().toISOString().split('T')[0]
@@ -3253,6 +3859,7 @@ export const store = reactive({
   updateOrder(id, updatedData) {
     const index = this.orders.findIndex(o => o.id === id || o.order_id === id || o.order === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('orders', this.orders[index], 'update')
       this.orders[index] = { ...this.orders[index], ...updatedData }
 
       this.addAuditLog({
@@ -3271,15 +3878,53 @@ export const store = reactive({
     return null
   },
 
-  getOrderById(id) {
+  getOrderById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.orders.find(o => 
-      (o.id && o.id.toLowerCase() === target) || 
-      (o.order_id && o.order_id.toLowerCase() === target) ||
+    const found = this.orders.find(o => 
+      (o.id && o.id.toLowerCase() === target) ||
       (o.order && o.order.toLowerCase() === target) ||
+      (o.order_id && o.order_id.toLowerCase() === target) ||
       (o.orderNo && o.orderNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'orders', found) ? found : null
+  },
+
+  recordOrderPayment(id, paymentData = {}) {
+    const order = this.getOrderById(id)
+    if (!order) throw new Error(`Order ${id} not found.`)
+    this.assertRecordMutationAccess('orders', order, 'update')
+    order.paymentStatus = 'Paid'
+    order.paid = order.total || order.grand_total || 'PKR 0'
+    order.balance = 'PKR 0'
+    order.paymentMethod = paymentData.method || paymentData.paymentMethod || 'Bank Transfer'
+    order.paidAt = new Date().toISOString()
+    
+    // Reserve unit if allocated
+    const unitId = order.unit_id || order.unit
+    if (unitId) {
+      const unit = this.getUnitById(unitId)
+      if (unit && unit.status === 'Available') {
+        this.reserveUnit(unitId, order.id)
+      }
+    }
+    return order
+  },
+
+  deliverOrder(id, deliveryData = {}) {
+    const order = this.getOrderById(id)
+    if (!order) throw new Error(`Order ${id} not found.`)
+    this.assertRecordMutationAccess('orders', order, 'update')
+    order.status = 'Delivered'
+    order.statusClass = 'bg-gray-100 text-gray-700'
+    order.deliveredAt = deliveryData.deliveredAt || new Date().toISOString()
+    
+    const unitId = order.unit_id || order.unit
+    if (unitId) {
+      this.sellUnit(unitId, order.id)
+    }
+    return order
   },
 
   quotations: [
@@ -3338,8 +3983,10 @@ export const store = reactive({
     const rawSelling = parseFloat(String(newQuote.sellingPrice || newQuote.total || newQuote.value || '0').replace(/[^0-9.]/g, '')) || 0
     const rawDiscount = parseFloat(String(newQuote.discount || '0').replace(/[^0-9.]/g, '')) || 0
     const finalTotal = Math.max(0, rawSelling - rawDiscount)
+    const branchMeta = this.resolveTrustedCreationBranch(newQuote)
     const quoteObj = {
       ...newQuote,
+      ...branchMeta,
       id,
       quote: id,
       quote_id: id,
@@ -3382,20 +4029,23 @@ export const store = reactive({
   updateQuotation(id, updatedData) {
     const index = this.quotations.findIndex(q => q.id === id || q.quote_id === id || q.quote === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('quotations', this.quotations[index], 'update')
       this.quotations[index] = { ...this.quotations[index], ...updatedData }
       return this.quotations[index]
     }
     return null
   },
 
-  getQuotationById(id) {
+  getQuotationById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.quotations.find(q => 
+    const found = this.quotations.find(q => 
       (q.id && q.id.toLowerCase() === target) ||
       (q.quote_id && q.quote_id.toLowerCase() === target) ||
       (q.quote && q.quote.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'quotations', found) ? found : null
   },
 
   convertQuotationToOrder(quotationId, { unitId = null, assignedSalesperson = 'Hamza Ali' } = {}) {
@@ -3502,8 +4152,10 @@ export const store = reactive({
   addLead(newLead) {
     const id = newLead.id || newLead.lead_id || newLead.leadNo || `LD-${Math.floor(552 + Math.random() * 100)}`
     const leadName = newLead.name || newLead.customer || newLead.customerName || 'Prospect'
+    const branchMeta = this.resolveTrustedCreationBranch(newLead)
     const leadObj = {
       ...newLead,
+      ...branchMeta,
       id,
       lead_id: id,
       leadNo: id,
@@ -3533,32 +4185,23 @@ export const store = reactive({
   updateLead(id, updatedData) {
     const index = this.leads.findIndex(l => l.id === id || l.lead_id === id || l.leadNo === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('leads', this.leads[index], 'update')
       this.leads[index] = { ...this.leads[index], ...updatedData }
-
-      this.addAuditLog({
-        action: 'Updated',
-        event_type: 'LEAD_UPDATED',
-        entity_type: 'lead',
-        entity_id: this.leads[index].id,
-        module: 'Marketing',
-        branch: this.leads[index].branch || 'Peshawar',
-        description: `Lead ${this.leads[index].id} updated.`,
-        metadata: { updatedFields: Object.keys(updatedData) }
-      })
-
       return this.leads[index]
     }
     return null
   },
 
-  getLeadById(id) {
+  getLeadById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.leads.find(l => 
+    const found = this.leads.find(l => 
       (l.id && l.id.toLowerCase() === target) ||
       (l.lead_id && l.lead_id.toLowerCase() === target) ||
       (l.leadNo && l.leadNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'leads', found) ? found : null
   },
 
   convertLeadToCustomer(leadId, additionalData = {}) {
@@ -3724,8 +4367,10 @@ export const store = reactive({
     const outstandingAmount = newInvoice.outstandingAmount !== undefined ? Number(newInvoice.outstandingAmount) : Math.max(0, total - paidAmount)
     const status = newInvoice.status || (outstandingAmount === 0 ? 'Paid' : (paidAmount > 0 ? 'Partial' : 'Unpaid'))
 
+    const branchMeta = this.resolveTrustedCreationBranch(newInvoice)
     const invObj = {
       ...newInvoice,
+      ...branchMeta,
       id,
       invoice: id,
       invoice_id: id,
@@ -3754,21 +4399,24 @@ export const store = reactive({
     const data = typeof idOrPayload === 'object' && !updatedData ? idOrPayload : (updatedData || {})
     const index = this.invoices.findIndex(i => i.id === id || i.invoice_id === id || i.invoice === id || i.invoiceNo === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('invoices', this.invoices[index], 'update')
       this.invoices[index] = { ...this.invoices[index], ...data }
       return this.invoices[index]
     }
     return null
   },
 
-  getInvoiceById(id) {
+  getInvoiceById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.invoices.find(i => 
+    const found = this.invoices.find(i => 
       (i.id && i.id.toLowerCase() === target) ||
       (i.invoice_id && i.invoice_id.toLowerCase() === target) ||
       (i.invoice && i.invoice.toLowerCase() === target) ||
       (i.invoiceNo && i.invoiceNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'invoices', found) ? found : null
   },
 
   payments: [
@@ -3819,8 +4467,10 @@ export const store = reactive({
   addPayment(newPayment) {
     const id = newPayment.id || newPayment.payment_id || newPayment.payment || this.generateDocumentId('payment')
     const rawAmt = typeof newPayment.amount === 'number' ? newPayment.amount : (parseFloat(String(newPayment.amount || '0').replace(/[^0-9.]/g, '')) || 0)
+    const branchMeta = this.resolveTrustedCreationBranch(newPayment)
     const payObj = {
       ...newPayment,
+      ...branchMeta,
       id,
       payment: id,
       payment_id: id,
@@ -3856,15 +4506,17 @@ export const store = reactive({
     return null
   },
 
-  getPaymentById(id) {
+  getPaymentById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.payments.find(p => 
+    const found = this.payments.find(p => 
       (p.id && p.id.toLowerCase() === target) ||
       (p.payment_id && p.payment_id.toLowerCase() === target) ||
       (p.payment && p.payment.toLowerCase() === target) ||
       (p.paymentNo && p.paymentNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'payments', found) ? found : null
   },
 
   recordInvoicePayment({ invoiceId, invoice_id, amount, method = 'Bank Transfer', transactionRef = '', bankAccount = 'Meezan Bank', date = 'Today', notes = '' }) {
@@ -4040,22 +4692,26 @@ export const store = reactive({
     }
   ],
 
-  getDeliveryById(id) {
+  getDeliveryById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.deliveries.find(d => 
+    const found = this.deliveries.find(d => 
       (d.id && d.id.toLowerCase() === target) ||
       (d.delivery_id && d.delivery_id.toLowerCase() === target) ||
       (d.order && d.order.toLowerCase() === target) ||
       (d.order_id && d.order_id.toLowerCase() === target) ||
       (target === 'del-101' && d.id === 'DEL-2241')
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'deliveries', found) ? found : null
   },
 
   addDelivery(deliveryData) {
     const id = deliveryData.id || deliveryData.delivery_id || this.generateDocumentId('delivery')
+    const branchMeta = this.resolveTrustedCreationBranch(deliveryData)
     const delivObj = {
       ...deliveryData,
+      ...branchMeta,
       id,
       delivery_id: id,
       status: deliveryData.status || 'Ready',
@@ -4073,6 +4729,7 @@ export const store = reactive({
     const data = typeof idOrPayload === 'object' && !updatedData ? idOrPayload : (updatedData || {})
     const index = this.deliveries.findIndex(d => d.id === id || d.delivery_id === id || d.order === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('deliveries', this.deliveries[index], 'update')
       this.deliveries[index] = { ...this.deliveries[index], ...data }
       return this.deliveries[index]
     }
@@ -4082,6 +4739,7 @@ export const store = reactive({
   completeDelivery(deliveryId, details = {}) {
     const d = this.getDeliveryById(deliveryId)
     if (!d) throw new Error(`Delivery ${deliveryId} not found.`)
+    this.assertRecordMutationAccess('deliveries', d, 'update')
     if (d.status === 'Delivered') throw new Error(`Delivery ${deliveryId} has already been completed.`)
 
     const unit = this.getUnitById(d.unit_id || d.unit)
@@ -4478,8 +5136,10 @@ export const store = reactive({
 
   addCustomOrder(newCO) {
     const id = newCO.id || newCO.orderNo || `CO-${Math.floor(119 + Math.random() * 100)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newCO)
     const coObj = {
       ...newCO,
+      ...branchMeta,
       id,
       orderNo: id,
       status: newCO.status || 'Sourcing',
@@ -4492,19 +5152,22 @@ export const store = reactive({
   updateCustomOrder(id, updatedData) {
     const index = this.customOrders.findIndex(c => c.id === id || c.orderNo === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('customOrders', this.customOrders[index], 'update')
       this.customOrders[index] = { ...this.customOrders[index], ...updatedData }
       return this.customOrders[index]
     }
     return null
   },
 
-  getCustomOrderById(id) {
+  getCustomOrderById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.customOrders.find(c => 
+    const found = this.customOrders.find(c => 
       (c.id && c.id.toLowerCase() === target) ||
       (c.orderNo && c.orderNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'customOrders', found) ? found : null
   },
 
   // ==========================================
@@ -4670,19 +5333,22 @@ export const store = reactive({
       }
     }
 
+    const branchMeta = this.resolveTrustedCreationBranch(newSR)
     const srObj = {
       ...newSR,
       id,
       requestId: id,
       requestNo: id,
-      branch_id: newSR.branch_id || (this.branches.find(b => b.name === newSR.branch)?.id) || 'BR-01',
-      branch: newSR.branch || this.getActiveBranch(),
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
       requestedBy: newSR.requestedBy || this.currentUser?.name || 'Branch Manager',
       priority: newSR.priority || 'Medium',
       needBy: newSR.needBy || newSR.expected || '31 Aug',
       expected: newSR.expected || newSR.needBy || '31 Aug',
       reason: newSR.reason || 'Replenishment',
-      status: newSR.status || 'Pending Approval',
+      status: newSR.status || 'Submitted',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
       items: deduplicatedItems,
       product: deduplicatedItems[0]?.product || newSR.product || 'BRG EV',
@@ -4692,6 +5358,27 @@ export const store = reactive({
       ]
     }
     this.stockRequests.unshift(srObj)
+
+    if (srObj.status === 'Submitted' || srObj.status === 'Pending Approval' || srObj.status === 'Pending') {
+      this.createWorkflowTask({
+        workflowType: 'stock_request_approval',
+        flowType: 'stock_reallocation',
+        typeLabel: 'Stock Request Approval',
+        title: `Stock Request ${id}: ${srObj.qty || 1}x ${srObj.product}`,
+        priority: srObj.priority || 'High',
+        sourceEntity: 'stockRequests',
+        sourceRecordId: id,
+        branch_id: srObj.branch_id,
+        branch: srObj.branch,
+        recipientRole: 'Super Admin',
+        recipientBranch_id: 'ALL',
+        recipientBranch: 'All Branches',
+        initiator: `${srObj.requestedBy} (${srObj.branch})`,
+        assignedTo: 'Super Admin',
+        due: srObj.needBy || 'Today',
+        summary: `Stock request ${id} (${srObj.qty || 1} units) submitted by ${srObj.branch} branch: ${srObj.reason || 'Replenishment'}`
+      })
+    }
 
     this.addNotification({
       title: 'New Stock Request Submitted',
@@ -4724,25 +5411,32 @@ export const store = reactive({
   updateStockRequest(id, updatedData) {
     const index = this.stockRequests.findIndex(s => s.id === id || s.requestId === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('stockRequests', this.stockRequests[index], 'update')
       this.stockRequests[index] = { ...this.stockRequests[index], ...updatedData }
       return this.stockRequests[index]
     }
     return null
   },
 
-  getStockRequestById(id) {
+  getStockRequestById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.stockRequests.find(s => 
+    const found = this.stockRequests.find(s => 
       (s.id && s.id.toLowerCase() === target) ||
       (s.requestId && s.requestId.toLowerCase() === target) ||
       (s.requestNo && s.requestNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'stockRequests', found) ? found : null
   },
 
   approveStockRequest(id, approvalData = {}) {
     const req = this.getStockRequestById(id)
     if (!req) throw new Error(`Stock Request ${id} not found.`)
+    this.assertRecordMutationAccess('stockRequests', req, 'approve')
+    if (req.status === 'Approved' || req.status === 'Fulfilled' || req.status === 'Closed') {
+      throw new Error(`Stock request ${req.id} is already approved or in invalid state '${req.status}'.`)
+    }
     
     req.status = 'Approved'
     req.statusClass = 'bg-[#dcfce7] text-[#165A31]'
@@ -4794,6 +5488,7 @@ export const store = reactive({
   rejectStockRequest(id, rejectionReason = '') {
     const req = this.getStockRequestById(id)
     if (!req) throw new Error(`Stock Request ${id} not found.`)
+    this.assertRecordMutationAccess('stockRequests', req, 'reject')
     
     req.status = 'Rejected'
     req.statusClass = 'bg-red-50 text-red-700'
@@ -4837,7 +5532,185 @@ export const store = reactive({
   },
 
   // ==========================================
-  // 12. CANONICAL PURCHASE ORDER MASTER
+  // CANONICAL PRODUCT REQUESTS MASTER
+  // ==========================================
+  productRequests: [
+    {
+      id: 'PR-028',
+      requestId: 'PR-028',
+      product: 'BRG Urban Mini',
+      productName: 'BRG Urban Mini',
+      category: 'Electric Scooter',
+      specifications: 'Compact urban electric model',
+      reference: 'REF-EV-2026',
+      customerDemand: '4 recent inquiries',
+      urgency: 'Medium',
+      images: '2 references attached',
+      reason: 'Customer demand',
+      submittedDate: '2026-08-26',
+      branch_id: 'BR-01',
+      branchId: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      requestedBy: 'Ahsan Khan',
+      status: 'Submitted', // Draft, Submitted, Approved, Rejected
+      statusClass: 'bg-[#e0e7ff] text-[#3730a3]'
+    },
+    {
+      id: 'PR-024',
+      requestId: 'PR-024',
+      product: 'BRG X5 / Sand Beige',
+      productName: 'BRG X5 / Sand Beige',
+      category: 'Electric Motorcycle',
+      specifications: 'Special paint edition',
+      reference: 'REF-X5-BEIGE',
+      customerDemand: '6 advance deposits',
+      urgency: 'High',
+      images: '1 color swatch',
+      reason: 'Requested variant',
+      submittedDate: '2026-08-20',
+      branch_id: 'BR-01',
+      branchId: 'BR-01',
+      branch: 'Peshawar',
+      branchName: 'Peshawar',
+      requestedBy: 'Ahsan Khan',
+      status: 'Approved',
+      statusClass: 'bg-[#dcfce7] text-[#165A31]',
+      approvedBy: 'Super Admin',
+      approvedDate: '2026-08-22'
+    }
+  ],
+
+  getProductRequestById(id, user = this.currentUser) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    const found = this.productRequests.find(p =>
+      (p.id && p.id.toLowerCase() === target) ||
+      (p.requestId && p.requestId.toLowerCase() === target)
+    ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'productRequests', found) ? found : null
+  },
+
+  addProductRequest(newPR) {
+    const id = newPR.id || newPR.requestId || `PR-${Math.floor(100 + Math.random() * 900)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newPR)
+    const prObj = {
+      ...newPR,
+      id,
+      requestId: id,
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
+      requestedBy: newPR.requestedBy || this.currentUser?.name || 'Branch Manager',
+      status: newPR.status || 'Draft',
+      statusClass: newPR.status === 'Submitted' ? 'bg-[#e0e7ff] text-[#3730a3]' :
+                   newPR.status === 'Approved' ? 'bg-[#dcfce7] text-[#165A31]' :
+                   newPR.status === 'Rejected' ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-700',
+      createdDate: new Date().toISOString().split('T')[0]
+    }
+    this.productRequests.unshift(prObj)
+
+    if (prObj.status === 'Submitted') {
+      this.createWorkflowTask({
+        workflowType: 'product_request_approval',
+        flowType: 'commercial_pricing',
+        typeLabel: 'Product Request Approval',
+        title: `Product Request ${id}: ${prObj.product || prObj.productName}`,
+        priority: prObj.urgency === 'High' ? 'High' : 'Medium',
+        sourceEntity: 'productRequests',
+        sourceRecordId: id,
+        branch_id: prObj.branch_id,
+        branch: prObj.branch,
+        recipientRole: 'Super Admin',
+        recipientBranch_id: 'ALL',
+        recipientBranch: 'All Branches',
+        initiator: `${prObj.requestedBy} (${prObj.branch})`,
+        assignedTo: 'Super Admin',
+        due: 'Today',
+        summary: `Product request ${id} for '${prObj.product || prObj.productName}' (${prObj.category}) submitted by ${prObj.branch} branch.`
+      })
+    }
+
+    this.addAuditLog({
+      action: prObj.status === 'Submitted' ? 'Submitted' : 'Created',
+      event_type: prObj.status === 'Submitted' ? 'PRODUCT_REQUEST_SUBMITTED' : 'PRODUCT_REQUEST_CREATED',
+      entity_type: 'product_request',
+      entity_id: id,
+      module: 'Catalogue',
+      branch: prObj.branch,
+      description: `Product request ${id} (${prObj.product || prObj.productName}) ${prObj.status.toLowerCase()} by ${prObj.requestedBy}.`,
+      metadata: { requestId: id, branch: prObj.branch, product: prObj.product || prObj.productName, status: prObj.status }
+    })
+
+    return prObj
+  },
+
+  updateProductRequest(id, updatedData) {
+    const index = this.productRequests.findIndex(p => p.id === id || p.requestId === id)
+    if (index !== -1) {
+      this.assertRecordMutationAccess('productRequests', this.productRequests[index], 'update')
+      this.productRequests[index] = { ...this.productRequests[index], ...updatedData }
+      return this.productRequests[index]
+    }
+    return null
+  },
+
+  approveProductRequest(id, notes = '') {
+    const req = this.getProductRequestById(id)
+    if (!req) throw new Error(`Product Request ${id} not found.`)
+    this.assertRecordMutationAccess('productRequests', req, 'approve')
+    if (req.status === 'Approved') {
+      throw new Error(`Product request ${req.id} is already approved.`)
+    }
+
+    req.status = 'Approved'
+    req.statusClass = 'bg-[#dcfce7] text-[#165A31]'
+    req.approvedBy = this.currentUser?.name || 'Super Admin'
+    req.approvedDate = new Date().toISOString().split('T')[0]
+    req.approvalNotes = notes
+
+    this.addAuditLog({
+      action: 'Approved',
+      event_type: 'PRODUCT_REQUEST_APPROVED',
+      entity_type: 'product_request',
+      entity_id: req.id,
+      module: 'Catalogue',
+      branch: req.branch,
+      description: `Product request ${req.id} (${req.product || req.productName}) approved by ${req.approvedBy}.`,
+      metadata: { requestId: req.id, approvedBy: req.approvedBy, notes }
+    })
+
+    return req
+  },
+
+  rejectProductRequest(id, reason = '') {
+    const req = this.getProductRequestById(id)
+    if (!req) throw new Error(`Product Request ${id} not found.`)
+    this.assertRecordMutationAccess('productRequests', req, 'reject')
+
+    req.status = 'Rejected'
+    req.statusClass = 'bg-red-50 text-red-700'
+    req.rejectedBy = this.currentUser?.name || 'Super Admin'
+    req.rejectionReason = reason || 'Product request not aligned with current catalogue roadmap.'
+
+    this.addAuditLog({
+      action: 'Rejected',
+      event_type: 'PRODUCT_REQUEST_REJECTED',
+      entity_type: 'product_request',
+      entity_id: req.id,
+      module: 'Catalogue',
+      branch: req.branch,
+      description: `Product request ${req.id} rejected by ${req.rejectedBy}. Reason: ${req.rejectionReason}`,
+      metadata: { requestId: req.id, rejectedBy: req.rejectedBy, reason: req.rejectionReason }
+    })
+
+    return req
+  },
+
+  // ==========================================
+  // 12. CANONICAL PURCHASE ORDER & GOODS RECEIPT MASTER
   // ==========================================
   purchaseOrders: [
     {
@@ -5013,9 +5886,121 @@ export const store = reactive({
     }
   ],
 
+  // ==========================================
+  // CANONICAL SERIALIZED UNIT STATUS VOCABULARY
+  // ==========================================
+
+  normalizeUnitStatus(status) {
+    if (!status) return 'Available'
+    const s = String(status).trim()
+    if (this.CANONICAL_UNIT_STATUSES.includes(s)) return s
+    
+    // Compatibility aliases
+    const lower = s.toLowerCase()
+    if (lower === 'in production' || lower === 'in_production' || lower === 'production' || lower === 'expected') return 'Expected'
+    if (lower === 'inbound in transit' || lower === 'inbound_in_transit' || lower === 'supplier in transit' || lower === 'supplier_in_transit') return 'Supplier In Transit'
+    if (lower === 'qc hold' || lower === 'qc_hold' || lower === 'qchold' || lower === 'inspection' || lower === 'receiving / qc') return 'Receiving / QC'
+    if (lower === 'maintenance' || lower === 'repair' || lower === 'under repair' || lower === 'servicing' || lower === 'in service') return 'In Service'
+    if (lower === 'allocated' || lower === 'booked' || lower === 'reserved') return 'Reserved'
+    if (lower === 'damaged' || lower === 'quarantine' || lower === 'quarantined' || lower === 'defect' || lower === 'damaged / quarantine') return 'Damaged / Quarantine'
+    if (lower === 'in transit' || lower === 'in_transit' || lower === 'dispatched' || lower === 'transfer in transit') return 'Transfer In Transit'
+    if (lower === 'disposed' || lower === 'scrapped') return 'Scrapped'
+    if (lower === 'returned') return 'Returned'
+    if (lower === 'sold') return 'Sold'
+    if (lower === 'available') return 'Available'
+    return s
+  },
+
+  getProductVariants(productId) {
+    if (!productId) return []
+    const prod = this.getProductById(productId)
+    if (!prod) return []
+    
+    if (Array.isArray(prod.variantList) && prod.variantList.length > 0) {
+      return prod.variantList
+    }
+    if (Array.isArray(prod.variants) && prod.variants.length > 0) {
+      return prod.variants.map((v, i) => {
+        if (typeof v === 'object' && v !== null) return v
+        const slug = String(v).toLowerCase().replace(/[^a-z0-9]/g, '-')
+        return {
+          id: `VAR-${slug || (i + 1)}`,
+          variantId: `VAR-${slug || (i + 1)}`,
+          name: String(v),
+          variantName: String(v),
+          sku: `${prod.sku || prod.id}-${slug || (i + 1)}`
+        }
+      })
+    }
+    if (typeof prod.variants === 'string' && prod.variants.trim() && prod.variants.toLowerCase() !== 'standard') {
+      const parts = prod.variants.split(/[\/,]/).map(s => s.trim()).filter(Boolean)
+      if (parts.length > 0) {
+        return parts.map((v, i) => {
+          const slug = v.toLowerCase().replace(/[^a-z0-9]/g, '-')
+          return {
+            id: `VAR-${slug || (i + 1)}`,
+            variantId: `VAR-${slug || (i + 1)}`,
+            name: v,
+            variantName: v,
+            sku: `${prod.sku || prod.id}-${slug || (i + 1)}`
+          }
+        })
+      }
+    }
+    return [
+      { id: 'NOT_APPLICABLE', variantId: 'NOT_APPLICABLE', name: 'Standard (No Variant)', variantName: 'Standard', sku: prod.sku || prod.id }
+    ]
+  },
+
+  validatePurchaseOrderLines(lines) {
+    if (!Array.isArray(lines) || lines.length === 0) {
+      throw new Error('Purchase order must contain at least one product line.')
+    }
+    const seenLineKeys = new Set()
+    lines.forEach((item, idx) => {
+      const lineNum = idx + 1
+      const prodId = item.product_id || item.productId || item.id
+      if (!prodId) {
+        throw new Error(`Line ${lineNum}: Product ID is required.`)
+      }
+      const prod = this.getProductById(prodId)
+      if (!prod) {
+        throw new Error(`Line ${lineNum}: Product ID '${prodId}' not found in canonical catalogue.`)
+      }
+      const isInactive = prod.status && (
+        String(prod.status).toLowerCase() === 'archived' ||
+        String(prod.status).toLowerCase() === 'inactive' ||
+        String(prod.status).toLowerCase() === 'discontinued'
+      )
+      if (isInactive) {
+        throw new Error(`Line ${lineNum}: Product '${prod.name}' (${prodId}) is not active in catalogue.`)
+      }
+      
+      const variantId = item.variant_id || item.variantId || 'NOT_APPLICABLE'
+      const lineKey = `${prodId}::${variantId}`
+      if (seenLineKeys.has(lineKey)) {
+        const variantDesc = item.variantName ? ` variant '${item.variantName}'` : (variantId !== 'NOT_APPLICABLE' ? ` variant '${variantId}'` : '')
+        throw new Error(`Line ${lineNum}: Duplicate product '${prod.name}'${variantDesc} (${prodId}) in purchase order lines.`)
+      }
+      seenLineKeys.add(lineKey)
+
+      const qty = parseInt(item.ordered !== undefined ? item.ordered : (item.quantity !== undefined ? item.quantity : (item.qty !== undefined ? item.qty : 0)))
+      if (isNaN(qty) || qty <= 0) {
+        throw new Error(`Line ${lineNum} (${prod.name}): Procurement quantity must be greater than 0. Received: ${item.ordered ?? item.quantity ?? item.qty}`)
+      }
+    })
+    return true
+  },
+
   addPurchaseOrder(newPO) {
     const id = newPO.id || newPO.po_id || newPO.po || this.generateDocumentId('po')
-    const totalOrdered = newPO.totalOrdered || (newPO.items ? newPO.items.reduce((s, i) => s + (parseInt(i.ordered || i.qty || 0) || 0), 0) : (parseInt(newPO.units) || 0))
+    
+    // Validate PO lines if provided
+    if (newPO.items && Array.isArray(newPO.items) && newPO.items.length > 0) {
+      this.validatePurchaseOrderLines(newPO.items)
+    }
+
+    const totalOrdered = newPO.totalOrdered !== undefined ? newPO.totalOrdered : (newPO.items ? newPO.items.reduce((s, i) => s + (parseInt(i.ordered || i.quantity || i.qty || 0) || 0), 0) : (parseInt(newPO.units) || 0))
     const poObj = {
       ...newPO,
       id,
@@ -5026,9 +6011,33 @@ export const store = reactive({
       totalReceived: newPO.totalReceived || 0,
       remainingUnits: totalOrdered || 0,
       items: newPO.items || [],
-      status: newPO.status || 'Pending Approval'
+      status: newPO.status || 'Draft'
     }
+
+    // Purchase Order creation MUST create zero physical stock!
+    // We strictly record the procurement order without mutating product inventories.
     this.purchaseOrders.unshift(poObj)
+
+    if (poObj.status === 'Pending Approval' || poObj.status === 'Pending') {
+      this.createWorkflowTask({
+        workflowType: 'purchase_order_approval',
+        flowType: 'commercial_pricing',
+        typeLabel: 'Purchase Order Approval',
+        title: `Purchase Order ${id}: ${poObj.units} units (${poObj.supplier || 'Supplier'})`,
+        priority: poObj.priority || 'High',
+        sourceEntity: 'purchaseOrders',
+        sourceRecordId: id,
+        branch_id: poObj.branch_id || this.resolveCanonicalBranchId(poObj.destination || poObj.branch || 'BR-01'),
+        branch: poObj.destination || poObj.branch || 'Peshawar',
+        recipientRole: 'Super Admin',
+        recipientBranch_id: 'ALL',
+        recipientBranch: 'All Branches',
+        initiator: this.currentUser?.name || 'Procurement',
+        assignedTo: 'Super Admin',
+        due: poObj.expectedDelivery || 'Today',
+        summary: `PO ${id} for ${poObj.supplier || 'Supplier'} (${poObj.units} units, Total: ${poObj.total || 'PKR 0'}) awaiting Super Admin approval`
+      })
+    }
 
     this.addNotification({
       title: 'New Purchase Order Created',
@@ -5061,6 +6070,7 @@ export const store = reactive({
   updatePurchaseOrder(id, updatedData) {
     const index = this.purchaseOrders.findIndex(p => p.id === id || p.po_id === id || p.po === id)
     if (index !== -1) {
+      assertRecordMutationAccess(this.currentUser, 'purchaseOrders', this.purchaseOrders[index], 'update')
       this.purchaseOrders[index] = { ...this.purchaseOrders[index], ...updatedData }
       return this.purchaseOrders[index]
     }
@@ -5070,6 +6080,11 @@ export const store = reactive({
   approvePurchaseOrder(id) {
     const po = this.getPurchaseOrderById(id)
     if (!po) return null
+    assertRecordMutationAccess(this.currentUser, 'purchaseOrders', po, 'approve')
+    const validPreStates = ['Pending Approval', 'Pending', 'Draft']
+    if (!validPreStates.includes(po.status)) {
+      throw new Error(`Cannot approve purchase order ${po.po} with status '${po.status}'. Must be in Pending Approval state.`)
+    }
     po.status = 'Approved'
     po.approvedBy = this.currentUser?.name || 'Super Admin'
     po.approvedDate = new Date().toISOString().split('T')[0]
@@ -5104,6 +6119,11 @@ export const store = reactive({
   rejectPurchaseOrder(id, reason = 'Price or lead time unacceptable') {
     const po = this.getPurchaseOrderById(id)
     if (!po) return null
+    assertRecordMutationAccess(this.currentUser, 'purchaseOrders', po, 'reject')
+    const validPreStates = ['Pending Approval', 'Pending', 'Draft']
+    if (!validPreStates.includes(po.status)) {
+      throw new Error(`Cannot reject purchase order ${po.po} with status '${po.status}'.`)
+    }
     po.status = 'Rejected'
     po.rejectedBy = this.currentUser?.name || 'Super Admin'
     po.rejectionReason = reason
@@ -5135,14 +6155,100 @@ export const store = reactive({
     return po
   },
 
-  getPurchaseOrderById(id) {
+  orderPurchaseOrder(id) {
+    const po = this.getPurchaseOrderById(id)
+    if (!po) throw new Error(`Purchase order ${id} not found.`)
+    assertRecordMutationAccess(this.currentUser, 'purchaseOrders', po, 'update')
+    if (po.status !== 'Approved') {
+      throw new Error(`Cannot order PO ${po.po} from status '${po.status}'. PO must be Approved first.`)
+    }
+    po.status = 'Ordered'
+    po.action = 'Open'
+    this.addAuditLog({
+      action: 'Ordered',
+      event_type: 'PO_ORDERED',
+      entity_type: 'purchase_order',
+      entity_id: po.id,
+      module: 'Procurement',
+      branch: po.destination || po.branch || 'Peshawar',
+      description: `Purchase order ${po.id} marked Ordered with supplier ${po.supplier}.`
+    })
+    return po
+  },
+
+  shipPurchaseOrder(id, tracking = '') {
+    const po = this.getPurchaseOrderById(id)
+    if (!po) throw new Error(`Purchase order ${id} not found.`)
+    assertRecordMutationAccess(this.currentUser, 'purchaseOrders', po, 'update')
+    if (po.status !== 'Ordered' && po.status !== 'Approved') {
+      throw new Error(`Cannot dispatch PO ${po.po} from status '${po.status}'. Must be Ordered first.`)
+    }
+    po.status = 'In Transit'
+    if (tracking) po.tracking = tracking
+    this.addAuditLog({
+      action: 'In Transit',
+      event_type: 'PO_DISPATCHED',
+      entity_type: 'purchase_order',
+      entity_id: po.id,
+      module: 'Procurement',
+      branch: po.destination || po.branch || 'Peshawar',
+      description: `Purchase order ${po.id} dispatched / marked in transit.`
+    })
+    return po
+  },
+
+  cancelPurchaseOrder(id, reason = 'Cancelled by user') {
+    const po = this.getPurchaseOrderById(id)
+    if (!po) throw new Error(`Purchase order ${id} not found.`)
+    assertRecordMutationAccess(this.currentUser, 'purchaseOrders', po, 'update')
+    const nonCancellable = ['Fully Received', 'Received', 'Closed', 'Cancelled']
+    if (nonCancellable.includes(po.status)) {
+      throw new Error(`Cannot cancel PO ${po.po} with terminal/received status '${po.status}'.`)
+    }
+    po.status = 'Cancelled'
+    po.cancellationReason = reason
+    this.addAuditLog({
+      action: 'Cancelled',
+      event_type: 'PO_CANCELLED',
+      entity_type: 'purchase_order',
+      entity_id: po.id,
+      module: 'Procurement',
+      branch: po.destination || po.branch || 'Peshawar',
+      description: `Purchase order ${po.id} cancelled. Reason: ${reason}`
+    })
+    return po
+  },
+
+  closePurchaseOrder(id) {
+    const po = this.getPurchaseOrderById(id)
+    if (!po) throw new Error(`Purchase order ${id} not found.`)
+    assertRecordMutationAccess(this.currentUser, 'purchaseOrders', po, 'update')
+    if (po.status !== 'Fully Received' && po.status !== 'Received') {
+      throw new Error(`Cannot close PO ${po.po} with status '${po.status}'. Only fully received POs can be closed.`)
+    }
+    po.status = 'Closed'
+    this.addAuditLog({
+      action: 'Closed',
+      event_type: 'PO_CLOSED',
+      entity_type: 'purchase_order',
+      entity_id: po.id,
+      module: 'Procurement',
+      branch: po.destination || po.branch || 'Peshawar',
+      description: `Purchase order ${po.id} closed.`
+    })
+    return po
+  },
+
+  getPurchaseOrderById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.purchaseOrders.find(p => 
-      (p.id && p.id.toLowerCase() === target) || 
-      (p.po_id && p.po_id.toLowerCase() === target) ||
-      (p.po && p.po.toLowerCase() === target)
+    const found = this.purchaseOrders.find(p => 
+      (p.id && p.id.toLowerCase() === target) ||
+      (p.po && p.po.toLowerCase() === target) ||
+      (p.po_id && p.po_id.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return canReadRecord(user, 'purchaseOrders', found) ? found : null
   },
 
   // ==========================================
@@ -5226,30 +6332,40 @@ export const store = reactive({
     return { success: true, receipt: draftObj }
   },
 
-  postReceipt({ receiptData, updateInventory = true }) {
+  postReceipt(payload) {
+    const receiptData = (payload && payload.receiptData) ? payload.receiptData : payload
+    const updateInventory = (payload && payload.updateInventory !== undefined) ? payload.updateInventory : true
+    if (!receiptData) throw new Error('Receipt payload is required.')
+
     // 1. Validate PO exists
     const po = this.getPurchaseOrderById(receiptData.po_id || receiptData.po)
     if (!po) {
       throw new Error(`Purchase order ${receiptData.po_id || receiptData.po} not found.`)
     }
 
-    // 2. Validate branch authorization
-    if (!this.isBranchAllowed(po.destination || po.branch)) {
+    // 2. Validate PO is in a receivable state
+    const receivableStatuses = ['Approved', 'Ordered', 'In Transit', 'Partially Received']
+    if (!receivableStatuses.includes(po.status)) {
+      throw new Error(`Cannot receive purchase order ${po.po} with status '${po.status}'. PO must be in Approved, Ordered, or In Transit state before receiving.`)
+    }
+
+    // 3. Validate branch authorization
+    if (this.currentUser && !isSuperAdmin(this.currentUser) && !matchBranch(this.currentUser, po.destination || po.branch)) {
       throw new Error(`Unauthorized branch: User is not authorized to receive PO for ${po.destination || po.branch}.`)
     }
 
-    // 3. Validate PO is not already fully received
+    // 4. Validate PO is not already fully received
     if ((po.status === 'Fully Received' || po.status === 'Received') && po.remainingUnits <= 0) {
       throw new Error(`Purchase order ${po.po} is already fully received.`)
     }
 
-    // 4. Validate lines
+    // 5. Validate lines
     const lines = receiptData.lines || []
     if (lines.length === 0) {
       throw new Error('Receipt must contain at least one line item.')
     }
 
-    // 5. Validate serial units & prevent duplicate VINs / Chassis
+    // 6. Validate serial units & prevent duplicate VINs / Chassis
     const serializedUnitsPayload = receiptData.serializedUnits || []
     const seenSerials = new Set()
     for (const unit of serializedUnitsPayload) {
@@ -5268,7 +6384,7 @@ export const store = reactive({
       }
     }
 
-    // 6. Create GRN / Receipt Record
+    // 7. Create GRN / Receipt Record
     const receiptId = receiptData.id || receiptData.receipt_id || receiptData.receiptNumber || this.generateDocumentId('receipt')
     const receiptObj = {
       ...receiptData,
@@ -5316,7 +6432,7 @@ export const store = reactive({
       created_at: new Date().toISOString()
     }
 
-    // 7. Update PO Line Quantities and Total Received / Remaining
+    // 8. Update PO Line Quantities and Total Received / Remaining
     let poTotalReceived = 0
     let poTotalOrdered = 0
     
@@ -5351,7 +6467,7 @@ export const store = reactive({
       po.action = 'Open · Receive'
     }
 
-    // 8. Update Inventory & Serialized Units
+    // 9. Update Inventory & Serialized Units
     if (updateInventory) {
       // (a) Quantity-based products stock increment
       receiptObj.lines.forEach(line => {
@@ -5381,8 +6497,34 @@ export const store = reactive({
 
       // (b) Create Serialized Units in store
       serializedUnitsPayload.forEach(unit => {
-        const isQcHold = unit.qc === 'QC Hold' || unit.condition === 'Damaged' || unit.condition === 'Scratch' || unit.condition === 'Defect'
+        let canonicalStatus = 'Available'
+        let loc = unit.location || 'Showroom Floor'
+        
+        if (unit.condition === 'Damaged' || unit.qc === 'Fail' || unit.condition === 'Defect') {
+          canonicalStatus = 'Damaged / Quarantine'
+          loc = unit.location || 'Damaged & Quarantine Bay'
+        } else if (unit.qc === 'QC Hold' || unit.qc === 'Hold' || unit.condition === 'Scratch' || unit.qc === 'Receiving / QC') {
+          canonicalStatus = 'Receiving / QC'
+          loc = unit.location || 'QC Inspection Bay'
+        } else if (unit.status) {
+          canonicalStatus = this.normalizeUnitStatus(unit.status)
+        }
+
         const unitId = unit.chassis || unit.serial || unit.vin || `UNIT-${Math.floor(100 + Math.random() * 900)}`
+        
+        // Exact unit cost basis derivation for historical COGS integrity
+        const prodObj = this.getProductById(unit.product_id) || this.getProductById(unit.product)
+        const matchingPoItem = (po.items || []).find(i => 
+          (unit.variant_id && unit.variant_id !== 'NOT_APPLICABLE' && i.variant_id === unit.variant_id) ||
+          i.product_id === unit.product_id || 
+          i.product === unit.product || 
+          i.sku === unit.sku
+        )
+        const lineCost = matchingPoItem?.expectedUnitCost !== undefined 
+          ? matchingPoItem.expectedUnitCost 
+          : (this.parseMoney(matchingPoItem?.cost || matchingPoItem?.unitCost) || prodObj?.costPrice || 0)
+        const unitCostNum = typeof lineCost === 'number' ? lineCost : (this.parseMoney(lineCost) || 0)
+
         const newUnitRecord = {
           id: `UNIT-${Math.floor(100 + Math.random() * 900)}`,
           unit_id: unitId,
@@ -5393,19 +6535,28 @@ export const store = reactive({
           vin: unit.vin || unit.chassis || unitId,
           motorNumber: unit.motorNumber || '—',
           batteryNumber: unit.batteryNumber || '—',
-          product_id: unit.product_id || (this.getProductById(unit.product)?.id) || 'PROD-001',
-          product: unit.product || 'BRG EV',
-          modelName: unit.product || 'BRG EV',
+          product_id: unit.product_id || (prodObj?.id) || 'PROD-001',
+          variant_id: unit.variant_id || matchingPoItem?.variant_id || 'NOT_APPLICABLE',
+          variantName: unit.variantName || matchingPoItem?.variantName || 'Standard',
+          product: unit.product || prodObj?.name || 'BRG EV',
+          modelName: unit.product || prodObj?.name || 'BRG EV',
           branch_id: po.branch_id || 'BR-01',
           branch: po.destination || po.branch || 'Peshawar',
-          location: unit.location || (isQcHold ? 'QC Inspection Bay' : 'Showroom Floor'),
-          status: isQcHold ? 'QC Hold' : 'Available',
-          statusClass: isQcHold ? 'bg-amber-50 text-amber-700' : 'bg-[#dcfce7] text-[#165A31]',
+          location: loc,
+          status: canonicalStatus,
+          statusClass: canonicalStatus === 'Available' 
+            ? 'bg-[#dcfce7] text-[#165A31]' 
+            : (canonicalStatus === 'Damaged / Quarantine' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'),
+          ownership_status: 'Company Owned',
           source: `PO ${po.po}`,
           sourcePo: po.po,
           receipt_id: receiptId,
-          condition: unit.condition || 'Good',
-          qc: unit.qc || (isQcHold ? 'QC Hold' : 'Pass'),
+          condition: unit.condition || (canonicalStatus === 'Damaged / Quarantine' ? 'Damaged' : 'Good'),
+          qc: unit.qc || (canonicalStatus === 'Damaged / Quarantine' ? 'Fail' : (canonicalStatus === 'Receiving / QC' ? 'Hold' : 'Pass')),
+          costPrice: unitCostNum,
+          unitCost: unitCostNum,
+          baseCost: unitCostNum,
+          landedCost: unitCostNum,
           receivedDate: receiptObj.receipt_date,
           warrantyExpiry: '2028-08-30'
         }
@@ -5443,10 +6594,237 @@ export const store = reactive({
     })
 
     return {
+      ...receiptObj,
       success: true,
       receipt: receiptObj,
       po
     }
+  },
+
+  // ==========================================
+  // FINANCIAL DOMAIN METHODS & METRICS
+  // ==========================================
+  parseMoney(val) {
+    if (typeof val === 'number') return isNaN(val) ? 0 : val
+    if (!val) return 0
+    const cleaned = String(val).replace(/[^\d.-]/g, '')
+    const num = parseFloat(cleaned)
+    return isNaN(num) ? 0 : num
+  },
+
+  formatMoney(val, options = {}) {
+    const num = typeof val === 'number' ? val : this.parseMoney(val)
+    const decimals = options.decimals !== undefined ? options.decimals : 0
+    const formatted = num.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    })
+    return `PKR ${formatted}`
+  },
+
+  calculateFinancialMetrics(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) {
+      return {
+        grossSales: 0,
+        discounts: 0,
+        salesReturns: 0,
+        netSales: 0,
+        cogs: 0,
+        grossProfit: 0,
+        grossMarginPct: 0,
+        grossMarginPercent: 0,
+        grossMarginFormatted: '0.0%',
+        operatingExpenses: 0,
+        netOperatingProfit: 0
+      }
+    }
+
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    const FINALIZED_SALES_STATUSES = ['Completed', 'Delivered', 'Paid', 'Ready for Handover', 'Ready', 'Partially Paid']
+    const PIPELINE_EXCLUDED_STATUSES = ['Draft', 'Confirmed', 'Payment Pending', 'Pending Approval', 'Reserved', 'Cancelled', 'Sourcing', 'Inspection', 'Rejected']
+
+    const validOrders = (ordersList || []).filter(o => 
+      FINALIZED_SALES_STATUSES.includes(o.status) || (!PIPELINE_EXCLUDED_STATUSES.includes(o.status) && (o.status === 'Completed' || o.delivery === 'Delivered'))
+    )
+
+    let grossSales = 0
+    let discounts = 0
+    let salesReturns = 0
+    let totalCogs = 0
+
+    validOrders.forEach(ord => {
+      const g = typeof ord.grossAmount === 'number' ? ord.grossAmount : (this.parseMoney(ord.grossAmount || ord.total || ord.amount) || 0)
+      const d = typeof ord.discount === 'number' ? ord.discount : (this.parseMoney(ord.discount) || 0)
+      const r = typeof ord.returnsAmount === 'number' ? ord.returnsAmount : (this.parseMoney(ord.returnsAmount || ord.refundAmount) || 0)
+      
+      grossSales += g
+      discounts += d
+      salesReturns += r
+
+      // Derive COGS strictly from exact unit landed cost of serialized units assigned to order
+      const unitIds = ord.unit_ids || ord.unitIds || ord.serials || []
+      if (Array.isArray(unitIds) && unitIds.length > 0) {
+        unitIds.forEach(uid => {
+          const u = this.getUnitById(uid)
+          if (u) {
+            totalCogs += typeof u.landedCost === 'number' ? u.landedCost : (typeof u.costPrice === 'number' ? u.costPrice : (this.parseMoney(u.landedCost || u.costPrice || u.unitCost) || 0))
+          }
+        })
+      } else if (ord.cogs !== undefined) {
+        totalCogs += typeof ord.cogs === 'number' ? ord.cogs : this.parseMoney(ord.cogs)
+      }
+    })
+
+    const returnsList = targetBranchId
+      ? this.salesReturns.filter(r => {
+          const rBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(r, 'salesReturns') || r.branch_id || r.branchId || r.branch)
+          return rBranchId === targetBranchId
+        })
+      : this.salesReturns
+
+    returnsList.forEach(ret => {
+      if (ret.status === 'Approved' || ret.status === 'Received' || ret.status === 'Refunded' || ret.status === 'Completed') {
+        const retAmt = ret.rawAmount !== undefined ? ret.rawAmount : this.parseMoney(ret.refundAmount || ret.amount || ret.total)
+        salesReturns += retAmt
+      }
+    })
+
+    const netSales = Math.max(0, grossSales - discounts - salesReturns)
+    const grossProfit = netSales - totalCogs
+
+    // Safe zero handling for gross margin %
+    const grossMarginPct = netSales > 0 ? Number(((grossProfit / netSales) * 100).toFixed(2)) : 0
+    const grossMarginFormatted = `${grossMarginPct.toFixed(1)}%`
+
+    // Operating expenses (Approved only)
+    const expList = filter.customExpenses || (
+      filter.expense_ids
+        ? this.expenses.filter(e => filter.expense_ids.includes(e.id || e.expense_id))
+        : (targetBranchId
+            ? this.expenses.filter(e => {
+                const eBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(e, 'expenses') || e.branch_id || e.branchId || e.branch)
+                return eBranchId === targetBranchId
+              })
+            : this.expenses)
+    )
+
+    let operatingExpenses = 0
+    ;(expList || []).forEach(exp => {
+      const isApproved = exp.status === 'Approved' || exp.status === 'Paid' || exp.approval === 'Approved'
+      if (isApproved && exp.status !== 'Rejected' && exp.status !== 'Void' && exp.status !== 'Draft' && exp.status !== 'Pending Approval') {
+        operatingExpenses += typeof exp.amount === 'number' ? exp.amount : (this.parseMoney(exp.amount) || 0)
+      }
+    })
+
+    const netOperatingProfit = grossProfit - operatingExpenses
+
+    return {
+      grossSales,
+      discounts,
+      salesReturns,
+      netSales,
+      cogs: totalCogs,
+      grossProfit,
+      grossMarginPct,
+      grossMarginPercent: grossMarginPct,
+      grossMarginFormatted,
+      operatingExpenses,
+      netOperatingProfit
+    }
+  },
+
+  getInventoryValuation(filter = {}) {
+    const units = filter.customUnits || (
+      filter.unit_ids
+        ? this.serializedUnits.filter(u => filter.unit_ids.includes(u.id || u.unit_id || u.serial || u.chassis))
+        : (filter.branch_id && filter.branch_id !== 'ALL'
+            ? this.serializedUnits.filter(u => u.branch_id === filter.branch_id || u.branch === filter.branch_id)
+            : this.serializedUnits)
+    )
+
+    let onHandValue = 0
+    let inTransitValue = 0
+    let customerOwnedValue = 0
+    let totalUnits = 0
+
+    ;(units || []).forEach(unit => {
+      totalUnits++
+      const isCustomerOwned = unit.ownership_status === 'Customer Owned' || unit.status === 'Customer Unit' || unit.isCustomerOwned === true
+      const cost = typeof unit.landedCost === 'number' ? unit.landedCost : (typeof unit.costPrice === 'number' ? unit.costPrice : (this.parseMoney(unit.landedCost || unit.costPrice || unit.cost) || 0))
+
+      if (isCustomerOwned) {
+        customerOwnedValue += cost
+      } else {
+        const canonical = this.normalizeUnitStatus(unit.status)
+        if (canonical === 'Transfer In Transit' || canonical === 'Supplier In Transit') {
+          inTransitValue += cost
+        } else if (canonical !== 'Sold' && canonical !== 'Scrapped') {
+          onHandValue += cost
+        }
+      }
+    })
+
+    const totalOwnedValue = onHandValue + inTransitValue
+
+    return {
+      onHandValue,
+      inTransitValue,
+      customerOwnedValue: 0,
+      totalOwnedValue,
+      totalUnits
+    }
+  },
+
+  allocateLandedCosts(receiptId, addonItems = [], method = 'By Quantity') {
+    const receipt = this.getReceiptById(receiptId)
+    const units = this.serializedUnits.filter(u => 
+      u.receipt_id === receiptId || 
+      u.receiptId === receiptId || 
+      (receipt && (u.sourcePo === receipt.po || u.sourcePo === receipt.po_id))
+    )
+
+    if (units.length === 0) return []
+
+    const totalAddon = addonItems.reduce((s, i) => s + (typeof i.amount === 'number' ? i.amount : (this.parseMoney(i.amount || i.cost) || 0)), 0)
+
+    if (method === 'By Quantity') {
+      const perUnit = totalAddon / units.length
+      units.forEach(u => {
+        const base = typeof u.costPrice === 'number' ? u.costPrice : (this.parseMoney(u.costPrice || u.baseCost || u.unitCost) || 0)
+        u.addonCost = (u.addonCost || 0) + perUnit
+        u.landedCost = base + u.addonCost
+      })
+    } else if (method === 'By Base Cost') {
+      const totalBase = units.reduce((s, u) => s + (typeof u.costPrice === 'number' ? u.costPrice : (this.parseMoney(u.costPrice || u.baseCost || u.unitCost) || 0)), 0)
+      units.forEach(u => {
+        const base = typeof u.costPrice === 'number' ? u.costPrice : (this.parseMoney(u.costPrice || u.baseCost || u.unitCost) || 0)
+        const ratio = totalBase > 0 ? base / totalBase : (1 / units.length)
+        const allocated = totalAddon * ratio
+        u.addonCost = (u.addonCost || 0) + allocated
+        u.landedCost = base + u.addonCost
+      })
+    }
+
+    return units
+  },
+
+  getUnitCogs(unitId) {
+    const u = this.getUnitById(unitId)
+    if (!u) return 0
+    return typeof u.landedCost === 'number' ? u.landedCost : (typeof u.costPrice === 'number' ? u.costPrice : (this.parseMoney(u.landedCost || u.costPrice || u.unitCost) || 0))
   },
 
   // ==========================================
@@ -5574,14 +6952,16 @@ export const store = reactive({
     }
   ],
 
-  getTransferById(id) {
+  getTransferById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.transfers.find(t => 
+    const found = this.transfers.find(t => 
       (t.id && t.id.toLowerCase() === target) ||
       (t.transfer_id && t.transfer_id.toLowerCase() === target) ||
       (t.transferNumber && t.transferNumber.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'transfers', found) ? found : null
   },
 
   createTransfer(transferData) {
@@ -5589,6 +6969,13 @@ export const store = reactive({
   },
 
   addTransfer(transferData) {
+    if (this.isBranchUser()) {
+      const userCanon = this.resolveCanonicalBranchId(this.getActiveBranch())
+      const fromCanon = this.resolveCanonicalBranchId(transferData.from || transferData.fromBranch)
+      if (userCanon !== fromCanon) {
+        throw new Error(`UNAUTHORIZED_TRANSFER_CREATION: Branch Manager at ${this.getActiveBranch()} cannot initiate transfer from another branch.`)
+      }
+    }
     // 1. Source != Destination
     const fromBranch = (transferData.from || transferData.fromBranch || '').trim()
     const toBranch = (transferData.to || transferData.toBranch || '').trim()
@@ -5674,6 +7061,8 @@ export const store = reactive({
     const toBranchObj = this.branches.find(b => b.name.toLowerCase() === toBranch.toLowerCase())
     
     const totalUnits = rawItems.reduce((s, it) => s + (it.requestedQty || parseInt(it.count) || 1), 0)
+    const initialStatus = transferData.status || (transferData.isApproved ? 'Approved' : 'Requested')
+    const isApprovedInitially = initialStatus === 'Approved'
 
     const transferObj = {
       id,
@@ -5685,19 +7074,20 @@ export const store = reactive({
       to: toBranch,
       units: String(totalUnits),
       totalUnits,
-      requestedBy: transferData.requestedBy || this.currentUser?.name || 'Branch Manager',
-      approvedBy: transferData.approvedBy || (this.currentUser?.isSuperAdmin ? this.currentUser.name : 'Pending Approval'),
+      requestedBy: transferData.requestedBy || this.currentUser?.name || (this.isBranchUser() ? 'Branch Manager' : 'Super Admin'),
+      approvedBy: isApprovedInitially ? (transferData.approvedBy || this.currentUser?.name || 'Super Admin') : '—',
+      approvedDate: isApprovedInitially ? (transferData.approvedDate || new Date().toISOString().split('T')[0]) : null,
       dispatchedBy: '—',
       carrier: transferData.carrier || 'Internal logistics',
       dispatched: transferData.dispatched || 'Today',
       expectedArrival: transferData.expectedArrival || 'Tomorrow',
-      status: transferData.status || (this.currentUser?.isSuperAdmin ? 'Approved' : 'Pending Approval'),
-      statusClass: transferData.status === 'In Transit' ? 'bg-blue-50 text-blue-700' : 'bg-[#fef3c7] text-[#b45309]',
+      status: initialStatus,
+      statusClass: initialStatus === 'Approved' ? 'bg-[#e0e7ff] text-[#3730a3]' : (initialStatus === 'In Transit' ? 'bg-blue-50 text-blue-700' : 'bg-[#fef3c7] text-[#b45309]'),
       notes: transferData.notes || 'Inter-branch inventory transfer',
       product: rawItems[0]?.product || 'BRG EV',
       items: rawItems,
       timeline: [
-        { date: new Date().toISOString().replace('T', ' ').slice(0, 16), title: 'Transfer Created', desc: `Transfer ${id} initiated from ${fromBranch} to ${toBranch}.`, user: this.currentUser?.name || 'Branch Manager' }
+        { date: new Date().toISOString().replace('T', ' ').slice(0, 16), title: isApprovedInitially ? 'Transfer Created & Approved' : 'Transfer Requested', desc: `Transfer ${id} initiated from ${fromBranch} to ${toBranch}.`, user: this.currentUser?.name || (this.isBranchUser() ? 'Branch Manager' : 'Super Admin') }
       ]
     }
 
@@ -5734,15 +7124,70 @@ export const store = reactive({
   updateTransfer(id, updatedData) {
     const index = this.transfers.findIndex(t => t.id === id || t.transfer_id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('transfers', this.transfers[index], 'update')
       this.transfers[index] = { ...this.transfers[index], ...updatedData }
       return this.transfers[index]
     }
     return null
   },
 
+  approveTransfer(id, approvalData = {}) {
+    const t = this.getTransferById(id)
+    if (!t) throw new Error(`Transfer ${id} not found.`)
+    this.assertRecordMutationAccess('transfers', t, 'approve')
+    if (t.status === 'Approved' || t.status === 'Picking' || t.status === 'In Transit' || t.status === 'Received' || t.status === 'Closed') {
+      throw new Error(`TRANSFER_ALREADY_APPROVED: Transfer ${t.id} is already approved or cannot be approved in state '${t.status}'.`)
+    }
+
+    t.status = 'Approved'
+    t.statusClass = 'bg-[#e0e7ff] text-[#3730a3]'
+    t.approvedBy = approvalData.approvedBy || this.currentUser?.name || 'Super Admin'
+    t.approvedDate = new Date().toISOString().split('T')[0]
+    t.approvalNotes = approvalData.notes || approvalData.approvalNotes || ''
+
+    if (!t.timeline) t.timeline = []
+    t.timeline.unshift({
+      date: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      title: 'Transfer Approved',
+      desc: approvalData.notes || `Transfer approved by ${t.approvedBy}. Consignment authorized for picking and dispatch.`,
+      user: t.approvedBy
+    })
+
+    this.addNotification({
+      title: 'Transfer Approved',
+      message: `Transfer ${t.id} (${t.units || t.totalUnits || 1} units) approved by ${t.approvedBy}.`,
+      type: 'success',
+      priority: 'Normal',
+      category: 'Inventory',
+      source_type: 'transfer',
+      source_id: t.id,
+      event_type: 'APPROVED',
+      recipient_role: 'Branch Manager',
+      branch: t.from,
+      link: `/inventory/transfers/detail?id=${t.id}`
+    })
+
+    this.addAuditLog({
+      action: 'Approved',
+      event_type: 'TRANSFER_APPROVED',
+      entity_type: 'transfer',
+      entity_id: t.id,
+      module: 'Inventory',
+      branch: t.from,
+      description: `Transfer ${t.id} approved by ${t.approvedBy}.`,
+      metadata: { transferId: t.id, approvedBy: t.approvedBy, from: t.from, to: t.to }
+    })
+
+    return t
+  },
+
   dispatchTransfer(id, dispatchData = {}) {
     const t = this.getTransferById(id)
     if (!t) throw new Error(`Transfer ${id} not found.`)
+    this.assertRecordMutationAccess('transfers', t, 'dispatch')
+    if (t.status !== 'Approved' && t.status !== 'Picking') {
+      throw new Error(`TRANSFER_NOT_APPROVED: Transfer ${id} cannot be dispatched in state '${t.status}'. Transfer must be Approved prior to dispatch.`)
+    }
     if (t.status === 'In Transit') throw new Error(`Transfer ${id} is already dispatched and in transit.`)
     if (t.status === 'Received') throw new Error(`Transfer ${id} has already been completed.`)
 
@@ -5761,7 +7206,7 @@ export const store = reactive({
         serials.forEach(s => {
           const unit = this.getUnitById(s)
           if (unit) {
-            unit.status = 'In Transit'
+            unit.status = 'Transfer In Transit'
             unit.statusClass = 'bg-blue-50 text-blue-700'
             unit.location = 'Transfer in Transit'
             unit.updated_at = new Date().toISOString()
@@ -5803,6 +7248,39 @@ export const store = reactive({
       user: t.dispatchedBy
     })
 
+    const destBranchCanon = this.resolveCanonicalBranchId(t.toBranch_id || t.to)
+    const destBranchObj = this.branches.find(b => b.id === destBranchCanon || b.branch_id === destBranchCanon)
+
+    this.createWorkflowTask({
+      workflowType: 'inter_branch_transfer',
+      flowType: 'stock_reallocation',
+      typeLabel: 'Inter-Branch Stock Transfer',
+      title: `Inward ${t.units || t.totalUnits || 1} units from ${t.from}`,
+      priority: 'Critical',
+      sourceEntity: 'transfers',
+      sourceRecordId: t.id,
+      originBranch_id: this.resolveCanonicalBranchId(t.fromBranch_id || t.from),
+      originBranch: t.from,
+      branch_id: destBranchCanon,
+      branch: destBranchObj?.name || t.to,
+      recipientRole: 'Branch Manager',
+      recipientBranch_id: destBranchCanon,
+      recipientBranch: destBranchObj?.name || t.to,
+      initiator: `${t.dispatchedBy} (${t.from})`,
+      assignedTo: `${destBranchObj?.name || t.to} Branch Manager`,
+      due: 'Today',
+      summary: `${t.units || t.totalUnits || 1} units in transit from ${t.from} to ${t.to} via ${t.carrier || 'Logistics'} awaiting intake and inspection`,
+      stockData: {
+        originBranch: t.from,
+        destinationBranch: t.to,
+        modelSku: t.items?.[0]?.sku || '',
+        modelName: t.items?.[0]?.product || t.product || 'BRG EV',
+        requestedQty: t.totalUnits || parseInt(t.units || 1),
+        linkedBookingRef: t.id,
+        carrier: t.carrier
+      }
+    })
+
     this.addNotification({
       title: 'Transfer Dispatched',
       message: `Transfer ${t.id} dispatched from ${t.from} to ${t.to} via ${t.carrier}.`,
@@ -5833,17 +7311,19 @@ export const store = reactive({
   },
 
   receiveTransfer(transferIdOrPayload, options = {}) {
-    let transferId, receivedItems, receiverNotes, receiverName
+    let transferId, receivedItems, receiverNotes, receiverName, receiverLocation
     if (typeof transferIdOrPayload === 'string') {
       transferId = transferIdOrPayload
       receivedItems = options.receivedItems || options.receivedUnits || []
       receiverNotes = options.receiverNotes || options.notes || ''
       receiverName = options.receiverName || ''
+      receiverLocation = options.receiverLocation || options.location || ''
     } else {
-      ({ transferId, receivedItems = [], receiverNotes = '', receiverName = '' } = (transferIdOrPayload || {}))
+      ({ transferId, receivedItems = [], receiverNotes = '', receiverName = '', receiverLocation = '' } = (transferIdOrPayload || {}))
     }
     const t = this.getTransferById(transferId)
     if (!t) throw new Error(`Transfer ${transferId} not found.`)
+    this.assertRecordMutationAccess('transfers', t, 'receive')
     if (t.status === 'Received') throw new Error(`Transfer ${transferId} is already fully received.`)
 
     // Branch authorization check
@@ -5879,7 +7359,7 @@ export const store = reactive({
         const serials = item.serials || []
         // Apply receipt to the corresponding number of serials
         serials.slice(0, currRecQty).forEach((s, sIdx) => {
-          const unit = this.getUnitById(s)
+          const unit = this.getUnitById(s, { isSuperAdmin: true, isAuthenticated: true })
           if (unit) {
             // Prevent receiving same unit twice if already at destination and available
             if ((unit.branch || '').toLowerCase() === t.to.toLowerCase() && unit.status === 'Available') {
@@ -5891,7 +7371,7 @@ export const store = reactive({
             unit.branch_id = t.toBranch_id || (this.branches.find(b => b.name === t.to)?.id) || 'BR-01'
             unit.status = isThisUnitDamaged ? 'QC Hold' : 'Available'
             unit.statusClass = isThisUnitDamaged ? 'bg-amber-50 text-amber-700' : 'bg-[#dcfce7] text-[#165A31]'
-            unit.location = isThisUnitDamaged ? 'QC Inspection Bay' : 'Showroom Floor'
+            unit.location = isThisUnitDamaged ? 'QC Inspection Bay' : (receiverLocation || 'Showroom Floor')
             unit.condition = isThisUnitDamaged ? 'Damaged in transit' : 'Good'
             unit.updated_at = new Date().toISOString()
 
@@ -5923,6 +7403,7 @@ export const store = reactive({
     t.statusClass = isFullyReceived ? 'bg-[#dcfce7] text-[#165A31]' : 'bg-[#fef3c7] text-[#b45309]'
     t.receivedDate = new Date().toISOString().split('T')[0]
     t.receiverNotes = receiverNotes || t.notes
+    if (receiverLocation) t.receiverLocation = receiverLocation
 
     if (!t.timeline) t.timeline = []
     t.timeline.unshift({
@@ -6049,14 +7530,16 @@ export const store = reactive({
     }
   ],
 
-  getAdjustmentById(id) {
+  getAdjustmentById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.stockAdjustments.find(a => 
+    const found = this.stockAdjustments.find(a => 
       (a.id && a.id.toLowerCase() === target) ||
       (a.adjustment_id && a.adjustment_id.toLowerCase() === target) ||
       (a.adjustmentNo && a.adjustmentNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'stockAdjustments', found) ? found : null
   },
 
   addStockAdjustment(data) {
@@ -6078,24 +7561,31 @@ export const store = reactive({
     const type = data.type || (data.unit_id ? 'Status' : 'Quantity')
     
     let difference = 0
-    if (type === 'Quantity') {
+    if (data.difference !== undefined) {
+      difference = Number(data.difference)
+    } else if (data.adjustedQty !== undefined) {
+      difference = Number(data.adjustedQty)
+    } else if (type === 'Quantity' || data.new_quantity !== undefined || data.old_quantity !== undefined) {
       const oldQ = parseInt(data.old_quantity ?? data.existingState ?? data.before ?? 0)
       const newQ = parseInt(data.new_quantity ?? data.correctedState ?? data.after ?? 0)
-      difference = data.difference !== undefined ? Number(data.difference) : (newQ - oldQ)
+      difference = newQ - oldQ
     }
 
+    const branchMeta = this.resolveTrustedCreationBranch(data)
     const adjObj = {
       ...data,
       id,
       adjustment_id: id,
       adjustmentNo: id,
-      branch_id: data.branch_id || (this.branches.find(b => b.name === data.branch)?.id) || 'BR-01',
-      branch: data.branch || this.getActiveBranch(),
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
       type,
       product_id: data.product_id || data.productId || '',
       product: data.product || data.productUnit || 'BRG EV',
       productUnit: data.productUnit || data.product || 'BRG EV',
-      unit_id: data.unit_id || null,
+      unit_id: data.unit_id || data.unitId || null,
       old_quantity: data.old_quantity ?? data.existingState ?? data.before ?? 0,
       new_quantity: data.new_quantity ?? data.correctedState ?? data.after ?? 0,
       existingState: String(data.existingState ?? data.old_quantity ?? data.before ?? ''),
@@ -6113,66 +7603,152 @@ export const store = reactive({
     }
 
     this.stockAdjustments.unshift(adjObj)
+
+    if (adjObj.status === 'Pending' || adjObj.status === 'Pending Approval') {
+      this.createWorkflowTask({
+        workflowType: 'stock_adjustment_approval',
+        flowType: 'inventory_governance',
+        typeLabel: 'Inventory Governance & Stock Adjustment',
+        title: `Stock Adjustment ${id}: ${adjObj.product} (${adjObj.qtyEffect || adjObj.reason})`,
+        priority: 'Medium',
+        sourceEntity: 'stockAdjustments',
+        sourceRecordId: id,
+        branch_id: adjObj.branch_id,
+        branch: adjObj.branch,
+        recipientRole: 'Super Admin',
+        recipientBranch_id: 'ALL',
+        recipientBranch: 'All Branches',
+        initiator: `${adjObj.adjusted_by} (${adjObj.branch})`,
+        assignedTo: 'Super Admin',
+        due: 'Tomorrow',
+        summary: `Stock adjustment ${id} on ${adjObj.product} (${adjObj.reason}) submitted for Super Admin review`
+      })
+    }
+
     return adjObj
   },
 
   approveStockAdjustment(id) {
     const adj = this.getAdjustmentById(id)
     if (!adj) throw new Error(`Stock Adjustment ${id} not found.`)
-    if (adj.status === 'Approved') throw new Error(`Stock Adjustment ${id} is already approved and posted.`)
+    this.assertRecordMutationAccess('stockAdjustments', adj, 'approve')
+    if (adj.status === 'Approved') throw new Error(`Stock Adjustment ${id} is already approved.`)
 
-    // Apply ledger impact to canonical inventory
-    if (adj.type === 'Quantity') {
-      const prod = this.getProductById(adj.product_id) || this.getProductById(adj.product)
-      if (prod) {
-        const branchKey = (adj.branch || 'peshawar').toLowerCase().replace(/\s+/g, '')
-        const diff = parseInt(adj.difference || 0)
-        if (prod[branchKey] !== undefined) {
-          prod[branchKey] = Math.max(0, prod[branchKey] + diff)
-        }
-        prod.total = Math.max(0, (prod.total || 0) + diff)
-        prod.available = Math.max(0, (prod.available || 0) + diff)
-        prod.stock = `${prod.total} units`
-      }
-    } else if (adj.type === 'Status') {
-      const targetUnitId = adj.unit_id || adj.productUnit
-      const unit = this.getUnitById(targetUnitId)
-      if (unit) {
-        const targetStatus = adj.new_quantity || adj.correctedState || 'QC Hold'
-        // Direct Sold adjustment is rejected
-        if (targetStatus === 'Sold') {
-          throw new Error('Stock adjustment cannot directly mark a unit as Sold.')
-        }
-        unit.status = targetStatus
-        unit.statusClass = targetStatus === 'QC Hold' ? 'bg-amber-50 text-amber-700' : (targetStatus === 'Available' ? 'bg-[#dcfce7] text-[#165A31]' : 'bg-[#e0e7ff] text-[#3730a3]')
-        unit.location = targetStatus === 'QC Hold' ? 'QC Inspection Bay' : 'Showroom Floor'
-        unit.updated_at = new Date().toISOString()
-        if (!unit.timeline) unit.timeline = []
-        unit.timeline.unshift({
-          date: new Date().toISOString().replace('T', ' ').slice(0, 16),
-          title: `Status Adjusted (${adj.id})`,
-          desc: `Reclassified to ${targetStatus}. Reason: ${adj.reason}.`,
-          user: this.currentUser?.name || 'Branch Manager & HQ'
-        })
-      }
-    }
-
+    // Pure Decision State Transition (Physical ledger posting is a downstream domain operation in Wave 4)
     adj.status = 'Approved'
     adj.statusClass = 'bg-[#dcfce7] text-[#165A31]'
-    adj.approvedBy = this.currentUser?.name || 'Branch Manager & HQ'
+    adj.approvedBy = this.currentUser?.name || 'Super Admin'
+    adj.approvedDate = new Date().toISOString().split('T')[0]
 
-    this.reconcileInventoryTotals()
+    this.addNotification({
+      title: 'Stock Adjustment Approved',
+      message: `Stock adjustment ${adj.id} on ${adj.product} has been approved by ${adj.approvedBy}.`,
+      type: 'success',
+      priority: 'Normal',
+      category: 'Inventory',
+      source_type: 'stock_adjustment',
+      source_id: adj.id,
+      event_type: 'APPROVED',
+      recipient_role: 'Branch Manager',
+      branch: adj.branch || 'Peshawar',
+      link: `/inventory/adjustments/detail?id=${adj.id}`
+    })
+
+    this.addAuditLog({
+      action: 'Approved',
+      event_type: 'STOCK_ADJUSTMENT_APPROVED',
+      entity_type: 'stock_adjustment',
+      entity_id: adj.id,
+      module: 'Inventory',
+      branch: adj.branch || 'Peshawar',
+      description: `Stock adjustment ${adj.id} on ${adj.product} approved by ${adj.approvedBy}.`,
+      metadata: { adjustmentId: adj.id, approvedBy: adj.approvedBy }
+    })
+
     return adj
   },
 
   rejectStockAdjustment(id, reason = '') {
     const adj = this.getAdjustmentById(id)
     if (!adj) throw new Error(`Stock Adjustment ${id} not found.`)
+    this.assertRecordMutationAccess('stockAdjustments', adj, 'reject')
     
     adj.status = 'Rejected'
     adj.statusClass = 'bg-red-50 text-red-700'
     adj.rejectionReason = reason || 'Physical recount requested.'
     return adj
+  },
+
+  postStockAdjustment(id) {
+    const adj = this.getAdjustmentById(id)
+    if (!adj) throw new Error(`Stock Adjustment ${id} not found.`)
+    this.assertRecordMutationAccess('stockAdjustments', adj, 'update')
+    if (adj.status !== 'Approved') {
+      throw new Error(`Cannot post adjustment ${adj.id} with status '${adj.status}'. Must be Approved first.`)
+    }
+    
+    // Apply physical inventory / unit mutation
+    if ((adj.product_id || adj.productId) && (adj.difference !== undefined || adj.adjustedQty !== undefined)) {
+      const prod = this.getProductById(adj.product_id || adj.productId)
+      if (prod) {
+        const diff = Number(adj.difference !== undefined ? adj.difference : adj.adjustedQty) || 0
+        const isVehicle = prod.isSerialized !== false && prod.categoryId !== 'CAT-04' && prod.categoryId !== 'CAT-05'
+        if (isVehicle && diff < 0) {
+          const countToAdjust = Math.abs(diff)
+          let candidateUnits = this.serializedUnits.filter(u => 
+            ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
+            u.status !== 'Sold' && u.status !== 'Scrapped' &&
+            (adj.branch && u.branch && u.branch.toLowerCase() === adj.branch.toLowerCase())
+          )
+          if (candidateUnits.length < countToAdjust) {
+            const others = this.serializedUnits.filter(u => 
+              ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
+              u.status !== 'Sold' && u.status !== 'Scrapped' &&
+              !candidateUnits.includes(u)
+            )
+            candidateUnits = candidateUnits.concat(others)
+          }
+          candidateUnits.slice(0, countToAdjust).forEach(u => {
+            u.status = 'Scrapped'
+          })
+        }
+        const currentStock = parseInt(String(prod.stock || '0').replace(/[^\d]/g, '')) || 0
+        const newStock = Math.max(0, currentStock + diff)
+        prod.stock = `${newStock} units`
+        if (prod.total !== undefined) prod.total = newStock
+        if (prod.available !== undefined) prod.available = Math.max(0, prod.available + diff)
+        const branchKey = (adj.branch || adj.branchName || 'peshawar').toLowerCase().replace(/\s+/g, '')
+        if (prod[branchKey] !== undefined) {
+          prod[branchKey] = Math.max(0, (prod[branchKey] || 0) + diff)
+        }
+      }
+    }
+    if (adj.unit_id || adj.unitId) {
+      const unit = this.getUnitById(adj.unit_id || adj.unitId)
+      if (unit && adj.correctedState) {
+        unit.status = adj.correctedState
+      }
+    }
+
+    adj.status = 'Posted'
+    adj.statusClass = 'bg-gray-100 text-gray-700'
+    adj.postedAt = new Date().toISOString()
+    adj.postedDate = new Date().toISOString().split('T')[0]
+    this.reconcileInventoryTotals()
+    return adj
+  },
+
+  fulfillStockRequest(id) {
+    const req = this.getStockRequestById(id)
+    if (!req) throw new Error(`Stock Request ${id} not found.`)
+    this.assertRecordMutationAccess('stockRequests', req, 'update')
+    if (req.status !== 'Approved') {
+      throw new Error(`Cannot fulfill Stock Request ${req.id} with status '${req.status}'. Must be Approved first.`)
+    }
+    req.status = 'Fulfilled'
+    req.statusClass = 'bg-[#dcfce7] text-[#165A31]'
+    req.fulfilledAt = new Date().toISOString()
+    return req
   },
 
   salesReturns: [
@@ -6288,8 +7864,10 @@ export const store = reactive({
 
   addSalesReturn(newRet) {
     const id = newRet.id || newRet.returnNo || `RET-${Math.floor(105 + Math.random() * 100)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newRet)
     const retObj = {
       ...newRet,
+      ...branchMeta,
       id,
       returnNo: id,
       status: newRet.status || 'Inspection',
@@ -6302,19 +7880,22 @@ export const store = reactive({
   updateSalesReturn(id, updatedData) {
     const index = this.salesReturns.findIndex(r => r.id === id || r.returnNo === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('salesReturns', this.salesReturns[index], 'update')
       this.salesReturns[index] = { ...this.salesReturns[index], ...updatedData }
       return this.salesReturns[index]
     }
     return null
   },
 
-  getSalesReturnById(id) {
+  getSalesReturnById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.salesReturns.find(r => 
+    const found = this.salesReturns.find(r => 
       (r.id && r.id.toLowerCase() === target) ||
       (r.returnNo && r.returnNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'salesReturns', found) ? found : null
   },
 
   purchaseReturns: [
@@ -6370,8 +7951,10 @@ export const store = reactive({
 
   addPurchaseReturn(newPR) {
     const id = newPR.id || newPR.returnNo || `PRTN-${Math.floor(45 + Math.random() * 100)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newPR)
     const prObj = {
       ...newPR,
+      ...branchMeta,
       id,
       returnNo: id,
       status: newPR.status || 'Approved'
@@ -6383,19 +7966,22 @@ export const store = reactive({
   updatePurchaseReturn(id, updatedData) {
     const index = this.purchaseReturns.findIndex(r => r.id === id || r.returnNo === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('purchaseReturns', this.purchaseReturns[index], 'update')
       this.purchaseReturns[index] = { ...this.purchaseReturns[index], ...updatedData }
       return this.purchaseReturns[index]
     }
     return null
   },
 
-  getPurchaseReturnById(id) {
+  getPurchaseReturnById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.purchaseReturns.find(r => 
+    const found = this.purchaseReturns.find(r => 
       (r.id && r.id.toLowerCase() === target) ||
       (r.returnNo && r.returnNo.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'purchaseReturns', found) ? found : null
   },
 
   // ==========================================
@@ -6504,15 +8090,48 @@ export const store = reactive({
 
   addExpense(newExpense) {
     const id = newExpense.id || newExpense.expense_id || this.generateDocumentId('expense')
+    const branchMeta = this.resolveTrustedCreationBranch(newExpense)
     const expObj = {
       ...newExpense,
       id,
       expense_id: id,
-      branch: newExpense.branch || this.getActiveBranch(),
+      branch_id: branchMeta.branch_id,
+      branchId: branchMeta.branch_id,
+      branch: branchMeta.branch,
+      branchName: branchMeta.branchName,
       status: newExpense.status || 'Pending Approval'
     }
     this.expenses.unshift(expObj)
     this.selectedExpense = expObj
+
+    if (expObj.status === 'Pending Approval' || expObj.status === 'Pending' || expObj.approval === 'Pending') {
+      this.createWorkflowTask({
+        workflowType: 'expense_approval',
+        flowType: 'operational_expense',
+        typeLabel: 'Emergency Operational Expenditure',
+        title: `Expense ${id}: ${expObj.category || 'General'} (${expObj.amount || 'PKR 0'})`,
+        priority: 'High',
+        sourceEntity: 'expenses',
+        sourceRecordId: id,
+        branch_id: expObj.branch_id,
+        branch: expObj.branch,
+        recipientRole: 'Super Admin',
+        recipientBranch_id: 'ALL',
+        recipientBranch: 'All Branches',
+        initiator: `${expObj.submittedBy || this.currentUser?.name || 'Branch Manager'} (${expObj.branch})`,
+        assignedTo: 'Super Admin',
+        due: 'Today',
+        summary: `Expense ${id} (${expObj.category} - PKR ${expObj.amount || expObj.rawAmount || '0'}) submitted for ${expObj.branch} showroom`,
+        expenseData: {
+          expenseCategory: expObj.category,
+          amountPkr: expObj.amount || expObj.rawAmount,
+          payeeVendor: expObj.vendor || expObj.payeeVendor,
+          paymentMethod: expObj.paymentMethod,
+          invoiceRef: id,
+          operationalEmergencyJustification: expObj.description || expObj.notes
+        }
+      })
+    }
 
     this.addNotification({
       title: 'New Expense Submitted',
@@ -6545,6 +8164,7 @@ export const store = reactive({
   updateExpense(id, updatedData) {
     const index = this.expenses.findIndex(e => e.id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('expenses', this.expenses[index], 'update')
       this.expenses[index] = { ...this.expenses[index], ...updatedData }
       return this.expenses[index]
     }
@@ -6552,9 +8172,11 @@ export const store = reactive({
   },
 
   approveExpense(id) {
-    const exp = this.getExpenseById(id)
+    const exp = this.expenses.find(e => e.id === id)
     if (!exp) return null
+    this.assertRecordMutationAccess('expenses', exp, 'approve')
     exp.status = 'Approved'
+    exp.approval = 'Approved'
     exp.approvedBy = this.currentUser?.name || 'Super Admin'
     exp.approvedDate = new Date().toISOString().split('T')[0]
     this.addNotification({
@@ -6588,9 +8210,12 @@ export const store = reactive({
   rejectExpense(id, reason = 'Exceeds monthly branch allocation') {
     const exp = this.getExpenseById(id)
     if (!exp) return null
+    this.assertRecordMutationAccess('expenses', exp, 'reject')
     exp.status = 'Rejected'
+    exp.approval = 'Rejected'
     exp.rejectedBy = this.currentUser?.name || 'Super Admin'
     exp.rejectionReason = reason
+
     this.addNotification({
       title: 'Expense Rejected',
       message: `Expense ${exp.id} was rejected: ${reason}`,
@@ -6619,10 +8244,26 @@ export const store = reactive({
     return exp
   },
 
-  getExpenseById(id) {
+  recordExpensePayment(id, paymentData = {}) {
+    const exp = this.getExpenseById(id)
+    if (!exp) throw new Error(`Expense ${id} not found.`)
+    this.assertRecordMutationAccess('expenses', exp, 'update')
+    if (exp.status !== 'Approved' && exp.approval !== 'Approved') {
+      throw new Error(`Expense ${id} must be Approved before payment can be recorded.`)
+    }
+    exp.status = 'Paid'
+    exp.paidAt = new Date().toISOString()
+    exp.paymentMethod = paymentData.method || 'Bank Transfer'
+    exp.paymentReference = paymentData.reference || ''
+    return exp
+  },
+
+  getExpenseById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.expenses.find(e => e.id && e.id.toLowerCase() === target) || null
+    const found = this.expenses.find(e => e.id && e.id.toLowerCase() === target) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'expenses', found) ? found : null
   },
 
   // ==========================================
@@ -7345,12 +8986,10 @@ export const store = reactive({
 
   addFollowUp(newFollowUp) {
     const id = newFollowUp.id || Date.now()
-    const branch = newFollowUp.branch || this.getActiveBranch()
+    const branchMeta = this.resolveTrustedCreationBranch(newFollowUp)
     const record = {
       ...newFollowUp,
-      id,
-      branch,
-      branch_id: newFollowUp.branch_id || (branch === 'Peshawar' ? 'BR-01' : branch === 'Islamabad' ? 'BR-02' : branch === 'Lahore' ? 'BR-03' : 'BR-04'),
+      ...branchMeta,
       status: newFollowUp.status || 'Due Today',
       statusClass: newFollowUp.statusClass || 'bg-[#fef3c7] text-[#b45309]',
       priority: newFollowUp.priority || 'Medium',
@@ -7364,6 +9003,7 @@ export const store = reactive({
   updateFollowUp(id, updatedData) {
     const index = this.followUps.findIndex(f => f.id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('followUps', this.followUps[index], 'update')
       this.followUps[index] = { ...this.followUps[index], ...updatedData }
       return this.followUps[index]
     }
@@ -7373,6 +9013,7 @@ export const store = reactive({
   completeFollowUp(id) {
     const item = this.followUps.find(f => f.id === id)
     if (item) {
+      this.assertRecordMutationAccess('followUps', item, 'update')
       item.status = 'Completed'
       item.statusClass = 'bg-[#dcfce7] text-[#165A31]'
       item.statusColor = 'bg-emerald-50 text-emerald-700'
@@ -7556,8 +9197,10 @@ export const store = reactive({
 
   addCase(newCase) {
     const id = newCase.id || newCase.caseId || this.generateDocumentId('case')
+    const branchMeta = this.resolveTrustedCreationBranch(newCase)
     const caseObj = {
       ...newCase,
+      ...branchMeta,
       id,
       caseId: id,
       case_id: id,
@@ -7620,20 +9263,23 @@ export const store = reactive({
   updateCase(id, updatedData) {
     const index = this.cases.findIndex(c => c.id === id || c.caseId === id || c.case_id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('cases', this.cases[index], 'update')
       this.cases[index] = { ...this.cases[index], ...updatedData }
       return this.cases[index]
     }
     return null
   },
 
-  getCaseById(id) {
+  getCaseById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.cases.find(c => 
+    const found = this.cases.find(c => 
       (c.id && c.id.toLowerCase() === target) ||
       (c.caseId && c.caseId.toLowerCase() === target) ||
       (c.case_id && c.case_id.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'cases', found) ? found : null
   },
 
   getCasesByCustomerId(customerId) {
@@ -7873,8 +9519,10 @@ export const store = reactive({
       warrantyCoverageType: newJob.warrantyCoverageType || (newJob.jobType?.includes('Warranty') ? 'full' : 'none')
     })
 
+    const branchMeta = this.resolveTrustedCreationBranch(newJob)
     const jobObj = {
       ...newJob,
+      ...branchMeta,
       id,
       jobId: id,
       repair_id: id,
@@ -7901,6 +9549,7 @@ export const store = reactive({
   updateRepairJob(id, updatedData) {
     const index = this.repairs.findIndex(r => r.id === id || r.jobId === id || r.repair_id === id)
     if (index !== -1) {
+      this.assertRecordMutationAccess('repairs', this.repairs[index], 'update')
       this.repairs[index] = { ...this.repairs[index], ...updatedData }
       return this.repairs[index]
     }
@@ -7953,14 +9602,16 @@ export const store = reactive({
     return this.updateRepairJob(id, { status })
   },
 
-  getRepairById(id) {
+  getRepairById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.repairs.find(r => 
+    const found = this.repairs.find(r => 
       (r.id && r.id.toLowerCase() === target) ||
       (r.jobId && r.jobId.toLowerCase() === target) ||
       (r.repair_id && r.repair_id.toLowerCase() === target)
     ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'repairs', found) ? found : null
   },
 
   getRepairsByCaseId(caseId) {
@@ -8399,6 +10050,975 @@ export const store = reactive({
     ) || null
   },
 
+  // ==========================================
+  // 6b. CANONICAL PRICING RULES MASTER
+  // ==========================================
+  pricingRules: [
+    { id: 'RULE-01', rule_id: 'RULE-01', product: 'BRG DS11', category: 'Electric Bikes', sellingPrice: '185K', landedCostRef: '146K', markup: '26.7%', margin: '21.1%', minimum: '176K', branchOverride: 'None', effective: 'Aug 01', reason: 'Standard price list configuration', status: 'Active' },
+    { id: 'RULE-02', rule_id: 'RULE-02', product: 'BRG EV-5', category: 'Electric Bikes', sellingPrice: '210K', landedCostRef: '168K', markup: '25.0%', margin: '20.0%', minimum: '198K', branchOverride: 'Peshawar: 205K', effective: 'Aug 10', reason: 'Regional promotional adjustment', status: 'Active' },
+    { id: 'RULE-03', rule_id: 'RULE-03', product: 'Cargo Pro', category: 'Cargo', sellingPrice: '275K', landedCostRef: '214K', markup: '28.5%', margin: '22.2%', minimum: '260K', branchOverride: 'None', effective: 'Jul 15', reason: 'Standard cargo pricing', status: 'Active' },
+    { id: 'RULE-04', rule_id: 'RULE-04', product: 'City Mini E-Scoot', category: 'Scooters', sellingPrice: '125K', landedCostRef: '95K', markup: '31.5%', margin: '24.0%', minimum: '115K', branchOverride: 'Lahore: 120K', effective: 'Aug 15', reason: 'Urban transit tier pricing', status: 'Active' }
+  ],
+
+  generatePriceRuleId() {
+    let maxNum = 0
+    this.pricingRules.forEach(r => {
+      const match = String(r.id || r.rule_id || '').match(/RULE-(\d+)/i)
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    })
+    return `RULE-${String(maxNum + 1).padStart(2, '0')}`
+  },
+
+  addPriceRule(newRule) {
+    this.assertRecordMutationAccess('pricingRules', newRule, 'create')
+    const explicitId = newRule.id || newRule.rule_id
+    if (explicitId && this.pricingRules.some(r => r.id === explicitId || r.rule_id === explicitId)) {
+      throw new Error(`Duplicate PriceRule ID ${explicitId} already exists.`)
+    }
+    const id = explicitId || this.generatePriceRuleId()
+    const ruleObj = {
+      ...newRule,
+      id,
+      rule_id: id,
+      status: newRule.status || 'Active'
+    }
+    this.pricingRules.unshift(ruleObj)
+    return ruleObj
+  },
+
+  updatePriceRule(id, updatedData) {
+    const index = this.pricingRules.findIndex(r => r.id === id || r.rule_id === id)
+    if (index !== -1) {
+      this.assertRecordMutationAccess('pricingRules', this.pricingRules[index], 'update')
+      this.pricingRules[index] = { ...this.pricingRules[index], ...updatedData }
+      return this.pricingRules[index]
+    }
+    return null
+  },
+
+  getPriceRuleById(id) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    return this.pricingRules.find(r => 
+      (r.id && r.id.toLowerCase() === target) ||
+      (r.rule_id && r.rule_id.toLowerCase() === target) ||
+      (r.product && r.product.toLowerCase() === target)
+    ) || null
+  },
+
+  // ==========================================
+  // FINANCIAL DOMAIN METHODS & METRICS
+  // ==========================================
+  parseMoney(val) {
+    if (val === null || val === undefined || val === '') return 0
+    if (typeof val === 'number') return isNaN(val) ? 0 : val
+    const s = String(val).trim()
+    // Handle Million 'M' suffix e.g. 2.65M or PKR 2.65M
+    const mMatch = s.match(/([0-9.]+)\s*M/i)
+    if (mMatch) {
+      const num = parseFloat(mMatch[1])
+      return isNaN(num) ? 0 : num * 1000000
+    }
+    // Handle Thousand 'K' suffix e.g. 146K or PKR 146K
+    const kMatch = s.match(/([0-9.]+)\s*K/i)
+    if (kMatch) {
+      const num = parseFloat(kMatch[1])
+      return isNaN(num) ? 0 : num * 1000
+    }
+    // Clean currency prefix and commas
+    const cleaned = s.replace(/[^0-9.-]/g, '')
+    const parsed = parseFloat(cleaned)
+    return isNaN(parsed) ? 0 : parsed
+  },
+
+
+  getUnitCogs(unitOrId) {
+    if (!unitOrId) return 0
+    let unit = null
+    if (typeof unitOrId === 'object' && unitOrId !== null) {
+      unit = unitOrId
+    } else {
+      const target = String(unitOrId).toLowerCase().trim()
+      unit = (this.serializedUnits || []).find(u =>
+        (u.id && String(u.id).toLowerCase() === target) ||
+        (u.unit_id && String(u.unit_id).toLowerCase() === target) ||
+        (u.serial && String(u.serial).toLowerCase() === target) ||
+        (u.vin && String(u.vin).toLowerCase() === target) ||
+        (u.chassisNumber && String(u.chassisNumber).toLowerCase() === target) ||
+        (u.chassis && String(u.chassis).toLowerCase() === target) ||
+        (u.chassisNo && String(u.chassisNo).toLowerCase() === target)
+      ) || this.getUnitById(unitOrId)
+    }
+    if (!unit) return 0
+    if (unit.landedCost !== undefined) return this.parseMoney(unit.landedCost)
+    if (unit.unitCost !== undefined) return this.parseMoney(unit.unitCost)
+    if (unit.costPrice !== undefined) return this.parseMoney(unit.costPrice)
+    if (unit.cost !== undefined) return this.parseMoney(unit.cost)
+    return this.getProductById(unit.product_id)?.costPrice || 0
+  },
+
+  formatMoney(amount, options = {}) {
+    const num = typeof amount === 'number' ? amount : this.parseMoney(amount)
+    const decimals = options.decimals !== undefined ? options.decimals : 0
+    const currency = options.currency !== undefined ? options.currency : 'PKR'
+    const formattedNum = num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    return currency ? `${currency} ${formattedNum}` : formattedNum
+  },
+
+  calculateNetSales(filter = {}) {
+    let grossSales = 0
+    let totalDiscounts = 0
+    let totalReturns = 0
+
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) {
+      return {
+        grossSales: 0,
+        discounts: 0,
+        salesReturns: 0,
+        netSales: 0
+      }
+    }
+
+    let ordersList = this.orders
+    if (filter.customOrders) {
+      ordersList = filter.customOrders
+    } else if (filter.order_ids && filter.order_ids.length > 0) {
+      ordersList = this.orders.filter(o => filter.order_ids.includes(o.id) || filter.order_ids.includes(o.order_id))
+    } else if (targetBranchId) {
+      ordersList = this.orders.filter(o => {
+        const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+        return oBranchId === targetBranchId
+      })
+    }
+
+    const FINALIZED_SALES_STATUSES = ['Completed', 'Delivered', 'Paid', 'Ready for Handover', 'Ready', 'Partially Paid']
+    const PIPELINE_EXCLUDED_STATUSES = ['Draft', 'Confirmed', 'Payment Pending', 'Pending Approval', 'Reserved', 'Cancelled', 'Sourcing', 'Inspection', 'Rejected']
+
+    ordersList.forEach(order => {
+      const isFinalized = FINALIZED_SALES_STATUSES.includes(order.status) || (!PIPELINE_EXCLUDED_STATUSES.includes(order.status) && (order.status === 'Completed' || order.delivery === 'Delivered'))
+      if (isFinalized) {
+        const amt = order.grossAmount !== undefined 
+          ? this.parseMoney(order.grossAmount) 
+          : (order.rawTotal !== undefined ? order.rawTotal : this.parseMoney(order.total || order.grand_total || order.amount))
+        grossSales += amt
+        if (order.discount) {
+          totalDiscounts += this.parseMoney(order.discount)
+        }
+      }
+    })
+
+    const returnsList = targetBranchId
+      ? this.salesReturns.filter(r => {
+          const rBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(r, 'salesReturns') || r.branch_id || r.branchId || r.branch)
+          return rBranchId === targetBranchId
+        })
+      : this.salesReturns
+
+    returnsList.forEach(ret => {
+      if (ret.status === 'Approved' || ret.status === 'Received' || ret.status === 'Refunded' || ret.status === 'Completed') {
+        const retAmt = ret.rawAmount !== undefined ? ret.rawAmount : this.parseMoney(ret.refundAmount || ret.amount || ret.total)
+        totalReturns += retAmt
+      }
+    })
+
+    const netSales = grossSales - totalDiscounts - totalReturns
+    return {
+      grossSales,
+      discounts: totalDiscounts,
+      salesReturns: totalReturns,
+      netSales: Math.max(0, netSales)
+    }
+  },
+
+  calculateCOGS(filter = {}) {
+    let totalCOGS = 0
+
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (filter.order_ids && filter.order_ids.length > 0) {
+      const targetOrders = this.orders.filter(o => filter.order_ids.includes(o.id) || filter.order_ids.includes(o.order_id))
+      const targetUnitIds = []
+      targetOrders.forEach(o => {
+        if (o.unit_ids && Array.isArray(o.unit_ids)) {
+          targetUnitIds.push(...o.unit_ids)
+        }
+      })
+      if (targetUnitIds.length > 0) {
+        targetUnitIds.forEach(uId => {
+          totalCOGS += this.getUnitCogs(uId)
+        })
+        return totalCOGS
+      }
+    }
+
+    if (filter.customOrders && filter.customOrders.length === 0) {
+      return 0
+    }
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) {
+      return 0
+    }
+
+    const soldUnits = this.serializedUnits.filter(u => {
+      const isSold = u.status === 'Sold' || u.status === 'Delivered' || u.ownership_status === 'Customer Owned'
+      if (!isSold) return false
+      if (targetBranchId) {
+        const uBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(u, 'serializedUnits') || u.branch_id || u.branchId || u.branch)
+        return uBranchId === targetBranchId
+      }
+      return true
+    })
+
+    soldUnits.forEach(unit => {
+      totalCOGS += this.getUnitCogs(unit)
+    })
+
+    return totalCOGS
+  },
+
+  calculateGrossProfit(filter = {}) {
+    const salesData = this.calculateNetSales(filter)
+    const cogs = this.calculateCOGS(filter)
+    return salesData.netSales - cogs
+  },
+
+  calculateOperatingExpenses(filter = {}) {
+    let totalExp = 0
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customExpenses && !filter.expense_ids) {
+      return 0
+    }
+
+    let expensesList = this.expenses
+    if (filter.customExpenses) {
+      expensesList = filter.customExpenses
+    } else if (filter.expense_ids && filter.expense_ids.length > 0) {
+      expensesList = this.expenses.filter(e => filter.expense_ids.includes(e.id) || filter.expense_ids.includes(e.expense_id))
+    } else if (targetBranchId) {
+      expensesList = this.expenses.filter(e => {
+        const eBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(e, 'expenses') || e.branch_id || e.branchId || e.branch)
+        return eBranchId === targetBranchId
+      })
+    }
+
+    expensesList.forEach(exp => {
+      const isApprovedOrPaid = exp.approval === 'Approved' || exp.status === 'Approved' || exp.payment === 'Paid' || exp.status === 'Paid' || exp.status === 'Recorded'
+      if (isApprovedOrPaid && exp.approval !== 'Rejected' && exp.status !== 'Rejected' && exp.status !== 'Void') {
+        const amt = exp.rawAmount !== undefined ? this.parseMoney(exp.rawAmount) : this.parseMoney(exp.amount)
+        totalExp += amt
+      }
+    })
+
+    return totalExp
+  },
+
+  calculateNetOperatingProfit(filter = {}) {
+    const grossProfit = this.calculateGrossProfit(filter)
+    const operatingExpenses = this.calculateOperatingExpenses(filter)
+    return grossProfit - operatingExpenses
+  },
+
+  calculateGrossMargin(filter = {}) {
+    const salesData = this.calculateNetSales(filter)
+    if (!salesData.netSales || salesData.netSales <= 0) {
+      return 0
+    }
+    const cogs = this.calculateCOGS(filter)
+    const grossProfit = salesData.netSales - cogs
+    const margin = (grossProfit / salesData.netSales) * 100
+    return isNaN(margin) || !isFinite(margin) ? 0 : Number(margin.toFixed(2))
+  },
+
+  getInventoryValuation(filter = {}) {
+    let onHandValue = 0
+    let inTransitValue = 0
+    let supplierInTransitValue = 0
+    let transferInTransitValue = 0
+    let customerOwnedValue = 0
+
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (filter.unit_ids && filter.unit_ids.length > 0) {
+      const targetUnits = this.serializedUnits.filter(u => filter.unit_ids.includes(u.id) || filter.unit_ids.includes(u.serial))
+      targetUnits.forEach(u => {
+        const cost = this.getUnitCogs(u)
+        if (u.ownership_status === 'Customer Owned' || u.status === 'Sold' || u.status === 'Delivered') {
+          customerOwnedValue += 0
+        } else if (u.status === 'In Transit' || u.status === 'Transfer In Transit') {
+          inTransitValue += cost
+        } else {
+          onHandValue += cost
+        }
+      })
+      const totalOwnedValue = onHandValue + inTransitValue
+      return {
+        onHandValue,
+        inTransitValue,
+        customerOwnedValue,
+        totalOwnedValue,
+        onHandInventoryValue: onHandValue,
+        supplierInTransitValue: 0,
+        transferInTransitValue: inTransitValue,
+        totalPipelineValue: totalOwnedValue
+      }
+    }
+
+    if (!isGlobal && !targetBranchId && !filter.customUnits && !filter.unit_ids) {
+      return {
+        onHandValue: 0,
+        inTransitValue: 0,
+        customerOwnedValue: 0,
+        totalOwnedValue: 0,
+        onHandInventoryValue: 0,
+        supplierInTransitValue: 0,
+        transferInTransitValue: 0,
+        totalPipelineValue: 0
+      }
+    }
+
+    // 1. On-hand unsold inventory
+    const unsoldUnits = this.serializedUnits.filter(u => {
+      const isUnsold = u.status === 'Available' || u.status === 'Reserved' || u.status === 'QC Hold' || u.status === 'Maintenance'
+      if (!isUnsold) return false
+      if (targetBranchId) {
+        const uBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(u, 'serializedUnits') || u.branch_id || u.branchId || u.branch)
+        return uBranchId === targetBranchId
+      }
+      return true
+    })
+
+    unsoldUnits.forEach(u => {
+      onHandValue += this.getUnitCogs(u)
+    })
+
+    // Non-serialized inventory
+    const nonSerializedProducts = this.products.filter(p => p.isSerialized === false)
+    nonSerializedProducts.forEach(prod => {
+      const costPrice = this.parseMoney(prod.costPrice) || 0
+      let qty = 0
+      if (targetBranchId) {
+        const branchKey = (filter.branch || '').toLowerCase().replace(/\s+/g, '')
+        qty = prod[branchKey] || 0
+      } else {
+        qty = prod.available !== undefined ? prod.available : (parseInt(String(prod.stock || '0').replace(/[^\d]/g, '')) || 0)
+      }
+      onHandValue += (qty * costPrice)
+    })
+
+    // 2. Supplier in-transit value (PO items in transit/ordered)
+    const openPOs = this.purchaseOrders.filter(po => {
+      const isInTransit = po.status === 'In Transit' || po.status === 'Ordered' || po.status === 'Approved'
+      if (!isInTransit) return false
+      if (targetBranchId) {
+        const poBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(po, 'purchaseOrders') || po.branch_id || po.branchId || po.destination || po.branch)
+        return poBranchId === targetBranchId
+      }
+      return true
+    })
+
+    openPOs.forEach(po => {
+      if (po.items && po.items.length > 0) {
+        po.items.forEach(item => {
+          const outstanding = Math.max(0, (item.ordered || 0) - (item.received || item.previouslyReceived || 0))
+          const unitCost = item.expectedUnitCost !== undefined ? this.parseMoney(item.expectedUnitCost) : this.parseMoney(item.cost || item.unitCost)
+          supplierInTransitValue += (outstanding * unitCost)
+        })
+      } else {
+        const remUnits = po.remainingUnits !== undefined ? po.remainingUnits : parseInt(po.units || '0')
+        const poAmt = this.parseMoney(po.amount || po.totalAmount)
+        supplierInTransitValue += poAmt
+      }
+    })
+
+    // 3. Transfer in-transit value
+    const inTransitTransfers = this.transfers.filter(t => {
+      const isInTransit = t.status === 'In Transit' || t.status === 'Transfer In Transit'
+      if (!isInTransit) return false
+      if (filter.branch_id && filter.branch_id !== 'ALL') {
+        return t.toBranch === filter.branch || t.destination === filter.branch || t.branch_id === filter.branch_id || t.toBranch_id === filter.branch_id
+      }
+      return true
+    })
+    inTransitTransfers.forEach(t => {
+      if (t.items && t.items.length > 0) {
+        t.items.forEach(item => {
+          const prod = this.getProductById(item.product_id || item.product)
+          const unitCost = prod?.costPrice || 150000
+          transferInTransitValue += ((item.requestedQty || item.quantity || 1) * unitCost)
+        })
+      }
+    })
+
+    const inTransitUnits = this.serializedUnits.filter(u => u.status === 'In Transit' || u.status === 'Transfer In Transit')
+    inTransitUnits.forEach(u => {
+      transferInTransitValue += this.getUnitCogs(u)
+    })
+
+    inTransitValue = supplierInTransitValue + transferInTransitValue
+    const totalOwnedValue = onHandValue + transferInTransitValue
+    const totalPipelineValue = onHandValue + supplierInTransitValue + transferInTransitValue
+
+    return {
+      onHandValue,
+      inTransitValue,
+      customerOwnedValue: 0,
+      totalOwnedValue,
+      onHandInventoryValue: onHandValue,
+      supplierInTransitValue,
+      transferInTransitValue,
+      totalPipelineValue
+    }
+  },
+
+  calculateFinancialMetrics(filter = {}) {
+    const salesData = this.calculateNetSales(filter)
+    const cogs = this.calculateCOGS(filter)
+    const grossProfit = salesData.netSales - cogs
+    const operatingExpenses = this.calculateOperatingExpenses(filter)
+    const netOperatingProfit = grossProfit - operatingExpenses
+    const grossMarginPercent = salesData.netSales > 0 ? Number(((grossProfit / salesData.netSales) * 100).toFixed(2)) : 0
+    const inventoryValuation = this.getInventoryValuation(filter)
+
+    return {
+      grossSales: salesData.grossSales,
+      discounts: salesData.discounts,
+      salesReturns: salesData.salesReturns,
+      netSales: salesData.netSales,
+      cogs,
+      grossProfit,
+      operatingExpenses,
+      netOperatingProfit,
+      grossMarginPercent,
+      grossMarginPct: grossMarginPercent,
+      grossMarginFormatted: `${grossMarginPercent.toFixed(1)}%`,
+      inventoryValuation
+    }
+  },
+
+  getCompletedSalesCount(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
+
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    return (ordersList || []).filter(o => o.status === 'Completed').length
+  },
+
+  getPaidOrdersCount(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
+
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    return (ordersList || []).filter(o => o.status === 'Paid').length
+  },
+
+  getPartiallyPaidOrdersCount(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
+
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    return (ordersList || []).filter(o => o.status === 'Partially Paid').length
+  },
+
+  getReadyForHandoverCount(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
+
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    return (ordersList || []).filter(o => o.status === 'Ready for Handover' || o.status === 'Ready').length
+  },
+
+  getReservedOrdersCount(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
+
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    return (ordersList || []).filter(o => o.status === 'Reserved').length
+  },
+
+  getPipelineOrdersCount(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
+
+    const PIPELINE_STATUSES = ['Draft', 'Confirmed', 'Payment Pending', 'Pending Approval', 'Reserved', 'Sourcing', 'Processing']
+    const ordersList = filter.customOrders || (
+      filter.order_ids 
+        ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
+        : (targetBranchId 
+            ? this.orders.filter(o => {
+                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+                return oBranchId === targetBranchId
+              })
+            : this.orders)
+    )
+
+    return (ordersList || []).filter(o => PIPELINE_STATUSES.includes(o.status)).length
+  },
+
+  getCollections(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId) return 0
+
+    const COLLECTED_STATUSES = ['Reconciled', 'Completed', 'Paid', 'Settled']
+    const paymentsList = this.payments.filter(p => {
+      if (!isGlobal) {
+        const pBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(p, 'payments') || p.branch_id || p.branchId || p.branch)
+        if (pBranchId !== targetBranchId) return false
+      }
+      return COLLECTED_STATUSES.includes(p.status)
+    })
+
+    return paymentsList.reduce((sum, p) => sum + (typeof p.rawAmount === 'number' ? p.rawAmount : (typeof p.amount === 'number' ? p.amount : (this.parseMoney(p.rawAmount || p.amount) || 0))), 0)
+  },
+
+  getOutstandingReceivables(filter = {}) {
+    const isGlobal = !filter || filter.branch_id === 'ALL' || filter.branch === 'ALL' || filter === 'ALL' || filter === 'All Branches' || filter === 'global'
+    const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(filter.branch_id || filter.branch || (typeof filter === 'string' ? filter : null)) : null
+
+    if (!isGlobal && !targetBranchId) return 0
+
+    const EXCLUDED_INVOICE_STATUSES = ['Draft', 'Cancelled', 'Void']
+    const invoicesList = this.invoices.filter(i => {
+      if (!isGlobal) {
+        const iBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(i, 'invoices') || i.branch_id || i.branchId || i.branch)
+        if (iBranchId !== targetBranchId) return false
+      }
+      const outAmt = typeof i.outstandingAmount === 'number' ? i.outstandingAmount : (this.parseMoney(i.outstandingAmount) || 0)
+      return !EXCLUDED_INVOICE_STATUSES.includes(i.status) && outAmt > 0
+    })
+
+    return invoicesList.reduce((sum, i) => sum + (typeof i.outstandingAmount === 'number' ? i.outstandingAmount : (this.parseMoney(i.outstandingAmount) || 0)), 0)
+  },
+
+  // Landed Cost allocation
+  allocateLandedCosts(receiptIdOrPayload, costComponents = [], allocationMethod = 'By Base Cost') {
+    let receiptId, comps, method
+    if (typeof receiptIdOrPayload === 'object' && receiptIdOrPayload !== null) {
+      receiptId = receiptIdOrPayload.receiptId || receiptIdOrPayload.id
+      comps = receiptIdOrPayload.costComponents || []
+      method = receiptIdOrPayload.allocationMethod || 'By Base Cost'
+    } else {
+      receiptId = receiptIdOrPayload
+      comps = costComponents
+      method = allocationMethod
+    }
+    const receipt = this.getReceiptById ? this.getReceiptById(receiptId) : null
+    const targetReceipt = receipt || (this.receipts || []).find(r => r.id === receiptId || r.receipt_id === receiptId)
+    if (!targetReceipt) throw new Error(`Receipt ${receiptId} not found.`)
+    
+    const totalAddon = comps.reduce((sum, c) => sum + this.parseMoney(c.amount), 0)
+    
+    const totalBase = (targetReceipt.lines || []).reduce((sum, l) => {
+      const prod = this.getProductById(l.product_id)
+      const unitCost = this.parseMoney(l.unitCost || prod?.costPrice || 0)
+      return sum + ((l.accepted_quantity || l.quantity || 0) * unitCost)
+    }, 0)
+
+    const totalAcceptedUnits = (targetReceipt.lines || []).reduce((sum, l) => sum + (l.accepted_quantity || l.quantity || 0), 0)
+
+    const linkedUnits = this.serializedUnits.filter(u => u.receipt_id === receiptId || u.receipt_id === targetReceipt.receipt_id || u.receipt_id === targetReceipt.id)
+    linkedUnits.forEach(unit => {
+      const prod = this.getProductById(unit.product_id)
+      const baseCost = this.parseMoney(unit.costPrice || prod?.costPrice || 0)
+      let addonPerUnit = 0
+
+      if (method === 'By Quantity' && totalAcceptedUnits > 0) {
+        addonPerUnit = totalAddon / totalAcceptedUnits
+      } else if (method === 'By Base Cost' && totalBase > 0) {
+        const ratio = totalBase > 0 ? baseCost / totalBase : 0
+        addonPerUnit = (totalAddon * ratio)
+      } else {
+        addonPerUnit = totalAcceptedUnits > 0 ? totalAddon / totalAcceptedUnits : 0
+      }
+
+      unit.baseCost = baseCost
+      unit.addonCost = addonPerUnit
+      unit.landedCost = baseCost + addonPerUnit
+      unit.unitCost = unit.landedCost
+    })
+
+    return {
+      success: true,
+      receiptId,
+      totalAddon,
+      allocatedUnitsCount: linkedUnits.length
+    }
+  },
+
+  allocateLandedCost(payload) {
+    return this.allocateLandedCosts(payload)
+  },
+
+  getPurchaseOrderById(id) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    return (this.purchaseOrders || []).find(po => 
+      (po.id && String(po.id).toLowerCase() === target) ||
+      (po.po && String(po.po).toLowerCase() === target) ||
+      (po.po_number && String(po.po_number).toLowerCase() === target)
+    ) || null
+  },
+
+  validateStateTransition(entityType, currentStatus, targetStatus) {
+    const transitions = {
+      'Purchase Order': {
+        'Draft': ['Pending Approval', 'Cancelled'],
+        'Pending Approval': ['Approved', 'Cancelled'],
+        'Approved': ['Ordered', 'Cancelled'],
+        'Ordered': ['In Transit', 'Partially Received', 'Received', 'Cancelled'],
+        'In Transit': ['Partially Received', 'Received', 'Cancelled'],
+        'Partially Received': ['Received', 'Closed', 'Cancelled'],
+        'Received': ['Closed'],
+        'Closed': [],
+        'Cancelled': []
+      },
+      'Goods Receipt': {
+        'Draft': ['Receiving', 'Cancelled'],
+        'Receiving': ['Inspection/QC', 'Cancelled'],
+        'Inspection/QC': ['Partial', 'Posted', 'Cancelled'],
+        'Partial': ['Posted', 'Cancelled'],
+        'Posted': [],
+        'Cancelled': []
+      },
+      'Serialized Unit': {
+        'Expected': ['Receiving', 'QC Hold', 'Available'],
+        'Receiving': ['QC Hold', 'Available'],
+        'QC Hold': ['Available', 'Damaged', 'RTV'],
+        'Available': ['Allocated', 'Reserved', 'Transfer In Transit', 'In Transit', 'Sold'],
+        'Allocated': ['Available', 'Reserved', 'Sold'],
+        'Reserved': ['Available', 'Sold'],
+        'Transfer In Transit': ['Available', 'QC Hold'],
+        'In Transit': ['Available', 'QC Hold'],
+        'Sold': ['Delivered', 'Available', 'QC Hold'],
+        'Delivered': ['Available', 'QC Hold'],
+        'RTV': []
+      },
+      'Stock Request': {
+        'Draft': ['Pending Approval', 'Cancelled'],
+        'Pending Approval': ['Approved', 'Rejected', 'Cancelled'],
+        'Approved': ['In Transit', 'Fulfilled', 'Cancelled'],
+        'In Transit': ['Fulfilled', 'Cancelled'],
+        'Fulfilled': ['Closed'],
+        'Rejected': [],
+        'Cancelled': [],
+        'Closed': []
+      },
+      'Transfer': {
+        'Draft': ['Pending Approval', 'Cancelled'],
+        'Pending Approval': ['Approved', 'Rejected', 'Cancelled'],
+        'Approved': ['Dispatched', 'In Transit', 'Cancelled'],
+        'Dispatched': ['In Transit', 'Delivered', 'Received'],
+        'In Transit': ['Delivered', 'Received'],
+        'Delivered': ['Received'],
+        'Received': ['Completed', 'Closed'],
+        'Completed': [],
+        'Rejected': [],
+        'Cancelled': [],
+        'Closed': []
+      },
+      'Expense': {
+        'Draft': ['Pending Approval', 'Void'],
+        'Pending Approval': ['Approved', 'Rejected', 'Void'],
+        'Approved': ['Paid', 'Void'],
+        'Paid': [],
+        'Rejected': [],
+        'Void': []
+      },
+      'Stock Adjustment': {
+        'Draft': ['Pending Approval', 'Cancelled'],
+        'Pending Approval': ['Approved', 'Rejected', 'Cancelled'],
+        'Approved': ['Posted', 'Cancelled'],
+        'Posted': [],
+        'Rejected': [],
+        'Cancelled': []
+      },
+      'Sales Order': {
+        'Draft': ['Quotation', 'Confirmed', 'Cancelled'],
+        'Quotation': ['Confirmed', 'Cancelled'],
+        'Confirmed': ['Processing', 'In Assembly', 'Ready for Delivery', 'Cancelled'],
+        'Processing': ['In Assembly', 'Ready for Delivery', 'Cancelled'],
+        'In Assembly': ['Ready for Delivery', 'Cancelled'],
+        'Ready for Delivery': ['Dispatched', 'Delivered', 'Cancelled'],
+        'Dispatched': ['Delivered'],
+        'Delivered': ['Completed', 'Returned'],
+        'Completed': ['Returned'],
+        'Returned': [],
+        'Cancelled': []
+      }
+    }
+
+    const map = transitions[entityType] || {}
+    const allowed = map[currentStatus] || []
+    if (allowed.includes(targetStatus)) {
+      return { valid: true }
+    }
+    return {
+      valid: false,
+      reason: `Invalid transition for ${entityType} from '${currentStatus}' to '${targetStatus}'. Allowed: [${allowed.join(', ')}]`
+    }
+  },
+
+  assertValidTransition(entityType, currentStatus, targetStatus) {
+    const valid = this.validateStateTransition(entityType, currentStatus, targetStatus)
+    if (!valid.valid) {
+      throw new Error(valid.reason || `Invalid transition from ${currentStatus} to ${targetStatus} for ${entityType}`)
+    }
+    return true
+  },
+
+  updatePurchaseOrderStatus(id, newStatus) {
+    const po = this.getPurchaseOrderById(id)
+    if (!po) throw new Error(`Purchase Order ${id} not found.`)
+    this.assertValidTransition('Purchase Order', po.status, newStatus)
+    po.status = newStatus
+    return po
+  },
+
+  transitionPurchaseOrderStatus(id, newStatus) {
+    return this.updatePurchaseOrderStatus(id, newStatus)
+  },
+
+  // Serialized Unit state methods
+  reserveUnit(unitId, orderIdOrOptions = {}, custId = null) {
+    const unit = this.getUnitById(unitId)
+    if (!unit) throw new Error(`Unit ${unitId} not found.`)
+    let orderId = orderIdOrOptions
+    let customerId = custId
+    let customerName = ''
+    if (typeof orderIdOrOptions === 'object' && orderIdOrOptions !== null) {
+      orderId = orderIdOrOptions.orderId || orderIdOrOptions.order_id || orderIdOrOptions.id
+      customerId = orderIdOrOptions.customerId || orderIdOrOptions.customer_id || custId
+      customerName = orderIdOrOptions.customerName || orderIdOrOptions.customer || ''
+    }
+    if (unit.status !== 'Available' && unit.status !== 'Reserved') {
+      throw new Error(`Cannot reserve unit ${unitId} with status '${unit.status}'. Unit must be Available.`)
+    }
+    unit.status = 'Reserved'
+    unit.reserved_for_order = orderId || unit.reserved_for_order || orderIdOrOptions
+    unit.order_id = orderId || unit.order_id
+    if (customerId) unit.customer_id = customerId
+    if (customerName) unit.customer = customerName
+    unit.statusClass = 'bg-[#e0e7ff] text-[#3730a3]'
+    return unit
+  },
+
+  releaseUnit(unitId) {
+    const unit = this.getUnitById(unitId)
+    if (!unit) throw new Error(`Unit ${unitId} not found.`)
+    if (unit.status !== 'Reserved') {
+      throw new Error(`Cannot release unit ${unitId} with status '${unit.status}'. Unit must be Reserved.`)
+    }
+    unit.status = 'Available'
+    unit.reserved_for_order = null
+    unit.statusClass = 'bg-[#dcfce7] text-[#165A31]'
+    return unit
+  },
+
+  sellUnit(unitId, orderId) {
+    const unit = this.getUnitById(unitId)
+    if (!unit) throw new Error(`Unit ${unitId} not found.`)
+    if (unit.status !== 'Reserved' && unit.status !== 'Available') {
+      throw new Error(`Cannot sell unit ${unitId} with status '${unit.status}'.`)
+    }
+    unit.status = 'Sold'
+    unit.ownership_status = 'Customer Owned'
+    unit.sold_for_order = orderId
+    unit.statusClass = 'bg-[#165A31] text-white'
+    return unit
+  },
+
+  returnUnit(unitId, condition = 'Good') {
+    const unit = this.getUnitById(unitId)
+    if (!unit) throw new Error(`Unit ${unitId} not found.`)
+    if (unit.status !== 'Sold' && unit.status !== 'Delivered') {
+      throw new Error(`Cannot process return for unit ${unitId} with status '${unit.status}'. Unit must be Sold or Delivered.`)
+    }
+    unit.status = condition === 'Damaged' ? 'QC Hold' : 'Available'
+    unit.ownership_status = 'Company Owned'
+    unit.statusClass = condition === 'Damaged' ? 'bg-amber-50 text-amber-700' : 'bg-[#dcfce7] text-[#165A31]'
+    return unit
+  },
+
+  // Stock Adjustment Posting
+  postStockAdjustment(id) {
+    const adj = this.getAdjustmentById(id)
+    if (!adj) throw new Error(`Stock adjustment ${id} not found.`)
+    this.assertRecordMutationAccess('stockAdjustments', adj, 'update')
+    if (adj.status !== 'Approved') {
+      throw new Error(`Cannot post stock adjustment ${adj.id} with status '${adj.status}'. Must be Approved first.`)
+    }
+    
+    // Apply physical inventory / unit mutation
+    if ((adj.product_id || adj.productId) && (adj.difference !== undefined || adj.adjustedQty !== undefined)) {
+      const prod = this.getProductById(adj.product_id || adj.productId)
+      if (prod) {
+        const diff = Number(adj.difference !== undefined ? adj.difference : adj.adjustedQty) || 0
+        const isVehicle = prod.isSerialized !== false && prod.categoryId !== 'CAT-04' && prod.categoryId !== 'CAT-05'
+        if (isVehicle && diff < 0) {
+          const countToAdjust = Math.abs(diff)
+          let candidateUnits = this.serializedUnits.filter(u => 
+            ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
+            u.status !== 'Sold' && u.status !== 'Scrapped' &&
+            (adj.branch && u.branch && u.branch.toLowerCase() === adj.branch.toLowerCase())
+          )
+          if (candidateUnits.length < countToAdjust) {
+            const others = this.serializedUnits.filter(u => 
+              ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
+              u.status !== 'Sold' && u.status !== 'Scrapped' &&
+              !candidateUnits.includes(u)
+            )
+            candidateUnits = candidateUnits.concat(others)
+          }
+          candidateUnits.slice(0, countToAdjust).forEach(u => {
+            u.status = 'Scrapped'
+          })
+        }
+        const currentStock = parseInt(String(prod.stock || '0').replace(/[^\d]/g, '')) || 0
+        const newStock = Math.max(0, currentStock + diff)
+        prod.stock = `${newStock} units`
+        if (prod.total !== undefined) prod.total = newStock
+        if (prod.available !== undefined) prod.available = Math.max(0, prod.available + diff)
+        const branchKey = (adj.branch || adj.branchName || 'peshawar').toLowerCase().replace(/\s+/g, '')
+        if (prod[branchKey] !== undefined) {
+          prod[branchKey] = Math.max(0, (prod[branchKey] || 0) + diff)
+        }
+      }
+    }
+    if (adj.unit_id || adj.unitId) {
+      const unit = this.getUnitById(adj.unit_id || adj.unitId)
+      if (unit && adj.correctedState) {
+        unit.status = adj.correctedState
+      }
+    }
+
+    adj.status = 'Posted'
+    adj.statusClass = 'bg-gray-100 text-gray-700'
+    adj.postedAt = new Date().toISOString()
+    adj.postedDate = new Date().toISOString().split('T')[0]
+    this.reconcileInventoryTotals()
+    return adj
+  },
+
+  // Expense Payment Recording
+  recordExpensePayment(id, paymentData = {}) {
+    const exp = this.getExpenseById(id)
+    if (!exp) throw new Error(`Expense ${id} not found.`)
+    assertRecordMutationAccess(this.currentUser, 'expenses', exp, 'update')
+    if (exp.approval !== 'Approved' && exp.status !== 'Approved') {
+      throw new Error(`Cannot record payment for expense ${exp.id} with unapproved status '${exp.approval || exp.status}'.`)
+    }
+    exp.payment = 'Paid'
+    exp.paymentClass = 'text-[#165A31] font-bold'
+    exp.paymentDate = paymentData.paymentDate || new Date().toISOString().split('T')[0]
+    exp.paymentMethod = paymentData.paymentMethod || exp.paymentMethod || 'Bank Transfer'
+    exp.status = 'Paid'
+    return exp
+  },
+
+  // Stock Request Fulfillment
+  fulfillStockRequest(id, details = {}) {
+    const req = this.getStockRequestById(id)
+    if (!req) throw new Error(`Stock request ${id} not found.`)
+    assertRecordMutationAccess(this.currentUser, 'stockRequests', req, 'update')
+    if (req.status !== 'Approved' && req.status !== 'In Transit') {
+      throw new Error(`Cannot fulfill stock request ${req.id} with status '${req.status}'. Must be Approved first.`)
+    }
+    req.status = 'Fulfilled'
+    req.fulfilledDate = details.fulfilledDate || new Date().toISOString().split('T')[0]
+    return req
+  },
+
+  // Approval Policy Resolution
+  getApprovalPolicy(workflowType, branchId = null) {
+    const rule = (this.approvalRules || []).find(r => r.workflowType === workflowType || r.type === workflowType)
+    if (rule) {
+      return {
+        configured: true,
+        workflowType,
+        rule
+      }
+    }
+    return {
+      configured: false,
+      workflowType,
+      status: 'NOT_CONFIGURED',
+      decision: 'BUSINESS_DECISION_REQUIRED'
+    }
+  },
+
   // Generic Edit Applier helper
   applyEdit(original, updated) {
     if (!original || !updated) return
@@ -8406,6 +11026,27 @@ export const store = reactive({
       original[key] = updated[key]
     })
   }
+})
+
+export const CANONICAL_UNIT_STATUSES = Object.freeze([
+  'Expected',
+  'Supplier In Transit',
+  'Receiving / QC',
+  'Available',
+  'Reserved',
+  'Transfer In Transit',
+  'Sold',
+  'Returned',
+  'In Service',
+  'Damaged / Quarantine',
+  'Scrapped'
+])
+
+Object.defineProperty(store, 'CANONICAL_UNIT_STATUSES', {
+  value: CANONICAL_UNIT_STATUSES,
+  enumerable: false,
+  writable: false,
+  configurable: false
 })
 
 // Initialize inventory reconciliation on prototype load
@@ -8423,4 +11064,11 @@ if (typeof window !== 'undefined' && window.matchMedia) {
       }
     })
   } catch (e) {}
+}
+
+
+// Initialize dynamic branch registry
+setActiveBranchRegistry(store.branches)
+if (typeof globalThis !== 'undefined') {
+  globalThis.store = store
 }

@@ -47,22 +47,22 @@ const showValidation = ref(false)
 
 const saleData = ref({
   orderNo: '',
-  branch: user.value?.branchName || 'Peshawar',
-  customer: 'Faisal Khan',
-  customer_id: 'CUST-101',
-  salesperson: 'Hamza Ali',
-  product: 'BRG DS11',
-  selectedUnit: 'DS11-00997',
-  cataloguePrice: 'PKR 240,000',
-  discount: 'PKR 10,000',
-  finalPrice: 'PKR 230,000',
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
+  customer: '',
+  customer_id: '',
+  salesperson: user.value?.name || '',
+  product: '',
+  selectedUnit: '',
+  cataloguePrice: '',
+  discount: '',
+  finalPrice: '',
   paymentMethod: 'Bank Transfer',
   transactionId: '',
   bankAccount: 'Meezan Bank - Main Operations (PK02MEZN00123456789)',
   chequeNo: '',
   draweeBank: '',
-  amountReceived: 'PKR 230,000',
-  balance: 'PKR 0',
+  amountReceived: '',
+  balance: '',
   status: 'Ready'
 })
 

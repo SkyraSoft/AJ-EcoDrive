@@ -30,11 +30,11 @@ const formData = ref({
   phone: '',
   source: 'Walk-in',
   branch: user.value?.branchName || 'Peshawar',
-  owner: 'Hamza',
-  product: 'BRG X7',
-  budget: 'PKR 220K',
+  owner: user.value?.name || '',
+  product: '',
+  budget: '',
   stage: 'New',
-  nextFollowUp: 'Aug 30'
+  nextFollowUp: ''
 })
 
 const loadData = (data) => {

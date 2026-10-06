@@ -143,7 +143,7 @@ const filteredOrders = computed(() => {
       </div>
       
       <div class="overflow-x-auto">
-        <div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse">
+        <div class="w-full overflow-x-auto"><table data-tour-id="sa.procurement.po.table" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
               <th class="px-5 py-3">PO</th>

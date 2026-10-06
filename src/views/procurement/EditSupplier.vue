@@ -31,6 +31,10 @@ const saveChanges = () => {
     return
   }
 
+  const targetId = supplierData.value.id || supplierData.value.supplier_id || supplierData.value.name
+  if (targetId) {
+    store.updateSupplier(targetId, supplierData.value)
+  }
   if (store.originalEditSupplier) {
     store.applyEdit(store.originalEditSupplier, supplierData.value)
   }

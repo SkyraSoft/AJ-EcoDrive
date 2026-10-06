@@ -3,15 +3,20 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '@/store'
 import CreateFollowUp from './CreateFollowUp.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const followUpId = computed(() => route.params.id || route.query.id || '1')
-const customerName = computed(() => route.query.customer || (followUpId.value === '2' ? 'Sajid Khan' : 'Bilal Shah'))
-const linkedRecord = computed(() => route.query.record || (followUpId.value === '2' ? 'LD-551' : 'ORD-2238'))
+const followUpId = computed(() => route.params.id || route.query.id || '')
+const isValidFollowUp = computed(() => {
+  if (route.query.customer) return true
+  return ['1', '2'].includes(followUpId.value)
+})
+const customerName = computed(() => route.query.customer || (followUpId.value === '2' ? 'Sajid Khan' : (followUpId.value === '1' ? 'Bilal Shah' : '')))
+const linkedRecord = computed(() => route.query.record || (followUpId.value === '2' ? 'LD-551' : (followUpId.value === '1' ? 'ORD-2238' : '')))
 const dueTime = computed(() => route.query.due || (followUpId.value === '2' ? 'Today 14:00' : 'Today 11:30'))
 const status = computed(() => route.query.status || (followUpId.value === '2' ? 'Due Today' : 'Overdue'))
 
@@ -98,8 +103,15 @@ const tabs = ['Overview', 'Linked Record', 'Customer', 'Notes & Actions', 'Activ
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!isValidFollowUp"
+    title="Follow-up Not Found"
+    message="The requested follow-up could not be found or is not accessible from your current branch context."
+    back-link="/sales/follow-ups"
+    back-text="Back to Follow-ups"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

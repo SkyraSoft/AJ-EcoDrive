@@ -403,7 +403,7 @@ const handleOrderUpdated = (updatedOrder) => {
 
         <!-- Orders Table -->
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table data-tour-id="sa.sales.orders.table" class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <th class="px-5 py-4">Order</th>

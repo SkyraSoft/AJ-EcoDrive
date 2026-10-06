@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '@/store'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { 
   ChevronDown, 
   ArrowLeft, 
@@ -29,30 +30,8 @@ const user = computed(() => store.currentUser)
 // Find active conversation from store or route query
 const conversation = computed(() => {
   const paramId = route.params.id || route.query.id
-  if (paramId) {
-    const found = store.getConversationById(paramId) || (store.conversations || []).find(c => c.id === paramId || c.linked === paramId)
-    if (found) return found
-  }
-  if (store.selectedConversation) return store.selectedConversation
-  return (store.conversations && store.conversations[0]) || {
-    id: 'SR-122',
-    title: 'Inter-Branch Stock Transfer Coordination',
-    subtitle: 'Conversation — Stock Request SR-122 (Peshawar & Lahore)',
-    thread: 'Inter-Branch Stock Transfer Coordination',
-    branch: 'Peshawar',
-    linked: 'SR-122',
-    linkedType: 'Stock Request',
-    from: 'Super Admin',
-    lastMsg: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401.',
-    priority: 'High',
-    status: 'Open',
-    participants: 'Ahsan Khan (Peshawar), Sami Ullah (Lahore), Super Admin (Head Office)',
-    lastReply: 'Today 11:42',
-    owner: 'Branch Manager (Peshawar)',
-    created: 'Yesterday',
-    replies: 4,
-    messages: []
-  }
+  if (!paramId) return null
+  return store.getConversationById(paramId)
 })
 
 // Unified Tabs
@@ -246,7 +225,13 @@ const sendReply = () => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12 animate-in fade-in duration-200">
+  <NotFoundState
+    v-if="!conversation"
+    title="Conversation Not Found"
+    message="The requested conversation does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/communication/conversations"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12 animate-in fade-in duration-200">
     
     <!-- Toast Notification -->
     <div 

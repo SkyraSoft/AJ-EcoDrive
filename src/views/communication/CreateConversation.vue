@@ -27,12 +27,12 @@ const form = ref({
   id: '',
   title: '',
   linkedType: 'Stock Request',
-  linked: 'SR-122',
+  linked: '',
   recipient: 'Super Admin',
   priority: 'Medium',
   message: '',
   attachment: '',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
 })
 
 const loadData = (data) => {

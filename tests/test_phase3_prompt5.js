@@ -3,6 +3,15 @@
 
 import { store } from '../src/store.js'
 
+store.setSession({
+  name: 'Super Admin',
+  role: 'Super Admin',
+  branchName: 'All Branches',
+  branchCode: 'ALL',
+  isAuthenticated: true,
+  isSuperAdmin: true
+})
+
 console.log('=================================================================')
 console.log('AJ ECODRIVE — PHASE 3 PROMPT 5: END-TO-END INTEGRATION TEST SUITE')
 console.log('=================================================================\n')

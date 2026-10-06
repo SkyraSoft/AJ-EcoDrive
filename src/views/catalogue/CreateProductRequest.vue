@@ -37,15 +37,15 @@ const availableCategories = [
 
 const form = ref({
   id: '',
-  productName: 'BRG Urban Mini',
-  category: 'Electric Scooter',
-  specifications: 'Compact urban electric model',
-  reference: 'REF-EV-2026',
-  customerDemand: '4 recent inquiries',
+  productName: '',
+  category: 'Electric Bikes',
+  specifications: '',
+  reference: '',
+  customerDemand: '',
   urgency: 'Medium',
-  images: '2 references attached',
-  reason: 'Customers requested an entry model below PKR 325,000',
-  status: 'Under Review'
+  images: '',
+  reason: '',
+  status: 'Draft'
 })
 
 const filteredCategories = computed(() => {
@@ -126,14 +126,16 @@ const submitRequest = () => {
     urgency: form.value.urgency,
     images: form.value.images,
     reason: form.value.reason,
-    status: form.value.status || 'Under Review',
+    status: form.value.status || 'Submitted',
     branch: user.value?.branchName || 'Peshawar',
     date: 'Today'
   }
 
   if (isEditMode.value) {
+    store.updateProductRequest(payload.id, payload)
     emit('updated', payload)
   } else {
+    store.addProductRequest(payload)
     emit('created', payload)
   }
   close()

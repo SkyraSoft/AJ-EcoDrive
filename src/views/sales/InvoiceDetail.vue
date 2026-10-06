@@ -4,14 +4,15 @@ import { useRouter, useRoute } from 'vue-router'
 import { Printer, Download, ArrowLeft } from 'lucide-vue-next'
 
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
 
 const rawInvId = computed(() => route.params.id || route.query.id)
 const invRecord = computed(() => {
-  if (rawInvId.value) return store.getInvoiceById(rawInvId.value)
-  return store.invoices[0] || null
+  if (!rawInvId.value) return null
+  return store.getInvoiceById(rawInvId.value)
 })
 
 const invoiceData = computed(() => {
@@ -62,13 +63,13 @@ const handlePrint = () => {
 </script>
 
 <template>
-  <div v-if="!invRecord" class="max-w-[1000px] mx-auto py-16 text-center space-y-4">
-    <h2 class="text-2xl font-bold text-gray-900">Invoice Not Found</h2>
-    <p class="text-sm text-gray-500">No invoice found with identifier "{{ rawInvId }}".</p>
-    <button @click="router.push('/sales/invoices')" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28]">
-      <ArrowLeft class="w-4 h-4" /> Back to Invoices
-    </button>
-  </div>
+  <NotFoundState
+    v-if="!invRecord"
+    title="Invoice Not Found"
+    :message="`Invoice '${rawInvId}' was not found or is not accessible for your branch.`"
+    back-path="/sales/invoices"
+    back-label="Back to Invoices"
+  />
 
   <div v-else class="max-w-[1000px] mx-auto space-y-6 pb-12">
     <!-- Actions Header -->

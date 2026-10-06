@@ -25,16 +25,16 @@ const showValidation = ref(false)
 
 const form = ref({
   id: '',
-  productUnit: 'BRG X5',
-  existingState: '6 available',
-  correctedState: '5 available',
-  reason: 'Physical count variance',
-  evidence: 'Count sheet attached',
-  notes: 'One unit not found during count',
-  requestedBy: 'Branch Manager',
+  productUnit: '',
+  existingState: '',
+  correctedState: '',
+  reason: '',
+  evidence: '',
+  notes: '',
+  requestedBy: user.value?.name || 'Branch Manager',
   approval: 'Required before posting',
   status: 'Pending',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
 })
 
 const loadData = (data) => {

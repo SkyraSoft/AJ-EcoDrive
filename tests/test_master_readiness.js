@@ -397,12 +397,19 @@ const transfer = store.createTransfer({
   items: [{ product: availUnit.product || 'BRG DS11', requestedQty: 1, isSerialized: true, serials: [transferVin] }]
 })
 assert(transfer.id.startsWith('TR-'), `Transfer created: ${transfer.id}`)
-assert(transfer.status === 'Approved' || transfer.status === 'Pending Approval' || transfer.status === 'Draft' || transfer.status === 'Pending', `Transfer status is valid: ${transfer.status}`)
+assert(transfer.status === 'Approved' || transfer.status === 'Requested' || transfer.status === 'Pending Approval' || transfer.status === 'Draft' || transfer.status === 'Pending', `Transfer status is valid: ${transfer.status}`)
+
+// Approve Transfer
+if (transfer.status !== 'Approved') {
+  store.approveTransfer(transfer.id, { approvedBy: 'Super Admin', notes: 'Master readiness journey transfer approval' })
+  assert(transfer.status === 'Approved', 'Transfer status transitioned to Approved')
+}
 
 // Dispatch Transfer
 store.dispatchTransfer(transfer.id)
 assert(transfer.status === 'In Transit', 'Transfer status is In Transit')
-assert(availUnit.status === 'In Transit', 'Unit status is In Transit')
+assert(availUnit.status === 'Transfer In Transit', 'Unit status is Transfer In Transit')
+assert(availUnit.status !== 'Available', 'Unit is not Available while in Transfer In Transit')
 
 // Receive Transfer at Destination (Islamabad)
 store.receiveTransfer(transfer.id, {

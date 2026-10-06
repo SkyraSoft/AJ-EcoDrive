@@ -645,7 +645,7 @@ const resetFilters = () => {
         </div>
         
         <div class="border border-gray-100 rounded-xl overflow-hidden shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
-          <table class="w-full text-left">
+          <table data-tour-id="sa.sales.returns.table" class="w-full text-left">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <th class="px-5 py-3">Return</th>

@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ArrowLeft, CheckCircle2, MessageSquare, Check, X, AlertTriangle, Truck } from 'lucide-vue-next'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -19,8 +20,8 @@ const triggerToast = (msg) => {
   setTimeout(() => { showToast.value = false }, 3500)
 }
 
-const requestId = computed(() => route.params.id || route.query.id || 'SR-104')
-const currentRequest = computed(() => store.getStockRequestById(requestId.value))
+const requestId = computed(() => route.params.id || route.query.id || '')
+const currentRequest = computed(() => requestId.value ? store.getStockRequestById(requestId.value) : null)
 
 const branchCurrentTab = ref('Request & Items')
 const branchTabs = ['Request & Items', 'Approval Status', 'Fulfilment', 'Timeline']
@@ -112,7 +113,13 @@ const branchTabData = computed(() => {
     <span class="text-xs font-bold">{{ toastMessage }}</span>
   </div>
 
-  <div class="max-w-[1400px] mx-auto pb-12 space-y-6">
+  <NotFoundState
+    v-if="!currentRequest"
+    title="Stock Request Not Found"
+    message="The requested stock request record does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/inventory/stock-requests"
+  />
+  <div v-else class="max-w-[1400px] mx-auto pb-12 space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

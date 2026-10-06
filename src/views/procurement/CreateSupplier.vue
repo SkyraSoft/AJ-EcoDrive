@@ -1,19 +1,63 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { store } from '../../store.js'
 
 const router = useRouter()
+const emit = defineEmits(['close', 'created'])
+
+const form = ref({
+  name: '',
+  contact: '',
+  phone: '',
+  email: '',
+  address: '',
+  currency: 'PKR (Pakistani Rupee)',
+  terms: 'Net 30',
+  taxId: '',
+  notes: ''
+})
+
+const showValidation = ref(false)
+
+const submitForm = () => {
+  if (!form.value.name.trim() || !form.value.contact.trim() || !form.value.phone.trim()) {
+    showValidation.value = true
+    return
+  }
+
+  const supplierId = `SUP-${String(store.suppliers.length + 1).padStart(2, '0')}`
+  const newSupplier = {
+    ...form.value,
+    id: supplierId,
+    supplier_id: supplierId,
+    products: '0',
+    openPos: '0',
+    purchases: '0M',
+    payable: '0M',
+    onTime: '100%',
+    status: 'Active',
+    statusClass: 'bg-[#dcfce7] text-[#165A31]'
+  }
+
+  store.addSupplier(newSupplier)
+  emit('created', newSupplier)
+  emit('close')
+  router.push('/procurement/suppliers')
+}
 
 const cancel = () => {
+  emit('close')
   router.push('/procurement/suppliers')
 }
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="router.back()">
+  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="cancel">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close button on top right -->
-      <button @click="router.back()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors">
+      <button @click="cancel" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -41,28 +85,28 @@ const cancel = () => {
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Company Name</label>
-          <input type="text" placeholder="e.g. BRG Factory" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.name" type="text" placeholder="e.g. BRG Factory" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Primary Contact</label>
-            <input type="text" placeholder="e.g. Li Wei" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.contact" type="text" placeholder="e.g. Li Wei" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Phone Number</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.phone" type="text" placeholder="e.g. +86 21 8839 0112" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Email Address</label>
-          <input type="email" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.email" type="email" placeholder="e.g. sales@brgfactory.cn" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Business Address</label>
-          <textarea rows="2" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
+          <textarea v-model="form.address" rows="2" placeholder="e.g. Industrial Park, Building 4, Shanghai" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
         </div>
       </div>
 
@@ -73,7 +117,7 @@ const cancel = () => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Currency</label>
-            <select class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
+            <select v-model="form.currency" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
               <option>PKR (Pakistani Rupee)</option>
               <option>USD (US Dollar)</option>
               <option>CNY (Chinese Yuan)</option>
@@ -81,7 +125,7 @@ const cancel = () => {
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Payment Terms</label>
-            <select class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
+            <select v-model="form.terms" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
               <option>Advance</option>
               <option>Net 15</option>
               <option>Net 30</option>
@@ -92,12 +136,12 @@ const cancel = () => {
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Tax ID / NTN</label>
-          <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.taxId" type="text" placeholder="e.g. 1234567-8" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Internal Notes</label>
-          <textarea rows="3" placeholder="Contract details, performance notes, etc." class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
+          <textarea v-model="form.notes" rows="3" placeholder="Contract details, performance notes, etc." class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
         </div>
       </div>
     </div>
@@ -105,13 +149,13 @@ const cancel = () => {
     <!-- Actions Footer -->
     <div class="flex items-center justify-end pt-4">
       <div class="flex flex-wrap items-center gap-3">
-        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Cancel
         </button>
-        <button class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="submitForm" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Save Draft
         </button>
-        <button class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+        <button @click="submitForm" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
           Create Supplier
         </button>
       </div>

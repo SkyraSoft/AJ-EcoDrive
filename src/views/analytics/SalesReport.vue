@@ -24,26 +24,52 @@ const resetFilters = () => {
   selectedPeriod.value = 'This Month'
 }
 
-const kpis = [
-  { label: 'Net Sales', value: '28.4M' },
-  { label: 'Units', value: '184' },
-  { label: 'Orders', value: '197' },
-  { label: 'Margin', value: '24.3%' }
-]
+import { store } from '@/store.js'
 
-const breakdown = [
-  { branch: 'Peshawar', value: 92 },
-  { branch: 'Islamabad', value: 74 },
-  { branch: 'Lahore', value: 59 },
-  { branch: 'Rawalpindi', value: 46 }
-]
+const kpis = computed(() => {
+  const fin = store.calculateFinancialMetrics({ branch_id: selectedBranch.value })
+  const units = store.serializedUnits.filter(u => {
+    if (selectedBranch.value !== 'All Branches' && (u.branch || '').toLowerCase() !== selectedBranch.value.toLowerCase()) return false
+    return store.normalizeUnitStatus(u.status) === 'Sold'
+  }).length
+  const orders = store.orders.filter(o => {
+    if (selectedBranch.value !== 'All Branches' && (o.branch || '').toLowerCase() !== selectedBranch.value.toLowerCase()) return false
+    return o.status !== 'Cancelled' && o.status !== 'Draft'
+  }).length
 
-const details = ref([
-  { branch: 'Peshawar', sales: '9.8M', units: '66', orders: '71', discount: '0.28M', margin: '24.5%' },
-  { branch: 'Islamabad', sales: '7.6M', units: '51', orders: '54', discount: '0.22M', margin: '23.7%' },
-  { branch: 'Lahore', sales: '6.2M', units: '42', orders: '45', discount: '0.18M', margin: '24.0%' },
-  { branch: 'Rawalpindi', sales: '4.8M', units: '25', orders: '27', discount: '0.12M', margin: '25.1%' }
-])
+  return [
+    { label: 'Net Sales', value: store.formatCurrency(fin.netSales) },
+    { label: 'Units', value: String(units) },
+    { label: 'Orders', value: String(orders) },
+    { label: 'Margin', value: fin.grossMarginFormatted }
+  ]
+})
+
+const details = computed(() => {
+  const branchesList = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
+  return branchesList.map(b => {
+    const fin = store.calculateFinancialMetrics({ branch_id: b })
+    const units = store.serializedUnits.filter(u => (u.branch || '').toLowerCase() === b.toLowerCase() && store.normalizeUnitStatus(u.status) === 'Sold').length
+    const orders = store.orders.filter(o => (o.branch || '').toLowerCase() === b.toLowerCase() && o.status !== 'Cancelled' && o.status !== 'Draft').length
+    return {
+      branch: b,
+      sales: store.formatCurrency(fin.netSales),
+      units: String(units),
+      orders: String(orders),
+      discount: store.formatCurrency(fin.discounts),
+      margin: fin.grossMarginFormatted
+    }
+  })
+})
+
+const breakdown = computed(() => {
+  const list = details.value
+  const max = Math.max(...list.map(b => store.parseMoney(b.sales)), 1)
+  return list.map(b => ({
+    branch: b.branch,
+    value: store.parseMoney(b.sales) > 0 ? Math.round((store.parseMoney(b.sales) / max) * 100) : 0
+  }))
+})
 
 const filteredDetails = computed(() => {
   return details.value.filter(item => {
@@ -151,7 +177,7 @@ const filteredDetails = computed(() => {
     <!-- Charts Grid (Trend & Breakdown) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Trend Line Card -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+      <div data-tour-id="sa.analytics.sales.chart" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <h3 class="text-[13px] font-bold text-gray-900 mb-4">Trend ({{ selectedPeriod }})</h3>
         <div class="h-44 flex items-center justify-center p-2 bg-[#fcfdfd] rounded-lg">
           <svg class="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="none">

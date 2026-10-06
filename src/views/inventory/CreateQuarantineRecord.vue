@@ -25,17 +25,17 @@ const showValidation = ref(false)
 
 const form = ref({
   id: '',
-  unit: 'M3-01014',
-  product: 'BRG M3',
-  source: 'TR-221 (In Transit)',
-  condition: 'Packaging damage',
+  unit: '',
+  product: '',
+  source: '',
+  condition: '',
   status: 'Quarantine',
-  notes: 'Minor packaging damage identified upon unloading. Body inspection shows minor surface friction, internal components verified intact.',
-  evidence: 'Photo_Inspection_01.jpg',
-  decision: 'QC / service',
-  reportedBy: computed(() => `Branch Manager (${user.value?.branchName || 'Peshawar'} Branch)`),
+  notes: '',
+  evidence: '',
+  decision: 'Pending QC Inspection',
+  reportedBy: computed(() => `Branch Manager (${user.value?.branchName || store.getActiveBranch() || 'Peshawar'} Branch)`),
   approval: 'Branch Manager / HQ QC Approval',
-  branch: user.value?.branchName || 'Peshawar'
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar'
 })
 
 const loadData = (data) => {

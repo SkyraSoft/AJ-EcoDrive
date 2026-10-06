@@ -28,17 +28,17 @@ const branchOptions = computed(() => ['Peshawar', 'Islamabad', 'Lahore', 'Rawalp
 
 const form = ref({
   id: '',
-  fromBranch: user.value?.branchName || 'Peshawar',
-  toBranch: (user.value?.branchName || 'Peshawar') === 'Lahore' ? 'Peshawar' : 'Lahore',
-  productId: 'PROD-003',
-  units: '2',
+  fromBranch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
+  toBranch: '',
+  productId: '',
+  units: '1',
   requestedDate: 'Today',
-  carrier: 'AJ Logistics Truck #4 (LES-4921)',
-  driverContact: 'Tariq Mehmood (0301-5558192)',
-  gatePassNo: 'GP-TR-8812',
-  expectedArrival: 'Tomorrow 14:00',
-  notes: 'Inter-showroom inventory rebalancing for weekend sales drive',
-  status: 'Pending Approval'
+  carrier: '',
+  driverContact: '',
+  gatePassNo: '',
+  expectedArrival: '',
+  notes: '',
+  status: 'Draft'
 })
 
 const selectedProduct = computed(() => {
@@ -132,7 +132,7 @@ const submitTransfer = () => {
     units: String(requestedCount),
     requestedBy: user.value?.name || (isBranchUser.value ? 'Branch Manager' : 'Super Admin'),
     dispatched: form.value.requestedDate || 'Today',
-    status: isBranchUser.value ? 'Pending Approval' : 'Approved',
+    status: isBranchUser.value ? 'Requested' : 'Approved',
     carrier: form.value.carrier,
     driverContact: form.value.driverContact,
     gatePassNo: form.value.gatePassNo,

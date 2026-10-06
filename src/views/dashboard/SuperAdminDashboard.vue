@@ -16,32 +16,42 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // --- Branch Manager Specific Data ---
-const branchManagerKpis = computed(() => [
-  { label: "Today's Sales", value: 'PKR 842K', change: '+12.4%', route: { path: '/sales/orders' } },
-  { label: 'Units Sold', value: '7', change: '+2 vs yesterday', route: { path: '/sales/orders' } },
-  { label: 'Payments Collected', value: 'PKR 710K', change: '84%', route: { path: '/sales/payments' } },
-  { label: 'Expenses', value: 'PKR 42K', change: 'Today', route: { path: '/finance/expenses' } }
-])
+const branchManagerKpis = computed(() => {
+  const branchName = user.value?.branchName || 'Peshawar'
+  const branchId = store.resolveCanonicalBranchId ? store.resolveCanonicalBranchId(branchName) : user.value?.branchCode
+  const fin = store.calculateFinancialMetrics({ branch_id: branchId || branchName })
+  
+  const bmSoldUnits = store.serializedUnits.filter(u => store.isBranchAllowed(u.branch) && store.normalizeUnitStatus(u.status) === 'Sold').length
+  const bmPayments = store.payments.filter(p => store.isBranchAllowed(p.branch))
+  const bmPaymentsTotal = bmPayments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : (store.parseMoney(p.amount) || 0)), 0)
+
+  return [
+    { label: "Today's Sales", value: store.formatCurrency(fin.netSales), change: '+12.4%', route: { path: '/sales/orders' } },
+    { label: 'Units Sold', value: String(bmSoldUnits), change: '+2 vs yesterday', route: { path: '/sales/orders' } },
+    { label: 'Payments Collected', value: store.formatCurrency(bmPaymentsTotal), change: '84%', route: { path: '/sales/payments' } },
+    { label: 'Expenses', value: store.formatCurrency(fin.operatingExpenses), change: 'Today', route: { path: '/finance/expenses' } }
+  ]
+})
 
 const branchSnapshot = computed(() => {
   const branch = user.value?.branchName || 'Peshawar'
-  const stats = store.getInventoryStats ? store.getInventoryStats(branch) : { available: 48, reserved: 7 }
+  const stats = store.getInventoryStats(branch)
   
   const openOrdersCount = store.orders 
-    ? store.orders.filter(o => store.isBranchAllowed(o.branch) && o.status !== 'Completed' && o.status !== 'Cancelled' && o.status !== 'Returned').length || 14
-    : 14
+    ? store.orders.filter(o => store.isBranchAllowed(o.branch) && o.status !== 'Completed' && o.status !== 'Cancelled' && o.status !== 'Returned').length
+    : 0
 
   const incomingCount = store.transfers
-    ? store.transfers.filter(t => (!t.to || store.isBranchAllowed(t.to)) && t.status !== 'Received').length || 8
-    : 8
+    ? store.transfers.filter(t => (!t.to || store.isBranchAllowed(t.to)) && t.status !== 'Received' && t.status !== 'Draft').length
+    : 0
 
   const lowStockCount = store.products
-    ? store.products.filter(p => (p.available ?? 0) <= (p.reorderLevel || p.reorder || 8)).length || 6
-    : 6
+    ? store.products.filter(p => (p.available ?? 0) <= (p.reorderLevel || p.reorder || 8)).length
+    : 0
 
   const serviceCasesCount = store.cases
-    ? store.cases.filter(c => store.isBranchAllowed(c.branch) && c.status !== 'Resolved').length || 4
-    : 4
+    ? store.cases.filter(c => store.isBranchAllowed(c.branch) && c.status !== 'Resolved' && c.status !== 'Cancelled').length
+    : 0
 
   return [
     { 
@@ -52,13 +62,13 @@ const branchSnapshot = computed(() => {
     },
     { 
       label: 'Available Stock', 
-      value: String(stats.available || 48), 
+      value: String(stats.available), 
       route: { path: '/inventory/serialized-units', query: { status: 'Available' } },
       targetDesc: 'Inspect showroom inventory ready for sale'
     },
     { 
       label: 'Reserved', 
-      value: String(stats.reserved || 7), 
+      value: String(stats.reserved), 
       route: { path: '/inventory/serialized-units', query: { status: 'Reserved' } },
       targetDesc: 'Units assigned to customer orders'
     },
@@ -118,31 +128,53 @@ const actionRequiredItems = [
 ]
 
 // --- Super Admin Specific Data ---
-const superAdminKpis = [
-  { label: 'Net Sales', value: 'PKR 28.4M', change: '+12.8%', positive: true, route: '/sales/dashboard' },
-  { label: 'Units Sold', value: '184', change: '+8.2%', positive: true, route: '/sales/orders' },
-  { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%', positive: true, route: '/procurement/purchase-orders' },
-  { label: 'Operating Expenses', value: 'PKR 3.2M', change: '-2.4%', positive: true, route: '/finance/expenses' },
-  { label: 'Gross Profit', value: 'PKR 6.9M', change: '+15.0%', positive: true, route: '/dashboard/business-performance' },
-  { label: 'Net Operating Profit', value: 'PKR 3.7M', change: '+21.4%', positive: true, route: '/dashboard/business-performance' },
-  { label: 'Inventory Value', value: 'PKR 41.8M', subtitle: '312 units', positive: null, route: '/inventory/dashboard' },
-  { label: 'Receivables', value: 'PKR 2.9M', subtitle: '17 overdue', positive: false, route: '/sales/payments' }
-]
+const globalInventoryStats = computed(() => store.getInventoryStats('All Branches'))
 
-const branchPerformance = [
-  { name: 'Peshawar', value: 92 },
-  { name: 'Islamabad', value: 78 },
-  { name: 'Lahore', value: 64 },
-  { name: 'Rawalpindi', value: 51 }
-]
+const superAdminKpis = computed(() => {
+  const fin = store.calculateFinancialMetrics({ branch_id: 'ALL' })
+  const val = store.getInventoryValuation({ branch_id: 'ALL' })
+  const soldCount = store.serializedUnits.filter(u => store.normalizeUnitStatus(u.status) === 'Sold').length
+  const purchasesTotal = store.purchaseOrders
+    .filter(p => p.status !== 'Cancelled' && p.status !== 'Draft')
+    .reduce((sum, p) => sum + (p.totalAmount || store.parseMoney(p.total) || 0), 0)
+  const receivablesTotal = store.invoices
+    .filter(i => i.status !== 'Paid' && i.status !== 'Cancelled')
+    .reduce((sum, i) => sum + (i.outstandingAmount !== undefined ? i.outstandingAmount : (store.parseMoney(i.amount || i.total) - (i.paidAmount || 0))), 0)
 
-const expenseSummary = [
-  { name: 'Salaries', value: 84 },
-  { name: 'Rent', value: 61 },
-  { name: 'Utilities', value: 43 },
-  { name: 'Marketing', value: 31 },
-  { name: 'Logistics', value: 27 }
-]
+  return [
+    { label: 'Net Sales', value: store.formatCurrency(fin.netSales), change: '+12.8%', positive: true, route: '/sales/dashboard' },
+    { label: 'Units Sold', value: String(soldCount), change: '+8.2%', positive: true, route: '/sales/orders' },
+    { label: 'Purchases', value: store.formatCurrency(purchasesTotal), change: '+4.1%', positive: true, route: '/procurement/purchase-orders' },
+    { label: 'Operating Expenses', value: store.formatCurrency(fin.operatingExpenses), change: '-2.4%', positive: true, route: '/finance/expenses' },
+    { label: 'Gross Profit', value: store.formatCurrency(fin.grossProfit), change: '+15.0%', positive: true, route: '/dashboard/business-performance' },
+    { label: 'Net Operating Profit', value: store.formatCurrency(fin.netOperatingProfit), change: '+21.4%', positive: true, route: '/dashboard/business-performance' },
+    { label: 'Inventory Value', value: store.formatCurrency(val.onHandValue), subtitle: `${globalInventoryStats.value.available} units`, positive: null, route: '/inventory/dashboard' },
+    { label: 'Receivables', value: store.formatCurrency(receivablesTotal), subtitle: 'Active receivables', positive: false, route: '/sales/payments' }
+  ]
+})
+
+const branchPerformance = computed(() => {
+  const branches = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
+  const counts = branches.map(b => ({
+    name: b,
+    count: store.serializedUnits.filter(u => (u.branch || '').toLowerCase() === b.toLowerCase()).length
+  }))
+  const max = Math.max(...counts.map(c => c.count), 1)
+  return counts.map(c => ({
+    name: c.name,
+    value: Math.round((c.count / max) * 100)
+  }))
+})
+
+const expenseSummary = computed(() => {
+  const categories = ['Salaries', 'Rent', 'Utilities', 'Marketing', 'Logistics']
+  return categories.map(cat => {
+    const total = store.expenses
+      .filter(e => (e.category || '').toLowerCase().includes(cat.toLowerCase()) && (e.status === 'Approved' || e.status === 'Paid'))
+      .reduce((sum, e) => sum + (typeof e.amount === 'number' ? e.amount : (store.parseMoney(e.amount) || 0)), 0)
+    return { name: cat, value: total > 0 ? Math.min(100, Math.round(total / 1000)) : 0 }
+  })
+})
 
 const navigateTo = (route) => {
   if (!route) return
@@ -174,6 +206,7 @@ const navigateTo = (route) => {
           v-for="(kpi, index) in branchManagerKpis" 
           :key="index" 
           :id="index === 3 ? 'dap-kpi-cash-float' : undefined"
+          :data-tour-id="index === 0 ? 'bm.dashboard.kpi.net-sales' : (index === 1 ? 'bm.dashboard.kpi.floor-stock' : undefined)"
           @click="navigateTo(kpi.route)"
           class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
         >
@@ -333,6 +366,7 @@ const navigateTo = (route) => {
       <div 
         v-for="(kpi, index) in superAdminKpis" 
         :key="index" 
+        :data-tour-id="kpi.label === 'Net Sales' ? 'sa.dashboard.kpi.net-sales' : (kpi.label === 'Gross Profit' ? 'sa.dashboard.kpi.gross-profit' : (kpi.label === 'Inventory Value' ? 'sa.dashboard.kpi.inventory-value' : undefined))"
         @click="navigateTo(kpi.route)"
         class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between cursor-pointer hover:border-[#209249]/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
       >
@@ -379,7 +413,7 @@ const navigateTo = (route) => {
       
       <!-- Branch Performance -->
       <div 
-        @click="navigateTo('/dashboard/branch-performance')"
+        @click="navigateTo('/dashboard/branch-performance')" data-tour-id="sa.dashboard.table.branch-performance"
         class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col cursor-pointer hover:border-gray-200 transition-all group"
       >
         <div class="flex items-center justify-between mb-4">
@@ -413,23 +447,23 @@ const navigateTo = (route) => {
         <div class="space-y-3">
           <div @click="navigateTo('/inventory/stock-by-product')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Available</span>
-            <span class="text-[11px] font-bold text-gray-900">228 &rsaquo;</span>
+            <span class="text-[11px] font-bold text-gray-900">{{ globalInventoryStats.available }} &rsaquo;</span>
           </div>
           <div @click="navigateTo('/inventory/serialized-units')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Reserved</span>
-            <span class="text-[11px] font-bold text-gray-900">31 &rsaquo;</span>
+            <span class="text-[11px] font-bold text-gray-900">{{ globalInventoryStats.reserved }} &rsaquo;</span>
           </div>
           <div @click="navigateTo('/procurement/purchase-orders')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Supplier In Transit</span>
-            <span class="text-[11px] font-bold text-gray-900">26 &rsaquo;</span>
+            <span class="text-[11px] font-bold text-gray-900">{{ globalInventoryStats.supplierInTransit }} &rsaquo;</span>
           </div>
           <div @click="navigateTo('/inventory/transfers')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">Transfer In Transit</span>
-            <span class="text-[11px] font-bold text-gray-900">8 &rsaquo;</span>
+            <span class="text-[11px] font-bold text-gray-900">{{ globalInventoryStats.transferInTransit }} &rsaquo;</span>
           </div>
           <div @click="navigateTo('/inventory/quarantine')" class="flex justify-between items-center p-1.5 rounded hover:bg-gray-50 cursor-pointer transition-colors">
             <span class="text-[11px] text-gray-500 font-medium">QC / Quarantine</span>
-            <span class="text-[11px] font-bold text-gray-900">19 &rsaquo;</span>
+            <span class="text-[11px] font-bold text-gray-900">{{ globalInventoryStats.receivingQc + globalInventoryStats.damagedQuarantine }} &rsaquo;</span>
           </div>
         </div>
       </div>

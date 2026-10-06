@@ -1,5 +1,14 @@
 import { store } from '../src/store.js'
 
+store.setSession({
+  name: 'Super Admin',
+  role: 'Super Admin',
+  branchName: 'All Branches',
+  branchCode: 'ALL',
+  isAuthenticated: true,
+  isSuperAdmin: true
+})
+
 let total = 0
 let passed = 0
 

@@ -2,9 +2,31 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Check, UploadCloud, X, FileText, Image as ImageIcon, Trash2 } from 'lucide-vue-next'
+import { store } from '../../store.js'
 
 const router = useRouter()
+const emit = defineEmits(['close', 'created'])
 const showSuccess = ref(false)
+
+const form = ref({
+  name: '',
+  category: 'Electric Bikes',
+  subcategory: '',
+  model: '',
+  sku: '',
+  tracking: 'Serialized - Serial + Chassis',
+  variants: 'Standard',
+  warranty: '2 Years',
+  motor: '',
+  battery: '',
+  range: '',
+  speed: '',
+  supplier: '',
+  price: '',
+  reorderLevel: 5,
+  poorStockDays: 90,
+  activation: 'Active after review'
+})
 
 const images = ref([])
 const brochureFile = ref(null)
@@ -49,24 +71,50 @@ const triggerImageSelect = () => {
 }
 
 const cancel = () => {
+  emit('close')
   router.push('/catalogue/products')
 }
 
 const save = () => {
+  if (!form.value.name.trim()) return
+
+  const prodId = `PROD-${String(store.products.length + 1).padStart(3, '0')}`
+  const newProduct = {
+    ...form.value,
+    id: prodId,
+    product_id: prodId,
+    stock: '0 units',
+    total: 0,
+    available: 0,
+    peshawar: 0,
+    islamabad: 0,
+    lahore: 0,
+    rawalpindi: 0,
+    documents: [
+      brochureFile.value ? { name: brochureFile.value.name, type: 'Brochure' } : null,
+      specSheetFile.value ? { name: specSheetFile.value.name, type: 'Specification' } : null,
+      warrantyFile.value ? { name: warrantyFile.value.name, type: 'Warranty Policy' } : null
+    ].filter(Boolean),
+    images: images.value.map(i => i.name)
+  }
+
+  store.addProduct(newProduct)
+  emit('created', newProduct)
   showSuccess.value = true
 }
 
 const finish = () => {
+  emit('close')
   router.push('/catalogue/products')
 }
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="router.back()">
+  <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="cancel">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close button on top right -->
-      <button @click="router.back()" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors">
+      <button @click="cancel" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -94,28 +142,28 @@ const finish = () => {
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Product Name</label>
-          <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.name" type="text" placeholder="e.g. BRG Super E-Bike" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Category</label>
-            <input type="text" placeholder="Electric Bikes" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.category" type="text" placeholder="Electric Bikes" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Subcategory</label>
-            <input type="text" placeholder="Commuter" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.subcategory" type="text" placeholder="Commuter" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Model</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.model" type="text" placeholder="e.g. 2026 Pro" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">SKU</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.sku" type="text" placeholder="e.g. SKU-SEB-01" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
       </div>
@@ -126,17 +174,17 @@ const finish = () => {
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Tracking Method</label>
-          <input type="text" placeholder="Serialized - Serial + Chassis" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.tracking" type="text" placeholder="Serialized - Serial + Chassis" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Variants</label>
-          <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.variants" type="text" placeholder="e.g. Red / Blue / Black" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Warranty</label>
-          <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.warranty" type="text" placeholder="e.g. 2 Years" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
       </div>
 
@@ -147,22 +195,22 @@ const finish = () => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Motor</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.motor" type="text" placeholder="e.g. 250W Brushless" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Battery</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.battery" type="text" placeholder="e.g. 48V 15Ah Lithium" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Range</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.range" type="text" placeholder="e.g. 65 km" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Top Speed</label>
-            <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model="form.speed" type="text" placeholder="e.g. 45 km/h" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
 
@@ -200,17 +248,17 @@ const finish = () => {
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Selling Price</label>
-          <input type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.price" type="text" placeholder="e.g. 185,000" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Low Stock Threshold (Units)</label>
-            <input type="number" min="0" placeholder="e.g. 5" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model.number="form.reorderLevel" type="number" min="0" placeholder="e.g. 5" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Poor Stock Threshold (Days Unsold)</label>
-            <input type="number" min="0" placeholder="e.g. 90" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <input v-model.number="form.poorStockDays" type="number" min="0" placeholder="e.g. 90" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
           </div>
         </div>
 
@@ -290,7 +338,7 @@ const finish = () => {
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Activation</label>
-          <input type="text" placeholder="Active after review" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input v-model="form.activation" type="text" placeholder="Active after review" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
       </div>
 
@@ -302,13 +350,13 @@ const finish = () => {
         Activation creates the catalogue record only. <span class="font-bold text-gray-700">Physical stock remains 0.</span>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Cancel
         </button>
-        <button class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button @click="save" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
           Save Draft
         </button>
-        <button @click="save" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+        <button @click="save" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
           Review & Activate Product
         </button>
       </div>
@@ -323,7 +371,7 @@ const finish = () => {
       <p class="text-sm text-gray-500 text-center max-w-sm mb-8">
         Product created successfully. Physical stock remains 0 until an approved inventory-entry flow is completed.
       </p>
-      <button @click="finish" class="px-8 py-2.5 text-sm font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+      <button @click="finish" class="px-8 py-2.5 text-sm font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
         Continue
       </button>
     </div>

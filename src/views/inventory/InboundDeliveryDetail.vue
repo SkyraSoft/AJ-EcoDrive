@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import { Plus } from 'lucide-vue-next'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -10,7 +11,8 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager Data & Logic
-const inboundId = computed(() => route.params.id || route.query.id || 'INB-091')
+const inboundId = computed(() => route.params.id || route.query.id || '')
+const isValidInbound = computed(() => ['INB-088', 'INB-091'].includes(inboundId.value))
 const isINB088 = computed(() => inboundId.value === 'INB-088')
 const branchCurrentTab = ref('Summary')
 const branchTabs = ['Summary', 'Items & Units', 'Inspection', 'Receiving', 'Discrepancies', 'Documents', 'Activity']
@@ -113,7 +115,14 @@ const branchTabData = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!isValidInbound"
+    title="Inbound Delivery Not Found"
+    message="The requested inbound delivery could not be found or is not accessible from your current branch context."
+    back-link="/inventory/inbound-deliveries"
+    back-text="Back to Inbound Deliveries"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

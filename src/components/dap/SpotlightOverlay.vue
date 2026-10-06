@@ -1,31 +1,11 @@
 <template>
   <div v-if="isActive && targetRect" class="fixed inset-0 z-[9990] pointer-events-none transition-all duration-300">
-    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <mask id="dap-spotlight-mask">
-          <!-- White background covers everything -->
-          <rect x="0" y="0" width="100%" height="100%" fill="white" />
-          <!-- Black cutout reveals the target element -->
-          <rect
-            :x="spotlightX"
-            :y="spotlightY"
-            :width="spotlightWidth"
-            :height="spotlightHeight"
-            :rx="10"
-            :ry="10"
-            fill="black"
-            class="transition-all duration-300 ease-out"
-          />
-        </mask>
-      </defs>
-      <!-- Dark backdrop with SVG mask cutout -->
-      <rect
-        x="0"
-        y="0"
-        width="100%"
-        height="100%"
+    <svg class="w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Dark backdrop with true geometric cutout: painted outside, hollow inside -->
+      <path
+        :d="backdropPath"
         fill="rgba(15, 23, 42, 0.75)"
-        mask="url(#dap-spotlight-mask)"
+        fill-rule="evenodd"
         class="pointer-events-auto cursor-pointer"
         @click="$emit('backdrop-click')"
       />
@@ -79,5 +59,28 @@ const spotlightWidth = computed(() => {
 const spotlightHeight = computed(() => {
   if (!props.targetRect) return 0
   return props.targetRect.height + (props.padding * 2)
+})
+
+const backdropPath = computed(() => {
+  if (!props.targetRect) return ''
+  const vw = typeof window !== 'undefined' ? (window.innerWidth || 1920) : 1920
+  const vh = typeof window !== 'undefined' ? (window.innerHeight || 1080) : 1080
+  const x = spotlightX.value
+  const y = spotlightY.value
+  const w = spotlightWidth.value
+  const h = spotlightHeight.value
+  const r = 10
+
+  // Outer full-screen rect + inner rounded rect cutout with evenodd fill rule
+  return `M 0,0 L ${vw},0 L ${vw},${vh} L 0,${vh} Z ` +
+    `M ${x + r},${y} ` +
+    `H ${x + w - r} ` +
+    `A ${r},${r} 0 0 1 ${x + w},${y + r} ` +
+    `V ${y + h - r} ` +
+    `A ${r},${r} 0 0 1 ${x + w - r},${y + h} ` +
+    `H ${x + r} ` +
+    `A ${r},${r} 0 0 1 ${x},${y + h - r} ` +
+    `V ${y + r} ` +
+    `A ${r},${r} 0 0 1 ${x + r},${y} Z`
 })
 </script>

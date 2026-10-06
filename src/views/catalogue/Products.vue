@@ -685,7 +685,7 @@ const confirmArchive = () => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Products</h1>
         <p class="text-sm text-gray-500 mt-1">Manage BRG product masters without creating physical stock.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+      <button data-tour-id="sa.catalogue.products.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>Create Product</span>
       </button>
     </div>
@@ -787,7 +787,7 @@ const confirmArchive = () => {
         </div>
         
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table data-tour-id="sa.catalogue.products.table" class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <th class="px-5 py-3">Product</th>

@@ -161,7 +161,7 @@ const openHistory = (productName) => {
         </div>
         
         <div class="overflow-x-auto">
-          <div class="w-full overflow-x-auto"><table class="w-full text-left">
+          <div class="w-full overflow-x-auto"><table data-tour-id="sa.catalogue.pricing.table" class="w-full text-left">
             <thead>
               <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400">
                 <th class="px-5 py-3">Product</th>

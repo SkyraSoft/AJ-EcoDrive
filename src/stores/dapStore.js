@@ -1,16 +1,28 @@
-import { reactive, computed } from 'vue'
+import { store } from '@/store.js'
+import { reactive } from 'vue'
 import router from '@/router'
-import { branchManagerMissions } from '@/config/branchManagerDAPMissions.js'
-import { branchManagerCoverageRegistry, totalBranchManagerCheckpoints } from '@/config/branchManagerDAPCoverage.js'
+import {
+  getMissionsForRole,
+  getMissionById,
+  getPageTour,
+  getQuickOrientation,
+  getFieldGuides,
+  getGuidedTasks,
+  getContextHelp,
+  getAllContextHelp,
+  getAllScenarios,
+  TOUR_MODES
+} from '@/tour/content/catalog.js'
+import { getCatalogForRole as getLegacyCatalogForRole } from '@/tour/adapters/legacyDapAdapter.js'
 
-const STORAGE_KEY = 'aj_ecodrive_dap_state_v2'
+const STORAGE_KEY = 'aj_ecodrive_dap_state_v3'
 
 function loadSavedState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) return JSON.parse(saved)
   } catch (e) {
-    console.warn('Failed to load DAP state from localStorage', e)
+    console.warn('Failed to load tour state from localStorage', e)
   }
   return null
 }
@@ -19,11 +31,12 @@ const saved = loadSavedState()
 
 export const dapStore = reactive({
   isActive: false,
+  activeTourMode: saved?.activeTourMode || TOUR_MODES.PAGE_TOUR,
   mode: saved?.mode || 'practice', // 'observe' | 'inspect' | 'practice' | 'execute' | 'decision'
   currentMissionIndex: saved?.currentMissionIndex || 0,
   currentStepIndex: saved?.currentStepIndex || 0,
   currentRoute: saved?.currentRoute || '/dashboard',
-  activeCheckpointId: saved?.activeCheckpointId || 'M1-R8-H1',
+  activeCheckpointId: saved?.activeCheckpointId || 'SA-01-01',
   completedMissions: saved?.completedMissions || [],
   completedSteps: saved?.completedSteps || {},
   completedCheckpoints: saved?.completedCheckpoints || {},
@@ -32,32 +45,49 @@ export const dapStore = reactive({
   isStepValidated: false,
   hudExpanded: false,
   soundEffects: true,
-  autoStartOnLogin: true,
+  autoStartOnLogin: false,
 
-  // Computed properties
+  // Contextual help & field guides state
+  activeContextHelpTopic: null,
+  activeFieldGuides: [],
+
+  // Computed & Catalog Accessors
+  get currentRole() {
+    return store?.currentUser?.role || 'Super Admin'
+  },
+
   get missions() {
-    return branchManagerMissions
+    return getMissionsForRole(this.currentRole)
   },
 
   get currentMission() {
-    return branchManagerMissions[this.currentMissionIndex] || branchManagerMissions[0]
+    const list = this.missions
+    if (!list || list.length === 0) return null
+    return list[this.currentMissionIndex] || list[0]
   },
 
   get currentStep() {
-    if (!this.currentMission || !this.currentMission.steps) return null
-    return this.currentMission.steps[this.currentStepIndex] || null
+    const mission = this.currentMission
+    if (!mission) return null
+    // Support standard mission steps or scenario segments
+    const stepsList = mission.steps || mission.segments
+    if (!stepsList || stepsList.length === 0) return null
+    return stepsList[this.currentStepIndex] || null
   },
 
   get totalMissions() {
-    return branchManagerMissions.length
+    return this.missions.length
   },
 
   get totalStepsInCurrentMission() {
-    return this.currentMission?.steps?.length || 0
+    const mission = this.currentMission
+    if (!mission) return 0
+    const stepsList = mission.steps || mission.segments
+    return stepsList?.length || 0
   },
 
   get totalSystemCheckpoints() {
-    return totalBranchManagerCheckpoints || 3394
+    return this.totalStepsCount
   },
 
   get totalCompletedCheckpointsCount() {
@@ -65,7 +95,10 @@ export const dapStore = reactive({
   },
 
   get totalStepsCount() {
-    return branchManagerMissions.reduce((acc, m) => acc + (m.steps?.length || 0), 0)
+    return this.missions.reduce((acc, m) => {
+      const steps = m.steps || m.segments || []
+      return acc + steps.length
+    }, 0)
   },
 
   get totalSystemSteps() {
@@ -101,18 +134,120 @@ export const dapStore = reactive({
     return Boolean(this.demoAssistedSteps?.[target])
   },
 
-  // Actions
+  // -------------------------------------------------------------
+  // FIVE USER-FACING TOUR MODES
+  // -------------------------------------------------------------
+
+  /**
+   * Mode 1: Quick Orientation
+   */
+  startQuickOrientation(route = null) {
+    const targetRoute = route || router.currentRoute?.value?.path || '/dashboard'
+    const mission = getQuickOrientation(targetRoute, this.currentRole)
+    this.activeTourMode = TOUR_MODES.QUICK_ORIENTATION
+    if (mission) {
+      this.startDAP(mission.id, 0)
+    } else {
+      // Fallback to first available role mission
+      this.startDAP(null, 0)
+    }
+  },
+
+  /**
+   * Mode 2: Learn This Page (Page Tour)
+   */
+  startPageTour(route = null) {
+    const targetRoute = route || router.currentRoute?.value?.path || '/dashboard'
+    const mission = getPageTour(targetRoute, this.currentRole)
+    this.activeTourMode = TOUR_MODES.PAGE_TOUR
+    if (mission) {
+      this.startDAP(mission.id, 0)
+    } else {
+      this.startDAP(null, 0)
+    }
+  },
+
+  /**
+   * Mode 3: Show Me Every Field (Field Guide)
+   */
+  startFieldGuide(route = null) {
+    const targetRoute = route || router.currentRoute?.value?.path || '/dashboard'
+    this.activeTourMode = TOUR_MODES.FIELD_GUIDE
+    this.activeFieldGuides = getFieldGuides(targetRoute, this.currentRole)
+    this.isActive = true
+    this.saveState()
+  },
+
+  /**
+   * Mode 4: Guide Me Through This Task (Guided Task)
+   */
+  startGuidedTask(taskIdOrRoute = null) {
+    this.activeTourMode = TOUR_MODES.GUIDED_TASK
+    if (taskIdOrRoute && taskIdOrRoute.startsWith('/')) {
+      const tasks = getGuidedTasks(taskIdOrRoute, this.currentRole)
+      if (tasks && tasks.length > 0) {
+        this.startDAP(tasks[0].id, 0)
+        return
+      }
+    } else if (taskIdOrRoute) {
+      this.startDAP(taskIdOrRoute, 0)
+      return
+    }
+    // Default to first scenario or task
+    const scenarios = getAllScenarios()
+    if (scenarios && scenarios.length > 0) {
+      this.startDAP(scenarios[0].id, 0)
+    }
+  },
+
+  /**
+   * Mode 5: What Does This Mean? (Context Help)
+   */
+  showContextHelp(topicOrTargetId) {
+    this.activeTourMode = TOUR_MODES.CONTEXT_HELP
+    const help = getContextHelp(topicOrTargetId)
+    this.activeContextHelpTopic = help
+    this.isActive = true
+    return help
+  },
+
+  closeContextHelp() {
+    this.activeContextHelpTopic = null
+    if (this.activeTourMode === TOUR_MODES.CONTEXT_HELP) {
+      this.isActive = false
+    }
+  },
+
+  // -------------------------------------------------------------
+  // PRIMARY TOUR CONTROL ACTIONS
+  // -------------------------------------------------------------
+
   startDAP(missionId = null, stepIdx = 0) {
     this.isActive = true
     this.isStepValidated = false
     this.stepValidationError = null
     
     if (missionId) {
-      const idx = branchManagerMissions.findIndex(m => m.id === missionId)
+      const idx = this.missions.findIndex(m => m.id === missionId || m.code === missionId)
       if (idx !== -1) {
         this.currentMissionIndex = idx
+      } else {
+        const legacyMatch = String(missionId).match(/^M(\d+)$/i)
+        if (legacyMatch) {
+          const legacyIdx = parseInt(legacyMatch[1], 10) - 1
+          if (legacyIdx >= 0 && legacyIdx < this.missions.length) {
+            this.currentMissionIndex = legacyIdx
+          } else {
+            this.currentMissionIndex = 0
+          }
+        } else {
+          this.currentMissionIndex = 0
+        }
       }
+    } else if (this.currentMissionIndex >= this.missions.length) {
+      this.currentMissionIndex = 0
     }
+
     this.currentStepIndex = stepIdx
     this.syncActiveCheckpoint()
     this.initStepValidation()
@@ -122,6 +257,9 @@ export const dapStore = reactive({
 
   resumeTraining() {
     this.isActive = true
+    if (this.currentMissionIndex >= this.missions.length) {
+      this.currentMissionIndex = 0
+    }
     this.syncActiveCheckpoint()
     this.initStepValidation()
     this.navigateToCurrentStepRoute()
@@ -146,8 +284,8 @@ export const dapStore = reactive({
   syncActiveCheckpoint() {
     const step = this.currentStep
     if (step) {
-      this.activeCheckpointId = step.checkpointId || `${this.currentMission.code}_step_${this.currentStepIndex}`
-      this.currentRoute = step.route || router.currentRoute.value.path
+      this.activeCheckpointId = step.id || `${this.currentMission?.code || 'TOUR'}_step_${this.currentStepIndex}`
+      this.currentRoute = step.route || router.currentRoute?.value?.path || '/dashboard'
     }
   },
 
@@ -160,7 +298,7 @@ export const dapStore = reactive({
       return
     }
 
-    const tType = step.trainingType || 'observe'
+    const tType = step.trainingType || (step.mode === 'PRACTICE' ? 'practice' : 'observe')
     if (tType === 'observe') {
       this.isStepValidated = true
       this.stepValidationError = null
@@ -170,7 +308,8 @@ export const dapStore = reactive({
     }
   },
 
-  handleRealFieldInput(val) {
+  handleRealFieldInput(arg1, arg2) {
+    const val = arg2 !== undefined ? arg2 : arg1
     this.currentRealFieldValue = val
     return this.validateCurrentStep(val)
   },
@@ -185,30 +324,11 @@ export const dapStore = reactive({
     const step = this.currentStep
     if (!step) return true
 
-    const tType = step.trainingType || 'observe'
-
-    if (tType === 'observe') {
+    const isPractice = (step.trainingType === 'practice' || step.trainingType === 'input-practice' || step.mode === 'PRACTICE')
+    if (!isPractice && (step.trainingType === 'observe' || step.mode === 'OBSERVE')) {
       this.isStepValidated = true
       this.stepValidationError = null
       return true
-    }
-
-    if (tType === 'execute' || tType === 'inspect') {
-      this.isStepValidated = true
-      this.stepValidationError = null
-      return true
-    }
-
-    if (tType === 'decision') {
-      if (inputVal && (inputVal.isCorrect === true || inputVal === true)) {
-        this.isStepValidated = true
-        this.stepValidationError = null
-        return true
-      } else {
-        this.isStepValidated = false
-        this.stepValidationError = inputVal?.feedback || 'Incorrect operational decision. Review branch policy.'
-        return false
-      }
     }
 
     // Practice / input validation
@@ -255,8 +375,8 @@ export const dapStore = reactive({
 
     this.isStepValidated = true
     this.stepValidationError = null
-    if (step.target) {
-      this.interactiveInputValues[step.target] = inputVal
+    if (step.targetId || step.target) {
+      this.interactiveInputValues[step.targetId || step.target] = inputVal
     }
     return true
   },
@@ -265,7 +385,7 @@ export const dapStore = reactive({
     if (!this.currentStep) return
 
     // Mark current step as completed
-    const stepKey = `${this.currentMission.id}_step_${this.currentStepIndex}`
+    const stepKey = `${this.currentMission?.id}_step_${this.currentStepIndex}`
     this.completedSteps[stepKey] = true
     this.completedCheckpoints[this.activeCheckpointId] = true
 
@@ -279,7 +399,7 @@ export const dapStore = reactive({
       this.navigateToCurrentStepRoute()
     } else {
       // Completed current mission
-      if (!this.completedMissions.includes(this.currentMission.id)) {
+      if (this.currentMission?.id && !this.completedMissions.includes(this.currentMission.id)) {
         this.completedMissions.push(this.currentMission.id)
       }
       
@@ -309,7 +429,8 @@ export const dapStore = reactive({
       this.navigateToCurrentStepRoute()
     } else if (this.currentMissionIndex > 0) {
       this.currentMissionIndex--
-      this.currentStepIndex = this.currentMission.steps.length - 1
+      const prevSteps = this.currentMission?.steps || this.currentMission?.segments || []
+      this.currentStepIndex = Math.max(0, prevSteps.length - 1)
       this.syncActiveCheckpoint()
       this.initStepValidation()
       this.navigateToCurrentStepRoute()
@@ -317,8 +438,8 @@ export const dapStore = reactive({
     this.saveState()
   },
 
-  jumpToMission(missionId) {
-    const idx = branchManagerMissions.findIndex(m => m.id === missionId)
+  jumpToMission(missionIdentifier) {
+    const idx = this.missions.findIndex(m => m.id === missionIdentifier || m.code === missionIdentifier)
     if (idx !== -1) {
       this.currentMissionIndex = idx
       this.currentStepIndex = 0
@@ -355,7 +476,7 @@ export const dapStore = reactive({
 
   navigateToCurrentStepRoute() {
     const step = this.currentStep
-    if (step && step.route && router && router.currentRoute && router.currentRoute.value.path !== step.route) {
+    if (step && step.route && router && router.currentRoute && router.currentRoute.value?.path !== step.route) {
       router.push(step.route).catch(() => {})
     }
   },
@@ -371,10 +492,11 @@ export const dapStore = reactive({
         completedSteps: this.completedSteps,
         completedCheckpoints: this.completedCheckpoints,
         autoStartOnLogin: this.autoStartOnLogin,
+        activeTourMode: this.activeTourMode,
         mode: this.mode
       }))
     } catch (e) {
-      console.warn('Failed to save DAP state', e)
+      console.warn('Failed to save tour state', e)
     }
   }
 })

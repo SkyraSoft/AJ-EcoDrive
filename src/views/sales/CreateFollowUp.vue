@@ -28,12 +28,12 @@ const form = ref({
   customer: '',
   linkedRecord: '',
   taskType: 'Payment Reminder',
-  priority: 'High',
+  priority: 'Medium',
   channel: 'Phone Call',
-  owner: 'Hamza',
-  branch: user.value?.branchName || 'Peshawar',
+  owner: user.value?.name || '',
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
   dueDate: 'Today',
-  dueTime: '11:30',
+  dueTime: '',
   notes: '',
   sendReminder: true
 })

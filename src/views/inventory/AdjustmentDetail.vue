@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { CheckCircle2, ArrowLeft, Check, X, AlertCircle } from 'lucide-vue-next'
 import { store } from '../../store.js'
 
+import NotFoundState from '@/components/common/NotFoundState.vue'
+
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
@@ -20,8 +22,8 @@ const triggerToast = (msg) => {
 }
 
 // Resolve Adjustment
-const adjustmentId = computed(() => route.params.id || route.query.id || 'ADJ-018')
-const adjustment = computed(() => store.getAdjustmentById(adjustmentId.value))
+const adjustmentId = computed(() => route.params.id || route.query.id || '')
+const adjustment = computed(() => adjustmentId.value ? store.getAdjustmentById(adjustmentId.value) : null)
 const currentStatus = computed(() => adjustment.value?.status || 'Pending')
 
 const branchCurrentTab = ref('Request')
@@ -219,16 +221,13 @@ const adminTabData = computed(() => {
   </div>
 
   <!-- NOT FOUND STATE -->
-  <div v-if="!adjustment" class="max-w-[800px] mx-auto py-16 text-center space-y-4">
-    <div class="inline-flex p-3 rounded-full bg-red-50 text-red-600 mb-2">
-      <AlertCircle class="w-8 h-8" />
-    </div>
-    <h2 class="text-xl font-bold text-gray-900">Stock Adjustment Not Found</h2>
-    <p class="text-xs text-gray-500">Adjustment reference "{{ adjustmentId }}" was not found in inventory records.</p>
-    <button @click="router.push('/inventory/stock-adjustments')" class="px-4 py-2 bg-[#165A31] text-white rounded-lg text-xs font-bold hover:bg-[#124a28] cursor-pointer">
-      &larr; Back to Stock Adjustments
-    </button>
-  </div>
+  <NotFoundState
+    v-if="!adjustment"
+    title="Stock Adjustment Not Found"
+    message="The requested stock adjustment could not be found or is not accessible from your current branch context."
+    back-link="/inventory/stock-adjustments"
+    back-text="Back to Stock Adjustments"
+  />
 
   <!-- BRANCH MANAGER VIEW -->
   <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">

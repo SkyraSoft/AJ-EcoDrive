@@ -121,7 +121,8 @@ const confirmArrival = () => {
         damagedQty: parseInt(l.damagedQty || 0)
       })),
       receiverNotes: receiverNotes.value,
-      receiverName: receiverName.value
+      receiverName: receiverName.value,
+      receiverLocation: receiverLocation.value
     })
 
     toastMessage.value = isPartialReceipt.value

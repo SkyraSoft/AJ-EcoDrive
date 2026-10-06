@@ -1,11 +1,9 @@
 # AJ ECODRIVE — MASTER FRONTEND TRUTH, BASELINE EVIDENCE, BUSINESS STORY & ARCHITECTURE REGISTRY
 
-> **Authoritative All-In-One Master Deliverable**  
-> **Dealership Operating System:** AJ EcoDrive Enterprise Dealership Operating System  
-> **Platform Policy:** Exactly TWO (2) Platforms — Web Application & Desktop Application (Zero Native Mobile Apps)  
-> **Methodology:** 3-Layer Forensic Architecture (Layer 1: Observed Current Truth $\to$ Layer 2: Expected Business Story $\to$ Layer 3: Gap & Remediation)  
-> **Baseline Git Commit:** `46ebf598d539fe4b3a302ed17d1109237ea6c7d9`  
-> **Verification Status:** Forensic Source Audit & Regression Protection  
+> ⚠️ **STATUS: STALE — SUPERSEDED BY ADVERSARIAL FORENSIC BASELINE**  
+> ⚠️ **NOT AUTHORITATIVE — DO NOT USE FOR IMPLEMENTATION**  
+> *Notice: This document contains refuted claims (e.g. 18-point PDI in current code, cryptographic audit in current code, fully connected Action Centre flows, and premature 100% frontend readiness claims). It is quarantined pending completion of Phase 2 Baseline Closure and subsequent verified remediation.*  
+> **Forensic Baseline Reference Commit:** `480b57f`  
 
 ---
 

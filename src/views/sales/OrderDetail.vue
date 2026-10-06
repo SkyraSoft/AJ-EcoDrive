@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import { ChevronDown } from 'lucide-vue-next'
 import CreateSaleModal from './CreateSale.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,7 +12,7 @@ const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
 // Branch Manager Data & Logic
-const orderId = computed(() => route.params.id || route.query.id || 'ORD-2241')
+const orderId = computed(() => route.params.id || route.query.id || '')
 const is2238 = computed(() => orderId.value === 'ORD-2238')
 const orderRecord = computed(() => store.getOrderById(orderId.value))
 const customerRecord = computed(() => store.getCustomerById(orderRecord.value?.customer_id || orderRecord.value?.customer))
@@ -26,10 +27,10 @@ const branchTabData = computed(() => {
   const u = unitRecord.value
   const branchName = user.value?.branchName || o?.branch || 'Peshawar'
 
-  const customerName = o?.customer || c?.name || 'Ahsan Khan'
-  const productName = o?.product || u?.product || 'BRG E-125'
-  const chassisNo = u?.chassisNumber || u?.chassis || o?.unit || 'CH8-BRG-26-01882'
-  const orderTotal = o?.total || 'PKR 280,000'
+  const customerName = o?.customer || c?.name || ''
+  const productName = o?.product || u?.product || ''
+  const chassisNo = u?.chassisNumber || u?.chassis || o?.unit || ''
+  const orderTotal = o?.total || 'PKR 0'
   const paidAmount = o?.paid || (is2238.value ? 'PKR 125,000' : (o?.total || 'PKR 280,000'))
   const orderStatus = o?.status || 'Ready'
   const outstandingBal = o?.balance || (is2238.value ? 'PKR 215,000' : 'PKR 0')
@@ -404,8 +405,15 @@ const cancelOrder = () => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!orderRecord"
+    title="Order Not Found"
+    :message="`Order '${orderId}' was not found or is not accessible for your branch.`"
+    back-path="/sales/orders"
+    back-label="Back to Orders"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

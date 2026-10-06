@@ -51,11 +51,7 @@ const initFromPo = () => {
   receivingForm.value.deliveryNote = po.value.tracking || `DN-${po.value.po}-01`
   receivingForm.value.receiver = store.currentUser?.name || 'Store Officer'
 
-  const items = po.value.items && po.value.items.length > 0 ? po.value.items : [
-    { product_id: 'PROD-003', product: 'BRG DS11', sku: 'SKU-DS11-BLU', ordered: 8, previouslyReceived: 0, cost: 'PKR 146K', isSerialized: true },
-    { product_id: 'PROD-004', product: 'BRG EV-5', sku: 'SKU-EV5-01', ordered: 5, previouslyReceived: 0, cost: 'PKR 168K', isSerialized: true },
-    { product_id: 'PROD-006', product: 'Cargo Pro', sku: 'SKU-CPRO-YEL', ordered: 3, previouslyReceived: 0, cost: 'PKR 214K', isSerialized: true }
-  ]
+  const items = po.value.items && po.value.items.length > 0 ? po.value.items : []
 
   lineItems.value = items.map(item => {
     const ordered = parseInt(item.ordered || item.qty || 0)
@@ -580,7 +576,7 @@ const regenerateSerials = () => {
           </div>
 
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table data-tour-id="sa.procurement.receipts.table" class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   <th class="px-5 py-3">Product / SKU</th>

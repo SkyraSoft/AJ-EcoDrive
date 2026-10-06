@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { CheckCircle2, ArrowLeft } from 'lucide-vue-next'
 import CreateQuotationModal from './CreateQuotation.vue'
 
@@ -14,7 +15,7 @@ const showToast = ref(false)
 const toastMessage = ref('')
 
 const quoteId = computed(() => route.params.id || route.query.id || 'QT-1882')
-const quoteRecord = computed(() => store.getQuotationById(quoteId.value) || (route.query.id ? null : store.quotations[0]))
+const quoteRecord = computed(() => quoteId.value ? store.getQuotationById(quoteId.value) : null)
 
 const branchCurrentTab = ref('Summary')
 const branchTabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Documents', 'Activity']
@@ -151,13 +152,13 @@ const tabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Docum
 </script>
 
 <template>
-  <div v-if="!quoteRecord" class="max-w-[1400px] mx-auto py-16 text-center space-y-4">
-    <h2 class="text-2xl font-bold text-gray-900">Quotation Not Found</h2>
-    <p class="text-sm text-gray-500">No quotation found with reference "{{ quoteId }}".</p>
-    <button @click="router.push('/sales/quotations')" class="inline-flex items-center gap-2 px-4 py-2 bg-[#165A31] text-white text-xs font-bold rounded-lg hover:bg-[#124a28]">
-      <ArrowLeft class="w-4 h-4" /> Back to Quotations
-    </button>
-  </div>
+  <NotFoundState
+    v-if="!quoteRecord"
+    title="Quotation Not Found"
+    :message="`Quotation '${quoteId}' was not found or is not accessible for your branch.`"
+    back-path="/sales/quotations"
+    back-label="Back to Quotations"
+  />
 
   <!-- BRANCH MANAGER & MAIN VIEW -->
   <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">

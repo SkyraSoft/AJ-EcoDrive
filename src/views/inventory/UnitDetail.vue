@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, AlertCircle, CheckCircle2, ShieldCheck, Wrench, RefreshCw, X } from 'lucide-vue-next'
 import { store } from '@/store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -158,16 +159,13 @@ const costs = computed(() => {
   </div>
 
   <!-- NOT FOUND STATE -->
-  <div v-if="!currentUnit" class="max-w-[800px] mx-auto py-16 text-center space-y-4">
-    <div class="inline-flex p-3 rounded-full bg-red-50 text-red-600 mb-2">
-      <AlertCircle class="w-8 h-8" />
-    </div>
-    <h2 class="text-xl font-bold text-gray-900">Serialized Unit Not Found</h2>
-    <p class="text-xs text-gray-500">Unit ID or Serial "{{ unitId }}" does not exist in inventory records.</p>
-    <button @click="router.push('/inventory/serialized-units')" class="px-4 py-2 bg-[#165A31] text-white rounded-lg text-xs font-bold hover:bg-[#124a28] cursor-pointer">
-      &larr; Back to Serialized Units
-    </button>
-  </div>
+  <NotFoundState
+    v-if="!currentUnit"
+    title="Serialized Unit Not Found"
+    message="The requested serialized unit could not be found or is not accessible from your current branch context."
+    back-link="/inventory/serialized-units"
+    back-text="Back to Serialized Units"
+  />
 
   <!-- BRANCH MANAGER VIEW -->
   <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">

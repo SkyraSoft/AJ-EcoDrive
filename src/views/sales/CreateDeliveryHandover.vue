@@ -35,17 +35,17 @@ const form = ref({
   customer_id: '',
   unit: '',
   unit_id: '',
-  scheduled: 'Today 16:00',
-  officer: 'Hamza',
-  status: 'Ready',
-  branch: user.value?.branchName || 'Peshawar',
-  branch_id: 'BR-01',
-  identityVerified: true,
-  paymentComplete: true,
-  chassisVerified: true,
-  accessoriesIncluded: true,
-  warrantyBriefed: true,
-  notes: 'Vehicle cleaned, charged and prepared for customer handover.'
+  scheduled: '',
+  officer: user.value?.name || '',
+  status: 'Scheduled',
+  branch: user.value?.branchName || store.getActiveBranch() || 'Peshawar',
+  branch_id: user.value?.branchId || 'BR-01',
+  identityVerified: false,
+  paymentComplete: false,
+  chassisVerified: false,
+  accessoriesIncluded: false,
+  warrantyBriefed: false,
+  notes: ''
 })
 
 const onOrderSelect = (orderId) => {

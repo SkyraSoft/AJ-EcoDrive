@@ -13,7 +13,7 @@ const branchTopKpis = computed(() => [
   { label: 'Available', value: String(branchStats.value.available) },
   { label: 'Reserved', value: String(branchStats.value.reserved) },
   { label: 'Transfer In Transit', value: String(branchStats.value.inTransit) },
-  { label: 'Supplier In Transit', value: '2' }
+  { label: 'Supplier In Transit', value: String(branchStats.value.supplierInTransit) }
 ])
 
 const branchStatusItems = computed(() => {
@@ -25,7 +25,7 @@ const branchStatusItems = computed(() => {
 
   return [
     { label: 'QC Hold', value: String(branchStats.value.qcHold) },
-    { label: 'Returned', value: '1' },
+    { label: 'Returned', value: String(branchStats.value.returned) },
     { label: 'Service / Maint.', value: String(branchStats.value.maintenance) },
     { label: 'Serialized Units', value: String(branchStats.value.serialized) },
     { label: 'Low Stock Alert', value: `${lowStockCount} products` },
@@ -35,11 +35,22 @@ const branchStatusItems = computed(() => {
 
 // Super Admin Data
 const globalStats = computed(() => store.getInventoryStats('All Branches'))
+const globalValuation = computed(() => store.getInventoryValuation({ branch_id: 'ALL' }))
 
-const agedLowStock = computed(() => [
-  { product: 'BRG EV-5', branch: 'Peshawar', available: 8, reorder: 10, age: '18d', alertType: 'Low', alertClass: 'bg-amber-50 text-amber-600' },
-  { product: 'BRG City Mini', branch: 'Islamabad', available: 2, reorder: 6, age: '42d', alertType: 'Critical', alertClass: 'bg-red-50 text-red-600' }
-])
+const agedLowStock = computed(() => {
+  return store.products
+    .filter(p => (p.available || 0) < (p.reorder || p.reorderLevel || 8))
+    .slice(0, 4)
+    .map(p => ({
+      product: p.name,
+      branch: 'All Branches',
+      available: p.available || 0,
+      reorder: p.reorder || p.reorderLevel || 8,
+      age: '14d',
+      alertType: (p.available || 0) <= 2 ? 'Critical' : 'Low',
+      alertClass: (p.available || 0) <= 2 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+    }))
+})
 
 const branchStock = computed(() => {
   const pesh = store.getInventoryStats('Peshawar').total
@@ -150,7 +161,7 @@ const stockHealth = computed(() => {
       </div>
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <div class="text-[11px] font-semibold text-gray-400 mb-2">Supplier In Transit</div>
-        <div class="text-[28px] font-bold text-gray-900 leading-none">26</div>
+        <div class="text-[28px] font-bold text-gray-900 leading-none">{{ globalStats.supplierInTransit }}</div>
       </div>
     </div>
 
@@ -170,7 +181,7 @@ const stockHealth = computed(() => {
       </div>
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <div class="text-[11px] font-semibold text-gray-400 mb-2">Inventory Value</div>
-        <div class="text-[28px] font-bold text-gray-900 leading-none">PKR 41.8M</div>
+        <div class="text-[28px] font-bold text-gray-900 leading-none">{{ store.formatCurrency(globalValuation.onHandValue) }}</div>
       </div>
     </div>
 

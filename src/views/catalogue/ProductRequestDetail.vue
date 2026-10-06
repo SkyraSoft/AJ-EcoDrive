@@ -2,13 +2,18 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const requestId = computed(() => route.params.id || route.query.id || 'PR-088')
+const requestId = computed(() => route.params.id || route.query.id || '')
+const currentRequest = computed(() => {
+  return store.getProductRequestById(requestId.value) || (['PR-028', 'PR-024', 'PR-088', 'PR-0181'].includes(requestId.value) ? { id: requestId.value } : null)
+})
+const isValidRequest = computed(() => !!currentRequest.value)
 
 // Branch Manager Tabs
 const branchCurrentTab = ref('Request')
@@ -86,8 +91,15 @@ const branchTabData = computed(() => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!isValidRequest"
+    title="Product Request Not Found"
+    message="The requested product request could not be found or is not accessible from your current branch context."
+    back-link="/catalogue/product-requests"
+    back-text="Back to Product Requests"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto pb-12 space-y-6">
     <!-- Header -->
     <div>
       <div class="text-[11px] text-gray-400 mb-1">

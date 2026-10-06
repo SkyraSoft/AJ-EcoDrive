@@ -3,20 +3,22 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '@/store'
 import CreateReturnModal from './CreateReturn.vue'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-const returnId = computed(() => route.params.id || route.query.id || 'RET-104')
-const returnRecord = computed(() => store.getSalesReturnById(returnId.value) || store.salesReturns[0] || {})
+const returnId = computed(() => route.params.id || route.query.id || '')
+const returnRecord = computed(() => returnId.value ? store.getSalesReturnById(returnId.value) : null)
 
 const branchCurrentTab = ref('Request')
 const branchTabs = ['Request', 'Original Sale', 'Inspection', 'Approval', 'Refund or Exchange', 'Unit Disposition', 'Documents', 'Activity']
 
 const branchTabData = computed(() => {
-  const branchName = returnRecord.value.branch || user.value?.branchName || 'Peshawar'
+  if (!returnRecord.value) return { title: '', items: [] }
+  const branchName = returnRecord.value.branch || user.value?.branchName || ''
   const item = returnRecord.value
 
   switch (branchCurrentTab.value) {
@@ -130,7 +132,8 @@ const activeTab = ref('Request')
 const tabs = ['Request', 'Original Sale', 'Unit', 'Inspection', 'Decision', 'Refund or Exchange', 'Stock Disposition', 'Documents', 'Activity']
 
 const adminTabData = computed(() => {
-  const r = returnRecord.value || {}
+  if (!returnRecord.value) return { title: '', items: [] }
+  const r = returnRecord.value
   const branchName = r.branch || 'Peshawar'
   const customerName = r.customer || 'Ahsan Khan'
   const unitRef = r.unit || 'CH8-BRG-26-01882'
@@ -267,8 +270,15 @@ const handleReturnUpdated = (updatedRecord) => {
 </script>
 
 <template>
+  <NotFoundState
+    v-if="!returnRecord"
+    title="Return Record Not Found"
+    message="The requested return record could not be found or is not accessible from your current branch context."
+    back-link="/sales/returns"
+    back-text="Back to Returns"
+  />
   <!-- BRANCH MANAGER VIEW -->
-  <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <div v-else-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>

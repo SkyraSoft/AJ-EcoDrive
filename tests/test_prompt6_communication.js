@@ -54,9 +54,10 @@ assert(newNotif.status === 'Unread' && newNotif.read === 'No' && newNotif.isRead
 
 // 3. Branch & Role Scoping
 console.log('\n--- 3. BRANCH & ROLE SCOPING ---')
-const peshawarUser = { id: 'USR-03', role: 'Branch Manager', branchName: 'Peshawar', branch_id: 'BR-01', isSuperAdmin: false }
-const islamabadUser = { id: 'USR-04', role: 'Branch Manager', branchName: 'Islamabad', branch_id: 'BR-02', isSuperAdmin: false }
-const superAdminUser = { id: 'USR-01', role: 'Super Admin', branchName: 'All Branches', isSuperAdmin: true }
+const peshawarUser = { id: 'USR-03', role: 'Branch Manager', branchName: 'Peshawar', branch_id: 'BR-01', isSuperAdmin: false, isAuthenticated: true }
+const islamabadUser = { id: 'USR-04', role: 'Branch Manager', branchName: 'Islamabad', branch_id: 'BR-02', isSuperAdmin: false, isAuthenticated: true }
+const superAdminUser = { id: 'USR-01', role: 'Super Admin', branchName: 'All Branches', isSuperAdmin: true, isAuthenticated: true }
+store.setSession(superAdminUser)
 
 // Create an Islamabad-specific notification
 const isbNotif = store.addNotification({

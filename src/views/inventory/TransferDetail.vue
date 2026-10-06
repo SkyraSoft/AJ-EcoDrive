@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import NotFoundState from '@/components/common/NotFoundState.vue'
 import { ArrowLeft, Plus, CheckCircle2, AlertTriangle, Truck, PackageCheck, Send } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -12,15 +13,21 @@ const user = computed(() => store.currentUser)
 const showToast = ref(false)
 const toastMessage = ref('')
 
-const branchTransferId = computed(() => route.params.id || route.query.id || 'TR-221')
-const currentTransfer = computed(() => store.getTransferById(branchTransferId.value))
+const branchTransferId = computed(() => route.params.id || route.query.id || '')
+const currentTransfer = computed(() => branchTransferId.value ? store.getTransferById(branchTransferId.value) : null)
 
 const branchCurrentTab = ref('Summary')
 const branchTabs = ['Summary', 'Items & Units', 'Dispatch & Logistics', 'Receiving & Discrepancies', 'Timeline']
 
+const canApprove = computed(() => {
+  if (!currentTransfer.value) return false
+  if (currentTransfer.value.status !== 'Requested' && currentTransfer.value.status !== 'Draft' && currentTransfer.value.status !== 'Pending Approval') return false
+  return !isBranchUser.value || user.value?.isSuperAdmin
+})
+
 const canDispatch = computed(() => {
   if (!currentTransfer.value) return false
-  if (currentTransfer.value.status === 'In Transit' || currentTransfer.value.status === 'Received') return false
+  if (currentTransfer.value.status !== 'Approved' && currentTransfer.value.status !== 'Picking') return false
   if (isBranchUser.value) {
     return currentTransfer.value.from.toLowerCase() === (user.value?.branchName || '').toLowerCase()
   }
@@ -36,6 +43,20 @@ const canReceive = computed(() => {
   }
   return true
 })
+
+const handleApprove = () => {
+  try {
+    store.approveTransfer(currentTransfer.value.id, {
+      approvedBy: user.value?.name || 'Super Admin',
+      notes: 'Transfer authorized for picking and dispatch.'
+    })
+    toastMessage.value = `Transfer ${currentTransfer.value.id} approved! Consignment authorized for dispatch.`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  } catch (err) {
+    alert(err.message)
+  }
+}
 
 const handleDispatch = () => {
   try {
@@ -129,7 +150,13 @@ const branchTabData = computed(() => {
     <span class="text-xs font-bold">{{ toastMessage }}</span>
   </div>
 
-  <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
+  <NotFoundState
+    v-if="!currentTransfer"
+    title="Transfer Not Found"
+    message="The requested stock transfer record does not exist or you do not have permission to view it in your current branch context."
+    backRoute="/inventory/transfers"
+  />
+  <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
@@ -146,6 +173,14 @@ const branchTabData = computed(() => {
           class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
         >
           <ArrowLeft class="w-3.5 h-3.5" /> Back
+        </button>
+
+        <button 
+          v-if="canApprove"
+          @click="handleApprove" 
+          class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+        >
+          <CheckCircle2 class="w-3.5 h-3.5" /> <span>Approve Transfer</span>
         </button>
 
         <button 
