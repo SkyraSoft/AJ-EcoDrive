@@ -99,7 +99,7 @@ const submitForm = () => {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- 1. Branch Identity -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+        <div data-tour-id="sa.organisation.createbranch.identity-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
           <h3 class="text-[14px] font-bold text-gray-900 mb-2">1. Branch Identity</h3>
           
           <div>
@@ -140,7 +140,7 @@ const submitForm = () => {
         </div>
 
         <!-- 2. Location & Contact -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+        <div data-tour-id="sa.organisation.createbranch.location-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
           <h3 class="text-[14px] font-bold text-gray-900 mb-2">2. Location & Contact</h3>
           
           <div>
@@ -199,7 +199,7 @@ const submitForm = () => {
         </div>
 
         <!-- 3. Management & Operations -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+        <div data-tour-id="sa.organisation.createbranch.operations-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
           <h3 class="text-[14px] font-bold text-gray-900 mb-2">3. Management & Operations</h3>
           
           <div>
@@ -224,7 +224,7 @@ const submitForm = () => {
         </div>
 
         <!-- 4. Controls & Policies -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+        <div data-tour-id="sa.organisation.createbranch.controls-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
           <h3 class="text-[14px] font-bold text-gray-900 mb-2">4. Controls & Policies</h3>
           
           <div class="grid grid-cols-2 gap-4">

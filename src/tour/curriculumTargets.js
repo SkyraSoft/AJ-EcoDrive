@@ -95,6 +95,42 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "description": "Create Dealership Branch"
   },
   {
+    "targetId": "sa.organisation.createbranch.identity-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches/create",
+    "surface": "Create Dealership Branch",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Branch Identity Configuration Card"
+  },
+  {
+    "targetId": "sa.organisation.createbranch.location-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches/create",
+    "surface": "Create Dealership Branch",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Location & Contact Details Card"
+  },
+  {
+    "targetId": "sa.organisation.createbranch.operations-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches/create",
+    "surface": "Create Dealership Branch",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Management & Operations Card"
+  },
+  {
+    "targetId": "sa.organisation.createbranch.controls-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches/create",
+    "surface": "Create Dealership Branch",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Controls & Policies Card"
+  },
+  {
     "targetId": "sa.organisation.users.table",
     "workspace": "Super Admin",
     "route": "/organisation/users",
@@ -113,6 +149,15 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "description": "Master EV Catalogue Roster"
   },
   {
+    "targetId": "sa.catalogue.products.avg-landed-cost",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Master Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Average Landed Cost Column"
+  },
+  {
     "targetId": "sa.catalogue.products.create-btn",
     "workspace": "Super Admin",
     "route": "/catalogue/products",
@@ -120,6 +165,42 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
     "description": "Add New EV Model Definition"
+  },
+  {
+    "targetId": "sa.catalogue.createproduct.identity-card",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Create Product Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "1. Identity & Classification Card"
+  },
+  {
+    "targetId": "sa.catalogue.createproduct.tracking-card",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Create Product Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "2. Tracking & Variants Card"
+  },
+  {
+    "targetId": "sa.catalogue.createproduct.specs-card",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Create Product Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "3. Specifications & Media Card"
+  },
+  {
+    "targetId": "sa.catalogue.createproduct.commercial-card",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Create Product Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "4. Commercial Rules Card"
   },
   {
     "targetId": "sa.catalogue.requests.queue",
@@ -786,5 +867,14 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "readinessClass": "STATIC_PAGE_TARGET",
     "preferredPlacement": "bottom",
     "description": "Central Action Centre"
+  },
+  {
+    "targetId": "shared.layout.header.settings-search",
+    "workspace": "Shared",
+    "route": "*",
+    "surface": "MainLayout Header & Navigation",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Global Settings Search Control"
   }
 ];

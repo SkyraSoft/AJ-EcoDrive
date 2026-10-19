@@ -461,6 +461,27 @@ export const dapStore = reactive({
     }
   },
 
+  prevStep() {
+    if (this.currentStepIndex > 0) {
+      this.jumpToStep(this.currentStepIndex - 1)
+    }
+  },
+
+  restartCurrentMission() {
+    this.currentStepIndex = 0
+    this.isStepValidated = false
+    this.stepValidationError = null
+    this.syncActiveCheckpoint()
+    this.initStepValidation()
+    this.navigateToCurrentStepRoute()
+    this.saveState()
+  },
+
+  restartTour() {
+    this.resetAllProgress()
+    this.startDAP(null, 0)
+  },
+
   resetAllProgress() {
     this.completedMissions = []
     this.completedSteps = {}

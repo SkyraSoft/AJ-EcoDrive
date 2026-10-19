@@ -363,7 +363,7 @@ export function seedRepresentativeTargets() {
     // Offscreen / Dynamic Target (Footer or Table Bottom)
     {
       targetId: 'shared.layout.footer.version-tag',
-      workspace: 'Shared',
+      workspace: 'shared',
       route: '*',
       surface: 'Application Footer',
       readinessClass: TARGET_READINESS_CLASSES.STATIC_PAGE_TARGET,

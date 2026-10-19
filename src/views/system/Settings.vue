@@ -1,7 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-vue-next'
 import { store } from '@/store.js'
+
+const route = useRoute()
+const router = useRouter()
 
 const activeTab = ref('Business Profile')
 
@@ -212,8 +216,55 @@ const populateFromStore = () => {
   }
 }
 
+const normalizeTabName = (name) => {
+  if (!name) return ''
+  return String(name).toLowerCase().replace(/[-_&]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+const getValidTab = (tabName) => {
+  if (!tabName) return null
+  const norm = normalizeTabName(tabName)
+  return tabs.find(t => normalizeTabName(t) === norm) || null
+}
+
+const syncFromRoute = () => {
+  if (route.query.tab) {
+    const matched = getValidTab(route.query.tab)
+    if (matched && activeTab.value !== matched) {
+      activeTab.value = matched
+    }
+  }
+
+  if (route.query.section) {
+    nextTick(() => {
+      setTimeout(() => {
+        const el = document.getElementById(route.query.section)
+        if (el) {
+          if (typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+          el.classList.add('ring-2', 'ring-[#165A31]', 'ring-offset-2', 'transition-all')
+          setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-[#165A31]', 'ring-offset-2')
+          }, 3000)
+        }
+      }, 120)
+    })
+  }
+}
+
+const selectTab = (tab) => {
+  activeTab.value = tab
+  router.replace({ query: { ...route.query, tab } }).catch(() => {})
+}
+
 onMounted(() => {
   populateFromStore()
+  syncFromRoute()
+})
+
+watch(() => [route.query.tab, route.query.section], () => {
+  syncFromRoute()
 })
 
 const saveSettings = () => {
@@ -338,7 +389,7 @@ const restoreDefaults = () => {
         <button 
           v-for="tab in tabs" 
           :key="tab"
-          @click="activeTab = tab"
+          @click="selectTab(tab)"
           class="text-xs pb-3 font-semibold transition-all relative whitespace-nowrap cursor-pointer"
           :class="activeTab === tab ? 'text-[#165A31] font-bold' : 'text-gray-500 hover:text-gray-900'"
         >
@@ -354,7 +405,7 @@ const restoreDefaults = () => {
     <!-- Tab Content Panels -->
 
     <!-- 1. Business Profile Tab -->
-    <div v-if="activeTab === 'Business Profile'" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Business Profile'" id="section-business-profile" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Business Profile</h3>
       
       <div class="space-y-4 max-w-4xl">
@@ -457,7 +508,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 2. Branch Defaults Tab -->
-    <div v-if="activeTab === 'Branch Defaults'" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Branch Defaults'" id="section-branch-defaults" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Branch Defaults</h3>
       
       <div class="space-y-4 max-w-4xl">
@@ -494,7 +545,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 3. Product Master Data Tab -->
-    <div v-if="activeTab === 'Product Master Data'" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Product Master Data'" id="section-product-master-data" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Product Master Data</h3>
       
       <div class="space-y-4 max-w-4xl">
@@ -535,7 +586,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 4. Statuses Tab -->
-    <div v-if="activeTab === 'Statuses'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Statuses'" id="section-statuses" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Canonical Statuses</h3>
       </div>
@@ -563,7 +614,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 5. Pricing Rules Tab -->
-    <div v-if="activeTab === 'Pricing Rules'" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Pricing Rules'" id="section-pricing-rules" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Pricing Rules</h3>
       
       <div class="space-y-4 max-w-4xl">
@@ -600,7 +651,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 6. Payment Methods Tab -->
-    <div v-if="activeTab === 'Payment Methods'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Payment Methods'" id="section-payment-methods" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Payment Methods</h3>
       </div>
@@ -626,7 +677,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 7. Expense Categories Tab -->
-    <div v-if="activeTab === 'Expense Categories'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Expense Categories'" id="section-expense-categories" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Expense Categories</h3>
       </div>
@@ -652,7 +703,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 8. Approval Rules Tab -->
-    <div v-if="activeTab === 'Approval Rules'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Approval Rules'" id="section-approval-rules" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Approval Rules</h3>
       </div>
@@ -680,7 +731,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 9. Numbering Tab -->
-    <div v-if="activeTab === 'Numbering'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Numbering'" id="section-numbering" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
           <h3 class="text-[13px] font-bold text-gray-900">Document Numbering & Prefixes</h3>
@@ -722,7 +773,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 10. Notifications Tab -->
-    <div v-if="activeTab === 'Notifications'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Notifications'" id="section-notifications" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Notification Rules</h3>
       </div>
@@ -750,7 +801,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 11. Data Import & Export Tab -->
-    <div v-if="activeTab === 'Data Import & Export'" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Data Import & Export'" id="section-data-import-export" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Data Import & Export</h3>
       
       <div class="space-y-4 max-w-4xl">
@@ -766,7 +817,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 12. Integrations Tab -->
-    <div v-if="activeTab === 'Integrations'" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Integrations'" id="section-integrations" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden animate-in fade-in duration-150">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Integrations</h3>
       </div>
@@ -792,7 +843,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- 13. Security Tab -->
-    <div v-if="activeTab === 'Security'" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Security'" id="section-security" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Security Settings</h3>
       
       <div class="space-y-4 max-w-4xl">

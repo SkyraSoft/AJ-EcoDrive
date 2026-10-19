@@ -91,6 +91,7 @@ const openHistory = (productName) => {
       <div class="flex flex-wrap items-center gap-4">
         <div class="relative w-full sm:w-64 shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
           <input 
+            data-tour-id="sa.form.pricing.searchquery"
             v-model="searchQuery"
             type="text" 
             placeholder="Search product..." 

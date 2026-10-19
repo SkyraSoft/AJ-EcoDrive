@@ -7,7 +7,7 @@ import { resolveTarget } from '../src/tour/targetResolver.js';
 
 describe('Super Admin Presentation-Readiness: Tour Target Availability Gate', () => {
   // 1. Mission Roster & Step Integrity
-  it('contains all 20 Super Admin missions (SA-01 to SA-20) with 29 total steps', () => {
+  it('contains all 20 Super Admin missions (SA-01 to SA-20) with 37 total steps', () => {
     expect(superAdminMissions).toBeDefined();
     expect(superAdminMissions.length).toBe(20);
 
@@ -16,7 +16,7 @@ describe('Super Admin Presentation-Readiness: Tour Target Availability Gate', ()
     expect(actualCodes).toEqual(expectedCodes);
 
     const allSteps = superAdminMissions.flatMap(m => m.steps);
-    expect(allSteps.length).toBe(29);
+    expect(allSteps.length).toBe(37);
   });
 
   // 2. Semantic Target Registry Verification
@@ -52,7 +52,7 @@ describe('Super Admin Presentation-Readiness: Tour Target Availability Gate', ()
   });
 
   // 4. Physical DOM Template Presence Verification
-  it('verifies all 29 Super Admin step targets are present in Vue component templates', () => {
+  it('verifies all 33 Super Admin step targets are present in Vue component templates', () => {
     function getAllVueFiles(dir, fileList = []) {
       const files = fs.readdirSync(dir);
       for (const f of files) {

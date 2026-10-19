@@ -11,6 +11,7 @@ import {
 import { store } from '@/store.js'
 import { dapStore } from '@/stores/dapStore.js'
 import GuidedDAPEngine from '@/components/dap/GuidedDAPEngine.vue'
+import SettingsSearch from '@/components/common/SettingsSearch.vue'
 
 // Quick Action In-Context Modals
 import CreateSaleModal from '@/views/sales/CreateSale.vue'
@@ -539,15 +540,8 @@ const handleQuickActionCreated = (type, payload) => {
               </div>
             </div>
 
-            <!-- Search -->
-            <div class="relative max-w-md w-full ml-2 hidden md:block">
-              <Search class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input data-tour="isbranchuser-search-within-user-branchname-branch" 
-                type="text" 
-                :placeholder="isBranchUser ? `Search within ${user.branchName} Branch...` : 'Search products...'" 
-                class="w-full pl-9 pr-4 py-1.5 bg-gray-50/50 border border-gray-200 rounded-lg text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] focus:ring-1 focus:ring-[#165A31] transition-colors"
-              />
-            </div>
+            <!-- Global Settings Search -->
+            <SettingsSearch class="ml-2 hidden md:block" />
           </div>
         </div>
 

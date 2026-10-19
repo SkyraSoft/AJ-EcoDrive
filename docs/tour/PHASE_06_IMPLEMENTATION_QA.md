@@ -551,7 +551,7 @@ Executable test scripts for business users and human quality assurance:
 #### Script 2: Branch Manager Learn This Page
 - **Precondition**: Logged in as Branch Manager (`branch_manager`). Navigate to `/sales/pos`.
 - **Action**: Launch tour -> Select "Learn This Page".
-- **Expected**: Tour guides through customer selection, bike selector, payment entry, and invoice generation. Bottom-dock mode activates if screen width < 640px.
+- **Expected**: Tour guides through customer selection, bike selector, payment entry, and invoice generation. Bottom-dock mode activates if screen width <= 640px.
 - **Result**: `[ ] PASS   [ ] FAIL` | Notes: _____________________
 
 #### Script 3: Full Field Guide Inspection

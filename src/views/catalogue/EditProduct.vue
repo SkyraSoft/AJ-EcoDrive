@@ -1,19 +1,85 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
 
 const router = useRouter()
 
+// Canonical Category & Subcategory Master Map
+const CATEGORY_SUBCATEGORY_MAP = {
+  'Electric Scooters': ['Commuter', 'High Speed', 'Urban Mini'],
+  'Electric Bikes': ['Commuter', 'Mountain / Off-Road', 'Standard'],
+  'Commercial & Cargo': ['Cargo Loader', 'Heavy Duty'],
+  'Batteries & Chargers': ['Lithium Packs', 'Fast Chargers'],
+  'Spare Parts & Accessories': ['Body Panels', 'Motors & Controllers', 'Accessories']
+}
+
+const canonicalCategories = computed(() => {
+  if (store.categories && store.categories.length > 0) {
+    return store.categories.map(c => c.name)
+  }
+  return Object.keys(CATEGORY_SUBCATEGORY_MAP)
+})
+
+const computedSubcategories = computed(() => {
+  const selected = productData.value.category
+  if (CATEGORY_SUBCATEGORY_MAP[selected]) {
+    return CATEGORY_SUBCATEGORY_MAP[selected]
+  }
+  return ['Standard', 'General']
+})
+
+const trackingOptions = [
+  'Serialized - Serial + Chassis',
+  'Non-Serialized - Batch/Lot'
+]
+
+const variantOptions = [
+  'Standard',
+  'Red / Black',
+  'Blue / White',
+  'Grey / Silver',
+  'Custom Spec / Color'
+]
+
+const warrantyOptions = [
+  '2 Years / 20,000 km',
+  '3-Year Battery & Controller',
+  '1 Year Standard',
+  'No Warranty'
+]
+
+const activationOptions = [
+  'Active after review',
+  'Active',
+  'Draft'
+]
+
+const computedVariantOptions = computed(() => {
+  const opts = [...variantOptions]
+  if (productData.value.variants && !opts.includes(productData.value.variants)) {
+    opts.push(productData.value.variants)
+  }
+  return opts
+})
+
+const computedWarrantyOptions = computed(() => {
+  const opts = [...warrantyOptions]
+  if (productData.value.warranty && !opts.includes(productData.value.warranty)) {
+    opts.push(productData.value.warranty)
+  }
+  return opts
+})
+
 const productData = ref({
   name: '',
-  category: '',
-  subcategory: '',
+  category: 'Electric Scooters',
+  subcategory: 'Commuter',
   model: '',
   sku: '',
-  tracking: '',
-  variants: '',
-  warranty: '',
+  tracking: 'Serialized - Serial + Chassis',
+  variants: 'Standard',
+  warranty: '2 Years / 20,000 km',
   motor: '',
   battery: '',
   range: '',
@@ -24,12 +90,20 @@ const productData = ref({
   reorderLevel: '',
   documents: '',
   media: '',
-  activation: ''
+  activation: 'Active'
 })
 
 onMounted(() => {
   if (store.originalEditProduct) {
     productData.value = { ...productData.value, ...store.originalEditProduct }
+  }
+})
+
+// Keep subcategory valid when category changes
+watch(() => productData.value.category, (newCategory) => {
+  const validSubs = CATEGORY_SUBCATEGORY_MAP[newCategory] || ['Standard']
+  if (!validSubs.includes(productData.value.subcategory)) {
+    productData.value.subcategory = validSubs[0] || 'Standard'
   }
 })
 
@@ -94,11 +168,15 @@ const cancel = () => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Category</label>
-            <input v-model="productData.category" type="text" placeholder="Electric Bikes" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <select v-model="productData.category" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+              <option v-for="cat in canonicalCategories" :key="cat" :value="cat">{{ cat }}</option>
+            </select>
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Subcategory</label>
-            <input v-model="productData.subcategory" type="text" placeholder="Commuter" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+            <select v-model="productData.subcategory" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+              <option v-for="sub in computedSubcategories" :key="sub" :value="sub">{{ sub }}</option>
+            </select>
           </div>
         </div>
 
@@ -121,17 +199,23 @@ const cancel = () => {
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Tracking Method</label>
-          <input v-model="productData.tracking" type="text" placeholder="Serialized - Serial + Chassis" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <select v-model="productData.tracking" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+            <option v-for="track in trackingOptions" :key="track" :value="track">{{ track }}</option>
+          </select>
         </div>
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Variants</label>
-          <input v-model="productData.variants" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <select v-model="productData.variants" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+            <option v-for="varOpt in computedVariantOptions" :key="varOpt" :value="varOpt">{{ varOpt }}</option>
+          </select>
         </div>
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Warranty</label>
-          <input v-model="productData.warranty" type="text" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <select v-model="productData.warranty" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+            <option v-for="warr in computedWarrantyOptions" :key="warr" :value="warr">{{ warr }}</option>
+          </select>
         </div>
       </div>
 
@@ -189,7 +273,9 @@ const cancel = () => {
 
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Activation</label>
-          <input v-model="productData.activation" type="text" placeholder="Active after review" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <select v-model="productData.activation" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+            <option v-for="act in activationOptions" :key="act" :value="act">{{ act }}</option>
+          </select>
         </div>
       </div>
 

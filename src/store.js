@@ -6827,6 +6827,81 @@ export const store = reactive({
     return typeof u.landedCost === 'number' ? u.landedCost : (typeof u.costPrice === 'number' ? u.costPrice : (this.parseMoney(u.landedCost || u.costPrice || u.unitCost) || 0))
   },
 
+  getProductAvgLandedCost(productOrId) {
+    if (!productOrId) return { avg: null, count: 0, isProvisional: false, formatted: '—' }
+
+    let prodId = null
+    let prodSku = null
+    let prodName = null
+
+    if (typeof productOrId === 'object' && productOrId !== null) {
+      prodId = productOrId.id || productOrId.product_id
+      prodSku = productOrId.sku
+      prodName = productOrId.name || productOrId.product || productOrId.modelName
+    } else {
+      prodId = String(productOrId)
+      const foundProd = (this.products || []).find(p => p.id === prodId || p.product_id === prodId || p.sku === prodId)
+      if (foundProd) {
+        prodSku = foundProd.sku
+        prodName = foundProd.name || foundProd.modelName
+      }
+    }
+
+    const matchingUnits = (this.serializedUnits || []).filter(u => {
+      if (!u) return false
+      const matchId = prodId && (u.product_id === prodId || u.id === prodId)
+      const matchSku = prodSku && u.sku === prodSku
+      const matchName = prodName && (u.product === prodName || u.modelName === prodName)
+      return matchId || matchSku || matchName
+    })
+
+    const EXCLUDED_STATUSES = ['sold', 'scrapped', 'disposed', 'customer owned']
+
+    const ownedUnsoldUnits = matchingUnits.filter(u => {
+      const rawStatus = (u.status || '').toLowerCase().trim()
+      const canonicalStatus = (this.normalizeUnitStatus ? this.normalizeUnitStatus(u.status) : rawStatus).toLowerCase()
+      const ownershipStatus = (u.ownership_status || '').toLowerCase()
+
+      if (EXCLUDED_STATUSES.includes(canonicalStatus) || EXCLUDED_STATUSES.includes(rawStatus)) {
+        return false
+      }
+      if (ownershipStatus === 'customer owned') {
+        return false
+      }
+      return true
+    })
+
+    if (ownedUnsoldUnits.length === 0) {
+      return { avg: null, count: 0, isProvisional: false, formatted: '—' }
+    }
+
+    let totalCost = 0
+    let isProvisional = false
+
+    for (const unit of ownedUnsoldUnits) {
+      const costVal = typeof unit.landedCost === 'number'
+        ? unit.landedCost
+        : (typeof unit.costPrice === 'number'
+          ? unit.costPrice
+          : (this.parseMoney(unit.landedCost || unit.costPrice || unit.unitCost || unit.cost) || 0))
+
+      totalCost += costVal
+
+      if (unit.isProvisional || unit.provisional || unit.landedCostStatus === 'Provisional') {
+        isProvisional = true
+      }
+    }
+
+    const avg = Math.round(totalCost / ownedUnsoldUnits.length)
+
+    return {
+      avg,
+      count: ownedUnsoldUnits.length,
+      isProvisional,
+      formatted: `PKR ${avg.toLocaleString()}`
+    }
+  },
+
   // ==========================================
   // 14. CANONICAL TRANSFERS MASTER
   // ==========================================

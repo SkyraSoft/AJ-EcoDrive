@@ -226,9 +226,16 @@ export function bindTargetInteraction(targetEl, step, onValid, onInvalid) {
     if (postconditionMet) {
       if (typeof onValid === 'function') onValid(true);
     } else {
-      // If an explicit postcondition was expected but did not appear
-      if (step.postconditionRoute || step.postconditionSelector || step.postcondition) {
-        if (typeof onInvalid === 'function') onInvalid('Expected application outcome did not occur.');
+      // If an explicit postcondition was expected (modal/drawer/route), allow a short tick for Vue DOM render
+      if (step.postconditionSelector || step.postconditionRoute || step.postcondition) {
+        setTimeout(() => {
+          const delayedMet = evaluatePostcondition(step);
+          if (delayedMet) {
+            if (typeof onValid === 'function') onValid(true);
+          } else {
+            if (typeof onInvalid === 'function') onInvalid('Expected application outcome did not occur.');
+          }
+        }, 80);
       } else {
         if (typeof onValid === 'function') onValid(true);
       }

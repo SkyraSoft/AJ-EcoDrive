@@ -80,11 +80,11 @@
           <span>{{ dapStore.isActive ? '⏸️ Pause Walkthrough' : '▶️ Start / Resume Tour' }}</span>
         </button>
         <button
-          @click="dapStore.resetAllProgress()"
-          class="p-2 text-xs text-slate-400 hover:text-slate-200 border border-slate-800 hover:bg-slate-800 rounded-xl transition-colors"
-          title="Reset Mastery Progress"
+          @click="dapStore.restartTour()"
+          class="py-2 px-3 text-xs font-semibold rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+          title="Restart Complete Tour from Step 1"
         >
-          🔄
+          <span>🔄 Restart Tour</span>
         </button>
       </div>
 

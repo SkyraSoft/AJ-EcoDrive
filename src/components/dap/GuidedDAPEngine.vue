@@ -20,6 +20,7 @@
         @next="handleNext"
         @prev="handlePrev"
         @close="handleClose"
+        @restart="handleRestart"
         @skip-mission="handleSkipMission"
         @retry="handleRetry"
       />
@@ -61,6 +62,28 @@ async function updateTargetGeometry() {
   // Check if current route satisfies the step's postcondition route
   if (step.postconditionRoute && route.path === step.postconditionRoute) {
     dapStore.handleRealFieldAction()
+    dapStore.nextStep()
+    nextTick(() => {
+      updateTargetGeometry()
+    })
+    return
+  }
+
+  // Check if modal postcondition is already met (e.g. modal already rendered in DOM)
+  if (step.postconditionSelector && typeof document !== 'undefined') {
+    try {
+      const modalEl = document.querySelector(step.postconditionSelector)
+      if (modalEl) {
+        dapStore.handleRealFieldAction()
+        dapStore.nextStep()
+        nextTick(() => {
+          updateTargetGeometry()
+        })
+        return
+      }
+    } catch (e) {
+      // safe fallback
+    }
   }
 
   const targetIdentifier = step.targetId || step.target
@@ -76,6 +99,27 @@ async function updateTargetGeometry() {
   targetRect.value = res.rect
 
   if (res.element) {
+    // Smoothly scroll target into comfortable view if near top/bottom viewport edges
+    try {
+      const rect = res.element.getBoundingClientRect()
+      const vh = window.innerHeight || 720
+      if (rect.top < 100 || rect.bottom > vh - 140) {
+        res.element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        })
+        setTimeout(() => {
+          if (activeElement.value) {
+            const updated = activeElement.value.getBoundingClientRect()
+            setTargetRectIfChanged(updated)
+          }
+        }, 160)
+      }
+    } catch (e) {
+      // safe fallback
+    }
+
     // Practice mode binding
     if (step.trainingType === 'practice' || step.trainingType === 'input-practice' || step.mode === 'PRACTICE') {
       bindTargetInteraction(
@@ -83,6 +127,23 @@ async function updateTargetGeometry() {
         step,
         (val) => {
           dapStore.handleRealFieldInput(step.field || step.key || 'input', val)
+          // If this was an action click / open modal / open drawer / navigate step, advance automatically
+          if (
+            step.expectedAction === 'CLICK' ||
+            step.actionType === 'OPEN_MODAL' ||
+            step.actionType === 'OPEN_DRAWER' ||
+            step.actionType === 'NAVIGATE' ||
+            step.actionType === 'CLICK'
+          ) {
+            setTimeout(() => {
+              if (dapStore.isActive && dapStore.currentStep?.id === step.id) {
+                dapStore.nextStep()
+                nextTick(() => {
+                  updateTargetGeometry()
+                })
+              }
+            }, 260)
+          }
         },
         (errMsg) => {
           dapStore.stepValidationError = errMsg
@@ -98,17 +159,34 @@ async function updateTargetGeometry() {
       resizeObserver = new ResizeObserver(() => {
         if (activeElement.value) {
           const r = activeElement.value.getBoundingClientRect()
-          targetRect.value = {
-            top: r.top,
-            left: r.left,
-            bottom: r.bottom,
-            right: r.right,
-            width: r.width,
-            height: r.height,
-          }
+          setTargetRectIfChanged(r)
         }
       })
       resizeObserver.observe(res.element)
+    }
+  }
+}
+
+function setTargetRectIfChanged(r) {
+  if (!r) {
+    targetRect.value = null
+    return
+  }
+  const cur = targetRect.value
+  if (
+    !cur ||
+    Math.abs(cur.top - r.top) >= 2 ||
+    Math.abs(cur.left - r.left) >= 2 ||
+    Math.abs(cur.width - r.width) >= 2 ||
+    Math.abs(cur.height - r.height) >= 2
+  ) {
+    targetRect.value = {
+      top: Math.round(r.top),
+      left: Math.round(r.left),
+      bottom: Math.round(r.bottom),
+      right: Math.round(r.right),
+      width: Math.round(r.width),
+      height: Math.round(r.height),
     }
   }
 }
@@ -133,6 +211,14 @@ function handleClose() {
   cleanUpInteractionListeners()
   releaseFocusTrap()
   dapStore.stopDAP()
+}
+
+function handleRestart() {
+  cleanUpInteractionListeners()
+  dapStore.restartCurrentMission()
+  nextTick(() => {
+    updateTargetGeometry()
+  })
 }
 
 function handleSkipMission() {
@@ -163,9 +249,21 @@ watch(
   }
 )
 
+let scrollRafId = null
+function handleScroll() {
+  if (scrollRafId) return
+  scrollRafId = requestAnimationFrame(() => {
+    scrollRafId = null
+    if (activeElement.value) {
+      const r = activeElement.value.getBoundingClientRect()
+      setTargetRectIfChanged(r)
+    }
+  })
+}
+
 onMounted(() => {
   window.addEventListener('resize', updateTargetGeometry)
-  window.addEventListener('scroll', updateTargetGeometry, true)
+  window.addEventListener('scroll', handleScroll, true)
 
   if (dapStore.isActive) {
     updateTargetGeometry()
@@ -176,7 +274,11 @@ onUnmounted(() => {
   cleanUpInteractionListeners()
   releaseFocusTrap()
   window.removeEventListener('resize', updateTargetGeometry)
-  window.removeEventListener('scroll', updateTargetGeometry, true)
+  window.removeEventListener('scroll', handleScroll, true)
+  if (scrollRafId) {
+    cancelAnimationFrame(scrollRafId)
+    scrollRafId = null
+  }
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null

@@ -1,19 +1,42 @@
 <template>
   <div v-if="isActive && targetRect" class="fixed inset-0 z-[9990] pointer-events-none transition-all duration-300">
+    <!-- SVG Definitions & Dark Tint Cutout -->
     <svg class="w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <mask id="spotlight-blur-mask">
+          <!-- White reveals the blur layer across the viewport -->
+          <rect x="0" y="0" width="100%" height="100%" fill="white" />
+          <!-- Black cuts out the spotlight area, keeping the focused card 100% sharp -->
+          <rect
+            :x="spotlightX"
+            :y="spotlightY"
+            :width="spotlightWidth"
+            :height="spotlightHeight"
+            rx="12"
+            ry="12"
+            fill="black"
+          />
+        </mask>
+      </defs>
       <!-- Dark backdrop with true geometric cutout: painted outside, hollow inside -->
       <path
         :d="backdropPath"
-        fill="rgba(15, 23, 42, 0.75)"
+        fill="rgba(15, 23, 42, 0.70)"
         fill-rule="evenodd"
         class="pointer-events-auto cursor-pointer"
         @click="$emit('backdrop-click')"
       />
     </svg>
 
+    <!-- Frosted Glass Blurred Backdrop Masked to Only Blur Outside the Focused Card -->
+    <div
+      class="fixed inset-0 backdrop-blur-[6px] pointer-events-none transition-all duration-300 ease-out z-[9991]"
+      style="mask: url(#spotlight-blur-mask); -webkit-mask: url(#spotlight-blur-mask);"
+    />
+
     <!-- Glowing spotlight border around the cutout -->
     <div
-      class="fixed pointer-events-none border-2 border-emerald-400/80 rounded-xl shadow-[0_0_25px_rgba(52,211,153,0.6)] transition-all duration-300 ease-out z-[9992]"
+      class="fixed pointer-events-none border-2 border-emerald-400/90 rounded-xl shadow-[0_0_30px_rgba(52,211,153,0.65)] ring-1 ring-emerald-300/30 transition-all duration-300 ease-out z-[9992]"
       :style="{
         top: `${spotlightY}px`,
         left: `${spotlightX}px`,

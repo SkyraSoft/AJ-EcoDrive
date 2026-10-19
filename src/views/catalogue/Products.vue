@@ -235,28 +235,34 @@ const categories = ['All Categories', 'Electric Bikes', 'Cargo', 'Scooters']
 const stockStatuses = ['All Stock', 'Low Stock Only', 'Healthy Stock']
 
 const products = computed(() => {
-  return store.products.map(p => ({
-    ...p,
-    subcategory: p.subcategory || 'Standard',
-    model: p.model || '2026',
-    tracking: 'Serialized',
-    variants: p.variants || 'Standard',
-    warranty: p.warranty || '2 Years',
-    motor: p.motor || '1200W',
-    battery: p.battery || '72V 30Ah',
-    range: p.range || '85km',
-    speed: p.speed || '65km/h',
-    price: typeof p.price === 'string' ? p.price : `PKR ${(p.price || 280000).toLocaleString()}`,
-    reorderLevel: '5',
-    documents: 'User Manual',
-    activation: p.status || 'Active',
-    total: typeof p.stock === 'number' ? String(p.stock) : (p.stock || '18 units'),
-    available: typeof p.stock === 'number' ? String(p.stock) : (p.stock || '18 units'),
-    reserved: '2',
-    incoming: '4',
-    lowStock: p.status === 'Low Stock' || (typeof p.stock === 'number' && p.stock <= 5),
-    status: p.status || 'Active'
-  }))
+  return store.products.map(p => {
+    const costInfo = store.getProductAvgLandedCost ? store.getProductAvgLandedCost(p) : { avg: null, formatted: '—', isProvisional: false }
+    return {
+      ...p,
+      subcategory: p.subcategory || 'Standard',
+      model: p.model || '2026',
+      tracking: 'Serialized',
+      variants: p.variants || 'Standard',
+      warranty: p.warranty || '2 Years',
+      motor: p.motor || '1200W',
+      battery: p.battery || '72V 30Ah',
+      range: p.range || '85km',
+      speed: p.speed || '65km/h',
+      avgLandedCostFormatted: costInfo.formatted,
+      avgLandedCostNum: costInfo.avg,
+      isProvisionalCost: costInfo.isProvisional,
+      price: typeof p.price === 'string' ? p.price : `PKR ${(p.price || 280000).toLocaleString()}`,
+      reorderLevel: '5',
+      documents: 'User Manual',
+      activation: p.status || 'Active',
+      total: typeof p.stock === 'number' ? String(p.stock) : (p.stock || '18 units'),
+      available: typeof p.stock === 'number' ? String(p.stock) : (p.stock || '18 units'),
+      reserved: '2',
+      incoming: '4',
+      lowStock: p.status === 'Low Stock' || (typeof p.stock === 'number' && p.stock <= 5),
+      status: p.status || 'Active'
+    }
+  })
 })
 
 const showArchiveModal = ref(false)
@@ -793,6 +799,18 @@ const confirmArchive = () => {
                 <th class="px-5 py-3">Product</th>
                 <th class="px-5 py-3">SKU</th>
                 <th class="px-5 py-3">Category</th>
+                <th class="px-5 py-3 cursor-help relative group" data-tour-id="sa.catalogue.products.avg-landed-cost">
+                  <div class="flex items-center gap-1">
+                    <span>Avg. Landed Cost</span>
+                  </div>
+                  <div class="absolute left-0 top-full mt-1 hidden group-hover:block w-64 p-2.5 bg-gray-900 text-white text-[10px] font-normal rounded-lg shadow-xl z-30 leading-normal normal-case pointer-events-none">
+                    <div class="font-bold mb-1 text-gray-200">Average Landed Cost</div>
+                    The average acquisition cost of physical units currently represented for this model, including allocated landed-cost components where finalized.
+                    <div class="mt-1 text-gray-400 border-t border-gray-700 pt-1">
+                      The actual cost used for a sale is taken from the specific serialized unit.
+                    </div>
+                  </div>
+                </th>
                 <th class="px-5 py-3">Selling Price</th>
                 <th class="px-5 py-3">Total</th>
                 <th class="px-5 py-3">Available</th>
@@ -808,6 +826,12 @@ const confirmArchive = () => {
                 <td class="px-5 py-4 font-bold text-gray-900">{{ product.name }}</td>
                 <td class="px-5 py-4 text-gray-500 font-medium">{{ product.sku }}</td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ product.category }}</td>
+                <td class="px-5 py-4 font-medium text-gray-700">
+                  <div>
+                    <span>{{ product.avgLandedCostFormatted }}</span>
+                    <span v-if="product.isProvisionalCost" class="block text-[9px] text-amber-600 font-semibold">Provisional</span>
+                  </div>
+                </td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ product.price }}</td>
                 <td class="px-5 py-4 font-semibold text-gray-800">{{ product.total }}</td>
                 <td class="px-5 py-4 font-semibold text-gray-800">{{ product.available }}</td>
@@ -852,7 +876,7 @@ const confirmArchive = () => {
             
             <tbody v-else>
               <tr>
-                <td colspan="11">
+                <td colspan="12">
                   <div class="py-16 flex flex-col items-center justify-center text-center">
                     <div class="w-12 h-12 bg-[#eefcf2] rounded-xl flex items-center justify-center mb-4">
                       <Search class="w-5 h-5 text-[#165A31]" />

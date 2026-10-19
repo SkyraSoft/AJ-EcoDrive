@@ -20,7 +20,8 @@ export function calculatePlacement(
   cardRect,
   occupiedRegions = [],
   safeInsets = { top: 16, left: 16, right: 16, bottom: 16 },
-  preferredPlacement = 'right'
+  preferredPlacement = 'right',
+  currentPlacement = null
 ) {
   // 1. Missing target handling: Return explicit TARGET_UNAVAILABLE presentation mode
   if (!targetRect || targetRect.width === 0 || targetRect.height === 0) {
@@ -42,7 +43,7 @@ export function calculatePlacement(
   const ch = cardRect.height || 260;
 
   // 2. Mobile or severely constrained viewport: Automatically dock to bottom
-  if (vw < 640 || vh < 500) {
+  if (vw <= 640 || vh < 500) {
     return {
       mode: 'BOTTOM_DOCK',
       placement: 'dock',
@@ -54,9 +55,16 @@ export function calculatePlacement(
     };
   }
 
-  // 3. Priority candidate list
+  // 3. Priority candidate list with Hysteresis (Sticky Placement)
+  // When an already-active placement remains valid, prioritize it to eliminate visual jumping/thrashing
   const standardPlacements = ['right', 'left', 'bottom', 'top'];
-  const candidates = [preferredPlacement];
+  const candidates = [];
+  if (currentPlacement && standardPlacements.includes(currentPlacement)) {
+    candidates.push(currentPlacement);
+  }
+  if (!candidates.includes(preferredPlacement)) {
+    candidates.push(preferredPlacement);
+  }
   for (const p of standardPlacements) {
     if (!candidates.includes(p)) {
       candidates.push(p);
@@ -68,6 +76,10 @@ export function calculatePlacement(
   const maxX = vw - safeInsets.right - cw;
   const minY = safeInsets.top;
   const maxY = vh - safeInsets.bottom - ch;
+
+  // Extra clearance buffer when attempting to promote from BOTTOM_DOCK to FLOATING to prevent fluttering
+  const isCurrentlyDocked = currentPlacement === 'dock';
+  const exitDockClearance = isCurrentlyDocked ? 16 : 0;
 
   for (const candidate of candidates) {
     let top = 0;
@@ -101,9 +113,11 @@ export function calculatePlacement(
       height: ch,
     };
 
-    // Hard Constraint 1: Check viewport bounds
-    if (testCardRect.left < minX || testCardRect.right > vw - safeInsets.right ||
-        testCardRect.top < minY || testCardRect.bottom > vh - safeInsets.bottom) {
+    // Hard Constraint 1: Check viewport bounds (incorporates exitDockClearance)
+    if (testCardRect.left < minX + exitDockClearance || 
+        testCardRect.right > vw - safeInsets.right - exitDockClearance ||
+        testCardRect.top < minY + exitDockClearance || 
+        testCardRect.bottom > vh - safeInsets.bottom - exitDockClearance) {
       continue; // Exceeds safe viewport
     }
 
@@ -133,7 +147,7 @@ export function calculatePlacement(
       left: Math.round(left),
       connector,
       collisionSummary: `Clean floating placement on ${candidate}`,
-      reason: 'VALID_CANDIDATE',
+      reason: candidate === currentPlacement ? 'HYSTERESIS_PRESERVED' : 'VALID_CANDIDATE',
     };
   }
 
@@ -145,6 +159,6 @@ export function calculatePlacement(
     left: null,
     connector: null,
     collisionSummary: 'All floating placements violated safe constraints; docked to bottom',
-    reason: 'NO_CLEARANCE_DOCK_FALLBACK',
+    reason: isCurrentlyDocked ? 'HYSTERESIS_PRESERVED_DOCK' : 'NO_CLEARANCE_DOCK_FALLBACK',
   };
 }

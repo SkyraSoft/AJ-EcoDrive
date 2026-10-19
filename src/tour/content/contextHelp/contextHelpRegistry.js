@@ -110,6 +110,15 @@ export const contextHelpRegistry = [
     relatedTerms: ['term-landed-cost'],
   },
   {
+    topicId: 'term-avg-landed-cost',
+    title: 'Average Landed Cost',
+    category: 'Catalogue & Valuation',
+    targetId: 'sa.catalogue.products.avg-landed-cost',
+    summary: 'The average acquisition cost of the physical units currently represented for this model, including allocated landed-cost components where finalized.',
+    details: 'The actual cost used for a sale is taken from the specific serialized unit sold. Avg. Landed Cost provides Super Admin with a summary of what currently owned stock of that model is costing the business.',
+    relatedTerms: ['term-landed-cost', 'kpi-gross-profit'],
+  },
+  {
     topicId: 'term-landed-cost',
     title: 'Landed Cost Capitalisation',
     category: 'Procurement Workflow',
@@ -174,6 +183,17 @@ export const contextHelpRegistry = [
     targetId: 'sa.action-centre.hub.overview',
     summary: 'Unified Head Office clearinghouse consolidating cross-branch approvals and exception workflows.',
     details: 'Aggregates Product Requests, Stock Transfers, Expense Authorizations, PO Approvals, and Inventory Adjustments into prioritized review queues.',
+    relatedTerms: [],
+  },
+
+  // --- NAVIGATION & SETTINGS SEARCH ---
+  {
+    topicId: 'nav-settings-search',
+    title: 'Global Settings Search',
+    category: 'System Navigation',
+    targetId: 'shared.layout.header.settings-search',
+    summary: 'Quickly locates system settings, configuration options, user management, and security preferences, opening the relevant configuration page.',
+    details: 'Role-aware global search control that helps Super Admins and Branch Managers quickly locate configuration settings and navigate directly to the relevant page, tab, or section.',
     relatedTerms: [],
   },
 ];

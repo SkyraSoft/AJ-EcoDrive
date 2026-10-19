@@ -197,7 +197,8 @@ export const tourStore = reactive({
       this.cardRect,
       occupied,
       safeInsets,
-      preferred
+      preferred,
+      this.placement?.placement || null
     );
 
     this.presentationMode = result.mode;

@@ -164,8 +164,8 @@ describe('AJ EcoDrive — Wave 2 Edit Component Preload Gate', () => {
     await flushPromises()
     await nextTick()
 
-    // Assert inputs
-    const inputs = wrapper.findAll('input')
+    // Assert inputs and select controls
+    const inputs = [...wrapper.findAll('input'), ...wrapper.findAll('select')]
     const values = inputs.map(i => i.element.value)
 
     expect(values).toContain('W2 E-Cruiser Pro')

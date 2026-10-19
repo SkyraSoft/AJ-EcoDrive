@@ -1,7 +1,29 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { ChevronDown, Check, CheckCircle2, Search } from 'lucide-vue-next'
 import { store } from '@/store'
+
+const route = useRoute()
+
+onMounted(() => {
+  if (route.query.section) {
+    nextTick(() => {
+      setTimeout(() => {
+        const el = document.getElementById(route.query.section)
+        if (el) {
+          if (typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+          el.classList.add('ring-2', 'ring-[#165A31]', 'ring-offset-2', 'transition-all')
+          setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-[#165A31]', 'ring-offset-2')
+          }, 3000)
+        }
+      }, 120)
+    })
+  }
+})
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
@@ -150,7 +172,8 @@ const revokeSession = (idx) => {
       <div 
         v-for="kpi in kpis" 
         :key="kpi.label" 
-        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]"
+        :id="kpi.label === 'MFA' ? 'section-mfa' : (kpi.label === 'Active Sessions' ? 'section-active-sessions' : undefined)"
+        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] transition-all"
       >
         <div class="text-[11px] font-semibold text-gray-500 mb-2">{{ kpi.label }}</div>
         <div class="text-2xl font-bold text-gray-900">{{ kpi.value }}</div>
