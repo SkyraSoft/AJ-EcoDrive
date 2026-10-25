@@ -138,6 +138,64 @@ export function validateInputValue(val, step) {
 }
 
 /**
+ * Determines whether a DOM element belongs to the DAP tour UI itself
+ * (Spotlight overlay, Coachmark card, floating HUD, or any child element thereof).
+ */
+export function isTourUiElement(el) {
+  if (!el) return false;
+
+  // Direct element check
+  if (typeof el.matches === 'function') {
+    if (
+      el.matches(
+        '.dap-root-container, [data-tour-id="coachmark.card"], .dap-floating-hud, [data-tour-overlay]'
+      )
+    ) {
+      return true;
+    }
+  }
+
+  // Ancestor check
+  if (typeof el.closest === 'function') {
+    if (
+      el.closest('.dap-root-container') ||
+      el.closest('[data-tour-id="coachmark.card"]') ||
+      el.closest('.dap-floating-hud') ||
+      el.closest('[data-tour-overlay]')
+    ) {
+      return true;
+    }
+  }
+
+  // Check for classes reserved exclusively for DAP overlay and coachmark
+  const classStr = typeof el.className === 'string' ? el.className : '';
+  if (classStr.includes('z-[999') || classStr.includes('dap-')) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Queries the DOM for an element matching selector that belongs strictly to the
+ * application under test, filtering out the tour's own visual layers.
+ */
+export function queryApplicationElement(selector) {
+  if (!selector || typeof document === 'undefined') return null;
+  try {
+    const matched = document.querySelectorAll(selector);
+    for (const el of matched) {
+      if (!isTourUiElement(el)) {
+        return el;
+      }
+    }
+  } catch (e) {
+    // ignore querySelector syntax error
+  }
+  return null;
+}
+
+/**
  * Verifies postconditions after a user action occurs.
  */
 export function evaluatePostcondition(step) {
@@ -152,16 +210,11 @@ export function evaluatePostcondition(step) {
   }
 
   // 2. DOM selector postcondition (e.g. modal, drawer, alert)
+  // Strictly excludes the tour's own overlay, coachmark card, and HUD layers
   if (step.postconditionSelector) {
-    if (typeof document !== 'undefined') {
-      try {
-        const el = document.querySelector(step.postconditionSelector);
-        if (el) {
-          return true;
-        }
-      } catch (e) {
-        // ignore
-      }
+    const el = queryApplicationElement(step.postconditionSelector);
+    if (el) {
+      return true;
     }
     return false;
   }
@@ -225,20 +278,24 @@ export function bindTargetInteraction(targetEl, step, onValid, onInvalid) {
     const postconditionMet = evaluatePostcondition(step);
     if (postconditionMet) {
       if (typeof onValid === 'function') onValid(true);
+      return;
+    }
+
+    // If an explicit postcondition was expected (modal/drawer/route), allow time for Vue transition and DOM mount
+    if (step.postconditionSelector || step.postconditionRoute || step.postcondition) {
+      const start = Date.now();
+      const interval = setInterval(() => {
+        const delayedMet = evaluatePostcondition(step);
+        if (delayedMet) {
+          clearInterval(interval);
+          if (typeof onValid === 'function') onValid(true);
+        } else if (Date.now() - start > 2500) {
+          clearInterval(interval);
+          if (typeof onInvalid === 'function') onInvalid('Expected application outcome did not occur.');
+        }
+      }, 50);
     } else {
-      // If an explicit postcondition was expected (modal/drawer/route), allow a short tick for Vue DOM render
-      if (step.postconditionSelector || step.postconditionRoute || step.postcondition) {
-        setTimeout(() => {
-          const delayedMet = evaluatePostcondition(step);
-          if (delayedMet) {
-            if (typeof onValid === 'function') onValid(true);
-          } else {
-            if (typeof onInvalid === 'function') onInvalid('Expected application outcome did not occur.');
-          }
-        }, 80);
-      } else {
-        if (typeof onValid === 'function') onValid(true);
-      }
+      if (typeof onValid === 'function') onValid(true);
     }
   }
 

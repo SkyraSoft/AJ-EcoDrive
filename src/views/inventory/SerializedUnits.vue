@@ -249,7 +249,7 @@ const filteredUnits = computed(() => {
     </div>
 
     <!-- Header -->
-    <div>
+    <div data-tour-id="bm.inventory.units.header">
       <div class="text-[11px] text-gray-400 mb-1">
         Branch Manager / Serialized Units / <span class="font-medium text-gray-600">Serialized Units</span>
       </div>
@@ -258,7 +258,7 @@ const filteredUnits = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.units.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
@@ -266,7 +266,7 @@ const filteredUnits = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.units.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -440,6 +440,7 @@ const filteredUnits = computed(() => {
 
         <!-- Export Button -->
         <button 
+          data-tour-id="bm.inventory.units.export-btn"
           @click="exportBranchUnits"
           class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1.5"
         >
@@ -449,7 +450,7 @@ const filteredUnits = computed(() => {
     </div>
 
     <!-- Table Card: Serialized Unit Register -->
-    <div id="dap-serialized-table" data-tour="serialized-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div id="dap-serialized-table" data-tour="serialized-table" data-tour-id="bm.inventory.units.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Serialized Unit Register</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchUnits.length }} units</span>

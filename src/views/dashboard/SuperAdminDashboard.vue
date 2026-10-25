@@ -394,6 +394,7 @@ const navigateTo = (route) => {
       <!-- Sales Performance -->
       <div 
         @click="navigateTo('/dashboard/business-performance')"
+        data-tour-id="sa.dashboard.chart.sales-performance"
         class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col cursor-pointer hover:border-gray-200 transition-all group"
       >
         <div class="flex items-center justify-between mb-4">
@@ -437,7 +438,7 @@ const navigateTo = (route) => {
     <!-- Bottom Grids -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Inventory Overview -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+      <div data-tour-id="sa.dashboard.overview.inventory" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-xs font-bold text-gray-900">Inventory Overview</h3>
           <button @click="navigateTo('/inventory/dashboard')" class="text-[10px] font-semibold text-[#209249] hover:underline cursor-pointer">

@@ -1,7 +1,15 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { X } from 'lucide-vue-next'
 import { store } from '../../store.js'
+
+const props = defineProps({
+  isModal: {
+    type: Boolean,
+    default: true
+  }
+})
 
 const emit = defineEmits(['close', 'created'])
 const router = useRouter()
@@ -39,7 +47,9 @@ const validate = () => {
 
 const cancel = () => {
   emit('close')
-  router.push('/organisation/branches')
+  if (!props.isModal && router.currentRoute.value.path.includes('/create')) {
+    router.push('/organisation/branches')
+  }
 }
 
 const submitForm = () => {
@@ -61,205 +71,231 @@ const submitForm = () => {
 
   store.addBranch(newBranch)
   emit('created', newBranch)
-  router.push('/organisation/branches')
+  cancel()
 }
 </script>
 
 <template>
-  <div class="max-w-[1400px] mx-auto pb-12 space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-      <div>
-        <div class="text-[10px] text-gray-500 mb-1">
-          Super Admin / <router-link to="/organisation/branches" class="hover:underline">Organisation</router-link> / <router-link to="/organisation/branches" class="hover:underline">Branches</router-link> / <span class="font-bold text-gray-800">Create Branch</span>
+  <div 
+    data-tour="create-branch-modal"
+    data-tour-id="sa.organisation.createbranch.modal"
+    :class="isModal ? 'fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm' : 'max-w-[1400px] mx-auto pb-12 space-y-6'"
+    @click.self="isModal ? cancel() : null"
+  >
+    <div :class="isModal ? 'bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative' : ''">
+      
+      <!-- Close button on top right (modal only) -->
+      <button 
+        v-if="isModal" 
+        @click="cancel" 
+        class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors cursor-pointer"
+        aria-label="Close"
+      >
+        <X class="w-5 h-5" />
+      </button>
+
+      <!-- Scrollable Body -->
+      <div :class="isModal ? 'flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative' : ''">
+        <div class="space-y-6">
+          <!-- Header -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+            <div>
+              <div class="text-[10px] text-gray-500 mb-1">
+                Super Admin / <router-link to="/organisation/branches" class="hover:underline">Organisation</router-link> / <router-link to="/organisation/branches" class="hover:underline">Branches</router-link> / <span class="font-bold text-gray-800">Create Branch</span>
+              </div>
+              <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Create Branch</h1>
+              <p class="text-sm text-gray-500 mt-1">Create a controlled operating location with manager, stock and expense settings.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <button 
+                type="button" 
+                @click="cancel" 
+                class="px-4 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+              >
+                Cancel / Back
+              </button>
+              <button 
+                data-tour-id="sa.organisation.createbranch.submit-btn"
+                type="button" 
+                @click="submitForm" 
+                class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+              >
+                Create Branch
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Grid -->
+          <form @submit.prevent="submitForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <!-- 1. Branch Identity -->
+              <div data-tour-id="sa.organisation.createbranch.identity-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+                <h3 class="text-[14px] font-bold text-gray-900 mb-2">1. Branch Identity</h3>
+                
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Name *</label>
+                  <input 
+                    data-tour-id="sa.organisation.createbranch.name"
+                    v-model="form.name" 
+                    type="text" 
+                    placeholder="e.g. Peshawar Branch" 
+                    :class="[
+                      'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
+                      showValidation && errors.name ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
+                    ]"
+                  />
+                  <p v-if="showValidation && errors.name" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.name }}</p>
+                </div>
+                
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Code *</label>
+                  <input 
+                    data-tour-id="sa.organisation.createbranch.code"
+                    v-model="form.code" 
+                    type="text" 
+                    placeholder="e.g. PEW-01" 
+                    :class="[
+                      'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
+                      showValidation && errors.code ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
+                    ]"
+                  />
+                  <p v-if="showValidation && errors.code" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.code }}</p>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Status</label>
+                  <select v-model="form.status" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 2. Location & Contact -->
+              <div data-tour-id="sa.organisation.createbranch.location-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+                <h3 class="text-[14px] font-bold text-gray-900 mb-2">2. Location & Contact</h3>
+                
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Address</label>
+                  <input v-model="form.address" type="text" placeholder="e.g. 123 Main St" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">City *</label>
+                    <input 
+                      v-model="form.city" 
+                      type="text" 
+                      placeholder="e.g. Peshawar" 
+                      :class="[
+                        'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
+                        showValidation && errors.city ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
+                      ]"
+                    />
+                    <p v-if="showValidation && errors.city" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.city }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Area</label>
+                    <input v-model="form.area" type="text" placeholder="e.g. Hayatabad" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Phone *</label>
+                    <input 
+                      v-model="form.phone" 
+                      type="text" 
+                      placeholder="+92 300 1234567" 
+                      :class="[
+                        'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
+                        showValidation && errors.phone ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
+                      ]"
+                    />
+                    <p v-if="showValidation && errors.phone" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.phone }}</p>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Email *</label>
+                    <input 
+                      v-model="form.email" 
+                      type="email" 
+                      placeholder="pew@ajecodrive.com" 
+                      :class="[
+                        'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
+                        showValidation && errors.email ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
+                      ]"
+                    />
+                    <p v-if="showValidation && errors.email" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.email }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Management & Operations -->
+              <div data-tour-id="sa.organisation.createbranch.operations-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+                <h3 class="text-[14px] font-bold text-gray-900 mb-2">3. Management & Operations</h3>
+                
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Manager</label>
+                  <select v-model="form.manager" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
+                    <option value="Ahsan Khan">Ahsan Khan</option>
+                    <option value="Hassan Ali">Hassan Ali</option>
+                    <option value="Sami Ullah">Sami Ullah</option>
+                    <option value="Usman Tariq">Usman Tariq</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Opening Hours</label>
+                  <input v-model="form.hours" type="text" placeholder="e.g. 9 AM - 6 PM" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Default Stock Location</label>
+                  <input v-model="form.defaultLocation" type="text" placeholder="e.g. Main Showroom" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                </div>
+              </div>
+
+              <!-- 4. Controls & Policies -->
+              <div data-tour-id="sa.organisation.createbranch.controls-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+                <h3 class="text-[14px] font-bold text-gray-900 mb-2">4. Controls & Policies</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Expense Limit (PKR)</label>
+                    <input v-model="form.expenseLimit" type="text" placeholder="100000" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Discount Limit</label>
+                    <input v-model="form.discountLimit" type="text" placeholder="10%" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Sales Settings</label>
+                  <input v-model="form.salesRules" type="text" placeholder="Standard BRG retail rules" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Notes</label>
+                  <input v-model="form.notes" type="text" placeholder="Optional internal notes..." class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+              <button type="button" @click="cancel" class="px-5 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer">
+                Cancel
+              </button>
+              <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+                Create Branch
+              </button>
+            </div>
+          </form>
         </div>
-        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Create Branch</h1>
-        <p class="text-sm text-gray-500 mt-1">Create a controlled operating location with manager, stock and expense settings.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button 
-          type="button" 
-          @click="cancel" 
-          class="px-4 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
-        >
-          Cancel / Back
-        </button>
-        <button 
-          type="button" 
-          @click="submitForm" 
-          class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
-        >
-          Create Branch
-        </button>
       </div>
     </div>
-
-    <!-- Form Grid -->
-    <form @submit.prevent="submitForm" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- 1. Branch Identity -->
-        <div data-tour-id="sa.organisation.createbranch.identity-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-          <h3 class="text-[14px] font-bold text-gray-900 mb-2">1. Branch Identity</h3>
-          
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Name *</label>
-            <input 
-              v-model="form.name" 
-              type="text" 
-              placeholder="e.g. Peshawar Branch" 
-              :class="[
-                'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
-                showValidation && errors.name ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
-              ]"
-            />
-            <p v-if="showValidation && errors.name" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.name }}</p>
-          </div>
-          
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Code *</label>
-            <input 
-              v-model="form.code" 
-              type="text" 
-              placeholder="e.g. PEW-01" 
-              :class="[
-                'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
-                showValidation && errors.code ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
-              ]"
-            />
-            <p v-if="showValidation && errors.code" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.code }}</p>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Status</label>
-            <select v-model="form.status" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 2. Location & Contact -->
-        <div data-tour-id="sa.organisation.createbranch.location-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-          <h3 class="text-[14px] font-bold text-gray-900 mb-2">2. Location & Contact</h3>
-          
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Address</label>
-            <input v-model="form.address" type="text" placeholder="e.g. 123 Main St" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">City *</label>
-              <input 
-                v-model="form.city" 
-                type="text" 
-                placeholder="e.g. Peshawar" 
-                :class="[
-                  'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
-                  showValidation && errors.city ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
-                ]"
-              />
-              <p v-if="showValidation && errors.city" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.city }}</p>
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Area</label>
-              <input v-model="form.area" type="text" placeholder="e.g. Hayatabad" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Phone *</label>
-              <input 
-                v-model="form.phone" 
-                type="text" 
-                placeholder="+92 300 1234567" 
-                :class="[
-                  'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
-                  showValidation && errors.phone ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
-                ]"
-              />
-              <p v-if="showValidation && errors.phone" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.phone }}</p>
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Email *</label>
-              <input 
-                v-model="form.email" 
-                type="email" 
-                placeholder="pew@ajecodrive.com" 
-                :class="[
-                  'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
-                  showValidation && errors.email ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'
-                ]"
-              />
-              <p v-if="showValidation && errors.email" class="text-[10px] text-red-500 mt-1 font-medium">{{ errors.email }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Management & Operations -->
-        <div data-tour-id="sa.organisation.createbranch.operations-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-          <h3 class="text-[14px] font-bold text-gray-900 mb-2">3. Management & Operations</h3>
-          
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Manager</label>
-            <select v-model="form.manager" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
-              <option value="Ahsan Khan">Ahsan Khan</option>
-              <option value="Hassan Ali">Hassan Ali</option>
-              <option value="Sami Ullah">Sami Ullah</option>
-              <option value="Usman Tariq">Usman Tariq</option>
-            </select>
-          </div>
-          
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Opening Hours</label>
-            <input v-model="form.hours" type="text" placeholder="e.g. 9 AM - 6 PM" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Default Stock Location</label>
-            <input v-model="form.defaultLocation" type="text" placeholder="e.g. Main Showroom" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-          </div>
-        </div>
-
-        <!-- 4. Controls & Policies -->
-        <div data-tour-id="sa.organisation.createbranch.controls-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
-          <h3 class="text-[14px] font-bold text-gray-900 mb-2">4. Controls & Policies</h3>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Expense Limit (PKR)</label>
-              <input v-model="form.expenseLimit" type="text" placeholder="100000" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Discount Limit</label>
-              <input v-model="form.discountLimit" type="text" placeholder="10%" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Sales Settings</label>
-            <input v-model="form.salesRules" type="text" placeholder="Standard BRG retail rules" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Notes</label>
-            <input v-model="form.notes" type="text" placeholder="Optional internal notes..." class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Actions -->
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-        <button type="button" @click="cancel" class="px-5 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer">
-          Cancel
-        </button>
-        <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
-          Create Branch
-        </button>
-      </div>
-    </form>
   </div>
 </template>

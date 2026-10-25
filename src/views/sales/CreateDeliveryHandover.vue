@@ -155,7 +155,7 @@ const saveHandover = () => {
     </button>
 
     <!-- Modal Card -->
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div data-tour-id="bm.sales.createhandover.modal" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
@@ -181,6 +181,7 @@ const saveHandover = () => {
                   <label class="block text-[11px] font-semibold text-gray-700">Order / Sale ID *</label>
                   <select 
                     data-tour="handover-order-select"
+                    data-tour-id="bm.sales.createhandover.order-select"
                     @change="onOrderSelect($event.target.value)"
                     class="text-[10px] bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 text-gray-600 focus:outline-none cursor-pointer"
                   >
@@ -193,6 +194,7 @@ const saveHandover = () => {
                 <input 
                   v-model="form.order" 
                   data-tour="handover-order-input"
+                  data-tour-id="bm.sales.createhandover.order-input"
                   type="text" 
                   placeholder="e.g. ORD-2241 or ORD-2235" 
                   class="w-full px-3.5 py-2 text-xs bg-white border rounded-lg focus:outline-none focus:border-[#165A31] transition-colors"
@@ -206,6 +208,7 @@ const saveHandover = () => {
                 <input 
                   v-model="form.customer" 
                   data-tour="handover-customer"
+                  data-tour-id="bm.sales.createhandover.customer"
                   type="text" 
                   placeholder="e.g. Ahsan Khan or Sami Ullah" 
                   class="w-full px-3.5 py-2 text-xs bg-white border rounded-lg focus:outline-none focus:border-[#165A31] transition-colors"
@@ -219,6 +222,7 @@ const saveHandover = () => {
                 <input 
                   v-model="form.unit" 
                   data-tour="handover-unit"
+                  data-tour-id="bm.sales.createhandover.unit"
                   type="text" 
                   placeholder="e.g. CHS-01882 or CH 8-BRG-26-01731" 
                   class="w-full px-3.5 py-2 text-xs bg-white border rounded-lg focus:outline-none focus:border-[#165A31] transition-colors"
@@ -231,6 +235,7 @@ const saveHandover = () => {
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Scheduled Time</label>
                   <input data-tour="scheduled" 
+                    data-tour-id="bm.sales.createhandover.scheduled"
                     v-model="form.scheduled" 
                     type="text" 
                     placeholder="e.g. Today 16:00" 
@@ -240,6 +245,7 @@ const saveHandover = () => {
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1">Handover Status</label>
                   <select data-tour="status" 
+                    data-tour-id="bm.sales.createhandover.status"
                     v-model="form.status"
                     class="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -255,7 +261,7 @@ const saveHandover = () => {
             <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
               <h3 class="text-sm font-bold text-gray-900 mb-4">Pre-delivery Verification Checklist</h3>
 
-              <div class="space-y-3 bg-gray-50/50 p-3.5 rounded-lg border border-gray-100">
+              <div data-tour-id="bm.sales.createhandover.checklist" class="space-y-3 bg-gray-50/50 p-3.5 rounded-lg border border-gray-100">
                 <label class="flex items-center gap-2.5 cursor-pointer">
                   <input type="checkbox" v-model="form.identityVerified" data-tour="handover-chk-identity" class="w-4 h-4 text-[#165A31] rounded border-gray-300 focus:ring-[#165A31]" />
                   <span class="text-xs text-gray-800 font-medium">Customer CNIC / Identity verified</span>
@@ -285,6 +291,7 @@ const saveHandover = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1">Handover Notes / Instructions</label>
                 <textarea data-tour="notes" 
+                  data-tour-id="bm.sales.createhandover.notes"
                   v-model="form.notes" 
                   rows="3" 
                   placeholder="Enter handover details or customer special requests..." 
@@ -306,6 +313,7 @@ const saveHandover = () => {
             <button 
               type="submit" 
               data-tour="handover-submit"
+              data-tour-id="bm.sales.createhandover.submit-btn"
               class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm"
             >
               {{ isEditMode ? 'Update Handover' : 'Schedule Handover' }}

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Search, Check, Plus, Pencil } from 'lucide-vue-next'
 import { store } from '../../store.js'
@@ -8,6 +8,21 @@ import CreateQuarantineRecordModal from './CreateQuarantineRecord.vue'
 const router = useRouter()
 const showCreateModal = ref(false)
 const selectedQuarantineToEdit = ref(null)
+
+const dapStore = inject('dapStore', null)
+
+// Watcher to keep modal in sync with tour steps
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([active, targetId]) => {
+    if (!active) return
+    if (typeof targetId === 'string' && targetId.startsWith('bm.inventory.quarantine.') && !targetId.includes('modal') && !targetId.includes('branch') && !targetId.includes('unit') && !targetId.includes('product') && !targetId.includes('condition') && !targetId.includes('status') && !targetId.includes('decision') && !targetId.includes('submit-btn')) {
+      if (showCreateModal.value) {
+        showCreateModal.value = false
+      }
+    }
+  }
+)
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
@@ -73,6 +88,20 @@ const filteredBranchAffectedUnits = computed(() => {
 const openCreateModal = () => {
   selectedQuarantineToEdit.value = null
   showCreateModal.value = true
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId === 'bm.inventory.quarantine.create-btn') {
+    dapStore.handleRealFieldAction?.()
+  }
+}
+
+const handleModalClose = () => {
+  showCreateModal.value = false
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId?.startsWith('bm.inventory.quarantine.') && dapStore?.currentStep?.targetId !== 'bm.inventory.quarantine.create-btn' && (dapStore?.currentStep?.targetId.includes('modal') || dapStore?.currentStep?.targetId.includes('branch') || dapStore?.currentStep?.targetId.includes('unit') || dapStore?.currentStep?.targetId.includes('product') || dapStore?.currentStep?.targetId.includes('condition') || dapStore?.currentStep?.targetId.includes('status') || dapStore?.currentStep?.targetId.includes('decision') || dapStore?.currentStep?.targetId.includes('submit-btn'))) {
+    const steps = dapStore.currentMission?.steps || []
+    const triggerIdx = steps.findIndex(s => s.targetId === 'bm.inventory.quarantine.create-btn')
+    if (triggerIdx !== -1) {
+      dapStore.currentStepIndex = triggerIdx
+    }
+  }
 }
 
 const openEditModal = (item) => {
@@ -154,7 +183,7 @@ const filteredItems = computed(() => {
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.inventory.quarantine.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Damaged / Quarantine / <span class="font-medium text-gray-600">Damaged / Quarantine</span>
@@ -163,6 +192,7 @@ const filteredItems = computed(() => {
         <p class="text-xs text-gray-500 mt-1">Local affected units awaiting service, supplier-return or management decision.</p>
       </div>
       <button 
+        data-tour-id="bm.inventory.quarantine.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -172,7 +202,7 @@ const filteredItems = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.quarantine.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -182,7 +212,7 @@ const filteredItems = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.quarantine.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Filter Dropdown -->
         <div class="relative" @click.stop>
@@ -221,7 +251,7 @@ const filteredItems = computed(() => {
     </div>
 
     <!-- Affected Units Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.inventory.quarantine.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-bold text-gray-900">Affected Units</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchAffectedUnits.length }} units</span>
@@ -430,7 +460,7 @@ const filteredItems = computed(() => {
     <CreateQuarantineRecordModal 
       v-if="showCreateModal" 
       :quarantine-item="selectedQuarantineToEdit"
-      @close="showCreateModal = false"
+      @close="handleModalClose"
       @created="handleCreated"
       @updated="handleUpdated"
     />

@@ -288,7 +288,7 @@ watch(() => [route.params.id, route.query.id], () => {
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-wrap items-center gap-3">
+    <div data-tour-id="sa.system.audit.filters" class="flex flex-wrap items-center gap-3">
       <!-- Search -->
       <div class="relative w-full sm:w-60">
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -425,7 +425,7 @@ watch(() => [route.params.id, route.query.id], () => {
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.system.audit.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <h3 class="text-[13px] font-bold text-gray-900">Audit Events</h3>

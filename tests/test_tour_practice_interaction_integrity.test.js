@@ -16,14 +16,24 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { superAdminMissions } from '../src/tour/content/superAdmin/superAdminMissions.js';
 import { branchManagerMissions } from '../src/tour/content/branchManager/branchManagerMissions.js';
 import { crossRoleScenarios } from '../src/tour/content/scenarios/crossRoleScenarios.js';
-import { getTarget, clearRegistry, seedRepresentativeTargets } from '../src/tour/targetRegistry.js';
+import { getTarget, clearRegistry, seedRepresentativeTargets, TARGET_STATES } from '../src/tour/targetRegistry.js';
 import {
   PRACTICE_INVARIANTS,
   bindTargetInteraction,
   checkTargetInteractivity,
   validateInputValue,
+  evaluatePostcondition,
+  isTourUiElement,
+  queryApplicationElement,
   MUTATION_RISK_CLASSES,
 } from '../src/tour/engine/interactionManager.js';
+import { dapStore } from '../src/stores/dapStore.js';
+import { resolveTarget } from '../src/tour/targetResolver.js';
+import { mount } from '@vue/test-utils';
+import CreateUser from '../src/views/organisation/CreateUser.vue';
+import CreateLead from '../src/views/sales/CreateLead.vue';
+import CreateBranch from '../src/views/organisation/CreateBranch.vue';
+import { createRouter, createMemoryHistory } from 'vue-router';
 
 describe('Take-a-Tour: Practice Mode Interaction Integrity Suite', () => {
   beforeEach(() => {
@@ -173,7 +183,7 @@ describe('Take-a-Tour: Practice Mode Interaction Integrity Suite', () => {
       id: 'sa-03-02',
       mode: 'PRACTICE',
       expectedAction: 'CLICK',
-      actionType: 'NAVIGATE',
+      actionType: 'OPEN_MODAL',
     };
 
     const cleanup = bindTargetInteraction(button, step, (isValid) => {
@@ -309,25 +319,28 @@ describe('Take-a-Tour: Practice Mode Interaction Integrity Suite', () => {
     expect(step2.id).toBe('sa-03-02');
     expect(step2.mode).toBe('PRACTICE');
     expect(step2.expectedAction).toBe('CLICK');
-    expect(step2.actionType).toBe('NAVIGATE');
-    expect(step2.postconditionRoute).toBe('/organisation/branches/create');
+    expect(step2.actionType).toBe('OPEN_MODAL');
+    expect(step2.postconditionSelector).toBe('[data-tour-id="sa.organisation.createbranch.identity-card"]');
+    expect(step2.route).toBe('/organisation/branches');
 
     // Instruction copy aligned with physical button label "Add Branch"
     expect(step2.instruction).toContain('Add Branch');
 
     // Mock button mount
     const addBranchBtn = document.createElement('button');
-    addBranchBtn.setAttribute('data-tour-id', 'sa.org.branches.create-btn');
+    addBranchBtn.setAttribute('data-tour-id', 'sa.organisation.branches.create-btn');
     addBranchBtn.textContent = 'Add Branch';
     document.body.appendChild(addBranchBtn);
 
-    let appNavigated = false;
+    let modalOpened = false;
     let tourStepDone = false;
 
     addBranchBtn.addEventListener('click', () => {
-      // Simulate real app navigation
-      window.history.pushState({}, '', '/organisation/branches/create');
-      appNavigated = true;
+      // Simulate real in-page modal mount
+      const modalEl = document.createElement('div');
+      modalEl.setAttribute('data-tour-id', 'sa.organisation.createbranch.identity-card');
+      document.body.appendChild(modalEl);
+      modalOpened = true;
     });
 
     const cleanup = bindTargetInteraction(addBranchBtn, step2, (isValid) => {
@@ -337,9 +350,367 @@ describe('Take-a-Tour: Practice Mode Interaction Integrity Suite', () => {
     // User clicks Add Branch
     addBranchBtn.click();
 
-    expect(appNavigated).toBe(true);
+    expect(modalOpened).toBe(true);
     expect(tourStepDone).toBe(true);
 
     cleanup();
+  });
+
+  // =========================================================================
+  // 10. DEFECT VERIFICATION: TOUR OVERLAY CANNOT SATISFY PRACTICE POSTCONDITION
+  // =========================================================================
+  it('proves that the tour overlay alone does not validate a practice step', () => {
+    // 1. Simulate the guided tour's own visual layers in the DOM
+    const dapRoot = document.createElement('div');
+    dapRoot.className = 'dap-root-container';
+
+    // Spotlight overlay with generic .fixed.inset-0 class
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 z-[9990] pointer-events-none';
+    dapRoot.appendChild(overlay);
+
+    // Coachmark card with fixed placement
+    const card = document.createElement('div');
+    card.setAttribute('data-tour-id', 'coachmark.card');
+    card.className = 'fixed z-[9995] text-white';
+    dapRoot.appendChild(card);
+
+    document.body.appendChild(dapRoot);
+
+    // Verify isTourUiElement correctly identifies these tour layers
+    expect(isTourUiElement(overlay)).toBe(true);
+    expect(isTourUiElement(card)).toBe(true);
+
+    // 2. Step with a generic postcondition selector
+    const stepWithFixedSelector = {
+      id: 'test-practice-step',
+      mode: 'PRACTICE',
+      expectedAction: 'CLICK',
+      actionType: 'OPEN_MODAL',
+      postconditionSelector: '.fixed.inset-0',
+    };
+
+    // The overlay alone MUST NOT satisfy the postcondition!
+    expect(evaluatePostcondition(stepWithFixedSelector)).toBe(false);
+
+    // dapStore interactive step must start unvalidated
+    dapStore.isActive = true;
+    const origStep = dapStore.currentStep;
+    Object.defineProperty(dapStore, 'currentStep', {
+      get: () => stepWithFixedSelector,
+      configurable: true,
+    });
+
+    dapStore.initStepValidation();
+    expect(dapStore.isStepValidated).toBe(false);
+    expect(dapStore.canAdvance).toBe(false);
+
+    // Restore currentStep
+    Object.defineProperty(dapStore, 'currentStep', {
+      get: () => origStep,
+      configurable: true,
+    });
+    dapRoot.remove();
+  });
+
+  it('proves that the step remains locked until the intended user action occurs, and unlocks only on expected postcondition', () => {
+    // 1. Tour overlay is present
+    const dapRoot = document.createElement('div');
+    dapRoot.className = 'dap-root-container';
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 z-[9990] pointer-events-none';
+    dapRoot.appendChild(overlay);
+    document.body.appendChild(dapRoot);
+
+    // 2. Application target button is mounted
+    const button = document.createElement('button');
+    button.setAttribute('data-tour-id', 'sa.organisation.users.create-btn');
+    button.textContent = '+ Add User';
+    document.body.appendChild(button);
+
+    // Get real SA-04 Step 2
+    const sa04 = superAdminMissions.find(m => m.code === 'SA-04');
+    const sa04Step2 = sa04.steps.find(s => s.id === 'sa-04-02');
+    expect(sa04Step2.postconditionSelector).not.toContain('.fixed.inset-0');
+
+    let stepCompleted = false;
+    const cleanup = bindTargetInteraction(button, sa04Step2, (isValid) => {
+      stepCompleted = isValid;
+    });
+
+    // 3. Step remains locked before user click
+    expect(stepCompleted).toBe(false);
+
+    // 4. Clicking elsewhere or unrelated elements does not unlock step
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(stepCompleted).toBe(false);
+
+    // 5. User clicks the intended application button, but modal has not mounted yet
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(stepCompleted).toBe(false);
+
+    // 6. Application mounts the real target modal element
+    const userModal = document.createElement('div');
+    userModal.setAttribute('data-tour-id', 'sa.organisation.createuser.identity-card');
+    document.body.appendChild(userModal);
+
+    // 7. Postcondition is now met and step unlocks
+    expect(evaluatePostcondition(sa04Step2)).toBe(true);
+
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(stepCompleted).toBe(true);
+
+    cleanup();
+    dapRoot.remove();
+    button.remove();
+    userModal.remove();
+  });
+
+  // =========================================================================
+  // 13. INV-FORM-TOUR-001: ORGANIZATION CREATE USER FORM SEQUENCE (SA-04)
+  // =========================================================================
+  it('INV-FORM-TOUR-001: verifies the complete sequence from Add User -> Create User form fields -> final submit action', () => {
+    const sa04 = superAdminMissions.find(m => m.code === 'SA-04');
+    expect(sa04).toBeDefined();
+
+    // Verify step progression: step 2 (Add User) -> steps 3-9 (form fields & final action)
+    const step2 = sa04.steps.find(s => s.id === 'sa-04-02');
+    expect(step2.actionType).toBe('OPEN_MODAL');
+    expect(step2.postconditionSelector).toContain('sa.organisation.createuser.identity-card');
+
+    const expectedFormSequence = [
+      { id: 'sa-04-03', targetId: 'sa.organisation.createuser.name', title: 'Full Name & Staff Identity' },
+      { id: 'sa-04-04', targetId: 'sa.organisation.createuser.email', title: 'Corporate Email & Login Credential' },
+      { id: 'sa-04-05', targetId: 'sa.organisation.createuser.role', title: 'Role & Authority Tier' },
+      { id: 'sa-04-06', targetId: 'sa.organisation.createuser.branch', title: 'Branch Custody & Operational Scope' },
+      { id: 'sa-04-07', targetId: 'sa.organisation.createuser.security-card', title: 'Security & MFA Controls' },
+      { id: 'sa-04-08', targetId: 'sa.organisation.createuser.permissions-card', title: 'Permissions Scope Overview' },
+      { id: 'sa-04-09', targetId: 'sa.organisation.createuser.submit-btn', title: 'Create User Action' },
+    ];
+
+    for (const expected of expectedFormSequence) {
+      const step = sa04.steps.find(s => s.id === expected.id);
+      expect(step, `Step ${expected.id} must exist in SA-04`).toBeDefined();
+      expect(step.targetId).toBe(expected.targetId);
+      expect(step.route).toBe('/organisation/users');
+      expect(step.mode).toBe('OBSERVE');
+      expect(step.trainingType).toBe('observe');
+      expect(step.mutationRisk).toBe('RISK_0_READ_ONLY');
+      expect(step.skippable).toBe(true);
+    }
+
+    // Mount real CreateUser component and verify every form step resolves to a mounted DOM target
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/organisation/users', component: { template: '<div>Users</div>' } }]
+    });
+
+    const wrapper = mount(CreateUser, {
+      props: { isModal: true },
+      global: { plugins: [router] },
+      attachTo: document.body
+    });
+
+    for (const expected of expectedFormSequence) {
+      const el = document.querySelector(`[data-tour-id="${expected.targetId}"]`);
+      expect(el, `Target ${expected.targetId} must be present in mounted DOM`).not.toBeNull();
+
+      // Mock client layout dimensions for JSDOM geometry evaluation
+      Object.defineProperty(el, 'getBoundingClientRect', {
+        value: () => ({ top: 100, bottom: 140, left: 100, right: 350, width: 250, height: 40 }),
+        configurable: true
+      });
+
+      const res = resolveTarget(expected.targetId);
+      expect(res.element, `Target ${expected.targetId} must resolve to a mounted DOM element`).toBe(el);
+      expect(res.state, `Target ${expected.targetId} must resolve to TARGET_VISIBLE`).toBe(TARGET_STATES.TARGET_VISIBLE);
+    }
+
+    wrapper.unmount();
+  });
+
+  // =========================================================================
+  // 14. INV-FORM-TOUR-002: BRANCH MANAGER CREATE LEAD FORM SEQUENCE (BM-03)
+  // =========================================================================
+  it('INV-FORM-TOUR-002: verifies the complete sequence from Add Lead -> Create Lead form fields -> final submit action', () => {
+    const bm03 = branchManagerMissions.find(m => m.code === 'BM-03');
+    expect(bm03).toBeDefined();
+
+    // Verify step 2 (Add Lead) opens modal with semantic postcondition
+    const step2 = bm03.steps.find(s => s.id === 'bm-03-02');
+    expect(step2.actionType).toBe('OPEN_MODAL');
+    expect(step2.postconditionSelector).toContain('bm.sales.createlead.name');
+
+    const expectedFormSequence = [
+      { id: 'bm-03-03', targetId: 'bm.sales.createlead.name', title: 'Prospect Full Name' },
+      { id: 'bm-03-04', targetId: 'bm.sales.createlead.phone', title: 'Customer Contact Phone' },
+      { id: 'bm-03-05', targetId: 'bm.sales.createlead.source', title: 'Lead Inflow Channel' },
+      { id: 'bm-03-06', targetId: 'bm.sales.createlead.branch', title: 'Showroom Branch Scope' },
+      { id: 'bm-03-07', targetId: 'bm.sales.createlead.product', title: 'Vehicle Model Preference' },
+      { id: 'bm-03-08', targetId: 'bm.sales.createlead.stage', title: 'Pipeline Conversion Stage' },
+      { id: 'bm-03-09', targetId: 'bm.sales.createlead.submit-btn', title: 'Save Lead Action' },
+    ];
+
+    for (const expected of expectedFormSequence) {
+      const step = bm03.steps.find(s => s.id === expected.id);
+      expect(step, `Step ${expected.id} must exist in BM-03`).toBeDefined();
+      expect(step.targetId).toBe(expected.targetId);
+      expect(step.route).toBe('/sales/leads');
+      expect(step.mode).toBe('OBSERVE');
+      expect(step.trainingType).toBe('observe');
+      expect(step.mutationRisk).toBe('RISK_0_READ_ONLY');
+      expect(step.skippable).toBe(true);
+    }
+
+    // Mount real CreateLead component and verify every form step resolves to a mounted DOM target
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/sales/leads', component: { template: '<div>Leads</div>' } }]
+    });
+
+    const wrapper = mount(CreateLead, {
+      props: { isModal: true },
+      global: { plugins: [router] },
+      attachTo: document.body
+    });
+
+    for (const expected of expectedFormSequence) {
+      const el = document.querySelector(`[data-tour-id="${expected.targetId}"]`);
+      expect(el, `Target ${expected.targetId} must be present in mounted DOM`).not.toBeNull();
+
+      // Mock client layout dimensions for JSDOM geometry evaluation
+      Object.defineProperty(el, 'getBoundingClientRect', {
+        value: () => ({ top: 120, bottom: 160, left: 100, right: 350, width: 250, height: 40 }),
+        configurable: true
+      });
+
+      const res = resolveTarget(expected.targetId);
+      expect(res.element, `Target ${expected.targetId} must resolve to a mounted DOM element`).toBe(el);
+      expect(res.state, `Target ${expected.targetId} must resolve to TARGET_VISIBLE`).toBe(TARGET_STATES.TARGET_VISIBLE);
+    }
+
+    wrapper.unmount();
+  });
+
+  // =========================================================================
+  // 15. INV-FORM-TOUR-003: REAL VUE COMPONENT TARGET PRESENCE
+  // =========================================================================
+  it('INV-FORM-TOUR-003: ensures all interactive form inputs and submit buttons exist on real mounted components', () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: '/organisation/users', component: { template: '<div>Users</div>' } },
+        { path: '/sales/leads', component: { template: '<div>Leads</div>' } }
+      ]
+    });
+
+    // CreateUser Component Checks
+    const userWrapper = mount(CreateUser, {
+      props: { isModal: true },
+      global: { plugins: [router] }
+    });
+
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.name"]').exists()).toBe(true);
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.email"]').exists()).toBe(true);
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.role"]').exists()).toBe(true);
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.branch"]').exists()).toBe(true);
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.security-card"]').exists()).toBe(true);
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.permissions-card"]').exists()).toBe(true);
+    expect(userWrapper.find('[data-tour-id="sa.organisation.createuser.submit-btn"]').exists()).toBe(true);
+    userWrapper.unmount();
+
+    // CreateLead Component Checks
+    const leadWrapper = mount(CreateLead, {
+      props: { isModal: true },
+      global: { plugins: [router] }
+    });
+
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.info-card"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.name"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.phone"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.source"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.scope-card"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.branch"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.product"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.stage"]').exists()).toBe(true);
+    expect(leadWrapper.find('[data-tour-id="bm.sales.createlead.submit-btn"]').exists()).toBe(true);
+    leadWrapper.unmount();
+
+    // CreateBranch Component Checks
+    const branchWrapper = mount(CreateBranch, {
+      props: { isModal: true },
+      global: { plugins: [router] }
+    });
+
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.identity-card"]').exists()).toBe(true);
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.name"]').exists()).toBe(true);
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.code"]').exists()).toBe(true);
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.location-card"]').exists()).toBe(true);
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.operations-card"]').exists()).toBe(true);
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.controls-card"]').exists()).toBe(true);
+    expect(branchWrapper.find('[data-tour-id="sa.organisation.createbranch.submit-btn"]').exists()).toBe(true);
+    branchWrapper.unmount();
+  });
+
+  // =========================================================================
+  // 16. INV-FORM-TOUR-004: SUPER ADMIN CREATE BRANCH FORM SEQUENCE (SA-03)
+  // =========================================================================
+  it('INV-FORM-TOUR-004: verifies the complete sequence from Add Branch -> Create Branch form cards -> modal presence', () => {
+    const sa03 = superAdminMissions.find(m => m.code === 'SA-03');
+    expect(sa03).toBeDefined();
+
+    // Verify step 2 (Add Branch) opens modal with semantic postcondition
+    const step2 = sa03.steps.find(s => s.id === 'sa-03-02');
+    expect(step2.actionType).toBe('OPEN_MODAL');
+    expect(step2.postconditionSelector).toContain('sa.organisation.createbranch.identity-card');
+
+    const expectedFormSequence = [
+      { id: 'sa-03-03', targetId: 'sa.organisation.createbranch.identity-card', title: '1. Branch Identity' },
+      { id: 'sa-03-04', targetId: 'sa.organisation.createbranch.location-card', title: '2. Location & Contact' },
+      { id: 'sa-03-05', targetId: 'sa.organisation.createbranch.operations-card', title: '3. Management & Operations' },
+      { id: 'sa-03-06', targetId: 'sa.organisation.createbranch.controls-card', title: '4. Controls & Policies' },
+    ];
+
+    for (const expected of expectedFormSequence) {
+      const step = sa03.steps.find(s => s.id === expected.id);
+      expect(step, `Step ${expected.id} must exist in SA-03`).toBeDefined();
+      expect(step.targetId).toBe(expected.targetId);
+      expect(step.route).toBe('/organisation/branches');
+      expect(step.mode).toBe('OBSERVE');
+      expect(step.trainingType).toBe('observe');
+      expect(step.mutationRisk).toBe('RISK_0_READ_ONLY');
+      expect(step.skippable).toBe(true);
+    }
+
+    // Mount real CreateBranch component and verify every form card resolves to a mounted DOM target
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/organisation/branches', component: { template: '<div>Branches</div>' } }]
+    });
+
+    const wrapper = mount(CreateBranch, {
+      props: { isModal: true },
+      global: { plugins: [router] },
+      attachTo: document.body
+    });
+
+    for (const expected of expectedFormSequence) {
+      const el = document.querySelector(`[data-tour-id="${expected.targetId}"]`);
+      expect(el, `Target ${expected.targetId} must be present in mounted DOM`).not.toBeNull();
+
+      // Mock client layout dimensions for JSDOM geometry evaluation
+      Object.defineProperty(el, 'getBoundingClientRect', {
+        value: () => ({ top: 100, bottom: 250, left: 100, right: 450, width: 350, height: 150 }),
+        configurable: true
+      });
+
+      const res = resolveTarget(expected.targetId);
+      expect(res.element, `Target ${expected.targetId} must resolve to a mounted DOM element`).toBe(el);
+      expect(res.state, `Target ${expected.targetId} must resolve to TARGET_VISIBLE`).toBe(TARGET_STATES.TARGET_VISIBLE);
+    }
+
+    expect(wrapper.find('[data-tour-id="sa.organisation.createbranch.submit-btn"]').exists()).toBe(true);
+
+    wrapper.unmount();
   });
 });

@@ -89,12 +89,13 @@ const submitForm = () => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               <!-- 1. User Identity -->
-              <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+              <div data-tour-id="sa.organisation.createuser.identity-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
                 <h3 class="text-[14px] font-bold text-gray-900 mb-2">1. User Identity</h3>
                 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Full Name *</label>
                   <input 
+                    data-tour-id="sa.organisation.createuser.name"
                     v-model="form.name" 
                     type="text" 
                     placeholder="e.g. Ahsan Khan" 
@@ -109,6 +110,7 @@ const submitForm = () => {
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Email Address *</label>
                   <input 
+                    data-tour-id="sa.organisation.createuser.email"
                     v-model="form.email" 
                     type="email" 
                     placeholder="e.g. ahsan@ajecodrive.com" 
@@ -122,17 +124,17 @@ const submitForm = () => {
 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Mobile Number</label>
-                  <input v-model="form.mobile" type="text" placeholder="+92 300 555 0191" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+                  <input data-tour-id="sa.organisation.createuser.mobile" v-model="form.mobile" type="text" placeholder="+92 300 555 0191" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
                 </div>
               </div>
 
               <!-- 2. Role & Scope -->
-              <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+              <div data-tour-id="sa.organisation.createuser.role-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
                 <h3 class="text-[14px] font-bold text-gray-900 mb-2">2. Role & Scope</h3>
                 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Role *</label>
-                  <select v-model="form.role" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
+                  <select data-tour-id="sa.organisation.createuser.role" v-model="form.role" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white">
                     <option value="Branch Manager">Branch Manager</option>
                     <option value="Sales Executive">Sales Executive</option>
                     <option value="CRM Executive">CRM Executive</option>
@@ -143,7 +145,7 @@ const submitForm = () => {
                 
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Assigned Branch *</label>
-                  <select v-model="form.branch" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
+                  <select data-tour-id="sa.organisation.createuser.branch" v-model="form.branch" class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)] bg-white cursor-pointer">
                     <option v-for="b in (store.branches || []).filter(b => b.name && b.name.toLowerCase() !== 'all branches')" :key="b.id || b.name" :value="b.name">
                       {{ b.name }} Branch
                     </option>
@@ -162,7 +164,7 @@ const submitForm = () => {
               </div>
 
               <!-- 3. Security -->
-              <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+              <div data-tour-id="sa.organisation.createuser.security-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
                 <h3 class="text-[14px] font-bold text-gray-900 mb-2">3. Security & Access</h3>
                 
                 <div>
@@ -183,7 +185,7 @@ const submitForm = () => {
               </div>
 
               <!-- 4. Permissions Overview -->
-              <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-3">
+              <div data-tour-id="sa.organisation.createuser.permissions-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-3">
                 <h3 class="text-[14px] font-bold text-gray-900 mb-2">4. Permissions Scope</h3>
                 <div class="space-y-2 text-xs text-gray-700">
                   <div class="flex items-center gap-2">
@@ -208,7 +210,7 @@ const submitForm = () => {
               <button type="button" @click="cancel" class="px-5 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer">
                 Cancel
               </button>
-              <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+              <button data-tour-id="sa.organisation.createuser.submit-btn" type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
                 Create User & Send Invite
               </button>
             </div>

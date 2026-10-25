@@ -140,7 +140,7 @@ const branchRanking = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="sa.dashboard.branch-perf.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in superAdminKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="flex items-end justify-between">
@@ -155,7 +155,7 @@ const branchRanking = computed(() => {
     <!-- Middle Grids -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- Branch Ranking -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
+      <div data-tour-id="sa.dashboard.branch-perf.ranking" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
         <h3 class="text-[13px] font-bold text-gray-900 mb-5">Branch Ranking</h3>
         <div class="space-y-4 flex-1 flex flex-col justify-center">
           <div v-for="branch in branchRanking" :key="branch.name" class="flex flex-wrap items-center gap-4">
@@ -181,7 +181,7 @@ const branchRanking = computed(() => {
     </div>
 
     <!-- Detailed Branch Comparison Table -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.dashboard.branch-perf.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Detailed Branch Comparison</h3>
       </div>

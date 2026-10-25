@@ -156,7 +156,7 @@ const submitRequest = () => {
       <X class="w-5 h-5" />
     </button>
 
-    <div class="bg-white dark:bg-[#161d2b] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div data-tour-id="bm.inventory.requests.modal" class="bg-white dark:bg-[#161d2b] border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <!-- Scrollable Body -->
       <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
         <!-- Header -->
@@ -166,7 +166,7 @@ const submitRequest = () => {
               <span v-if="isBranchUser">Branch Manager / Stock Requests / <span class="font-bold text-gray-700 dark:text-gray-300">{{ isEditMode ? 'Edit Stock Request' : 'Create Stock Request' }}</span></span>
               <span v-else>Super Admin / Inventory / Stock Requests / <span class="font-bold text-gray-700 dark:text-gray-300">{{ isEditMode ? 'Edit Stock Request' : 'Create Stock Request' }}</span></span>
             </div>
-            <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900 dark:text-white">{{ isEditMode ? 'Edit Stock Request' : 'Create Stock Request' }}</h1>
+            <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900 dark:white">{{ isEditMode ? 'Edit Stock Request' : 'Create Stock Request' }}</h1>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submit showroom replenishment request to Head Office for inventory rebalancing.</p>
           </div>
           <div class="flex items-center gap-2">
@@ -199,6 +199,7 @@ const submitRequest = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Requesting Branch *</label>
                 <select 
                   data-tour="stock-request-branch" 
+                  data-tour-id="bm.inventory.requests.branch"
                   v-model="form.branch" 
                   :disabled="isBranchUser"
                   @change="onProductSelect(form.productId)"
@@ -212,6 +213,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Select Vehicle / Item *</label>
                 <select data-tour="productid" 
+                  data-tour-id="bm.inventory.requests.product"
                   v-model="form.productId"
                   @change="onProductSelect(form.productId)"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
@@ -235,6 +237,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Requested Units Qty *</label>
                 <input data-tour="requestedqty" 
+                  data-tour-id="bm.inventory.requests.quantity"
                   v-model="form.requestedQty"
                   type="number" 
                   min="1"
@@ -248,6 +251,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Urgency Level</label>
                 <select data-tour="urgency" 
+                  data-tour-id="bm.inventory.requests.urgency"
                   v-model="form.urgency"
                   class="w-full px-3.5 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
@@ -266,6 +270,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Expected Demand / Pipeline</label>
                 <input data-tour="expecteddemand" 
+                  data-tour-id="bm.inventory.requests.demand"
                   v-model="form.expectedDemand"
                   type="text" 
                   placeholder="e.g. 2 active quotations + corporate fleet visit"
@@ -286,6 +291,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Reason for Request *</label>
                 <textarea data-tour="reason" 
+                  data-tour-id="bm.inventory.requests.reason"
                   v-model="form.reason"
                   rows="2"
                   placeholder="Explain why stock replenishment is necessary now..."
@@ -317,6 +323,7 @@ const submitRequest = () => {
               Cancel
             </button>
             <button 
+              data-tour-id="bm.inventory.requests.submit-btn"
               type="submit" 
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer flex items-center gap-2"
             >

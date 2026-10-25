@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Search, Check, Plus, Pencil } from 'lucide-vue-next'
 import { store } from '../../store.js'
+import { dapStore } from '@/stores/dapStore.js'
 import CreateAdjustmentRequestModal from './CreateAdjustmentRequest.vue'
 
 const router = useRouter()
@@ -11,6 +12,25 @@ const selectedAdjustmentToEdit = ref(null)
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+// Synchronize create modal state with active guided tour step targets
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([isActive, targetId]) => {
+    if (!isActive) return
+    if (
+      targetId === 'bm.inventory.adjustments.header' ||
+      targetId === 'bm.inventory.adjustments.kpis' ||
+      targetId === 'bm.inventory.adjustments.filters' ||
+      targetId === 'bm.inventory.adjustments.table' ||
+      targetId === 'bm.inventory.adjustments.create-btn'
+    ) {
+      if (showCreateModal.value && !selectedAdjustmentToEdit.value) {
+        showCreateModal.value = false
+      }
+    }
+  }
+)
 
 // Branch Manager Data
 const branchAdjustments = computed(() => {
@@ -69,6 +89,24 @@ const filteredBranchAdjustments = computed(() => {
 const openCreateModal = () => {
   selectedAdjustmentToEdit.value = null
   showCreateModal.value = true
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId === 'bm.inventory.adjustments.create-btn') {
+    if (typeof dapStore.handleRealFieldAction === 'function') {
+      dapStore.handleRealFieldAction()
+    }
+  }
+}
+
+const handleModalClose = () => {
+  showCreateModal.value = false
+  selectedAdjustmentToEdit.value = null
+  // Safe exit handling: if user closes modal via Cancel or X while tour is on a modal step, rewind to trigger step
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId?.startsWith('bm.inventory.adjustments.') && 
+      !['bm.inventory.adjustments.header', 'bm.inventory.adjustments.kpis', 'bm.inventory.adjustments.filters', 'bm.inventory.adjustments.table', 'bm.inventory.adjustments.create-btn'].includes(dapStore?.currentStep?.targetId)) {
+    const triggerIdx = dapStore.currentSteps.findIndex(s => s.targetId === 'bm.inventory.adjustments.create-btn')
+    if (triggerIdx !== -1) {
+      dapStore.goToStep(triggerIdx)
+    }
+  }
 }
 
 const openEditModal = (item) => {
@@ -147,7 +185,7 @@ const filteredAdjustments = computed(() => {
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-      <div>
+      <div data-tour-id="bm.inventory.adjustments.header">
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Adjustments / <span class="font-medium text-gray-600">Stock Adjustments</span>
         </div>
@@ -155,6 +193,7 @@ const filteredAdjustments = computed(() => {
         <p class="text-xs text-gray-500 mt-1">Branch inventory corrections with approval and posting status.</p>
       </div>
       <button 
+        data-tour-id="bm.inventory.adjustments.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -164,7 +203,7 @@ const filteredAdjustments = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.adjustments.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -175,7 +214,7 @@ const filteredAdjustments = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.adjustments.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Filter Dropdown -->
         <div class="relative" @click.stop>
@@ -214,7 +253,7 @@ const filteredAdjustments = computed(() => {
     </div>
 
     <!-- Adjustments Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.inventory.adjustments.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-bold text-gray-900">Adjustments</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchAdjustments.length }} adjustments</span>
@@ -284,7 +323,7 @@ const filteredAdjustments = computed(() => {
     <CreateAdjustmentRequestModal 
       v-if="showCreateModal" 
       :adjustment-item="selectedAdjustmentToEdit"
-      @close="showCreateModal = false"
+      @close="handleModalClose"
       @created="handleCreated"
       @updated="handleUpdated"
     />
@@ -300,6 +339,7 @@ const filteredAdjustments = computed(() => {
         <p class="text-sm text-gray-500 mt-1">Control non-routine inventory corrections through approval.</p>
       </div>
       <button 
+        data-tour-id="sa.inventory.adjustments.create-btn"
         @click="openCreateModal" 
         class="px-4 py-2 bg-[#165A31] text-white text-[11px] font-bold rounded-lg hover:bg-[#114a28] transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
       >

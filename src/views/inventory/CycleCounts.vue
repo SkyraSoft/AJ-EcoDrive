@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Search, Check, Plus, Pencil } from 'lucide-vue-next'
 import { store } from '../../store.js'
@@ -8,6 +8,21 @@ import CreateCycleCountModal from './CreateCycleCount.vue'
 const router = useRouter()
 const showCreateModal = ref(false)
 const selectedCountToEdit = ref(null)
+
+const dapStore = inject('dapStore', null)
+
+// Watcher to keep modal in sync with tour steps
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([active, targetId]) => {
+    if (!active) return
+    if (typeof targetId === 'string' && targetId.startsWith('bm.inventory.cycle.') && !targetId.includes('modal') && !targetId.includes('name') && !targetId.includes('scope') && !targetId.includes('assigned-to') && !targetId.includes('expected-units') && !targetId.includes('branch') && !targetId.includes('submit-btn')) {
+      if (showCreateModal.value) {
+        showCreateModal.value = false
+      }
+    }
+  }
+)
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
@@ -76,6 +91,20 @@ const filteredBranchCycleCounts = computed(() => {
 const openCreateModal = () => {
   selectedCountToEdit.value = null
   showCreateModal.value = true
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId === 'bm.inventory.cycle.create-btn') {
+    dapStore.handleRealFieldAction?.()
+  }
+}
+
+const handleModalClose = () => {
+  showCreateModal.value = false
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId?.startsWith('bm.inventory.cycle.') && dapStore?.currentStep?.targetId !== 'bm.inventory.cycle.create-btn' && (dapStore?.currentStep?.targetId.includes('modal') || dapStore?.currentStep?.targetId.includes('name') || dapStore?.currentStep?.targetId.includes('scope') || dapStore?.currentStep?.targetId.includes('assigned-to') || dapStore?.currentStep?.targetId.includes('expected-units') || dapStore?.currentStep?.targetId.includes('branch') || dapStore?.currentStep?.targetId.includes('submit-btn'))) {
+    const steps = dapStore.currentMission?.steps || []
+    const triggerIdx = steps.findIndex(s => s.targetId === 'bm.inventory.cycle.create-btn')
+    if (triggerIdx !== -1) {
+      dapStore.currentStepIndex = triggerIdx
+    }
+  }
 }
 
 const openEditModal = (item) => {
@@ -152,7 +181,7 @@ const filteredCycleCounts = computed(() => {
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.inventory.cycle.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Cycle Counts / <span class="font-medium text-gray-600">Cycle Counts</span>
@@ -161,6 +190,7 @@ const filteredCycleCounts = computed(() => {
         <p class="text-xs text-gray-500 mt-1">Assigned and scheduled {{ user?.branchName || 'Peshawar' }} Branch physical counts.</p>
       </div>
       <button 
+        data-tour-id="bm.inventory.cycle.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -170,7 +200,7 @@ const filteredCycleCounts = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.cycle.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -181,7 +211,7 @@ const filteredCycleCounts = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.cycle.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Filter Dropdown -->
         <div class="relative" @click.stop>
@@ -220,7 +250,7 @@ const filteredCycleCounts = computed(() => {
     </div>
 
     <!-- Cycle Counts Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.inventory.cycle.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-bold text-gray-900">Cycle Counts</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchCycleCounts.length }} count sessions</span>
@@ -412,7 +442,7 @@ const filteredCycleCounts = computed(() => {
     <CreateCycleCountModal 
       v-if="showCreateModal" 
       :count-item="selectedCountToEdit"
-      @close="showCreateModal = false"
+      @close="handleModalClose"
       @created="handleCreated"
       @updated="handleUpdated"
     />

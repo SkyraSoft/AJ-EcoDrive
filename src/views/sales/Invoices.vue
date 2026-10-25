@@ -489,16 +489,16 @@ const resetFilters = () => {
         <p class="text-sm text-gray-500 mt-1">Network-wide billing and collections oversight.</p>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <button @click="openCreateModal" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#165A31] text-white px-4 py-2 text-[12px] font-bold rounded-lg hover:bg-[#124a28] transition-colors shadow-sm">
+        <button data-tour-id="sa.sales.invoices.create-btn" @click="openCreateModal" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#165A31] text-white px-4 py-2 text-[12px] font-bold rounded-lg hover:bg-[#124a28] transition-colors shadow-sm">
           <Plus class="w-4 h-4" /> Create Invoice
         </button>
       </div>
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.sales.invoices.table" class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <!-- Filter Bar -->
-      <div class="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+      <div data-tour-id="sa.sales.invoices.filters" class="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-3 flex-1">
           <div class="relative" @click.stop>
             <button 

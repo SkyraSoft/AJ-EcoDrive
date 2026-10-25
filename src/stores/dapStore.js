@@ -11,8 +11,12 @@ import {
   getContextHelp,
   getAllContextHelp,
   getAllScenarios,
+  branchManagerPageTours,
+  BM_INVENTORY_SUBPAGE_ROUTES,
   TOUR_MODES
 } from '@/tour/content/catalog.js'
+import { superAdminMissions } from '@/tour/content/superAdmin/superAdminMissions.js'
+import { branchManagerMissions } from '@/tour/content/branchManager/branchManagerMissions.js'
 import { getCatalogForRole as getLegacyCatalogForRole } from '@/tour/adapters/legacyDapAdapter.js'
 
 const STORAGE_KEY = 'aj_ecodrive_dap_state_v3'
@@ -51,6 +55,15 @@ export const dapStore = reactive({
   activeContextHelpTopic: null,
   activeFieldGuides: [],
 
+  // Continuous Multi-Page Inventory Chain State
+  isInventoryChainActive: saved?.isInventoryChainActive || false,
+  currentInventorySubpageIndex: saved?.currentInventorySubpageIndex || 0,
+
+  // Page Tour dedicated context
+  activePageMission: (saved?.isInventoryChainActive && branchManagerPageTours[BM_INVENTORY_SUBPAGE_ROUTES[saved?.currentInventorySubpageIndex]]) || null,
+  activePageSteps: [],
+  currentPageRoute: null,
+
   // Computed & Catalog Accessors
   get currentRole() {
     return store?.currentUser?.role || 'Super Admin'
@@ -61,29 +74,113 @@ export const dapStore = reactive({
   },
 
   get currentMission() {
+    if (this.activePageMission) return this.activePageMission
     const list = this.missions
     if (!list || list.length === 0) return null
     return list[this.currentMissionIndex] || list[0]
   },
 
-  get currentStep() {
+  get currentStepsList() {
     const mission = this.currentMission
-    if (!mission) return null
-    // Support standard mission steps or scenario segments
-    const stepsList = mission.steps || mission.segments
+    if (!mission) return []
+    return mission.steps || mission.segments || []
+  },
+
+  get currentStep() {
+    const stepsList = this.currentStepsList
     if (!stepsList || stepsList.length === 0) return null
     return stepsList[this.currentStepIndex] || null
   },
 
+  get currentOverallStepNumber() {
+    if (this.isInventoryChainActive) {
+      let count = 0
+      for (let i = 0; i < this.currentInventorySubpageIndex; i++) {
+        const r = BM_INVENTORY_SUBPAGE_ROUTES[i]
+        const m = branchManagerPageTours[r]
+        count += (m?.steps?.length || 0)
+      }
+      return count + this.currentStepIndex + 1
+    }
+    if (this.activePageMission) {
+      return this.currentStepIndex + 1
+    }
+    let count = 0
+    for (let i = 0; i < this.currentMissionIndex; i++) {
+      const m = this.missions[i]
+      const steps = m?.steps || m?.segments || []
+      count += steps.length
+    }
+    return count + this.currentStepIndex + 1
+  },
+
+  get isFirstStep() {
+    if (this.isInventoryChainActive) {
+      return this.currentInventorySubpageIndex === 0 && this.currentStepIndex === 0
+    }
+    if (this.activePageMission) return this.currentStepIndex === 0
+    return this.currentMissionIndex === 0 && this.currentStepIndex === 0
+  },
+
+  get isFinalStep() {
+    if (this.isInventoryChainActive) {
+      const isLastSubpage = this.currentInventorySubpageIndex >= BM_INVENTORY_SUBPAGE_ROUTES.length - 1
+      const isLastStepOfSubpage = this.currentStepIndex >= this.totalStepsInCurrentMission - 1
+      return isLastSubpage && isLastStepOfSubpage
+    }
+    if (this.activePageMission) {
+      return this.currentStepIndex >= this.totalStepsInCurrentMission - 1
+    }
+    return (
+      this.currentMissionIndex >= this.totalMissions - 1 &&
+      this.currentStepIndex >= this.totalStepsInCurrentMission - 1
+    )
+  },
+
+  get isSubpageBoundaryStep() {
+    if (!this.isInventoryChainActive) return false
+    const isNotLastSubpage = this.currentInventorySubpageIndex < BM_INVENTORY_SUBPAGE_ROUTES.length - 1
+    const isLastStepOfSubpage = this.currentStepIndex >= this.totalStepsInCurrentMission - 1
+    return isNotLastSubpage && isLastStepOfSubpage
+  },
+
+  get isSubpageInitialStep() {
+    if (!this.isInventoryChainActive) return false
+    return this.currentInventorySubpageIndex > 0 && this.currentStepIndex === 0
+  },
+
+  get nextSubpageRoute() {
+    if (!this.isSubpageBoundaryStep) return null
+    return BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex + 1] || null
+  },
+
+  get nextSubpageTitle() {
+    const route = this.nextSubpageRoute
+    if (!route) return null
+    return branchManagerPageTours[route]?.surface || branchManagerPageTours[route]?.title || 'Next Page'
+  },
+
   get totalMissions() {
+    if (this.isInventoryChainActive) return BM_INVENTORY_SUBPAGE_ROUTES.length
+    if (this.activePageMission) return 1
     return this.missions.length
   },
 
   get totalStepsInCurrentMission() {
-    const mission = this.currentMission
-    if (!mission) return 0
-    const stepsList = mission.steps || mission.segments
-    return stepsList?.length || 0
+    return this.currentStepsList.length
+  },
+
+  get totalSystemSteps() {
+    if (this.isInventoryChainActive) {
+      return BM_INVENTORY_SUBPAGE_ROUTES.reduce((acc, r) => {
+        const m = branchManagerPageTours[r]
+        return acc + (m?.steps?.length || 0)
+      }, 0)
+    }
+    if (this.activePageMission) {
+      return this.totalStepsInCurrentMission
+    }
+    return this.totalStepsCount
   },
 
   get totalSystemCheckpoints() {
@@ -101,10 +198,6 @@ export const dapStore = reactive({
     }, 0)
   },
 
-  get totalSystemSteps() {
-    return this.totalStepsCount
-  },
-
   get totalCompletedStepsCount() {
     return Object.values(this.completedSteps).filter(Boolean).length
   },
@@ -119,7 +212,32 @@ export const dapStore = reactive({
     return this.completedMissions.includes(this.currentMission?.id)
   },
 
+  isStepInteractive(step) {
+    if (!step) return false
+    return Boolean(
+      step.mode === 'PRACTICE' ||
+      step.mode === 'CLICK' ||
+      step.mode === 'OPEN_SURFACE' ||
+      step.trainingType === 'practice' ||
+      step.trainingType === 'input-practice' ||
+      step.expectedAction === 'CLICK' ||
+      step.expectedAction === 'TYPE' ||
+      step.expectedAction === 'INPUT' ||
+      step.expectedAction === 'SELECT' ||
+      step.actionType === 'CLICK' ||
+      step.actionType === 'OPEN_MODAL' ||
+      step.actionType === 'OPEN_DRAWER' ||
+      step.actionType === 'NAVIGATE' ||
+      step.actionType === 'OPEN_SURFACE'
+    )
+  },
+
   get canAdvance() {
+    const step = this.currentStep
+    if (!step) return true
+    if (!this.isStepInteractive(step)) {
+      return true
+    }
     return this.isStepValidated === true
   },
 
@@ -154,24 +272,221 @@ export const dapStore = reactive({
   },
 
   /**
-   * Mode 2: Learn This Page (Page Tour)
+   * Find the starting mission and step index for a given route across all registered missions.
    */
-  startPageTour(route = null) {
-    const targetRoute = route || router.currentRoute?.value?.path || '/dashboard'
-    const mission = getPageTour(targetRoute, this.currentRole)
-    this.activeTourMode = TOUR_MODES.PAGE_TOUR
-    if (mission) {
-      this.startDAP(mission.id, 0)
-    } else {
-      this.startDAP(null, 0)
+  findMissionAndStepForRoute(route) {
+    if (!route) return { missionIndex: 0, stepIndex: 0 }
+    const cleanRoute = route.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/'
+
+    // 0. Dedicated Branch Manager auxiliary page tour check
+    if (this.currentRole === 'Branch Manager' && branchManagerPageTours[cleanRoute]) {
+      return { missionIndex: -1, stepIndex: 0, pageMission: branchManagerPageTours[cleanRoute] }
     }
+
+    const list = this.missions
+    // 1. Exact match on mission.route in active role missions
+    for (let mIdx = 0; mIdx < list.length; mIdx++) {
+      const m = list[mIdx]
+      const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
+      if (mRoute === cleanRoute) {
+        return { missionIndex: mIdx, stepIndex: 0 }
+      }
+    }
+
+    // 2. Step route match
+    for (let mIdx = 0; mIdx < list.length; mIdx++) {
+      const m = list[mIdx]
+      const steps = m.steps || m.segments || []
+      for (let sIdx = 0; sIdx < steps.length; sIdx++) {
+        const s = steps[sIdx]
+        const sRoute = (s.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
+        if (sRoute === cleanRoute) {
+          return { missionIndex: mIdx, stepIndex: sIdx }
+        }
+      }
+    }
+
+    // 3. Check route aliases
+    const routeAliases = {
+      '/sales/delivery': '/sales/handover',
+      '/sales/handover': '/sales/delivery',
+      '/inventory/serialized-units': '/inventory/units',
+      '/inventory/units': '/inventory/serialized-units',
+      '/inventory/stock-adjustments': '/inventory/adjustments',
+      '/inventory/adjustments': '/inventory/stock-adjustments',
+      '/after-sales/warranty': '/after-sales/cases',
+      '/after-sales/cases': '/after-sales/warranty',
+      '/analytics/reports-hub': '/analytics',
+      '/analytics': '/analytics/reports-hub',
+      '/catalogue/requests': '/inventory/product-requests',
+      '/inventory/product-requests': '/catalogue/requests',
+      '/procurement/purchase-orders': '/procurement/orders',
+      '/procurement/orders': '/procurement/purchase-orders',
+      '/procurement/receipts': '/procurement/receiving',
+      '/procurement/receiving': '/procurement/receipts',
+      '/procurement/vendor-bills': '/finance/supplier-bills',
+      '/finance/supplier-bills': '/procurement/vendor-bills',
+      '/sales/payments': '/finance/payments',
+      '/finance/payments': '/sales/payments',
+    }
+    if (routeAliases[cleanRoute]) {
+      const alias = routeAliases[cleanRoute]
+      for (let mIdx = 0; mIdx < list.length; mIdx++) {
+        const m = list[mIdx]
+        const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
+        if (mRoute === alias) {
+          return { missionIndex: mIdx, stepIndex: 0 }
+        }
+      }
+    }
+
+    // 4. Subpage prefix match
+    if (cleanRoute !== '/' && cleanRoute !== '/dashboard') {
+      for (let mIdx = 0; mIdx < list.length; mIdx++) {
+        const m = list[mIdx]
+        const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
+        if (mRoute && mRoute !== '/' && mRoute !== '/dashboard' && cleanRoute.startsWith(mRoute + '/')) {
+          return { missionIndex: mIdx, stepIndex: 0 }
+        }
+      }
+    }
+
+    // 5. Cross-role check (e.g. Branch Manager visiting Catalogue Products or shared subpages)
+    const allRoleMissions = [...superAdminMissions, ...branchManagerMissions]
+    for (const m of allRoleMissions) {
+      const steps = m.steps || m.segments || []
+      for (let sIdx = 0; sIdx < steps.length; sIdx++) {
+        const s = steps[sIdx]
+        const sRoute = (s.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
+        if (sRoute === cleanRoute) {
+          const idx = list.findIndex(item => item.id === m.id || item.code === m.code)
+          if (idx !== -1) {
+            return { missionIndex: idx, stepIndex: sIdx }
+          }
+        }
+      }
+    }
+    for (const m of allRoleMissions) {
+      const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
+      if (mRoute === cleanRoute) {
+        const idx = list.findIndex(item => item.id === m.id || item.code === m.code)
+        if (idx !== -1) {
+          return { missionIndex: idx, stepIndex: 0 }
+        }
+      }
+    }
+
+    return { missionIndex: 0, stepIndex: 0 }
+  },
+
+  /**
+   * Mode 2: Continuous Multi-Page Guided Tour
+   * Starts from the user's current page and journeys continuously across the application.
+   */
+  startContinuousTour(route = null, options = {}) {
+    const targetRoute = route || router?.currentRoute?.value?.path || '/dashboard'
+    const cleanRoute = targetRoute.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/'
+
+    this.activeTourMode = TOUR_MODES.PAGE_TOUR
+    this.isStepValidated = false
+    this.stepValidationError = null
+
+    // Check if this is a Branch Manager visiting an Inventory subpage
+    if (this.currentRole === 'Branch Manager' && BM_INVENTORY_SUBPAGE_ROUTES.includes(cleanRoute)) {
+      if (options.standalone) {
+        // Run single page tour without cross-page chain
+        this.isInventoryChainActive = false
+        const pageTour = branchManagerPageTours[cleanRoute]
+        this.activePageMission = pageTour
+        this.currentMissionIndex = -1
+        this.currentStepIndex = 0
+        this.isActive = true
+
+        this.syncActiveCheckpoint()
+        this.initStepValidation()
+        this.saveState()
+
+        return {
+          success: true,
+          mission: pageTour,
+          step: pageTour.steps?.[0]
+        }
+      }
+
+      // Continuous Multi-Page Inventory Chain across all 10 subpages
+      this.isInventoryChainActive = true
+      const subpageIdx = BM_INVENTORY_SUBPAGE_ROUTES.indexOf(cleanRoute)
+      this.currentInventorySubpageIndex = subpageIdx !== -1 ? subpageIdx : 0
+      const activeRoute = BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex]
+      const pageTour = branchManagerPageTours[activeRoute]
+
+      this.activePageMission = pageTour
+      this.currentMissionIndex = -1
+      this.currentStepIndex = 0
+      this.isActive = true
+
+      this.syncActiveCheckpoint()
+      this.initStepValidation()
+      this.saveState()
+
+      return {
+        success: true,
+        mission: pageTour,
+        step: pageTour.steps?.[0]
+      }
+    }
+
+    // Other Branch Manager auxiliary page tours (e.g. Catalogue Products / Requests)
+    if (this.currentRole === 'Branch Manager' && branchManagerPageTours[cleanRoute]) {
+      this.isInventoryChainActive = false
+      const pageTour = branchManagerPageTours[cleanRoute]
+      this.activePageMission = pageTour
+      this.currentMissionIndex = -1
+      this.currentStepIndex = 0
+      this.isActive = true
+
+      this.syncActiveCheckpoint()
+      this.initStepValidation()
+      this.saveState()
+
+      return {
+        success: true,
+        mission: pageTour,
+        step: pageTour.steps?.[0]
+      }
+    }
+
+    this.isInventoryChainActive = false
+    this.activePageMission = null
+    const loc = this.findMissionAndStepForRoute(cleanRoute)
+    this.currentMissionIndex = loc.missionIndex
+    this.currentStepIndex = loc.stepIndex
+    this.isActive = true
+
+    this.syncActiveCheckpoint()
+    this.initStepValidation()
+    this.saveState()
+
+    return {
+      success: true,
+      mission: this.currentMission,
+      step: this.currentStep
+    }
+  },
+
+  startPageTour(route = null, options = {}) {
+    return this.startContinuousTour(route, options)
+  },
+
+  startInventoryContinuousTour() {
+    return this.startContinuousTour('/inventory/dashboard')
   },
 
   /**
    * Mode 3: Show Me Every Field (Field Guide)
    */
   startFieldGuide(route = null) {
-    const targetRoute = route || router.currentRoute?.value?.path || '/dashboard'
+    const targetRoute = route || router?.currentRoute?.value?.path || '/dashboard'
     this.activeTourMode = TOUR_MODES.FIELD_GUIDE
     this.activeFieldGuides = getFieldGuides(targetRoute, this.currentRole)
     this.isActive = true
@@ -224,6 +539,7 @@ export const dapStore = reactive({
 
   startDAP(missionId = null, stepIdx = 0) {
     this.isActive = true
+    this.activePageMission = null
     this.isStepValidated = false
     this.stepValidationError = null
     
@@ -244,7 +560,7 @@ export const dapStore = reactive({
           this.currentMissionIndex = 0
         }
       }
-    } else if (this.currentMissionIndex >= this.missions.length) {
+    } else {
       this.currentMissionIndex = 0
     }
 
@@ -268,14 +584,19 @@ export const dapStore = reactive({
 
   stopDAP() {
     this.isActive = false
+    this.isInventoryChainActive = false
+    this.activePageMission = null
+    this.activePageSteps = []
     this.saveState()
   },
 
-  toggleDAP() {
+  toggleDAP(route = null) {
     if (this.isActive) {
       this.stopDAP()
+      return { success: true, stopped: true }
     } else {
-      this.resumeTraining()
+      const currentPath = route || router?.currentRoute?.value?.path || '/dashboard'
+      return this.startPageTour(currentPath)
     }
   },
 
@@ -298,14 +619,15 @@ export const dapStore = reactive({
       return
     }
 
-    const tType = step.trainingType || (step.mode === 'PRACTICE' ? 'practice' : 'observe')
-    if (tType === 'observe') {
+    if (!this.isStepInteractive(step)) {
       this.isStepValidated = true
       this.stepValidationError = null
-    } else {
-      this.isStepValidated = false
-      this.stepValidationError = null
+      return
     }
+
+    // Interactive practice steps remain locked until the user explicitly takes action
+    this.isStepValidated = false
+    this.stepValidationError = null
   },
 
   handleRealFieldInput(arg1, arg2) {
@@ -403,15 +725,35 @@ export const dapStore = reactive({
         this.completedMissions.push(this.currentMission.id)
       }
       
-      // Advance to next mission if available
-      if (this.currentMissionIndex < this.totalMissions - 1) {
+      // Advance to next mission and next page across the continuous tour
+      if (this.isInventoryChainActive) {
+        if (this.currentInventorySubpageIndex < BM_INVENTORY_SUBPAGE_ROUTES.length - 1) {
+          // Advance to next Inventory subpage in the continuous chain!
+          this.currentInventorySubpageIndex++
+          const nextRoute = BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex]
+          const nextTour = branchManagerPageTours[nextRoute]
+          this.activePageMission = nextTour
+          this.currentStepIndex = 0
+          this.syncActiveCheckpoint()
+          this.initStepValidation()
+          this.navigateToCurrentStepRoute()
+        } else {
+          // All 10 Inventory subpages completed!
+          this.isActive = false
+          this.isInventoryChainActive = false
+          this.activePageMission = null
+        }
+      } else if (this.activePageMission) {
+        this.isActive = false
+        this.activePageMission = null
+      } else if (this.currentMissionIndex < this.totalMissions - 1) {
         this.currentMissionIndex++
         this.currentStepIndex = 0
         this.syncActiveCheckpoint()
         this.initStepValidation()
         this.navigateToCurrentStepRoute()
       } else {
-        // All missions finished!
+        // All missions across the entire application finished!
         this.isActive = false
       }
     }
@@ -427,7 +769,19 @@ export const dapStore = reactive({
       this.syncActiveCheckpoint()
       this.initStepValidation()
       this.navigateToCurrentStepRoute()
-    } else if (this.currentMissionIndex > 0) {
+    } else if (this.isInventoryChainActive && this.currentInventorySubpageIndex > 0) {
+      // Go back to previous Inventory subpage in the continuous chain!
+      this.currentInventorySubpageIndex--
+      const prevRoute = BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex]
+      const prevTour = branchManagerPageTours[prevRoute]
+      this.activePageMission = prevTour
+      const prevSteps = prevTour?.steps || []
+      this.currentStepIndex = Math.max(0, prevSteps.length - 1)
+      this.syncActiveCheckpoint()
+      this.initStepValidation()
+      this.navigateToCurrentStepRoute()
+    } else if (!this.activePageMission && this.currentMissionIndex > 0) {
+      // Go back to previous mission and its previous page
       this.currentMissionIndex--
       const prevSteps = this.currentMission?.steps || this.currentMission?.segments || []
       this.currentStepIndex = Math.max(0, prevSteps.length - 1)
@@ -438,9 +792,22 @@ export const dapStore = reactive({
     this.saveState()
   },
 
+  goToStep(stepIdx) {
+    this.isStepValidated = false
+    this.stepValidationError = null
+    if (stepIdx >= 0 && stepIdx < this.totalStepsInCurrentMission) {
+      this.currentStepIndex = stepIdx
+      this.syncActiveCheckpoint()
+      this.initStepValidation()
+      this.navigateToCurrentStepRoute()
+    }
+    this.saveState()
+  },
+
   jumpToMission(missionIdentifier) {
     const idx = this.missions.findIndex(m => m.id === missionIdentifier || m.code === missionIdentifier)
     if (idx !== -1) {
+      this.activePageMission = null
       this.currentMissionIndex = idx
       this.currentStepIndex = 0
       this.isActive = true
@@ -458,12 +825,6 @@ export const dapStore = reactive({
       this.initStepValidation()
       this.navigateToCurrentStepRoute()
       this.saveState()
-    }
-  },
-
-  prevStep() {
-    if (this.currentStepIndex > 0) {
-      this.jumpToStep(this.currentStepIndex - 1)
     }
   },
 
@@ -488,6 +849,9 @@ export const dapStore = reactive({
     this.completedCheckpoints = {}
     this.currentMissionIndex = 0
     this.currentStepIndex = 0
+    this.isInventoryChainActive = false
+    this.currentInventorySubpageIndex = 0
+    this.activePageMission = null
     this.interactiveInputValues = {}
     this.isStepValidated = false
     this.stepValidationError = null
@@ -497,8 +861,14 @@ export const dapStore = reactive({
 
   navigateToCurrentStepRoute() {
     const step = this.currentStep
-    if (step && step.route && router && router.currentRoute && router.currentRoute.value?.path !== step.route) {
-      router.push(step.route).catch(() => {})
+    const targetRoute = step?.route || this.currentMission?.route
+    if (targetRoute && router && router.currentRoute) {
+      const curPath = router.currentRoute.value?.path
+      const cleanTarget = targetRoute.split('?')[0].split('#')[0].replace(/\/+$/, '')
+      const cleanCur = curPath ? curPath.split('?')[0].split('#')[0].replace(/\/+$/, '') : ''
+      if (cleanTarget && cleanCur !== cleanTarget) {
+        router.push(targetRoute).catch(() => {})
+      }
     }
   },
 
@@ -514,7 +884,9 @@ export const dapStore = reactive({
         completedCheckpoints: this.completedCheckpoints,
         autoStartOnLogin: this.autoStartOnLogin,
         activeTourMode: this.activeTourMode,
-        mode: this.mode
+        mode: this.mode,
+        isInventoryChainActive: this.isInventoryChainActive,
+        currentInventorySubpageIndex: this.currentInventorySubpageIndex
       }))
     } catch (e) {
       console.warn('Failed to save tour state', e)

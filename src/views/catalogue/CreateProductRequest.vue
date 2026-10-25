@@ -145,11 +145,11 @@ const submitRequest = () => {
 <template>
   <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="close">
     <!-- Close button on top-right of screen overlay -->
-    <button @click="close" class="fixed top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-full z-[110] shadow-lg transition-colors cursor-pointer">
+    <button @click="close" data-tour-id="bm.catalogue.createrequest.close-btn" class="fixed top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-100 rounded-full z-[110] shadow-lg transition-colors cursor-pointer">
       <X class="w-5 h-5" />
     </button>
 
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div data-tour-id="bm.catalogue.createrequest.modal" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <!-- Scrollable Body -->
       <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6" @click="isCategoryDropdownOpen = false">
         <!-- Header -->
@@ -174,6 +174,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Proposed Product / Model *</label>
                 <input data-tour="productname" 
+                  data-tour-id="bm.catalogue.createrequest.product-name"
                   v-model="form.productName"
                   type="text" 
                   placeholder="e.g. BRG Urban Mini"
@@ -184,7 +185,7 @@ const submitRequest = () => {
               </div>
 
               <!-- Category Combobox -->
-              <div class="relative" @click.stop>
+              <div data-tour-id="bm.catalogue.createrequest.category" class="relative" @click.stop>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Category *</label>
                 <div class="relative">
                   <input data-tour="category" 
@@ -258,6 +259,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Specifications</label>
                 <input data-tour="specifications" 
+                  data-tour-id="bm.catalogue.createrequest.specifications"
                   v-model="form.specifications"
                   type="text" 
                   placeholder="e.g. Compact urban electric model"
@@ -268,6 +270,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Supplier / Product Reference</label>
                 <input data-tour="reference" 
+                  data-tour-id="bm.catalogue.createrequest.reference"
                   v-model="form.reference"
                   type="text" 
                   placeholder="e.g. Optional reference code"
@@ -283,6 +286,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Customer Demand</label>
                 <input data-tour="customerdemand" 
+                  data-tour-id="bm.catalogue.createrequest.demand"
                   v-model="form.customerDemand"
                   type="text" 
                   placeholder="e.g. 4 recent inquiries"
@@ -293,6 +297,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Urgency</label>
                 <select data-tour="urgency" 
+                  data-tour-id="bm.catalogue.createrequest.urgency"
                   v-model="form.urgency"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors"
                 >
@@ -306,6 +311,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Images / Evidence Attachment</label>
                 <input data-tour="images" 
+                  data-tour-id="bm.catalogue.createrequest.images"
                   v-model="form.images"
                   type="text" 
                   placeholder="e.g. 2 references attached"
@@ -316,6 +322,7 @@ const submitRequest = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Reason for Request *</label>
                 <textarea data-tour="reason" 
+                  data-tour-id="bm.catalogue.createrequest.reason"
                   v-model="form.reason"
                   rows="3"
                   placeholder="Explain why this model should be added to the catalogue..."
@@ -328,7 +335,7 @@ const submitRequest = () => {
           </div>
 
           <!-- Alert Notice Banner -->
-          <div class="bg-[#f0fdf4] border border-[#dcfce7] rounded-lg p-3.5 text-[11px] text-gray-600 leading-relaxed font-medium">
+          <div data-tour-id="bm.catalogue.createrequest.notice" class="bg-[#f0fdf4] border border-[#dcfce7] rounded-lg p-3.5 text-[11px] text-gray-600 leading-relaxed font-medium">
             Submitting this request does not create a Product or physical inventory. Super Admin must approve/create the catalogue item.
           </div>
 
@@ -337,12 +344,14 @@ const submitRequest = () => {
             <button 
               type="button" 
               @click="close" 
+              data-tour-id="bm.catalogue.createrequest.cancel-btn"
               class="px-5 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button 
               type="submit" 
+              data-tour-id="bm.catalogue.createrequest.submit-btn"
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
             >
               {{ isEditMode ? 'Update Request' : 'Submit Request' }}

@@ -101,6 +101,7 @@ const handleUserUpdated = (updatedUser) => {
         <p class="text-[13px] text-gray-500 mt-1">Manage users, branch assignments, account state and access controls.</p>
       </div>
       <button 
+        data-tour-id="sa.organisation.users.create-btn"
         @click="showCreateModal = true" 
         class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -109,7 +110,7 @@ const handleUserUpdated = (updatedUser) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div data-tour-id="sa.organisation.users.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[100px]">
         <div class="text-xs font-semibold text-gray-400">{{ kpi.label }}</div>
         <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
@@ -117,7 +118,7 @@ const handleUserUpdated = (updatedUser) => {
     </div>
 
     <!-- Table Filters & Search -->
-    <div class="flex flex-wrap items-center gap-3 mb-6">
+    <div data-tour-id="sa.organisation.users.filters" class="flex flex-wrap items-center gap-3 mb-6">
       <!-- Search -->
       <div class="relative w-full sm:w-64">
         <Search class="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />

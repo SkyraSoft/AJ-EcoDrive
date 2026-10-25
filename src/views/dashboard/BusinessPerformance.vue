@@ -42,7 +42,7 @@ const topCategories = [
     </div>
 
     <!-- 8 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="sa.dashboard.biz-perf.kpis" class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="flex items-end justify-between">
@@ -57,7 +57,7 @@ const topCategories = [
     <!-- Middle Grids -->
     <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Profitability Trend (Line chart placeholder) -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
+      <div data-tour-id="sa.dashboard.biz-perf.trend" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
         <h3 class="text-[13px] font-bold text-gray-900 mb-4">Profitability Trend</h3>
         <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-lg flex items-center justify-center relative overflow-hidden">
            <!-- Simple SVG Line placeholder -->
@@ -89,7 +89,7 @@ const topCategories = [
     <div class="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 gap-4">
       
       <!-- Top Products -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div data-tour-id="sa.dashboard.biz-perf.top-products" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100">
           <h3 class="text-[13px] font-bold text-gray-900">Top Products</h3>
         </div>

@@ -42,7 +42,7 @@
           {{ mission?.code || 'TOUR' }}: {{ step?.badge || mission?.category || 'Walkthrough' }}
         </span>
         <span class="text-xs text-slate-400 font-medium whitespace-nowrap">
-          Step {{ stepIndex + 1 }} of {{ totalSteps }}
+          Step {{ dapStore.currentOverallStepNumber }} of {{ dapStore.totalSystemSteps }}
         </span>
       </div>
       <div class="flex items-center gap-1 flex-shrink-0">
@@ -116,26 +116,38 @@
       <p class="text-xs text-slate-300 leading-relaxed">
         Return to the expected page or retry after the page finishes loading.
       </p>
-      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-700/60">
-        <button
-          @click="$emit('retry')"
-          class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
-        >
-          Retry
-        </button>
-        <button
-          v-if="step?.skippable !== false"
-          @click="$emit('next')"
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors"
-        >
-          Skip
-        </button>
-        <button
-          @click="$emit('close')"
-          class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors"
-        >
-          Exit Tour
-        </button>
+      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-700/60">
+        <div class="flex items-center gap-1.5">
+          <button
+            v-if="!isFirstStep"
+            @click="$emit('prev')"
+            data-dap-element="coach-missing-prev-btn"
+            class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+          >
+            Previous
+          </button>
+          <button
+            @click="$emit('close')"
+            data-dap-element="coach-missing-skip-btn"
+            class="px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            Skip
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button
+            @click="$emit('retry')"
+            class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+          >
+            Retry
+          </button>
+          <button
+            @click="$emit('next')"
+            class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+          >
+            {{ primaryButtonLabel }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -175,36 +187,50 @@
           </svg>
           <span class="font-medium">{{ step?.successMessage || 'Action completed! You can now proceed to the next step.' }}</span>
         </div>
+
+        <!-- Action Pending Notification (When user clicks Next before completing action) -->
+        <div v-else-if="actionNotice && !dapStore.canAdvance" class="mb-2 p-2 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs flex items-center gap-2 animate-bounce">
+          <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span class="font-semibold">{{ actionNotice }}</span>
+        </div>
       </div>
 
       <!-- Navigation & Action Footer (Always pinned at bottom) -->
-      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-700/60 flex-shrink-0 mt-auto">
-        <div class="flex items-center gap-1.5">
+      <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-700/60 flex-shrink-0 mt-auto">
+        <div class="flex items-center gap-2">
+          <!-- Previous Button -->
           <button
-            v-if="stepIndex > 0"
+            v-if="!isFirstStep"
             @click="$emit('prev')"
             data-dap-element="coach-prev-btn"
-            class="px-2.5 py-1 text-xs rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer flex items-center gap-1 border border-slate-700/80 shadow-sm"
+            title="Return to previous step"
           >
-            Back
-          </button>
-          <button
-            @click="handleSkipTask"
-            data-dap-element="coach-skip-task-btn"
-            class="px-2.5 py-1.5 text-xs font-medium rounded-lg text-amber-300/90 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
-            title="Skip this task and continue"
-          >
-            <span>Skip this task</span>
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
+            <span>{{ prevButtonLabel }}</span>
           </button>
+
+          <!-- Skip Button -->
+          <button
+            @click="$emit('close')"
+            data-dap-element="coach-skip-btn"
+            class="px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 transition-colors cursor-pointer"
+            title="Skip tour and return to page"
+          >
+            <span>Skip</span>
+          </button>
+
+          <!-- Restart Button (Secondary) -->
           <button
             v-if="stepIndex > 0 || isFinalStep"
             @click="$emit('restart')"
             data-dap-element="coach-footer-restart-btn"
             class="px-2 py-1 text-xs rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-colors flex items-center gap-1 cursor-pointer"
-            title="Restart walkthrough from step 1"
+            title="Restart tour from step 1"
           >
             <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -214,16 +240,17 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <!-- Next / Finish Primary Button -->
           <button
-            @click="$emit('next')"
+            @click="handlePrimaryNextClick"
             data-dap-element="coach-primary-btn"
-            :disabled="!dapStore.canAdvance"
+            :title="!dapStore.canAdvance ? (step?.actionPrompt || 'Please click the highlighted action button to proceed') : undefined"
             class="px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5"
             :class="dapStore.canAdvance
               ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-emerald-500/25 cursor-pointer'
-              : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'"
+              : 'bg-slate-800 hover:bg-slate-750 text-slate-400 border border-slate-700 hover:border-amber-500/60 cursor-pointer'"
           >
-            <span>{{ isFinalStep ? 'Complete Tour' : 'Next Step' }}</span>
+            <span>{{ primaryButtonLabel }}</span>
             <svg v-if="!isFinalStep" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
@@ -264,7 +291,19 @@ const navContext = computed(() => {
   return getNavigationContext(route?.path || '', props.step, props.mission)
 })
 
-const isFinalStep = computed(() => props.stepIndex >= props.totalSteps - 1)
+const isFinalStep = computed(() => dapStore.isFinalStep)
+const isFirstStep = computed(() => dapStore.isFirstStep)
+
+const primaryButtonLabel = computed(() => {
+  if (dapStore.isFinalStep) return 'Finish'
+  if (dapStore.isSubpageBoundaryStep) return 'Next Page'
+  return 'Next'
+})
+
+const prevButtonLabel = computed(() => {
+  if (dapStore.isSubpageInitialStep) return 'Previous Page'
+  return 'Previous'
+})
 
 function handleSkipTask() {
   if (props.stepIndex < props.totalSteps - 1) {
@@ -277,13 +316,33 @@ function handleSkipTask() {
 const cardRef = ref(null)
 const cardSize = ref({ width: 420, height: 260 })
 const activePlacement = ref(null)
+const actionNotice = ref(null)
+let actionNoticeTimer = null
 let resizeObserver = null
 
-// Reset active sticky placement whenever step or mission transitions
+function handlePrimaryNextClick() {
+  if (!dapStore.canAdvance) {
+    actionNotice.value = props.step?.actionPrompt || props.step?.instruction || 'Please click the highlighted action button on the page to proceed.'
+    if (actionNoticeTimer) clearTimeout(actionNoticeTimer)
+    actionNoticeTimer = setTimeout(() => {
+      actionNotice.value = null
+    }, 4500)
+    return
+  }
+  actionNotice.value = null
+  emit('next')
+}
+
+// Reset active sticky placement and action notice whenever step or mission transitions
 watch(
   () => [props.step?.id, props.stepIndex, props.mission?.id],
   () => {
     activePlacement.value = null
+    actionNotice.value = null
+    if (actionNoticeTimer) {
+      clearTimeout(actionNoticeTimer)
+      actionNoticeTimer = null
+    }
   }
 )
 

@@ -28,6 +28,53 @@ export function findScrollContainer(element) {
 }
 
 /**
+ * Shared role table aliases.
+ * When Branch Manager missions target a table on a shared view,
+ * fallback to the corresponding Super Admin table target attribute.
+ */
+export const SHARED_TABLE_ALIASES = {
+  'bm.sales.leads.table': 'sa.sales.leads.table',
+  'bm.sales.customers.table': 'sa.sales.customers.table',
+  'bm.sales.quotations.table': 'sa.sales.quotations.table',
+  'bm.sales.orders.table': 'sa.sales.orders.table',
+  'bm.sales.payments.table': 'sa.sales.payments.table',
+  'bm.sales.returns.table': 'sa.sales.returns.table',
+  'bm.inventory.units.table': 'sa.inventory.units.table',
+  'bm.inventory.requests.table': 'sa.inventory.requests.table',
+  'bm.inventory.transfers.table': 'sa.inventory.transfers.table',
+  'bm.procurement.receipts.table': 'sa.procurement.receipts.table',
+  'bm.inventory.adjustments.table': 'sa.inventory.adjustments.table',
+  'bm.service.cases.table': 'sa.service.cases.table',
+  'bm.finance.expenses.table': 'sa.finance.expenses.table',
+};
+
+export const SHARED_ACTION_CENTRE_ALIASES = {
+  'bm.action-centre.header.filters': 'sa.action-centre.header.filters',
+  'bm.action-centre.header.create-btn': 'sa.action-centre.header.create-btn',
+  'bm.action-centre.modal.type-commercial-pricing': 'sa.action-centre.modal.type-commercial-pricing',
+  'bm.action-centre.modal.type-stock-reallocation': 'sa.action-centre.modal.type-stock-reallocation',
+  'bm.action-centre.modal.type-operational-expense': 'sa.action-centre.modal.type-operational-expense',
+  'bm.action-centre.modal.type-warranty-escalation': 'sa.action-centre.modal.type-warranty-escalation',
+  'bm.action-centre.modal.type-inventory-governance': 'sa.action-centre.modal.type-inventory-governance',
+  'bm.action-centre.modal.field-title': 'sa.action-centre.modal.field-title',
+  'bm.action-centre.modal.field-priority': 'sa.action-centre.modal.field-priority',
+  'bm.action-centre.modal.field-customer': 'sa.action-centre.modal.field-customer',
+  'bm.action-centre.modal.field-phone': 'sa.action-centre.modal.field-phone',
+  'bm.action-centre.modal.field-model': 'sa.action-centre.modal.field-model',
+  'bm.action-centre.modal.field-orderref': 'sa.action-centre.modal.field-orderref',
+  'bm.action-centre.modal.field-unitcount': 'sa.action-centre.modal.field-unitcount',
+  'bm.action-centre.modal.field-discount': 'sa.action-centre.modal.field-discount',
+  'bm.action-centre.modal.field-justification': 'sa.action-centre.modal.field-justification',
+  'bm.action-centre.modal.submit-btn': 'sa.action-centre.modal.submit-btn',
+  'bm.action-centre.queue.list': 'sa.action-centre.queue.list',
+};
+
+export const ALL_SHARED_ALIASES = {
+  ...SHARED_TABLE_ALIASES,
+  ...SHARED_ACTION_CENTRE_ALIASES,
+};
+
+/**
  * Resolves a target element in the active DOM and evaluates its state and geometry.
  */
 export function resolveTarget(targetId, options = {}) {
@@ -40,7 +87,7 @@ export function resolveTarget(targetId, options = {}) {
     };
   }
 
-  const targetDef = getTarget(targetId);
+  const targetDef = getTarget(targetId) || (ALL_SHARED_ALIASES[targetId] ? getTarget(ALL_SHARED_ALIASES[targetId]) : null);
   let el = null;
 
   // 1. Primary semantic resolution via [data-tour-id="..."]
@@ -51,6 +98,18 @@ export function resolveTarget(targetId, options = {}) {
 
   if (!el) {
     el = document.querySelector(`[data-tour-id="${targetId}"]`);
+  }
+
+  // 1b. Fallback to shared alias when role targets share the identical component DOM element
+  if (!el && ALL_SHARED_ALIASES[targetId]) {
+    const aliasId = ALL_SHARED_ALIASES[targetId];
+    if (options.recordId) {
+      el = document.querySelector(`[data-tour-id="${aliasId}"][data-record-id="${options.recordId}"]`) ||
+           document.querySelector(`[data-record-id="${options.recordId}"] [data-tour-id="${aliasId}"]`);
+    }
+    if (!el) {
+      el = document.querySelector(`[data-tour-id="${aliasId}"]`);
+    }
   }
 
   // 2. Fallback to custom selector or legacy selector if registered

@@ -77,7 +77,7 @@ const close = (e) => {
   if (e && e.stopPropagation) e.stopPropagation()
   store.originalEditCustomer = null
   emit('close')
-  if (!props.isModal && router.currentRoute.value.path === '/sales/customers/create') {
+  if (router.currentRoute.value.path === '/sales/customers/create') {
     router.push('/sales/customers')
   }
 }

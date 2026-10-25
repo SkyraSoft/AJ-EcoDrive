@@ -336,7 +336,7 @@ const handleOrderUpdated = (updatedOrder) => {
             Track confirmed sales from payment through reservation and handover.
           </p>
         </div>
-        <button @click="openCreateModal" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+        <button data-tour-id="sa.sales.orders.create-btn" @click="openCreateModal" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
           <Plus class="w-4 h-4" /> <span>Create Order</span>
         </button>
       </div>

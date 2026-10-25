@@ -14,7 +14,9 @@ import {
   clearRegistry,
   seedRepresentativeTargets,
   TARGET_READINESS_CLASSES,
+  TARGET_STATES,
 } from '@/tour/targetRegistry.js';
+import { resolveTarget, SHARED_TABLE_ALIASES } from '@/tour/targetResolver.js';
 import { calculatePlacement } from '@/tour/positioning/placementEngine.js';
 import { calculateConnector } from '@/tour/positioning/connector.js';
 import { isIntersecting } from '@/tour/geometry/occupiedRegions.js';
@@ -279,3 +281,54 @@ describe('Checkpoint 6.1 — Persistence, State & Resume Suite', () => {
     expect(bmCatalog[0].code).toContain('M');
   });
 });
+
+describe('Phase 1: Shared Role Table Target Aliases Suite', () => {
+  it('contains exactly the 13 confirmed Branch Manager shared table aliases', () => {
+    expect(SHARED_TABLE_ALIASES).toBeDefined();
+    const expectedAliases = [
+      'bm.sales.leads.table',
+      'bm.sales.customers.table',
+      'bm.sales.quotations.table',
+      'bm.sales.orders.table',
+      'bm.sales.payments.table',
+      'bm.sales.returns.table',
+      'bm.inventory.units.table',
+      'bm.inventory.requests.table',
+      'bm.inventory.transfers.table',
+      'bm.procurement.receipts.table',
+      'bm.inventory.adjustments.table',
+      'bm.service.cases.table',
+      'bm.finance.expenses.table',
+    ];
+    expect(Object.keys(SHARED_TABLE_ALIASES)).toEqual(expectedAliases);
+    for (const [bmKey, saVal] of Object.entries(SHARED_TABLE_ALIASES)) {
+      expect(saVal).toBe(bmKey.replace(/^bm\./, 'sa.'));
+    }
+  });
+
+  it('resolves all 13 BM table targets when elements bear the shared sa.*.table attribute', () => {
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    try {
+      for (const [bmTarget, saTarget] of Object.entries(SHARED_TABLE_ALIASES)) {
+        const el = document.createElement('div');
+        el.setAttribute('data-tour-id', saTarget);
+        Object.defineProperty(el, 'getBoundingClientRect', {
+          value: () => ({ top: 100, bottom: 300, left: 100, right: 500, width: 400, height: 200, x: 100, y: 100 }),
+          configurable: true,
+        });
+        container.appendChild(el);
+
+        const res = resolveTarget(bmTarget);
+        expect(res.state, `Target ${bmTarget} failed to resolve via alias ${saTarget}`).toBe(TARGET_STATES.TARGET_VISIBLE);
+        expect(res.element).toBe(el);
+
+        container.removeChild(el);
+      }
+    } finally {
+      document.body.removeChild(container);
+    }
+  });
+});
+

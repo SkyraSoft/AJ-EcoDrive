@@ -1,8 +1,8 @@
 <template>
-  <div v-if="isActive && targetRect" class="fixed inset-0 z-[9990] pointer-events-none transition-all duration-300">
+  <div v-if="isActive" class="fixed inset-0 z-[9990] pointer-events-none transition-all duration-300">
     <!-- SVG Definitions & Dark Tint Cutout -->
     <svg class="w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
+      <defs v-if="targetRect">
         <mask id="spotlight-blur-mask">
           <!-- White reveals the blur layer across the viewport -->
           <rect x="0" y="0" width="100%" height="100%" fill="white" />
@@ -31,11 +31,12 @@
     <!-- Frosted Glass Blurred Backdrop Masked to Only Blur Outside the Focused Card -->
     <div
       class="fixed inset-0 backdrop-blur-[6px] pointer-events-none transition-all duration-300 ease-out z-[9991]"
-      style="mask: url(#spotlight-blur-mask); -webkit-mask: url(#spotlight-blur-mask);"
+      :style="targetRect ? 'mask: url(#spotlight-blur-mask); -webkit-mask: url(#spotlight-blur-mask);' : ''"
     />
 
     <!-- Glowing spotlight border around the cutout -->
     <div
+      v-if="targetRect"
       class="fixed pointer-events-none border-2 border-emerald-400/90 rounded-xl shadow-[0_0_30px_rgba(52,211,153,0.65)] ring-1 ring-emerald-300/30 transition-all duration-300 ease-out z-[9992]"
       :style="{
         top: `${spotlightY}px`,
@@ -85,9 +86,11 @@ const spotlightHeight = computed(() => {
 })
 
 const backdropPath = computed(() => {
-  if (!props.targetRect) return ''
   const vw = typeof window !== 'undefined' ? (window.innerWidth || 1920) : 1920
   const vh = typeof window !== 'undefined' ? (window.innerHeight || 1080) : 1080
+  if (!props.targetRect) {
+    return `M 0,0 L ${vw},0 L ${vw},${vh} L 0,${vh} Z`
+  }
   const x = spotlightX.value
   const y = spotlightY.value
   const w = spotlightWidth.value

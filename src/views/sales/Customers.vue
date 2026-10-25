@@ -332,6 +332,7 @@ const resetFilters = () => {
         <p class="text-sm text-gray-500 mt-1">Manage customer profiles, balances, owned units and relationship history.</p>
       </div>
       <button 
+        data-tour-id="sa.sales.customers.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
       >
@@ -340,7 +341,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <div data-tour-id="sa.sales.customers.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
       <div v-for="card in summaryCards" :key="card.label" class="p-5 bg-white border border-gray-100 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <p class="text-[11px] font-medium text-gray-500 mb-1">{{ card.label }}</p>
         <h3 class="text-2xl font-bold text-gray-900">{{ card.value }}</h3>
@@ -348,7 +349,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.sales.customers.table" class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-3 flex-1">
           <!-- Search -->

@@ -273,7 +273,7 @@ const filteredDeliveries = computed(() => {
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-      <div>
+      <div data-tour-id="bm.inventory.inbound.header">
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Inbound Deliveries / <span class="font-medium text-gray-600">Inbound Deliveries</span>
         </div>
@@ -281,6 +281,7 @@ const filteredDeliveries = computed(() => {
         <p class="text-xs text-gray-500 mt-1">Supplier deliveries specifically destined for {{ user?.branchName || 'Peshawar' }} Branch, with restricted procurement terms.</p>
       </div>
       <button 
+        data-tour-id="bm.inventory.inbound.receive-btn"
         @click="showReceiveModal = true" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer relative"
       >
@@ -292,7 +293,7 @@ const filteredDeliveries = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.inbound.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -302,7 +303,7 @@ const filteredDeliveries = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.inbound.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -452,6 +453,7 @@ const filteredDeliveries = computed(() => {
 
         <!-- Export Button -->
         <button 
+          data-tour-id="bm.inventory.inbound.export-btn"
           @click="exportBranchDeliveries"
           class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1.5"
         >
@@ -461,7 +463,7 @@ const filteredDeliveries = computed(() => {
     </div>
 
     <!-- Inbound Deliveries Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.inventory.inbound.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Inbound Deliveries</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchDeliveries.length }} deliveries</span>

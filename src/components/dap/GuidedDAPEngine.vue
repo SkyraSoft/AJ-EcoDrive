@@ -3,7 +3,7 @@
     <div v-if="dapStore.isActive" class="dap-root-container">
       <!-- SVG Spotlight Overlay -->
       <SpotlightOverlay
-        :is-active="dapStore.isActive && targetState !== 'TARGET_TIMEOUT' && targetState !== 'TARGET_HIDDEN_CONDITIONALLY'"
+        :is-active="dapStore.isActive"
         :target-rect="targetRect"
         @backdrop-click="handleBackdropClick"
       />
@@ -59,32 +59,7 @@ async function updateTargetGeometry() {
     return
   }
 
-  // Check if current route satisfies the step's postcondition route
-  if (step.postconditionRoute && route.path === step.postconditionRoute) {
-    dapStore.handleRealFieldAction()
-    dapStore.nextStep()
-    nextTick(() => {
-      updateTargetGeometry()
-    })
-    return
-  }
 
-  // Check if modal postcondition is already met (e.g. modal already rendered in DOM)
-  if (step.postconditionSelector && typeof document !== 'undefined') {
-    try {
-      const modalEl = document.querySelector(step.postconditionSelector)
-      if (modalEl) {
-        dapStore.handleRealFieldAction()
-        dapStore.nextStep()
-        nextTick(() => {
-          updateTargetGeometry()
-        })
-        return
-      }
-    } catch (e) {
-      // safe fallback
-    }
-  }
 
   const targetIdentifier = step.targetId || step.target
   if (!targetIdentifier) {
@@ -93,7 +68,8 @@ async function updateTargetGeometry() {
     return
   }
 
-  const res = await waitForTarget(targetIdentifier, 1500)
+
+  const res = await waitForTarget(targetIdentifier, 3500)
   targetState.value = res.state
   activeElement.value = res.element
   targetRect.value = res.rect
@@ -103,47 +79,35 @@ async function updateTargetGeometry() {
     try {
       const rect = res.element.getBoundingClientRect()
       const vh = window.innerHeight || 720
-      if (rect.top < 100 || rect.bottom > vh - 140) {
+      const vw = window.innerWidth || 1280
+      if (rect.top < 90 || rect.bottom > vh - 120 || rect.left < 50 || rect.right > vw - 50) {
         res.element.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
           inline: 'nearest'
         })
-        setTimeout(() => {
-          if (activeElement.value) {
-            const updated = activeElement.value.getBoundingClientRect()
-            setTargetRectIfChanged(updated)
-          }
-        }, 160)
+        const pollTimes = [80, 200, 380, 550]
+        pollTimes.forEach(delay => {
+          setTimeout(() => {
+            if (activeElement.value && dapStore.isActive) {
+              const updated = activeElement.value.getBoundingClientRect()
+              setTargetRectIfChanged(updated)
+            }
+          }, delay)
+        })
       }
     } catch (e) {
       // safe fallback
     }
 
     // Practice mode binding
-    if (step.trainingType === 'practice' || step.trainingType === 'input-practice' || step.mode === 'PRACTICE') {
+    if (dapStore.isStepInteractive(step)) {
       bindTargetInteraction(
         res.element,
         step,
         (val) => {
           dapStore.handleRealFieldInput(step.field || step.key || 'input', val)
-          // If this was an action click / open modal / open drawer / navigate step, advance automatically
-          if (
-            step.expectedAction === 'CLICK' ||
-            step.actionType === 'OPEN_MODAL' ||
-            step.actionType === 'OPEN_DRAWER' ||
-            step.actionType === 'NAVIGATE' ||
-            step.actionType === 'CLICK'
-          ) {
-            setTimeout(() => {
-              if (dapStore.isActive && dapStore.currentStep?.id === step.id) {
-                dapStore.nextStep()
-                nextTick(() => {
-                  updateTargetGeometry()
-                })
-              }
-            }, 260)
-          }
+          dapStore.handleRealFieldAction()
         },
         (errMsg) => {
           dapStore.stepValidationError = errMsg
@@ -192,6 +156,8 @@ function setTargetRectIfChanged(r) {
 }
 
 function handleNext() {
+  if (!dapStore.canAdvance) return
+
   cleanUpInteractionListeners()
   dapStore.nextStep()
   nextTick(() => {

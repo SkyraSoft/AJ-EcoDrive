@@ -72,13 +72,13 @@ const editSupplier = (supplier) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Suppliers</h1>
         <p class="text-sm text-gray-500 mt-1">Manage BRG suppliers, procurement relationships and performance.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+      <button data-tour-id="sa.procurement.suppliers.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>Add Supplier</span>
       </button>
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="sa.procurement.suppliers.kpi-cards" class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[88px]">
         <div class="text-[11px] font-semibold text-gray-400">{{ kpi.label }}</div>
         <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
@@ -86,7 +86,7 @@ const editSupplier = (supplier) => {
     </div>
 
     <!-- Search & Filter Bar -->
-    <div class="flex flex-wrap items-center gap-3">
+    <div data-tour-id="sa.procurement.suppliers.filters" class="flex flex-wrap items-center gap-3">
       <div class="relative w-full sm:w-64">
         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -134,7 +134,7 @@ const editSupplier = (supplier) => {
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.procurement.suppliers.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <h3 class="text-[14px] font-bold text-gray-900">Suppliers</h3>
         <span class="text-[11px] font-medium text-gray-500">Showing {{ filteredSuppliers.length }} suppliers</span>

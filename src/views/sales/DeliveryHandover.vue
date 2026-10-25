@@ -148,6 +148,8 @@ const submitHandover = () => {
       </div>
       <button 
         @click="openCreateModal"
+        data-tour-id="bm.sales.handover.create-btn"
+        data-tour="handover-schedule-btn"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
         <Plus class="w-4 h-4" /> <span>Schedule Handover</span>
@@ -221,7 +223,7 @@ const submitHandover = () => {
     </div>
 
     <!-- Delivery / Handover Table Card -->
-    <div id="dap-delivery-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div id="dap-delivery-table" data-tour-id="bm.sales.handover.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <h3 class="text-sm font-bold text-gray-900 mb-5">Delivery / Handover</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -309,6 +311,7 @@ const submitHandover = () => {
         <p class="text-sm text-gray-500 mt-1">Complete customer handover and move the reserved unit to Sold.</p>
       </div>
       <button 
+        data-tour-id="sa.sales.delivery.create-btn"
         @click="openCreateModal"
         class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
       >
@@ -317,7 +320,7 @@ const submitHandover = () => {
     </div>
 
     <!-- Status Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 rounded-xl">
+    <div data-tour-id="sa.sales.delivery.table" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 rounded-xl">
       <div>
         <h2 class="text-xl font-bold text-gray-900">Handover · SO-7731</h2>
         <p class="text-[12px] text-gray-500 mt-1">Saad Ahmad · DS11-00988</p>

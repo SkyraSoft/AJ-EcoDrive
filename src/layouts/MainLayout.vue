@@ -306,6 +306,15 @@ const triggerLayoutToast = (msg) => {
   setTimeout(() => { showLayoutToast.value = false }, 3500)
 }
 
+const handleTakeTour = () => {
+  if (dapStore.isActive) {
+    dapStore.stopDAP()
+    return
+  }
+  const currentPath = route.path || '/dashboard'
+  dapStore.startContinuousTour(currentPath)
+}
+
 const openQuickAction = (action) => {
   openDropdown.value = null
   if (action === 'quickSale' || action === 'sale' || action === 'pos') {
@@ -550,10 +559,10 @@ const handleQuickActionCreated = (type, payload) => {
           <!-- DAP Guided Tour & Training Engine Launcher -->
           <button
             id="dap-header-tour-btn"
-            @click="dapStore.toggleDAP()"
+            @click="handleTakeTour"
             class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
             :class="dapStore.isActive ? 'bg-emerald-50 text-[#165A31] border-emerald-300 ring-2 ring-emerald-500/20' : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'"
-            title="Launch Interactive Walkthrough & Dealership Mastery Tour"
+            title="Launch Interactive Walkthrough for this page"
           >
             <span class="text-sm">🎯</span>
             <span class="hidden md:inline">{{ dapStore.isActive ? 'Touring...' : 'Take a Tour' }}</span>
@@ -914,5 +923,23 @@ const handleQuickActionCreated = (type, payload) => {
 
     <!-- Guided DAP Engine & Interactive Training Overlay -->
     <GuidedDAPEngine />
+
+    <!-- Toast Notification for Tour & In-Context Actions -->
+    <div
+      v-if="showLayoutToast"
+      id="layout-toast-notification"
+      class="fixed bottom-6 right-6 z-[10000] flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/95 text-white shadow-2xl border border-emerald-500/40 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-200 max-w-md"
+      role="alert"
+    >
+      <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+      <p class="text-xs font-medium text-slate-200">{{ layoutToastMessage }}</p>
+      <button
+        @click="showLayoutToast = false"
+        class="ml-auto text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+        aria-label="Dismiss toast"
+      >
+        <X class="w-3.5 h-3.5" />
+      </button>
+    </div>
   </div>
 </template>

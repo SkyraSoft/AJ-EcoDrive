@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, ChevronRight, Search, Plus, Pencil, Check, X } from 'lucide-vue-next'
 import { store } from '../../store.js'
+import { dapStore } from '@/stores/dapStore.js'
 import CreateTransferModal from './CreateTransfer.vue'
 
 const router = useRouter()
@@ -22,6 +23,25 @@ const toggleBranchRow = (id) => {
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+// Synchronize create modal state with active guided tour step targets
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([isActive, targetId]) => {
+    if (!isActive) return
+    if (
+      targetId === 'bm.inventory.transfers.header' ||
+      targetId === 'bm.inventory.transfers.kpis' ||
+      targetId === 'bm.inventory.transfers.filters' ||
+      targetId === 'bm.inventory.transfers.table' ||
+      targetId === 'bm.inventory.transfers.create-btn'
+    ) {
+      if (showCreateModal.value && !selectedTransferToEdit.value) {
+        showCreateModal.value = false
+      }
+    }
+  }
+)
 
 // Branch Manager Data
 const branchTransfers = computed(() => {
@@ -85,6 +105,24 @@ const filteredBranchTransfers = computed(() => {
 const openCreateModal = () => {
   selectedTransferToEdit.value = null
   showCreateModal.value = true
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId === 'bm.inventory.transfers.create-btn') {
+    if (typeof dapStore.handleRealFieldAction === 'function') {
+      dapStore.handleRealFieldAction()
+    }
+  }
+}
+
+const handleModalClose = () => {
+  showCreateModal.value = false
+  selectedTransferToEdit.value = null
+  // Safe exit handling: if user closes modal via Cancel or X while tour is on a modal step, rewind to trigger step
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId?.startsWith('bm.inventory.transfers.') && 
+      !['bm.inventory.transfers.header', 'bm.inventory.transfers.kpis', 'bm.inventory.transfers.filters', 'bm.inventory.transfers.table', 'bm.inventory.transfers.create-btn'].includes(dapStore?.currentStep?.targetId)) {
+    const triggerIdx = dapStore.currentSteps.findIndex(s => s.targetId === 'bm.inventory.transfers.create-btn')
+    if (triggerIdx !== -1) {
+      dapStore.goToStep(triggerIdx)
+    }
+  }
 }
 
 const openEditModal = (item) => {
@@ -169,7 +207,7 @@ const filteredTransfers = computed(() => {
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-      <div>
+      <div data-tour-id="bm.inventory.transfers.header">
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Transfers / <span class="font-medium text-gray-600">Transfers</span>
         </div>
@@ -178,6 +216,7 @@ const filteredTransfers = computed(() => {
       </div>
       <div class="flex items-center gap-2">
         <button 
+          data-tour-id="bm.inventory.transfers.create-btn"
           @click="openCreateModal" 
           class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
         >
@@ -197,7 +236,7 @@ const filteredTransfers = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.transfers.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -208,7 +247,7 @@ const filteredTransfers = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.transfers.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Filter Dropdown -->
         <div class="relative" @click.stop>
@@ -247,7 +286,7 @@ const filteredTransfers = computed(() => {
     </div>
 
     <!-- Branch Transfers Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.inventory.transfers.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-bold text-gray-900">Branch Transfers</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchTransfers.length }} transfers</span>
@@ -451,7 +490,7 @@ const filteredTransfers = computed(() => {
     <CreateTransferModal 
       v-if="showCreateModal" 
       :transfer-item="selectedTransferToEdit"
-      @close="showCreateModal = false"
+      @close="handleModalClose"
       @created="handleCreated"
       @updated="handleUpdated"
     />
@@ -466,7 +505,7 @@ const filteredTransfers = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Transfers</h1>
         <p class="text-sm text-gray-500 mt-1">Control stock movement between AJ ECODRIVE branches.</p>
       </div>
-      <button @click="openCreateModal" class="px-4 py-2 bg-[#165A31] text-white text-[11px] font-bold rounded-lg hover:bg-[#114a28] transition-colors shadow-sm flex items-center gap-2 cursor-pointer">
+      <button data-tour-id="sa.inventory.transfers.create-btn" @click="openCreateModal" class="px-4 py-2 bg-[#165A31] text-white text-[11px] font-bold rounded-lg hover:bg-[#114a28] transition-colors shadow-sm flex items-center gap-2 cursor-pointer">
         <Plus class="w-4 h-4" />
         <span>Create Transfer</span>
       </button>

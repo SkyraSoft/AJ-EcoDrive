@@ -1,8 +1,9 @@
 <script setup>
 import { Search, ChevronDown, Check, Plus, Pencil } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import { dapStore } from '@/stores/dapStore.js'
 import CreateProductRequestModal from './CreateProductRequest.vue'
 
 const router = useRouter()
@@ -11,6 +12,25 @@ const selectedRequestToEdit = ref(null)
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+// Synchronize create modal state with active guided tour step targets
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([isActive, targetId]) => {
+    if (!isActive) return
+    // When navigating backward to page-level tour steps, ensure modal is closed so page elements are visible
+    if (
+      targetId === 'bm.catalogue.requests.kpi-cards' ||
+      targetId === 'bm.catalogue.requests.filters' ||
+      targetId === 'bm.catalogue.requests.table' ||
+      targetId === 'bm.catalogue.requests.create-btn'
+    ) {
+      if (showCreateModal.value && !selectedRequestToEdit.value) {
+        showCreateModal.value = false
+      }
+    }
+  }
+)
 
 // Branch Manager Data
 const branchKpis = [
@@ -56,6 +76,26 @@ const filteredBranchRequests = computed(() => {
 const openCreateModal = () => {
   selectedRequestToEdit.value = null
   showCreateModal.value = true
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId === 'bm.catalogue.requests.create-btn') {
+    if (typeof dapStore.handleRealFieldAction === 'function') {
+      dapStore.handleRealFieldAction()
+    }
+  }
+}
+
+const handleModalClose = () => {
+  showCreateModal.value = false
+  selectedRequestToEdit.value = null
+  // Safe exit handling: if user closes modal via Cancel or X while tour is on a modal step, rewind to Step 4 (+ New Product Request)
+  if (dapStore?.isActive && dapStore?.currentStep?.targetId?.startsWith('bm.catalogue.createrequest.')) {
+    if (typeof dapStore.goToStep === 'function') {
+      dapStore.goToStep(3)
+    } else {
+      dapStore.currentStepIndex = 3
+      dapStore.syncActiveCheckpoint?.()
+      dapStore.initStepValidation?.()
+    }
+  }
 }
 
 const openEditModal = (req) => {
@@ -141,6 +181,7 @@ const filteredRequests = computed(() => {
         <p class="text-xs text-gray-500 mt-1">Requests for products or variants not yet in the approved catalogue.</p>
       </div>
       <button 
+        data-tour-id="bm.catalogue.requests.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -150,7 +191,7 @@ const filteredRequests = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.catalogue.requests.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -161,7 +202,7 @@ const filteredRequests = computed(() => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.catalogue.requests.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Filter Dropdown -->
         <div class="relative" @click.stop>
@@ -200,7 +241,7 @@ const filteredRequests = computed(() => {
     </div>
 
     <!-- Product Requests Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.catalogue.requests.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-bold text-gray-900">Product Requests</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchRequests.length }} requests</span>
@@ -265,7 +306,7 @@ const filteredRequests = computed(() => {
     <CreateProductRequestModal 
       v-if="showCreateModal" 
       :request-item="selectedRequestToEdit"
-      @close="showCreateModal = false"
+      @close="handleModalClose"
       @created="handleCreated"
       @updated="handleUpdated"
     />
@@ -281,6 +322,7 @@ const filteredRequests = computed(() => {
         <p class="text-sm text-gray-500 mt-1">Review branch requests for missing products or catalogue additions.</p>
       </div>
       <button 
+        data-tour-id="sa.catalogue.requests.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >

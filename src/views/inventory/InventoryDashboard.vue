@@ -84,7 +84,7 @@ const stockHealth = computed(() => {
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div>
+    <div data-tour-id="bm.inventory.dashboard.header">
       <div class="text-[11px] text-gray-400 mb-1">
         Branch Manager / My Inventory / <span class="font-medium text-gray-600">Branch Inventory Dashboard</span>
       </div>
@@ -93,7 +93,7 @@ const stockHealth = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.dashboard.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchTopKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
@@ -103,7 +103,7 @@ const stockHealth = computed(() => {
     <!-- 2 Column Details Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Left Card: Inventory Status -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8">
+      <div data-tour-id="bm.inventory.dashboard.status-grid" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8">
         <h3 class="text-sm font-bold text-gray-900 mb-5">Inventory Status</h3>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -115,7 +115,7 @@ const stockHealth = computed(() => {
       </div>
 
       <!-- Right Card: Branch Inventory Value -->
-      <div class="lg:col-span-4 flex flex-col">
+      <div data-tour-id="bm.inventory.dashboard.valuation" class="lg:col-span-4 flex flex-col">
         <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 flex flex-col justify-between flex-1">
           <div>
             <h3 class="text-sm font-bold text-gray-900 mb-5">Branch Inventory Value</h3>
@@ -146,7 +146,7 @@ const stockHealth = computed(() => {
     </div>
 
     <!-- KPI Cards - Row 1 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="sa.inventory.dashboard.kpis" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <div class="text-[11px] font-semibold text-gray-400 mb-2">Total Units</div>
         <div class="text-[28px] font-bold text-gray-900 leading-none">{{ globalStats.total }}</div>

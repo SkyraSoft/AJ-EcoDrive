@@ -113,7 +113,7 @@ const submitQuarantineRecord = () => {
       <X class="w-5 h-5" />
     </button>
 
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div data-tour-id="bm.inventory.quarantine.modal" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <!-- Scrollable Body -->
       <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
         <!-- Header -->
@@ -139,6 +139,7 @@ const submitQuarantineRecord = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch *</label>
                 <div v-if="isBranchUser">
                   <input data-tour="quarantine-branch" 
+                    data-tour-id="bm.inventory.quarantine.branch"
                     :value="form.branch" 
                     type="text" 
                     disabled 
@@ -148,6 +149,7 @@ const submitQuarantineRecord = () => {
                 </div>
                 <div v-else>
                   <select data-tour="quarantine-branch" 
+                    data-tour-id="bm.inventory.quarantine.branch"
                     v-model="form.branch" 
                     class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                   >
@@ -161,7 +163,8 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Unit / Serial Number *</label>
                 <input data-tour="unit" 
-                  v-model="form.unit"
+                  data-tour-id="bm.inventory.quarantine.unit"
+                  v-model="form.unit" 
                   type="text" 
                   placeholder="e.g. M3-01014"
                   class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -173,7 +176,8 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Product / Model *</label>
                 <input data-tour="product" 
-                  v-model="form.product"
+                  data-tour-id="bm.inventory.quarantine.product"
+                  v-model="form.product" 
                   type="text" 
                   placeholder="e.g. BRG M3"
                   class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -185,7 +189,7 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Source / Origin</label>
                 <input data-tour="source" 
-                  v-model="form.source"
+                  v-model="form.source" 
                   type="text" 
                   placeholder="e.g. TR-221, Inbound INB-083, Showroom Floor"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -195,7 +199,8 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Condition / Defect Description *</label>
                 <input data-tour="condition" 
-                  v-model="form.condition"
+                  data-tour-id="bm.inventory.quarantine.condition"
+                  v-model="form.condition" 
                   type="text" 
                   placeholder="e.g. Packaging damage, Body panel dent, Faulty battery"
                   class="w-full px-3.5 py-2 bg-white border rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -207,7 +212,8 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Initial Status</label>
                 <select data-tour="status" 
-                  v-model="form.status"
+                  data-tour-id="bm.inventory.quarantine.status"
+                  v-model="form.status" 
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
                   <option value="Quarantine">Quarantine (Isolated)</option>
@@ -225,7 +231,8 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Proposed Decision / Route</label>
                 <select data-tour="decision" 
-                  v-model="form.decision"
+                  data-tour-id="bm.inventory.quarantine.decision"
+                  v-model="form.decision" 
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors cursor-pointer"
                 >
                   <option value="QC / service">QC / service</option>
@@ -239,7 +246,7 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Inspection Evidence / Attached File</label>
                 <input data-tour="evidence" 
-                  v-model="form.evidence"
+                  v-model="form.evidence" 
                   type="text" 
                   placeholder="e.g. Photo_Inspection_01.jpg"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors"
@@ -249,8 +256,8 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Detailed Inspection Notes</label>
                 <textarea data-tour="notes" 
-                  v-model="form.notes"
-                  rows="3"
+                  v-model="form.notes" 
+                  rows="3" 
                   placeholder="Describe visible damage, test results, or reason for quarantine..."
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#165A31] transition-colors resize-none"
                 ></textarea>
@@ -259,7 +266,7 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Reported By</label>
                 <input 
-                  :value="form.reportedBy"
+                  :value="form.reportedBy" 
                   readonly
                   type="text" 
                   class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none"
@@ -269,7 +276,7 @@ const submitQuarantineRecord = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Approval Required</label>
                 <input data-tour="approval" 
-                  v-model="form.approval"
+                  v-model="form.approval" 
                   type="text" 
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors"
                 />
@@ -294,6 +301,7 @@ const submitQuarantineRecord = () => {
             </button>
             <button 
               type="submit" 
+              data-tour-id="bm.inventory.quarantine.submit-btn"
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
             >
               {{ isEditMode ? 'Update Record' : 'Submit for Approval' }}

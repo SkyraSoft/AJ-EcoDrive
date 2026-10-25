@@ -132,7 +132,7 @@ describe('Checkpoint 6.3: Exhaustive Target, Collision, Viewport & Runtime QA Su
     expect(drawerTargets.length).toBeGreaterThanOrEqual(1);
 
     for (const mt of modalTargets) {
-      expect(mt.targetId).toMatch(/\.form\.|\.modal\./);
+      expect(mt.targetId).toMatch(/\.form\.|\.modal\.|\.create/);
     }
   });
 

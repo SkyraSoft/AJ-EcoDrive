@@ -5,14 +5,20 @@ import ActionCentre from '@/views/dashboard/ActionCentre.vue'
 
 // Mock vue-router
 const pushMock = vi.fn()
-vi.mock('vue-router', () => ({
-  useRouter: () => ({
-    push: pushMock
-  }),
-  useRoute: () => ({
-    query: {}
-  })
-}))
+vi.mock('vue-router', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: pushMock,
+      currentRoute: { value: { path: '/dashboard' } }
+    }),
+    useRoute: () => ({
+      query: {},
+      path: '/dashboard'
+    })
+  }
+})
 
 describe('AJ EcoDrive — Wave 6 Dialog & Drawer Integrity Suite', () => {
   beforeEach(() => {

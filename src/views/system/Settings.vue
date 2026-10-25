@@ -374,6 +374,7 @@ const restoreDefaults = () => {
           Restore Defaults
         </button>
         <button 
+          data-tour-id="sa.system.settings.save-btn"
           @click="saveSettings"
           type="button"
           class="bg-[#165A31] text-white text-[11px] font-bold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
@@ -384,7 +385,7 @@ const restoreDefaults = () => {
     </div>
 
     <!-- Scrollable Tab Navigation Bar -->
-    <div class="border-b border-gray-200 overflow-x-auto">
+    <div data-tour-id="sa.system.settings.tabs" class="border-b border-gray-200 overflow-x-auto">
       <div class="flex items-center gap-6 min-w-max pb-0.5">
         <button 
           v-for="tab in tabs" 
@@ -405,7 +406,7 @@ const restoreDefaults = () => {
     <!-- Tab Content Panels -->
 
     <!-- 1. Business Profile Tab -->
-    <div v-if="activeTab === 'Business Profile'" id="section-business-profile" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
+    <div v-if="activeTab === 'Business Profile'" data-tour-id="sa.system.settings.general-card" id="section-business-profile" class="bg-white p-6 sm:p-8 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-6 animate-in fade-in duration-150">
       <h3 class="text-[13px] font-bold text-gray-900">Business Profile</h3>
       
       <div class="space-y-4 max-w-4xl">

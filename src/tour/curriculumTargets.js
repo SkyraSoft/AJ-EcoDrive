@@ -97,8 +97,8 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.organisation.createbranch.identity-card",
     "workspace": "Super Admin",
-    "route": "/organisation/branches/create",
-    "surface": "Create Dealership Branch",
+    "route": "/organisation/branches",
+    "surface": "Create Branch Modal",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "right",
     "description": "Branch Identity Configuration Card"
@@ -106,8 +106,8 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.organisation.createbranch.location-card",
     "workspace": "Super Admin",
-    "route": "/organisation/branches/create",
-    "surface": "Create Dealership Branch",
+    "route": "/organisation/branches",
+    "surface": "Create Branch Modal",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "left",
     "description": "Location & Contact Details Card"
@@ -115,8 +115,8 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.organisation.createbranch.operations-card",
     "workspace": "Super Admin",
-    "route": "/organisation/branches/create",
-    "surface": "Create Dealership Branch",
+    "route": "/organisation/branches",
+    "surface": "Create Branch Modal",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "right",
     "description": "Management & Operations Card"
@@ -124,8 +124,8 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.organisation.createbranch.controls-card",
     "workspace": "Super Admin",
-    "route": "/organisation/branches/create",
-    "surface": "Create Dealership Branch",
+    "route": "/organisation/branches",
+    "surface": "Create Branch Modal",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "left",
     "description": "Controls & Policies Card"
@@ -138,6 +138,96 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
     "description": "System User Directory"
+  },
+  {
+    "targetId": "sa.organisation.roles.table",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles and Permissions Governance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "System Roles Directory"
+  },
+  {
+    "targetId": "sa.organisation.roles.model",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles and Permissions Governance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Permission Model Framework"
+  },
+  {
+    "targetId": "sa.organisation.roles.create-btn",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles and Permissions Governance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Create Role Action Button"
+  },
+  {
+    "targetId": "sa.organisation.roles.matrix",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles and Permissions Governance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Granular Permissions Matrix"
+  },
+  {
+    "targetId": "sa.organisation.createrole.modal",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Create Role Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Create Role Modal Container"
+  },
+  {
+    "targetId": "sa.organisation.createrole.name",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Create Role Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Role Name Field"
+  },
+  {
+    "targetId": "sa.organisation.createrole.scope",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Create Role Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Role Operational Scope Field"
+  },
+  {
+    "targetId": "sa.organisation.createrole.description",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Create Role Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Role Description Field"
+  },
+  {
+    "targetId": "sa.organisation.createrole.permissions",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Create Role Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Module Permissions Matrix Configurator"
+  },
+  {
+    "targetId": "sa.organisation.createrole.submit-btn",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Create Role Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Save Role Action Button"
   },
   {
     "targetId": "sa.catalogue.products.table",
@@ -392,6 +482,132 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "description": "Capture Showroom Walk-in"
   },
   {
+    "targetId": "bm.sales.createlead.info-card",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead Information Card"
+  },
+  {
+    "targetId": "bm.sales.createlead.name",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead / Customer Name Input"
+  },
+  {
+    "targetId": "bm.sales.createlead.phone",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead Contact Phone Number Input"
+  },
+  {
+    "targetId": "bm.sales.createlead.source",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead Source Channel Select"
+  },
+  {
+    "targetId": "bm.sales.createlead.scope-card",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "Lead Assignment & Scope Card"
+  },
+  {
+    "targetId": "bm.sales.createlead.branch",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "Lead Showroom Branch Field"
+  },
+  {
+    "targetId": "bm.sales.createlead.owner",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "Lead Assigned Sales Owner Input"
+  },
+  {
+    "targetId": "bm.sales.createlead.stage",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "Lead Pipeline Stage Select"
+  },
+  {
+    "targetId": "bm.sales.createlead.opportunity-card",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead Opportunity Details Card"
+  },
+  {
+    "targetId": "bm.sales.createlead.product",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead Interested Product Select"
+  },
+  {
+    "targetId": "bm.sales.createlead.budget",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "Lead Budget Estimate Input"
+  },
+  {
+    "targetId": "bm.sales.createlead.timeline-card",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "Lead Follow-up Timeline Card"
+  },
+  {
+    "targetId": "bm.sales.createlead.nextfollowup",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "Lead Next Follow-up Date Input"
+  },
+  {
+    "targetId": "bm.sales.createlead.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Create Lead Modal",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "top",
+    "description": "Save Lead Action Button"
+  },
+  {
     "targetId": "bm.sales.customers.table",
     "workspace": "Branch Manager",
     "route": "/sales/customers",
@@ -448,7 +664,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "bm.sales.handover.table",
     "workspace": "Branch Manager",
-    "route": "/sales/handover",
+    "route": "/sales/delivery",
     "surface": "Vehicle Handover & Invoicing",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -466,7 +682,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "bm.inventory.units.table",
     "workspace": "Branch Manager",
-    "route": "/inventory/units",
+    "route": "/inventory/serialized-units",
     "surface": "Showroom Serialized Units",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -502,7 +718,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "bm.inventory.adjustments.table",
     "workspace": "Branch Manager",
-    "route": "/inventory/adjustments",
+    "route": "/inventory/stock-adjustments",
     "surface": "Adjustment Request Form",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -538,7 +754,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "bm.analytics.reports.hub",
     "workspace": "Branch Manager",
-    "route": "/analytics",
+    "route": "/analytics/reports-hub",
     "surface": "Branch Operational Reports",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -547,7 +763,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "bm.inventory.product-requests.action-create-request",
     "workspace": "Branch Manager",
-    "route": "/inventory/product-requests",
+    "route": "/catalogue/requests",
     "surface": "Product Requests Queue",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -556,7 +772,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.inventory.product-requests.action-approve-request",
     "workspace": "Super Admin",
-    "route": "/inventory/product-requests",
+    "route": "/catalogue/requests",
     "surface": "Action Centre - Product Requests",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -583,7 +799,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.procurement.orders.action-create-po",
     "workspace": "Super Admin",
-    "route": "/procurement/orders",
+    "route": "/procurement/purchase-orders",
     "surface": "Purchase Orders",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -592,7 +808,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.procurement.receiving.action-receive-goods",
     "workspace": "Super Admin",
-    "route": "/procurement/receiving",
+    "route": "/procurement/receipts",
     "surface": "Goods Receiving Dock",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -610,7 +826,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.finance.bills.action-create-bill",
     "workspace": "Super Admin",
-    "route": "/finance/supplier-bills",
+    "route": "/procurement/vendor-bills",
     "surface": "Supplier Invoices",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -619,7 +835,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "sa.finance.payments.action-record-payment",
     "workspace": "Super Admin",
-    "route": "/finance/payments",
+    "route": "/sales/payments",
     "surface": "Payment Processing",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -655,7 +871,7 @@ export const CURRICULUM_SEEDED_TARGETS = [
   {
     "targetId": "bm.sales.handover.action-complete-handover",
     "workspace": "Branch Manager",
-    "route": "/sales/handover",
+    "route": "/sales/delivery",
     "surface": "Vehicle Handover & Delivery",
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
@@ -876,5 +1092,1886 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "bottom",
     "description": "Global Settings Search Control"
+  },
+  {
+    "targetId": "sa.organisation.branches.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches",
+    "surface": "Branch Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Network Overview KPIs"
+  },
+  {
+    "targetId": "sa.organisation.branches.filters",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches",
+    "surface": "Branch Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Directory Filters & Search"
+  },
+  {
+    "targetId": "sa.organisation.createbranch.submit-btn",
+    "workspace": "Super Admin",
+    "route": "/organisation/branches",
+    "surface": "Create Branch Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Register Branch Action Button"
+  },
+  {
+    "targetId": "sa.organisation.users.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "User Access & Permissions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "User Access Overview KPIs"
+  },
+  {
+    "targetId": "sa.organisation.users.filters",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "User Access & Permissions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "User Directory Search & Filters"
+  },
+  {
+    "targetId": "sa.organisation.users.create-btn",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "User Access & Permissions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Add System User Action Button"
+  },
+  {
+    "targetId": "sa.organisation.createuser.identity-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/users/create",
+    "surface": "Create System User",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "User Profile & Identity Details"
+  },
+  {
+    "targetId": "sa.organisation.createuser.role-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/users/create",
+    "surface": "Create System User",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Role & Branch Scope Assignment"
+  },
+  {
+    "targetId": "sa.organisation.createuser.security-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/users/create",
+    "surface": "Create System User",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Security & Access Credentials"
+  },
+  {
+    "targetId": "sa.organisation.createuser.permissions-card",
+    "workspace": "Super Admin",
+    "route": "/organisation/users/create",
+    "surface": "Create System User",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Direct Permissions & Overrides"
+  },
+  {
+    "targetId": "sa.organisation.createuser.submit-btn",
+    "workspace": "Super Admin",
+    "route": "/organisation/users/create",
+    "surface": "Create System User",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Create User Action Button"
+  },
+  {
+    "targetId": "sa.organisation.createuser.name",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "Create System User",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "User Full Name Input"
+  },
+  {
+    "targetId": "sa.organisation.createuser.email",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "Create System User",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "right",
+    "description": "User Email Address Input"
+  },
+  {
+    "targetId": "sa.organisation.createuser.role",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "Create System User",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "User Role Select"
+  },
+  {
+    "targetId": "sa.organisation.createuser.branch",
+    "workspace": "Super Admin",
+    "route": "/organisation/users",
+    "surface": "Create System User",
+    "readinessClass": "MODAL_TARGET",
+    "preferredPlacement": "left",
+    "description": "User Branch Assignment Select"
+  },
+  {
+    "targetId": "sa.organisation.roles.create-btn",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles & Permissions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Role Action Button"
+  },
+  {
+    "targetId": "sa.organisation.roles.table",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles & Permissions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "System Roles Directory"
+  },
+  {
+    "targetId": "sa.organisation.roles.matrix",
+    "workspace": "Super Admin",
+    "route": "/organisation/roles",
+    "surface": "Roles & Permissions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Granular Permissions Matrix"
+  },
+  {
+    "targetId": "sa.catalogue.categories.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/catalogue/categories",
+    "surface": "Product Categories",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Product Categories Overview KPIs"
+  },
+  {
+    "targetId": "sa.catalogue.categories.filters",
+    "workspace": "Super Admin",
+    "route": "/catalogue/categories",
+    "surface": "Product Categories",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Categories Search and Filters"
+  },
+  {
+    "targetId": "sa.catalogue.categories.create-btn",
+    "workspace": "Super Admin",
+    "route": "/catalogue/categories",
+    "surface": "Product Categories",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Category Action Button"
+  },
+  {
+    "targetId": "sa.catalogue.categories.table",
+    "workspace": "Super Admin",
+    "route": "/catalogue/categories",
+    "surface": "Product Categories",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Master Categories Table"
+  },
+  {
+    "targetId": "sa.catalogue.products.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Master Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Product Catalogue Metrics"
+  },
+  {
+    "targetId": "sa.catalogue.products.filters",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products",
+    "surface": "Master Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Product Search & Category Filter"
+  },
+  {
+    "targetId": "sa.catalogue.createproduct.submit-btn",
+    "workspace": "Super Admin",
+    "route": "/catalogue/products/create",
+    "surface": "Create Product Form",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Save & Publish Product Button"
+  },
+  {
+    "targetId": "sa.catalogue.pricing.create-btn",
+    "workspace": "Super Admin",
+    "route": "/catalogue/pricing",
+    "surface": "Pricing Rules & Matrix",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Pricing Rule Button"
+  },
+  {
+    "targetId": "sa.catalogue.pricing.filters",
+    "workspace": "Super Admin",
+    "route": "/catalogue/pricing",
+    "surface": "Pricing Rules & Matrix",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Pricing Rules Search & Filters"
+  },
+  {
+    "targetId": "sa.catalogue.requests.create-btn",
+    "workspace": "Super Admin",
+    "route": "/catalogue/requests",
+    "surface": "Product Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Submit Product Request Button"
+  },
+  {
+    "targetId": "sa.procurement.suppliers.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/procurement/suppliers",
+    "surface": "Suppliers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Supplier Network Overview KPIs"
+  },
+  {
+    "targetId": "sa.procurement.suppliers.filters",
+    "workspace": "Super Admin",
+    "route": "/procurement/suppliers",
+    "surface": "Suppliers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Supplier Search and Filters"
+  },
+  {
+    "targetId": "sa.procurement.suppliers.create-btn",
+    "workspace": "Super Admin",
+    "route": "/procurement/suppliers",
+    "surface": "Suppliers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Add Supplier Action Button"
+  },
+  {
+    "targetId": "sa.procurement.suppliers.table",
+    "workspace": "Super Admin",
+    "route": "/procurement/suppliers",
+    "surface": "Suppliers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Master Suppliers Directory Table"
+  },
+  {
+    "targetId": "sa.procurement.po.create-btn",
+    "workspace": "Super Admin",
+    "route": "/procurement/purchase-orders",
+    "surface": "Purchase Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Purchase Order Button"
+  },
+  {
+    "targetId": "sa.procurement.po.filters",
+    "workspace": "Super Admin",
+    "route": "/procurement/purchase-orders",
+    "surface": "Purchase Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Purchase Orders Search & Status Filters"
+  },
+  {
+    "targetId": "sa.inventory.dashboard.kpis",
+    "workspace": "Super Admin",
+    "route": "/inventory/dashboard",
+    "surface": "Inventory Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Consolidated Inventory Metrics"
+  },
+  {
+    "targetId": "sa.inventory.stock.filters",
+    "workspace": "Super Admin",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Stock by Product Filters"
+  },
+  {
+    "targetId": "sa.inventory.stock.table",
+    "workspace": "Super Admin",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Stock Valuation & Availability Table"
+  },
+  {
+    "targetId": "sa.inventory.transfers.create-btn",
+    "workspace": "Super Admin",
+    "route": "/inventory/transfers",
+    "surface": "Stock Transfers",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Transfer Action Button"
+  },
+  {
+    "targetId": "sa.inventory.requests.create-btn",
+    "workspace": "Super Admin",
+    "route": "/inventory/stock-requests",
+    "surface": "Stock Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Stock Request Action Button"
+  },
+  {
+    "targetId": "sa.inventory.adjustments.create-btn",
+    "workspace": "Super Admin",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Stock Adjustments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Adjustment Action Button"
+  },
+  {
+    "targetId": "sa.sales.dashboard.kpis",
+    "workspace": "Super Admin",
+    "route": "/sales/dashboard",
+    "surface": "Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Consolidated Sales KPIs"
+  },
+  {
+    "targetId": "sa.sales.quotations.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/quotations",
+    "surface": "Sales Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Quotation Action Button"
+  },
+  {
+    "targetId": "sa.sales.quotations.filters",
+    "workspace": "Super Admin",
+    "route": "/sales/quotations",
+    "surface": "Sales Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quotations Search & Status Filters"
+  },
+  {
+    "targetId": "sa.sales.quotations.table",
+    "workspace": "Super Admin",
+    "route": "/sales/quotations",
+    "surface": "Sales Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Sales Quotations Directory Table"
+  },
+  {
+    "targetId": "sa.sales.orders.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/orders",
+    "surface": "Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Order Action Button"
+  },
+  {
+    "targetId": "sa.sales.invoices.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/invoices",
+    "surface": "Sales Invoices",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Generate Invoice Action Button"
+  },
+  {
+    "targetId": "sa.sales.invoices.filters",
+    "workspace": "Super Admin",
+    "route": "/sales/invoices",
+    "surface": "Sales Invoices",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Invoices Search & Status Filters"
+  },
+  {
+    "targetId": "sa.sales.invoices.table",
+    "workspace": "Super Admin",
+    "route": "/sales/invoices",
+    "surface": "Sales Invoices",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Sales Invoices Register Table"
+  },
+  {
+    "targetId": "sa.sales.payments.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/payments",
+    "surface": "Customer Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Record Payment Action Button"
+  },
+  {
+    "targetId": "sa.sales.payments.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/sales/payments",
+    "surface": "Customer Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Payments Overview KPIs"
+  },
+  {
+    "targetId": "sa.sales.payments.table",
+    "workspace": "Super Admin",
+    "route": "/sales/payments",
+    "surface": "Customer Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Payments Ledger Table"
+  },
+  {
+    "targetId": "sa.sales.customers.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/customers",
+    "surface": "Customer Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Add Customer Action Button"
+  },
+  {
+    "targetId": "sa.sales.customers.kpi-cards",
+    "workspace": "Super Admin",
+    "route": "/sales/customers",
+    "surface": "Customer Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Base Overview KPIs"
+  },
+  {
+    "targetId": "sa.sales.customers.table",
+    "workspace": "Super Admin",
+    "route": "/sales/customers",
+    "surface": "Customer Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Customer Directory Table"
+  },
+  {
+    "targetId": "sa.sales.leads.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/leads",
+    "surface": "Leads Pipeline",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Lead Action Button"
+  },
+  {
+    "targetId": "sa.sales.leads.table",
+    "workspace": "Super Admin",
+    "route": "/sales/leads",
+    "surface": "Leads Pipeline",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Sales Leads Pipeline Table"
+  },
+  {
+    "targetId": "sa.sales.delivery.create-btn",
+    "workspace": "Super Admin",
+    "route": "/sales/delivery",
+    "surface": "Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "New Handover Protocol Button"
+  },
+  {
+    "targetId": "sa.sales.delivery.table",
+    "workspace": "Super Admin",
+    "route": "/sales/delivery",
+    "surface": "Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Delivery Protocols Table"
+  },
+  {
+    "targetId": "sa.service.repairs.create-btn",
+    "workspace": "Super Admin",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Repair Job Button"
+  },
+  {
+    "targetId": "sa.service.repairs.filters",
+    "workspace": "Super Admin",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Repair Job Status Tabs & Search"
+  },
+  {
+    "targetId": "sa.service.repairs.table",
+    "workspace": "Super Admin",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Workshop Repair Jobs Table"
+  },
+  {
+    "targetId": "sa.analytics.hub.create-btn",
+    "workspace": "Super Admin",
+    "route": "/analytics/reports-hub",
+    "surface": "Reports Hub",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Build Report Action Button"
+  },
+  {
+    "targetId": "sa.analytics.hub.cards",
+    "workspace": "Super Admin",
+    "route": "/analytics/reports-hub",
+    "surface": "Reports Hub",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Report Categories Grid Cards"
+  },
+  {
+    "targetId": "sa.system.audit.filters",
+    "workspace": "Super Admin",
+    "route": "/system/audit-log",
+    "surface": "System Audit Log",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Audit Search & Filter Controls"
+  },
+  {
+    "targetId": "sa.system.audit.table",
+    "workspace": "Super Admin",
+    "route": "/system/audit-log",
+    "surface": "System Audit Log",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Audit Events History Table"
+  },
+  {
+    "targetId": "sa.system.settings.tabs",
+    "workspace": "Super Admin",
+    "route": "/system/settings",
+    "surface": "System Settings",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Settings Navigation Tabs"
+  },
+  {
+    "targetId": "sa.system.settings.general-card",
+    "workspace": "Super Admin",
+    "route": "/system/settings",
+    "surface": "System Settings",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Business Profile Configuration"
+  },
+  {
+    "targetId": "sa.system.settings.save-btn",
+    "workspace": "Super Admin",
+    "route": "/system/settings",
+    "surface": "System Settings",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Save Enterprise Settings Button"
+  },
+  {
+    "targetId": "sa.dashboard.chart.sales-performance",
+    "workspace": "Super Admin",
+    "route": "/dashboard",
+    "surface": "Executive Command Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Sales Performance Trend Card"
+  },
+  {
+    "targetId": "sa.dashboard.overview.inventory",
+    "workspace": "Super Admin",
+    "route": "/dashboard",
+    "surface": "Executive Command Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Dashboard Inventory Overview Card"
+  },
+  {
+    "targetId": "sa.dashboard.branch-perf.kpis",
+    "workspace": "Super Admin",
+    "route": "/dashboard/branch-performance",
+    "surface": "Branch Performance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Performance KPIs"
+  },
+  {
+    "targetId": "sa.dashboard.branch-perf.ranking",
+    "workspace": "Super Admin",
+    "route": "/dashboard/branch-performance",
+    "surface": "Branch Performance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Branch Ranking Comparison Bars"
+  },
+  {
+    "targetId": "sa.dashboard.branch-perf.table",
+    "workspace": "Super Admin",
+    "route": "/dashboard/branch-performance",
+    "surface": "Branch Performance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Detailed Branch Comparison Table"
+  },
+  {
+    "targetId": "sa.dashboard.biz-perf.kpis",
+    "workspace": "Super Admin",
+    "route": "/dashboard/business-performance",
+    "surface": "Business Performance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Business Performance KPIs"
+  },
+  {
+    "targetId": "sa.dashboard.biz-perf.trend",
+    "workspace": "Super Admin",
+    "route": "/dashboard/business-performance",
+    "surface": "Business Performance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Profitability Trend Analysis Chart"
+  },
+  {
+    "targetId": "sa.dashboard.biz-perf.top-products",
+    "workspace": "Super Admin",
+    "route": "/dashboard/business-performance",
+    "surface": "Business Performance",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Top Products & Categories Tables"
+  },
+  {
+    "targetId": "sa.action-centre.header.filters",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Priority Filter Tabs & Filter Bar"
+  },
+  {
+    "targetId": "sa.action-centre.header.create-btn",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Action Directive Button"
+  },
+  {
+    "targetId": "sa.action-centre.modal.type-commercial-pricing",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Category Card 1: Commercial & Pricing Exception"
+  },
+  {
+    "targetId": "sa.action-centre.modal.type-stock-reallocation",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Category Card 2: Inter-Branch Stock Reallocation"
+  },
+  {
+    "targetId": "sa.action-centre.modal.type-operational-expense",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Category Card 3: Emergency Operational Expenditure"
+  },
+  {
+    "targetId": "sa.action-centre.modal.type-warranty-escalation",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Category Card 4: Critical Warranty Claim"
+  },
+  {
+    "targetId": "sa.action-centre.modal.type-inventory-governance",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Category Card 5: Inventory Governance & Quarantine"
+  },
+  {
+    "targetId": "sa.action-centre.modal.type-selection",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Create Action Modal: Type Selection Grid"
+  },
+  {
+    "targetId": "sa.action-centre.modal.form-details",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Create Action Modal: Form Parameters & Details"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-title",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Action Directive Title Input"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-priority",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Action Directive Priority Select"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-customer",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer or Organization Name Input"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-phone",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Contact Phone Input"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-model",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Vehicle Model Selection Dropdown"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-orderref",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quotation or Order Reference Input"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-unitcount",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Requested Unit Count Number Input"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-discount",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Requested Discount Percentage Input"
+  },
+  {
+    "targetId": "sa.action-centre.modal.field-justification",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Competitor Context and Deal Justification Textarea"
+  },
+  {
+    "targetId": "sa.action-centre.modal.submit-btn",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Submit Action Directive or Request Button"
+  },
+  {
+    "targetId": "sa.action-centre.queue.treat-btn",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Queue Task Row Treat & Inspect Action Button"
+  },
+  {
+    "targetId": "sa.action-centre.drawer.panel",
+    "workspace": "Super Admin",
+    "route": "/dashboard/action-centre",
+    "surface": "Action Centre",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Treatment Decision Drawer Panel"
+  },
+  {
+    "targetId": "sa.dashboard.quick-actions.grid",
+    "workspace": "Super Admin",
+    "route": "/dashboard/quick-actions",
+    "surface": "Quick Actions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Quick Actions Launchpad Grid"
+  },
+  {
+    "targetId": "sa.dashboard.quick-actions.sale-btn",
+    "workspace": "Super Admin",
+    "route": "/dashboard/quick-actions",
+    "surface": "Quick Actions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Point of Sale Quick Launcher Button"
+  },
+  {
+    "targetId": "bm.catalogue.products.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/products",
+    "surface": "Branch Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Catalogue & Local Availability KPIs"
+  },
+  {
+    "targetId": "bm.catalogue.products.filters",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/products",
+    "surface": "Branch Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Catalogue Search & Inventory Filters"
+  },
+  {
+    "targetId": "bm.catalogue.products.table",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/products",
+    "surface": "Branch Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Branch Product Inventory Roster"
+  },
+  {
+    "targetId": "bm.catalogue.products.export-btn",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/products",
+    "surface": "Branch Product Catalogue",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Export Showroom Inventory Roster"
+  },
+  {
+    "targetId": "bm.catalogue.requests.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Branch Product Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Product Request Status KPIs"
+  },
+  {
+    "targetId": "bm.catalogue.requests.filters",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Branch Product Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Request Status Filter & Search"
+  },
+  {
+    "targetId": "bm.catalogue.requests.table",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Branch Product Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Product Requests Roster"
+  },
+  {
+    "targetId": "bm.catalogue.requests.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Branch Product Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "New Product Request Button"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.modal",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Create Product Request Modal Container"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.product-name",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Proposed Product & Model Name Input"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.category",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Product Category Combobox"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.specifications",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Technical Specifications Input"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.reference",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Supplier & Product Reference Code Input"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.demand",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Demand Evidence Input"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.urgency",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Request Urgency Selector"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.images",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Images & Attachment References Input"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.reason",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Reason for Request Textarea"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.notice",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Catalogue Governance Approval Policy Notice"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Submit Product Request Button"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.cancel-btn",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Cancel Product Request Modal Button"
+  },
+  {
+    "targetId": "bm.catalogue.createrequest.close-btn",
+    "workspace": "Branch Manager",
+    "route": "/catalogue/requests",
+    "surface": "Create Product Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Close Product Request Modal Button"
+  },
+  {
+    "targetId": "bm.inventory.dashboard.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/dashboard",
+    "surface": "Branch Inventory Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Inventory Custody Overview Header"
+  },
+  {
+    "targetId": "bm.inventory.dashboard.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/dashboard",
+    "surface": "Branch Inventory Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Stock Availability & Pipeline KPIs"
+  },
+  {
+    "targetId": "bm.inventory.dashboard.status-grid",
+    "workspace": "Branch Manager",
+    "route": "/inventory/dashboard",
+    "surface": "Branch Inventory Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Inventory Status & Operational Distribution Grid"
+  },
+  {
+    "targetId": "bm.inventory.dashboard.valuation",
+    "workspace": "Branch Manager",
+    "route": "/inventory/dashboard",
+    "surface": "Branch Inventory Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Branch Inventory Valuation & Governance Scope"
+  },
+  {
+    "targetId": "bm.inventory.stock.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Stock by Product Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.stock.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Product Stock Summary KPIs"
+  },
+  {
+    "targetId": "bm.inventory.stock.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Search and Category Filters"
+  },
+  {
+    "targetId": "bm.inventory.stock.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Product Catalog Stock Table"
+  },
+  {
+    "targetId": "bm.inventory.stock.export-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-by-product",
+    "surface": "Stock by Product",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Export Stock Catalog Button"
+  },
+  {
+    "targetId": "bm.inventory.units.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/serialized-units",
+    "surface": "Serialized Units",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Serialized Units Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.units.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/serialized-units",
+    "surface": "Serialized Units",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Serialized Units Metric KPIs"
+  },
+  {
+    "targetId": "bm.inventory.units.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/serialized-units",
+    "surface": "Serialized Units",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Unit Status and Search Filters"
+  },
+  {
+    "targetId": "bm.inventory.units.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/serialized-units",
+    "surface": "Serialized Units",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Chassis and Serial Tracking Table"
+  },
+  {
+    "targetId": "bm.inventory.units.export-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/serialized-units",
+    "surface": "Serialized Units",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Export Serialized Registry Button"
+  },
+  {
+    "targetId": "bm.inventory.requests.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Stock Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Stock Requests Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.requests.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Stock Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "New Stock Request Action Button"
+  },
+  {
+    "targetId": "bm.inventory.requests.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Stock Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Stock Requests KPIs"
+  },
+  {
+    "targetId": "bm.inventory.requests.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Stock Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Requisition Status & Search Filters"
+  },
+  {
+    "targetId": "bm.inventory.requests.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Stock Requests",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Stock Requisitions Table"
+  },
+  {
+    "targetId": "bm.inventory.requests.modal",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Create Stock Request Modal Dialog"
+  },
+  {
+    "targetId": "bm.inventory.requests.branch",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Requesting Branch Selector"
+  },
+  {
+    "targetId": "bm.inventory.requests.product",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Requested Vehicle Model Selector"
+  },
+  {
+    "targetId": "bm.inventory.requests.quantity",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Units Quantity Input"
+  },
+  {
+    "targetId": "bm.inventory.requests.urgency",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Urgency Level Selector"
+  },
+  {
+    "targetId": "bm.inventory.requests.demand",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Demand Driver Selector"
+  },
+  {
+    "targetId": "bm.inventory.requests.reason",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Business Justification Reason Input"
+  },
+  {
+    "targetId": "bm.inventory.requests.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-requests",
+    "surface": "Create Stock Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Submit Requisition Button"
+  },
+  {
+    "targetId": "bm.inventory.transfers.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Branch Transfers",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Stock Transfers Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.transfers.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Branch Transfers",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "New Stock Transfer Action Button"
+  },
+  {
+    "targetId": "bm.inventory.transfers.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Branch Transfers",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Transfer Flow & Transit KPIs"
+  },
+  {
+    "targetId": "bm.inventory.transfers.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Branch Transfers",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Transfer Status & Filter Controls"
+  },
+  {
+    "targetId": "bm.inventory.transfers.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Branch Transfers",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Branch Stock Transfers Table"
+  },
+  {
+    "targetId": "bm.inventory.transfers.modal",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Create Stock Transfer Modal Dialog"
+  },
+  {
+    "targetId": "bm.inventory.transfers.origin",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Origin Branch Location"
+  },
+  {
+    "targetId": "bm.inventory.transfers.destination",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Destination Branch Selector"
+  },
+  {
+    "targetId": "bm.inventory.transfers.product",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Transfer Product Line Selector"
+  },
+  {
+    "targetId": "bm.inventory.transfers.units",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Serialized Units Selection List"
+  },
+  {
+    "targetId": "bm.inventory.transfers.carrier",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Logistics Carrier & Driver Info"
+  },
+  {
+    "targetId": "bm.inventory.transfers.gatepass",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Security Gate Pass Reference"
+  },
+  {
+    "targetId": "bm.inventory.transfers.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/transfers",
+    "surface": "Create Transfer Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Initiate Transfer Dispatch Button"
+  },
+  {
+    "targetId": "bm.inventory.inbound.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/inbound-deliveries",
+    "surface": "Inbound Deliveries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Inbound Deliveries Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.inbound.receive-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/inbound-deliveries",
+    "surface": "Inbound Deliveries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Receive Inbound Stock Action Button"
+  },
+  {
+    "targetId": "bm.inventory.inbound.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/inbound-deliveries",
+    "surface": "Inbound Deliveries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Incoming Shipment & Transit KPIs"
+  },
+  {
+    "targetId": "bm.inventory.inbound.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/inbound-deliveries",
+    "surface": "Inbound Deliveries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Shipment Status & Source Filters"
+  },
+  {
+    "targetId": "bm.inventory.inbound.export-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/inbound-deliveries",
+    "surface": "Inbound Deliveries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Export Inbound Deliveries Button"
+  },
+  {
+    "targetId": "bm.inventory.inbound.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/inbound-deliveries",
+    "surface": "Inbound Deliveries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Inbound Consignments Table"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Stock Adjustments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Stock Adjustments Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Stock Adjustments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "New Adjustment Request Button"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Stock Adjustments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Adjustment Status & Value KPIs"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Stock Adjustments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Adjustment Status & Search Filters"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Stock Adjustments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Stock Adjustment Audit Records Table"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.modal",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Create Adjustment Request Modal Dialog"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.product-unit",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Adjusted Product Unit Reference"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.existing-state",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "System Ledger Recorded State"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.corrected-state",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Corrected Physical Floor State"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.reason",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Variance Discrepancy Reason"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.evidence",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Supporting Evidence Attachment Reference"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.branch",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Adjustment Branch Custody"
+  },
+  {
+    "targetId": "bm.inventory.adjustments.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-adjustments",
+    "surface": "Create Adjustment Request Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Submit Adjustment Request Button"
+  },
+  {
+    "targetId": "bm.inventory.cycle.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Cycle Counts",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Cycle Counts Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.cycle.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Cycle Counts",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Start Count Session Button"
+  },
+  {
+    "targetId": "bm.inventory.cycle.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Cycle Counts",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Physical Count Audit KPIs"
+  },
+  {
+    "targetId": "bm.inventory.cycle.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Cycle Counts",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Count Session Status & Scope Search"
+  },
+  {
+    "targetId": "bm.inventory.cycle.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Cycle Counts",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Cycle Count Audits Table"
+  },
+  {
+    "targetId": "bm.inventory.cycle.modal",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Start Cycle Count Modal Dialog"
+  },
+  {
+    "targetId": "bm.inventory.cycle.name",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Cycle Count Audit Session Name"
+  },
+  {
+    "targetId": "bm.inventory.cycle.scope",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Audit Scope Area"
+  },
+  {
+    "targetId": "bm.inventory.cycle.assigned-to",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Assigned Count Team or Auditor"
+  },
+  {
+    "targetId": "bm.inventory.cycle.expected-units",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Expected Units Estimate"
+  },
+  {
+    "targetId": "bm.inventory.cycle.branch",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Count Session Branch Location"
+  },
+  {
+    "targetId": "bm.inventory.cycle.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/cycle-counts",
+    "surface": "Create Cycle Count Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Start Count Session Submit Button"
+  },
+  {
+    "targetId": "bm.inventory.ledger.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-movement-ledger",
+    "surface": "Stock Movement Ledger",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Movement Ledger Header & Overview"
+  },
+  {
+    "targetId": "bm.inventory.ledger.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-movement-ledger",
+    "surface": "Stock Movement Ledger",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Daily Activity & Ledger Volume KPIs"
+  },
+  {
+    "targetId": "bm.inventory.ledger.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-movement-ledger",
+    "surface": "Stock Movement Ledger",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Ledger Type, Date & Search Filters"
+  },
+  {
+    "targetId": "bm.inventory.ledger.export-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-movement-ledger",
+    "surface": "Stock Movement Ledger",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Export Immutable Movement Ledger Button"
+  },
+  {
+    "targetId": "bm.inventory.ledger.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/stock-movement-ledger",
+    "surface": "Stock Movement Ledger",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Stock Movement Audit Ledger Table"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.header",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Damaged / Quarantine",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quarantine & Damaged Units Header"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Damaged / Quarantine",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Report Damaged or Quarantine Unit Button"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.kpis",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Damaged / Quarantine",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quarantined Units Severity KPIs"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.filters",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Damaged / Quarantine",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Disposition Status & Unit Filters"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.table",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Damaged / Quarantine",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Affected Quarantine Units Table"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.modal",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Report Quarantine Record Modal Dialog"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.branch",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quarantined Unit Custody Branch"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.unit",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Unit Chassis or Serial Number"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.product",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Vehicle Model Designation"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.condition",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Defect or Damage Condition Description"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.status",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Initial Quarantine Status"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.decision",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Proposed Technical Disposition Decision"
+  },
+  {
+    "targetId": "bm.inventory.quarantine.submit-btn",
+    "workspace": "Branch Manager",
+    "route": "/inventory/quarantine",
+    "surface": "Create Quarantine Record Modal",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Submit Quarantine Incident Button"
   }
 ];

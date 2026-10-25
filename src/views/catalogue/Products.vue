@@ -356,7 +356,7 @@ const confirmArchive = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.catalogue.products.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -367,7 +367,7 @@ const confirmArchive = () => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.catalogue.products.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -582,6 +582,7 @@ const confirmArchive = () => {
 
         <!-- Export Button -->
         <button 
+          data-tour-id="bm.catalogue.products.export-btn"
           @click="exportBranchProducts"
           class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1.5"
         >
@@ -591,7 +592,7 @@ const confirmArchive = () => {
     </div>
 
     <!-- Branch Product Catalogue Table -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.catalogue.products.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Branch Product Catalogue</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchProducts.length }} products</span>
@@ -697,7 +698,7 @@ const confirmArchive = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="sa.catalogue.products.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in kpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between h-[88px]">
         <div class="text-[11px] font-semibold text-gray-400">{{ kpi.label }}</div>
         <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
@@ -707,7 +708,7 @@ const confirmArchive = () => {
     <!-- Filters & Table -->
     <div class="space-y-4">
       <!-- Filter Bar -->
-      <div class="flex flex-wrap items-center gap-4">
+      <div data-tour-id="sa.catalogue.products.filters" class="flex flex-wrap items-center gap-4">
         <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
           <button 
             v-for="tab in statusTabs" 

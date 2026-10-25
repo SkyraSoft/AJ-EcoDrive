@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { 
   ChevronDown, Search, Check, CheckCircle2, Plus, X, 
@@ -8,6 +8,7 @@ import {
   MapPin, Building, User, Tag, Clock, ArrowUpRight, CheckCircle, XCircle
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
+import { dapStore } from '@/stores/dapStore.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -209,6 +210,15 @@ const standardTypes = [
   }
 ]
 
+// Unique tour targets for the 5 category cards (also supports legacy sa.action-centre.modal.type-selection)
+const categoryTourTargets = {
+  commercial_pricing: 'sa.action-centre.modal.type-commercial-pricing',
+  stock_reallocation: 'sa.action-centre.modal.type-stock-reallocation',
+  operational_expense: 'sa.action-centre.modal.type-operational-expense',
+  warranty_escalation: 'sa.action-centre.modal.type-warranty-escalation',
+  inventory_governance: 'sa.action-centre.modal.type-inventory-governance'
+}
+
 // Common action header fields
 const actionForm = ref({
   title: '',
@@ -320,7 +330,6 @@ const openCreateModal = () => {
 
 const selectTypeForCreation = (type) => {
   selectedTypeForCreation.value = type
-  createStep.value = 2
 
   // Pre-fill reasonable title
   if (type.id === 'commercial_pricing') {
@@ -334,7 +343,63 @@ const selectTypeForCreation = (type) => {
   } else if (type.id === 'inventory_governance') {
     actionForm.value.title = `Inventory Discrepancy & Quarantine Sign-Off (${actionForm.value.governance.rootCauseClassification})`
   }
+
+  // If guided tour is actively presenting the 5 category cards, stay on Step 1 so each card remains accessible in sequence
+  const isTouringCategoryCards = dapStore?.isActive && 
+    (dapStore?.currentStep?.targetId?.startsWith('sa.action-centre.modal.type-') ||
+     dapStore?.currentStep?.targetId?.startsWith('bm.action-centre.modal.type-') ||
+     dapStore?.currentStep?.targetId === 'sa.action-centre.modal.type-selection')
+
+  if (isTouringCategoryCards) {
+    createStep.value = 1
+    const currentTargetId = dapStore?.currentStep?.targetId
+    const clickedTargetId = categoryTourTargets[type.id]
+    if (
+      currentTargetId === clickedTargetId ||
+      currentTargetId === clickedTargetId.replace('sa.', 'bm.') ||
+      (currentTargetId === 'sa.action-centre.modal.type-selection' && type.id === 'commercial_pricing')
+    ) {
+      if (typeof dapStore.handleRealFieldAction === 'function') {
+        dapStore.handleRealFieldAction()
+      }
+    }
+  } else {
+    createStep.value = 2
+  }
 }
+
+// Synchronize create modal step with active guided tour step targets
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([isActive, targetId]) => {
+    if (!isActive) return
+    if (
+      targetId === 'sa.action-centre.modal.form-details' ||
+      targetId?.startsWith('sa.action-centre.modal.field-') ||
+      targetId?.startsWith('bm.action-centre.modal.field-') ||
+      targetId === 'sa.action-centre.modal.submit-btn' ||
+      targetId === 'bm.action-centre.modal.submit-btn'
+    ) {
+      if (!selectedTypeForCreation.value) {
+        selectedTypeForCreation.value = standardTypes[0]
+      }
+      createStep.value = 2
+      showCreateModal.value = true
+    } else if (
+      targetId && (
+        targetId.startsWith('sa.action-centre.modal.type-') ||
+        targetId.startsWith('bm.action-centre.modal.type-') ||
+        targetId === 'sa.action-centre.modal.type-selection'
+      )
+    ) {
+      showCreateModal.value = true
+      createStep.value = 1
+    } else if (targetId === 'sa.action-centre.queue.list' || targetId === 'sa.action-centre.queue.treat-btn' || targetId === 'bm.action-centre.queue.list') {
+      showCreateModal.value = false
+    }
+  },
+  { immediate: true }
+)
 
 const submitCreateAction = () => {
   if (!actionForm.value.title.trim()) {
@@ -482,6 +547,7 @@ const exportActionQueue = () => {
       <div class="flex items-center gap-3">
         <button 
           @click="openCreateModal"
+          data-tour-id="sa.action-centre.header.create-btn"
           class="bg-[#165A31] hover:bg-[#124a28] text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition-all cursor-pointer"
         >
           <Plus class="w-4 h-4" />
@@ -526,7 +592,7 @@ const exportActionQueue = () => {
     </div>
 
     <!-- Filter Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div data-tour-id="sa.action-centre.header.filters" class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Priority Tabs -->
         <div class="flex items-center bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-800 rounded-lg p-1 shadow-sm">
@@ -726,7 +792,7 @@ const exportActionQueue = () => {
               <td class="px-5 py-4 align-middle text-right whitespace-nowrap">
                 <button 
                   @click.stop="openTreatmentModal(item)"
-                  data-tour="action-centre-treatment" data-tour-id="sa.action-centre.drawer.approve-btn"
+                  data-tour="action-centre-treatment" data-tour-id="sa.action-centre.queue.treat-btn"
                   class="text-xs font-bold text-[#165A31] dark:text-emerald-400 hover:underline flex items-center justify-end gap-1 ml-auto cursor-pointer"
                 >
                   Treat / Inspect &rarr;
@@ -757,7 +823,7 @@ const exportActionQueue = () => {
       v-if="showCreateModal" 
       class="fixed inset-0 z-[120] bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in duration-150"
     >
-      <div class="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 max-h-[90vh] flex flex-col overflow-hidden">
+      <div data-tour="action-create-modal" class="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 max-h-[90vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0">
           <div>
@@ -783,8 +849,11 @@ const exportActionQueue = () => {
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div 
-                v-for="type in standardTypes" 
+                v-for="(type, idx) in standardTypes" 
                 :key="type.id"
+                :data-tour-id="categoryTourTargets[type.id]"
+                role="button"
+                tabindex="0"
                 @click="selectTypeForCreation(type)"
                 class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-[#165A31] dark:hover:border-emerald-500 hover:bg-[#eefcf2]/20 dark:hover:bg-emerald-950/20 transition-all cursor-pointer flex flex-col justify-between group"
               >
@@ -806,12 +875,12 @@ const exportActionQueue = () => {
           </div>
 
           <!-- STEP 2: TAILORED FORM FOR THE SELECTED TYPE -->
-          <div v-else class="space-y-5">
+          <div v-else data-tour-id="sa.action-centre.modal.form-details" class="space-y-5">
             <!-- Common Fields -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="sm:col-span-2">
                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Action Title *</label>
-                <input data-tour="action-title" 
+                <input data-tour="action-title" data-tour-id="sa.action-centre.modal.field-title"
                   v-model="actionForm.title" 
                   type="text" 
                   class="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-slate-800 dark:text-white"
@@ -821,7 +890,7 @@ const exportActionQueue = () => {
 
               <div>
                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Priority</label>
-                <select data-tour="action-priority" 
+                <select data-tour="action-priority" data-tour-id="sa.action-centre.modal.field-priority"
                   v-model="actionForm.priority"
                   class="w-full px-3 py-2 text-xs border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-slate-800 dark:text-white"
                 >
@@ -843,15 +912,15 @@ const exportActionQueue = () => {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer / Organization Name *</label>
-                  <input data-tour="action-pricing-customername" v-model="actionForm.pricing.customerName" type="text" placeholder="e.g. Peshawar Logistics Co" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-customername" data-tour-id="sa.action-centre.modal.field-customer" v-model="actionForm.pricing.customerName" type="text" placeholder="e.g. Peshawar Logistics Co" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Customer Phone</label>
-                  <input data-tour="action-pricing-customercontact" v-model="actionForm.pricing.customerContact" type="text" placeholder="0300-XXXXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-customercontact" data-tour-id="sa.action-centre.modal.field-phone" v-model="actionForm.pricing.customerContact" type="text" placeholder="0300-XXXXXXX" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Vehicle Model / Category</label>
-                  <select data-tour="action-pricing-modelname" v-model="actionForm.pricing.modelName" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
+                  <select data-tour="action-pricing-modelname" data-tour-id="sa.action-centre.modal.field-model" v-model="actionForm.pricing.modelName" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900">
                     <option value="BRG E-125 Urban High-Speed Scooter">BRG E-125 Urban High-Speed Scooter</option>
                     <option value="BRG Cargo Delivery Electric Trike (72V 100Ah)">BRG Cargo Delivery Electric Trike (72V 100Ah)</option>
                     <option value="BRG DS-11 Sports Commuter">BRG DS-11 Sports Commuter</option>
@@ -860,15 +929,15 @@ const exportActionQueue = () => {
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Quotation / Order Ref</label>
-                  <input data-tour="action-pricing-orderref" v-model="actionForm.pricing.orderRef" type="text" placeholder="SO-8821 or QT-8421" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
+                  <input data-tour="action-pricing-orderref" data-tour-id="sa.action-centre.modal.field-orderref" v-model="actionForm.pricing.orderRef" type="text" placeholder="SO-8821 or QT-8421" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900 font-mono" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Unit Count</label>
-                  <input data-tour="action-pricing-unitcount" v-model.number="actionForm.pricing.unitCount" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-unitcount" data-tour-id="sa.action-centre.modal.field-unitcount" v-model.number="actionForm.pricing.unitCount" type="number" min="1" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
                 <div>
                   <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Requested Discount % (Showroom Limit: 8%)</label>
-                  <input data-tour="action-pricing-requesteddiscountpercent" v-model.number="actionForm.pricing.requestedDiscountPercent" type="number" min="1" max="30" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
+                  <input data-tour="action-pricing-requesteddiscountpercent" data-tour-id="sa.action-centre.modal.field-discount" v-model.number="actionForm.pricing.requestedDiscountPercent" type="number" min="1" max="30" class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900" />
                 </div>
               </div>
 
@@ -896,7 +965,7 @@ const exportActionQueue = () => {
 
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">Competitor Context & Deal Justification *</label>
-                <textarea data-tour="action-pricing-competitorcontext" v-model="actionForm.pricing.competitorContext" rows="2" placeholder="Why should Head Office grant this price reduction? (e.g. competitor offer, key trial deal)..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
+                <textarea data-tour="action-pricing-competitorcontext" data-tour-id="sa.action-centre.modal.field-justification" v-model="actionForm.pricing.competitorContext" rows="2" placeholder="Why should Head Office grant this price reduction? (e.g. competitor offer, key trial deal)..." class="w-full px-3 py-2 text-xs border rounded-lg bg-white dark:bg-slate-900"></textarea>
               </div>
             </div>
 
@@ -1129,6 +1198,7 @@ const exportActionQueue = () => {
             <button 
               v-if="createStep === 2"
               @click="submitCreateAction"
+              data-tour-id="sa.action-centre.modal.submit-btn"
               class="px-5 py-2 text-xs font-semibold text-white bg-[#165A31] hover:bg-[#124a28] rounded-lg shadow-sm transition-colors cursor-pointer"
             >
               Submit Action Request
@@ -1145,7 +1215,7 @@ const exportActionQueue = () => {
       v-if="showTreatmentModal && selectedActionForTreatment" 
       class="fixed inset-0 z-[120] bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in duration-150"
     >
-      <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 max-h-[92vh] flex flex-col overflow-hidden">
+      <div data-tour="action-treatment-drawer" data-tour-id="sa.action-centre.drawer.panel" class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 max-h-[92vh] flex flex-col overflow-hidden">
         <!-- Drawer Header -->
         <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0 bg-gray-50/50 dark:bg-slate-800/40">
           <div>
@@ -1445,6 +1515,7 @@ const exportActionQueue = () => {
               </button>
               <button 
                 @click="executeDecision('Approved', { discountApproved: `${selectedActionForTreatment.pricingData?.requestedDiscountPercent}%` })"
+                data-tour-id="sa.action-centre.drawer.approve-btn"
                 class="px-4 py-1.5 text-xs font-semibold text-white bg-[#165A31] hover:bg-[#124a28] rounded-lg shadow-sm transition-colors cursor-pointer"
               >
                 Approve Full Discount

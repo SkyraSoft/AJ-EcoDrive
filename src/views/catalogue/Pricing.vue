@@ -80,7 +80,7 @@ const openHistory = (productName) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Pricing</h1>
         <p class="text-sm text-gray-500 mt-1">Control catalogue selling prices, margin rules and branch overrides.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+      <button data-tour-id="sa.catalogue.pricing.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>New Price Rule</span>
       </button>
     </div>
@@ -88,7 +88,7 @@ const openHistory = (productName) => {
     <!-- Filters & Table -->
     <div class="space-y-4">
       <!-- Filter Bar -->
-      <div class="flex flex-wrap items-center gap-4">
+      <div data-tour-id="sa.catalogue.pricing.filters" class="flex flex-wrap items-center gap-4">
         <div class="relative w-full sm:w-64 shadow-[0_2px_4px_rgba(0,0,0,0.01)]">
           <input 
             data-tour-id="sa.form.pricing.searchquery"

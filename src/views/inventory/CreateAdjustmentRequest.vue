@@ -141,7 +141,7 @@ const submitForApproval = () => {
       <X class="w-5 h-5" />
     </button>
 
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div data-tour-id="bm.inventory.adjustments.modal" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <!-- Scrollable Body -->
       <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
         <!-- Header -->
@@ -166,6 +166,7 @@ const submitForApproval = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Product / Unit *</label>
                 <input data-tour="productunit" 
+                  data-tour-id="bm.inventory.adjustments.product-unit"
                   v-model="form.productUnit"
                   type="text" 
                   placeholder="e.g. BRG X5 or CHS-01882"
@@ -178,6 +179,7 @@ const submitForApproval = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Existing System State</label>
                 <input data-tour="existingstate" 
+                  data-tour-id="bm.inventory.adjustments.existing-state"
                   v-model="form.existingState"
                   type="text" 
                   placeholder="e.g. 6 available"
@@ -188,6 +190,7 @@ const submitForApproval = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Corrected / Physical State</label>
                 <input data-tour="correctedstate" 
+                  data-tour-id="bm.inventory.adjustments.corrected-state"
                   v-model="form.correctedState"
                   type="text" 
                   placeholder="e.g. 5 available"
@@ -198,6 +201,7 @@ const submitForApproval = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Reason for Adjustment *</label>
                 <textarea data-tour="reason" 
+                  data-tour-id="bm.inventory.adjustments.reason"
                   v-model="form.reason"
                   rows="3"
                   placeholder="e.g. Physical count variance, damaged in showroom..."
@@ -215,6 +219,7 @@ const submitForApproval = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Evidence Attachment</label>
                 <input data-tour="evidence" 
+                  data-tour-id="bm.inventory.adjustments.evidence"
                   v-model="form.evidence"
                   type="text" 
                   placeholder="e.g. Count_Sheet_Aug28.pdf"
@@ -236,6 +241,7 @@ const submitForApproval = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch *</label>
                 <select 
                   data-tour="adjustment-branch" 
+                  data-tour-id="bm.inventory.adjustments.branch"
                   v-model="form.branch" 
                   :disabled="isBranchUser"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
@@ -281,6 +287,7 @@ const submitForApproval = () => {
             </button>
             <button 
               type="submit" 
+              data-tour-id="bm.inventory.adjustments.submit-btn"
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
             >
               {{ isEditMode ? 'Update Request' : 'Submit for Approval' }}

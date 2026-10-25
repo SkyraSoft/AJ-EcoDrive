@@ -33,7 +33,7 @@ const saveRole = () => {
 
 <template>
   <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="cancel">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div data-tour-id="sa.organisation.createrole.modal" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Close button on top right -->
       <button @click="cancel" class="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 rounded-full z-50 shadow-sm transition-colors cursor-pointer">
@@ -62,23 +62,23 @@ const saveRole = () => {
       <div class="grid grid-cols-1 md:grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Role Name</label>
-          <input v-model="roleName" type="text" placeholder="e.g. Area Manager" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input data-tour-id="sa.organisation.createrole.name" v-model="roleName" type="text" placeholder="e.g. Area Manager" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
         
         <div>
           <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Scope</label>
-          <input v-model="scope" type="text" placeholder="Assigned Branch" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
+          <input data-tour-id="sa.organisation.createrole.scope" v-model="scope" type="text" placeholder="Assigned Branch" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]" />
         </div>
       </div>
       
       <div>
         <label class="block text-[11px] font-medium text-gray-700 mb-1.5">Description</label>
-        <textarea v-model="description" rows="2" placeholder="Brief description of the role's responsibilities" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
+        <textarea data-tour-id="sa.organisation.createrole.description" v-model="description" rows="2" placeholder="Brief description of the role's responsibilities" class="w-full px-3 py-2 text-[12px] border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]"></textarea>
       </div>
     </div>
 
     <!-- Permission Matrix Configurator -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.organisation.createrole.permissions" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <h3 class="text-[13px] font-bold text-gray-900">Module Permissions</h3>
         <button class="text-[11px] font-bold text-[#165A31] hover:text-[#124a28]">Grant All Access</button>
@@ -193,10 +193,10 @@ const saveRole = () => {
 
     <!-- Actions -->
     <div class="flex items-center justify-end gap-3 pt-4">
-      <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
+      <button data-tour-id="sa.organisation.createrole.cancel-btn" @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
         Cancel
       </button>
-      <button @click="saveRole" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
+      <button data-tour-id="sa.organisation.createrole.submit-btn" @click="saveRole" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer">
         Save Role
       </button>
     </div>

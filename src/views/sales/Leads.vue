@@ -515,7 +515,7 @@ const openLead = (lead) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Leads & Inquiries</h1>
         <p class="text-sm text-gray-500 mt-1">Track prospective customers from first inquiry through conversion.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer">
+      <button data-tour-id="sa.sales.leads.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer">
         <Plus class="w-4 h-4" /> <span>Add Lead</span>
       </button>
     </div>
@@ -548,7 +548,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.sales.leads.table" class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-[14px] font-bold text-gray-900">Leads ({{ filteredLeads.length }})</h2>

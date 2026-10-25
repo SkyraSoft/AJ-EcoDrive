@@ -247,7 +247,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Header -->
-    <div>
+    <div data-tour-id="bm.inventory.stock.header">
       <div class="text-[11px] text-gray-400 mb-1">
         Branch Manager / Stock by Product / <span class="font-medium text-gray-600">Stock by Product</span>
       </div>
@@ -256,7 +256,7 @@ const resetFilters = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.inventory.stock.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div class="text-[26px] font-bold text-gray-900 leading-tight">{{ kpi.value }}</div>
@@ -264,7 +264,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.inventory.stock.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -437,6 +437,7 @@ const resetFilters = () => {
 
         <!-- Export Button -->
         <button 
+          data-tour-id="bm.inventory.stock.export-btn"
           @click="exportBranchStock"
           class="px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1.5"
         >
@@ -446,7 +447,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.inventory.stock.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Stock by Product</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchStock.length }} products</span>
@@ -536,7 +537,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Filters Toolbar -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div data-tour-id="sa.inventory.stock.filters" class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-3 flex-1">
         <!-- Search -->
         <div class="relative w-full sm:w-64">
@@ -629,7 +630,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.inventory.stock.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <h3 class="text-[14px] font-bold text-gray-900">Stock by Product ({{ filteredProducts.length }})</h3>
       </div>

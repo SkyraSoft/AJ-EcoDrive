@@ -105,7 +105,7 @@ const handleCreated = (type, payload) => {
     </div>
 
     <!-- Quick Action Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div data-tour-id="sa.dashboard.quick-actions.grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       
       <!-- Section 1: Sales & Commercial Workflows -->
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
@@ -121,6 +121,7 @@ const handleCreated = (type, payload) => {
           <!-- Quick Sale (POS) -->
           <button 
             @click="openModal('quickSale')"
+            data-tour-id="sa.dashboard.quick-actions.sale-btn"
             class="bg-[#165A31] text-white p-3.5 rounded-xl hover:bg-[#124a28] transition-all shadow-sm cursor-pointer text-left flex flex-col justify-between group"
           >
             <div class="flex items-center justify-between mb-2">

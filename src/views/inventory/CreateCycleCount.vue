@@ -133,7 +133,7 @@ const startSession = () => {
       <X class="w-5 h-5" />
     </button>
 
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+    <div data-tour-id="bm.inventory.cycle.modal" class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
       <!-- Scrollable Body -->
       <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
         <!-- Header -->
@@ -158,6 +158,7 @@ const startSession = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Count Name *</label>
                 <input data-tour="countname" 
+                  data-tour-id="bm.inventory.cycle.name"
                   v-model="form.countName"
                   type="text" 
                   placeholder="e.g. Showroom Count"
@@ -170,6 +171,7 @@ const startSession = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Scope Area *</label>
                 <input data-tour="scope" 
+                  data-tour-id="bm.inventory.cycle.scope"
                   v-model="form.scope"
                   type="text" 
                   placeholder="e.g. Showroom Units or Battery Storage"
@@ -182,6 +184,7 @@ const startSession = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Assigned Team / Auditor</label>
                 <input data-tour="assignedto" 
+                  data-tour-id="bm.inventory.cycle.assigned-to"
                   v-model="form.assignedTo"
                   type="text" 
                   placeholder="e.g. Branch Team"
@@ -207,6 +210,7 @@ const startSession = () => {
               <div>
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Expected Units Count</label>
                 <input data-tour="expectedunits" 
+                  data-tour-id="bm.inventory.cycle.expected-units"
                   v-model="form.expectedUnits"
                   type="text" 
                   placeholder="e.g. 20 units"
@@ -218,6 +222,7 @@ const startSession = () => {
                 <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Branch Location *</label>
                 <select 
                   data-tour="cycle-count-branch" 
+                  data-tour-id="bm.inventory.cycle.branch"
                   v-model="form.branch" 
                   :disabled="isBranchUser"
                   class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 focus:outline-none focus:border-[#165A31] transition-colors disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
@@ -265,6 +270,7 @@ const startSession = () => {
             </button>
             <button 
               type="submit" 
+              data-tour-id="bm.inventory.cycle.submit-btn"
               class="bg-[#165A31] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
             >
               {{ isEditMode ? 'Update Session' : 'Start Count Session' }}

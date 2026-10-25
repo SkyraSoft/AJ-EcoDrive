@@ -592,6 +592,7 @@ const handleRepairUpdated = (updatedJob) => {
 
       <!-- Create Repair Job Button -->
       <button 
+        data-tour-id="sa.service.repairs.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -600,7 +601,7 @@ const handleRepairUpdated = (updatedJob) => {
     </div>
 
     <!-- Filters Bar -->
-    <div class="space-y-4">
+    <div data-tour-id="sa.service.repairs.filters" class="space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <!-- Status Tabs -->
         <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.01)] overflow-x-auto max-w-full">
@@ -661,7 +662,7 @@ const handleRepairUpdated = (updatedJob) => {
       </div>
 
       <!-- Table Container -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div data-tour-id="sa.service.repairs.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 class="text-[13px] font-bold text-gray-900">Repair Jobs</h3>
           <span class="text-[11px] text-gray-400 font-medium">{{ filteredRepairs.length }} records</span>

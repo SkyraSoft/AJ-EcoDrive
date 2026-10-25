@@ -242,6 +242,7 @@ const handleReportCreated = (newReport) => {
       </div>
       
       <button 
+        data-tour-id="sa.analytics.hub.create-btn"
         @click="showBuildReportModal = true"
         class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -251,7 +252,7 @@ const handleReportCreated = (newReport) => {
     </div>
 
     <!-- Report Types Grid (6 Cards) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div data-tour-id="sa.analytics.hub.cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div 
         v-for="(type, idx) in reportTypes" 
         :key="idx" 

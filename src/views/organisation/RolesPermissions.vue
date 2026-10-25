@@ -1,11 +1,30 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Eye, Search, Plus } from 'lucide-vue-next'
+import { dapStore } from '@/stores/dapStore.js'
 import CreateRole from './CreateRole.vue'
 
 const showCreateModal = ref(false)
 const selectedRole = ref('Branch Manager')
 const searchQuery = ref('')
+
+// Synchronize create modal state with active guided tour step targets
+watch(
+  () => [dapStore?.isActive, dapStore?.currentStep?.targetId],
+  ([isActive, targetId]) => {
+    if (!isActive) return
+    if (targetId && targetId.startsWith('sa.organisation.createrole.')) {
+      showCreateModal.value = true
+    } else if (
+      targetId === 'sa.organisation.roles.table' ||
+      targetId === 'sa.organisation.roles.matrix' ||
+      targetId === 'sa.organisation.roles.create-btn'
+    ) {
+      showCreateModal.value = false
+    }
+  },
+  { immediate: true }
+)
 
 const handleRoleCreated = (newRole) => {
   roles.value.push({
@@ -89,7 +108,7 @@ const filteredRoles = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Roles & Permissions</h1>
         <p class="text-[13px] text-gray-500 mt-1">Configure role capabilities, branch scope and sensitive-data access.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+      <button data-tour-id="sa.organisation.roles.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>Create Role</span>
       </button>
     </div>
@@ -98,7 +117,7 @@ const filteredRoles = computed(() => {
     <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-6">
       
       <!-- Roles -->
-      <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div data-tour-id="sa.organisation.roles.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
           <h3 class="text-[13px] font-bold text-gray-900">Roles</h3>
           <div class="relative w-48">
@@ -153,7 +172,7 @@ const filteredRoles = computed(() => {
       </div>
 
       <!-- Permission Model -->
-      <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div data-tour-id="sa.organisation.roles.model" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
           <h3 class="text-[13px] font-bold text-gray-900">Permission Model</h3>
         </div>
@@ -180,7 +199,7 @@ const filteredRoles = computed(() => {
     </div>
 
     <!-- Selected Role Matrix -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="sa.organisation.roles.matrix" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
         <h3 class="text-[13px] font-bold text-gray-900">Selected Role · {{ selectedRole }}</h3>
         <span class="text-xs font-semibold text-[#165A31] bg-[#eefcf2] px-3 py-1 rounded-full">Viewing permissions for {{ selectedRole }}</span>

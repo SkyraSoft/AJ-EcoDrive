@@ -68,13 +68,13 @@ const filteredOrders = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Purchase Orders</h1>
         <p class="text-sm text-gray-500 mt-1">Control BRG procurement from draft through receipt and closure.</p>
       </div>
-      <button @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+      <button data-tour-id="sa.procurement.po.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>Create Purchase Order</span>
       </button>
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div data-tour-id="sa.procurement.po.filters" class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center bg-white border border-gray-100 rounded-lg p-1 shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-x-auto max-w-full">
         <button 
           v-for="filter in filters" 

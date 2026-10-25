@@ -20,6 +20,7 @@
 
 import { superAdminMissions } from './superAdmin/superAdminMissions.js';
 import { branchManagerMissions } from './branchManager/branchManagerMissions.js';
+import { branchManagerPageTours, BM_INVENTORY_SUBPAGE_ROUTES } from './branchManager/branchManagerPageTours.js';
 import { crossRoleScenarios } from './scenarios/crossRoleScenarios.js';
 import { contextHelpRegistry } from './contextHelp/contextHelpRegistry.js';
 import { fieldGuideRegistry, getFieldGuide, getFieldGuidesForRoute, getFieldMatrixSummary, BUSINESS_DECISION_HOLDS } from './fieldGuides/fieldGuideRegistry.js';
@@ -53,7 +54,7 @@ export function getMissionsForRole(role) {
  */
 export function getMissionById(identifier) {
   if (!identifier) return null;
-  const all = [...superAdminMissions, ...branchManagerMissions, ...crossRoleScenarios];
+  const all = [...superAdminMissions, ...branchManagerMissions, ...crossRoleScenarios, ...Object.values(branchManagerPageTours)];
   return all.find(m => m.id === identifier || m.code === identifier) || null;
 }
 
@@ -71,13 +72,75 @@ export function getQuickOrientation(route, role) {
  * Returns the comprehensive operational page tour for the active route/workspace.
  */
 export function getPageTour(route, role) {
-  const missions = getMissionsForRole(role);
-  // Match exact route first
-  const exact = missions.find(m => m.route === route && (!m.tourLevels || m.tourLevels.includes(TOUR_MODES.PAGE_TOUR)));
-  if (exact) return exact;
+  if (!route) return null;
+  const cleanRoute = route.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
 
-  // Fallback to route prefix match
-  return missions.find(m => route && route.startsWith(m.route) && (!m.tourLevels || m.tourLevels.includes(TOUR_MODES.PAGE_TOUR))) || null;
+  // 1. Check dedicated role-specific page tour registry (ensures Branch Manager subpages use comprehensive multi-step tours)
+  if (role === 'Branch Manager' && branchManagerPageTours[cleanRoute]) {
+    return branchManagerPageTours[cleanRoute];
+  }
+
+  // 2. Check active role missions for exact match
+  const roleMissions = getMissionsForRole(role);
+  let match = roleMissions.find(m => {
+    const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+    return mRoute === cleanRoute && (!m.tourLevels || m.tourLevels.includes(TOUR_MODES.PAGE_TOUR));
+  });
+  if (match) return match;
+
+  // 2. Check all missions for exact route match (enables shared pages like Catalogue Products for Branch Manager)
+  const allMissions = [...superAdminMissions, ...branchManagerMissions];
+  match = allMissions.find(m => {
+    const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+    return mRoute === cleanRoute && (!m.tourLevels || m.tourLevels.includes(TOUR_MODES.PAGE_TOUR));
+  });
+  if (match) return match;
+
+  // 3. Check known route aliases between canonical modules
+  const routeAliases = {
+    '/sales/delivery': '/sales/handover',
+    '/sales/handover': '/sales/delivery',
+    '/inventory/serialized-units': '/inventory/units',
+    '/inventory/units': '/inventory/serialized-units',
+    '/inventory/stock-adjustments': '/inventory/adjustments',
+    '/inventory/adjustments': '/inventory/stock-adjustments',
+    '/after-sales/warranty': '/after-sales/cases',
+    '/after-sales/cases': '/after-sales/warranty',
+    '/analytics/reports-hub': '/analytics',
+    '/analytics': '/analytics/reports-hub',
+    '/catalogue/requests': '/inventory/product-requests',
+    '/inventory/product-requests': '/catalogue/requests',
+    '/procurement/purchase-orders': '/procurement/orders',
+    '/procurement/orders': '/procurement/purchase-orders',
+    '/procurement/receipts': '/procurement/receiving',
+    '/procurement/receiving': '/procurement/receipts',
+    '/procurement/vendor-bills': '/finance/supplier-bills',
+    '/finance/supplier-bills': '/procurement/vendor-bills',
+    '/sales/payments': '/finance/payments',
+    '/finance/payments': '/sales/payments',
+  };
+  if (routeAliases[cleanRoute]) {
+    const alias = routeAliases[cleanRoute];
+    match = allMissions.find(m => {
+      const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+      return mRoute === alias && (!m.tourLevels || m.tourLevels.includes(TOUR_MODES.PAGE_TOUR));
+    });
+    if (match) return match;
+  }
+
+  // 4. Prefix match (strictly for subpages, picking the most specific matching prefix; ignores root or dashboard)
+  if (cleanRoute !== '/' && cleanRoute !== '/dashboard') {
+    const prefixMatches = allMissions.filter(m => {
+      const mRoute = (m.route || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+      return mRoute && mRoute !== '/' && mRoute !== '/dashboard' && cleanRoute.startsWith(mRoute + '/') && (!m.tourLevels || m.tourLevels.includes(TOUR_MODES.PAGE_TOUR));
+    });
+    if (prefixMatches.length > 0) {
+      prefixMatches.sort((a, b) => (b.route?.length || 0) - (a.route?.length || 0));
+      return prefixMatches[0];
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -135,6 +198,8 @@ export function getAllScenarios() {
 export {
   superAdminMissions,
   branchManagerMissions,
+  branchManagerPageTours,
+  BM_INVENTORY_SUBPAGE_ROUTES,
   crossRoleScenarios,
   contextHelpRegistry,
   fieldGuideRegistry,
