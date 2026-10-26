@@ -200,7 +200,7 @@ const filteredNotifications = computed(() => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.communication.notifications.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Notifications / <span class="font-medium text-gray-600">Notifications</span>
@@ -211,7 +211,7 @@ const filteredNotifications = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.communication.notifications.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label" 
@@ -224,7 +224,7 @@ const filteredNotifications = computed(() => {
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div data-tour-id="bm.communication.notifications.filters" class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -398,7 +398,7 @@ const filteredNotifications = computed(() => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div data-tour-id="bm.communication.notifications.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <h3 class="text-sm font-bold text-gray-900">Notifications</h3>

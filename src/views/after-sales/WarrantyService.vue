@@ -161,7 +161,7 @@ const handleCaseUpdated = (updatedCase) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.service.cases.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Warranty & Service / <span class="font-medium text-gray-600">Warranty & Service Cases</span>
@@ -178,7 +178,7 @@ const handleCaseUpdated = (updatedCase) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.service.cases.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKpis" 
         :key="kpi.label" 
@@ -191,7 +191,7 @@ const handleCaseUpdated = (updatedCase) => {
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour-id="bm.service.cases.filters" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -271,7 +271,7 @@ const handleCaseUpdated = (updatedCase) => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div data-tour-id="bm.service.cases.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <h3 class="text-sm font-bold text-gray-900">Service Cases</h3>
 
       <div class="overflow-x-auto">

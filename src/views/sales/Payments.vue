@@ -161,7 +161,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.sales.payments.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Payments / <span class="font-medium text-gray-600">Payments</span>
@@ -170,6 +170,7 @@ const resetFilters = () => {
         <p class="text-xs text-gray-500 mt-1">{{ user?.branchName || 'Peshawar' }} Branch records only.</p>
       </div>
       <button 
+        data-tour-id="bm.sales.payments.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -178,7 +179,7 @@ const resetFilters = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.payments.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -189,7 +190,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.sales.payments.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -212,11 +213,11 @@ const resetFilters = () => {
             <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
           </button>
           <div 
-            v-if="openBranchDropdown === 'status'"
+            v-if="openBranchDropdown === 'status'" 
             class="absolute top-full left-0 mt-1 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
           >
             <button 
-              v-for="st in ['All', 'Reconciled', 'Pending']"
+              v-for="st in ['All', 'Reconciled', 'Pending']" 
               :key="st"
               @click="branchStatusFilter = st; openBranchDropdown = null"
               class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -248,7 +249,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Payments Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.sales.payments.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <h3 class="text-sm font-bold text-gray-900 mb-5">Payments</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">

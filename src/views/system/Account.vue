@@ -69,7 +69,7 @@ const saveChanges = () => {
     </div>
 
     <!-- Header & Breadcrumbs -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.system.account.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           <span v-if="isBranchUser">Branch Manager / Account / <span class="font-medium text-gray-600">Account Profile</span></span>
@@ -79,7 +79,7 @@ const saveChanges = () => {
         <p class="text-xs text-gray-500 mt-1">Maintain your profile and branch contact information.</p>
       </div>
 
-      <button 
+      <button data-tour-id="bm.system.account.save-btn" 
         @click="saveChanges"
         class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -91,7 +91,7 @@ const saveChanges = () => {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       
       <!-- Left Card: Profile -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+      <div data-tour-id="bm.system.account.profile-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Personal Profile</h3>
         
         <div>
@@ -132,7 +132,7 @@ const saveChanges = () => {
       </div>
 
       <!-- Right Card: System Security & Role -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+      <div data-tour-id="bm.system.account.security-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Access & Role Information</h3>
         
         <div>

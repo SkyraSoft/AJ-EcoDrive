@@ -2973,5 +2973,1409 @@ export const CURRICULUM_SEEDED_TARGETS = [
     "readinessClass": "ROUTE_MOUNT_TARGET",
     "preferredPlacement": "left",
     "description": "Submit Quarantine Incident Button"
+  },
+  {
+    "targetId": "bm.sales.dashboard.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Sales Command Overview Header"
+  },
+  {
+    "targetId": "bm.sales.dashboard.kpis",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Daily Sales & Revenue KPIs"
+  },
+  {
+    "targetId": "bm.sales.dashboard.sales-trend",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Weekly Revenue Velocity Trend"
+  },
+  {
+    "targetId": "bm.sales.dashboard.top-products",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Top Selling EV Models & Ticket Metrics"
+  },
+  {
+    "targetId": "bm.sales.quotations.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Commercial Quotations Management Header"
+  },
+  {
+    "targetId": "bm.sales.quotations.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quotation Pipeline Status KPIs"
+  },
+  {
+    "targetId": "bm.sales.quotations.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quotation Status & Search Filters"
+  },
+  {
+    "targetId": "bm.sales.quotations.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Commercial Quotation Button"
+  },
+  {
+    "targetId": "bm.sales.orders.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Sales Orders Management Header"
+  },
+  {
+    "targetId": "bm.sales.orders.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Order Pipeline & Fulfillment KPIs"
+  },
+  {
+    "targetId": "bm.sales.orders.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Order Status & Search Filters"
+  },
+  {
+    "targetId": "bm.sales.orders.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Sale / POS Booking Button"
+  },
+  {
+    "targetId": "bm.sales.invoices.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Invoices & Receivables Header"
+  },
+  {
+    "targetId": "bm.sales.invoices.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Accounts Receivable Recovery KPIs"
+  },
+  {
+    "targetId": "bm.sales.invoices.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Invoice Search & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.invoices.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Customer Invoices Registry Table"
+  },
+  {
+    "targetId": "bm.sales.invoices.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Commercial Invoice Button"
+  },
+  {
+    "targetId": "bm.sales.payments.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Payment Collections Header"
+  },
+  {
+    "targetId": "bm.sales.payments.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Payment Collection Summary KPIs"
+  },
+  {
+    "targetId": "bm.sales.payments.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Payment Method & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.payments.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Record Customer Payment Button"
+  },
+  {
+    "targetId": "bm.sales.delivery.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Vehicle Handover Management Header"
+  },
+  {
+    "targetId": "bm.sales.delivery.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Handover Readiness & PDI KPIs"
+  },
+  {
+    "targetId": "bm.sales.delivery.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Delivery Schedule Filters & Search"
+  },
+  {
+    "targetId": "bm.sales.delivery.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Delivery Handover Manifest Table"
+  },
+  {
+    "targetId": "bm.sales.delivery.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Schedule Vehicle Handover Button"
+  },
+  {
+    "targetId": "bm.sales.returns.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Returns & Claims Management Header"
+  },
+  {
+    "targetId": "bm.sales.returns.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Returns & Claim Pipeline KPIs"
+  },
+  {
+    "targetId": "bm.sales.returns.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Returns Search & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.returns.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Return Claim Button"
+  },
+  {
+    "targetId": "bm.sales.customers.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Relationship Directory Header"
+  },
+  {
+    "targetId": "bm.sales.customers.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Portfolio & Repeat KPIs"
+  },
+  {
+    "targetId": "bm.sales.customers.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Search & Account Filters"
+  },
+  {
+    "targetId": "bm.sales.customers.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Add New Customer Profile Button"
+  },
+  {
+    "targetId": "bm.sales.leads.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Branch Leads & Inquiries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Leads Pipeline Management Header"
+  },
+  {
+    "targetId": "bm.sales.leads.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Branch Leads & Inquiries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Lead Intake & Velocity KPIs"
+  },
+  {
+    "targetId": "bm.sales.leads.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Branch Leads & Inquiries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Lead Status & Marketing Source Filters"
+  },
+  {
+    "targetId": "bm.sales.followups.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Follow-ups Command Header"
+  },
+  {
+    "targetId": "bm.sales.followups.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Task Horizon & Urgency KPIs"
+  },
+  {
+    "targetId": "bm.sales.followups.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Follow-up Time & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.followups.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Customer Follow-ups Schedule Table"
+  },
+  {
+    "targetId": "bm.sales.followups.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Schedule Follow-up Button"
+  },
+  {
+    "targetId": "bm.sales.customorders.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Custom Orders Command Header"
+  },
+  {
+    "targetId": "bm.sales.customorders.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Custom Sourcing Status KPIs"
+  },
+  {
+    "targetId": "bm.sales.customorders.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Custom Order Sourcing Filters"
+  },
+  {
+    "targetId": "bm.sales.customorders.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Custom Orders Milestones Table"
+  },
+  {
+    "targetId": "bm.sales.customorders.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Book Custom Vehicle Order Button"
+  },
+  {
+    "targetId": "bm.sales.dashboard.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Sales Command Overview Header"
+  },
+  {
+    "targetId": "bm.sales.dashboard.kpis",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Daily Sales & Revenue KPIs"
+  },
+  {
+    "targetId": "bm.sales.dashboard.sales-trend",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Weekly Revenue Velocity Trend"
+  },
+  {
+    "targetId": "bm.sales.dashboard.top-products",
+    "workspace": "Branch Manager",
+    "route": "/sales/dashboard",
+    "surface": "Branch Sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Top Selling EV Models & Ticket Metrics"
+  },
+  {
+    "targetId": "bm.sales.quotations.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Commercial Quotations Management Header"
+  },
+  {
+    "targetId": "bm.sales.quotations.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quotation Pipeline Status KPIs"
+  },
+  {
+    "targetId": "bm.sales.quotations.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Quotation Status & Search Filters"
+  },
+  {
+    "targetId": "bm.sales.quotations.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/quotations",
+    "surface": "Branch Quotations",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Commercial Quotation Button"
+  },
+  {
+    "targetId": "bm.sales.orders.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Sales Orders Management Header"
+  },
+  {
+    "targetId": "bm.sales.orders.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Order Pipeline & Fulfillment KPIs"
+  },
+  {
+    "targetId": "bm.sales.orders.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Order Status & Search Filters"
+  },
+  {
+    "targetId": "bm.sales.orders.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/orders",
+    "surface": "Branch Sales Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Sale / POS Booking Button"
+  },
+  {
+    "targetId": "bm.sales.invoices.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Invoices & Receivables Header"
+  },
+  {
+    "targetId": "bm.sales.invoices.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Accounts Receivable Recovery KPIs"
+  },
+  {
+    "targetId": "bm.sales.invoices.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Invoice Search & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.invoices.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Customer Invoices Registry Table"
+  },
+  {
+    "targetId": "bm.sales.invoices.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/invoices",
+    "surface": "Branch Invoices & Receivables",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Commercial Invoice Button"
+  },
+  {
+    "targetId": "bm.sales.payments.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Payment Collections Header"
+  },
+  {
+    "targetId": "bm.sales.payments.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Payment Collection Summary KPIs"
+  },
+  {
+    "targetId": "bm.sales.payments.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Payment Method & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.payments.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/payments",
+    "surface": "Branch Payments",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Record Customer Payment Button"
+  },
+  {
+    "targetId": "bm.sales.delivery.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Vehicle Handover Management Header"
+  },
+  {
+    "targetId": "bm.sales.delivery.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Handover Readiness & PDI KPIs"
+  },
+  {
+    "targetId": "bm.sales.delivery.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Delivery Schedule Filters & Search"
+  },
+  {
+    "targetId": "bm.sales.delivery.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Delivery Handover Manifest Table"
+  },
+  {
+    "targetId": "bm.sales.delivery.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/delivery",
+    "surface": "Branch Delivery & Handover",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Schedule Vehicle Handover Button"
+  },
+  {
+    "targetId": "bm.sales.returns.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Returns & Claims Management Header"
+  },
+  {
+    "targetId": "bm.sales.returns.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Returns & Claim Pipeline KPIs"
+  },
+  {
+    "targetId": "bm.sales.returns.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Returns Search & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.returns.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/returns",
+    "surface": "Branch Returns & Refunds",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Create Return Claim Button"
+  },
+  {
+    "targetId": "bm.sales.customers.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Relationship Directory Header"
+  },
+  {
+    "targetId": "bm.sales.customers.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Portfolio & Repeat KPIs"
+  },
+  {
+    "targetId": "bm.sales.customers.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Customer Search & Account Filters"
+  },
+  {
+    "targetId": "bm.sales.customers.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/customers",
+    "surface": "Branch Customers Directory",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Add New Customer Profile Button"
+  },
+  {
+    "targetId": "bm.sales.leads.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Branch Leads & Inquiries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Leads Pipeline Management Header"
+  },
+  {
+    "targetId": "bm.sales.leads.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Branch Leads & Inquiries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Lead Intake & Velocity KPIs"
+  },
+  {
+    "targetId": "bm.sales.leads.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/leads",
+    "surface": "Branch Leads & Inquiries",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Lead Status & Marketing Source Filters"
+  },
+  {
+    "targetId": "bm.sales.followups.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Follow-ups Command Header"
+  },
+  {
+    "targetId": "bm.sales.followups.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Task Horizon & Urgency KPIs"
+  },
+  {
+    "targetId": "bm.sales.followups.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Follow-up Time & Status Filters"
+  },
+  {
+    "targetId": "bm.sales.followups.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Customer Follow-ups Schedule Table"
+  },
+  {
+    "targetId": "bm.sales.followups.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/follow-ups",
+    "surface": "Branch Follow-ups",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Schedule Follow-up Button"
+  },
+  {
+    "targetId": "bm.sales.customorders.header",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Custom Orders Command Header"
+  },
+  {
+    "targetId": "bm.sales.customorders.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Custom Sourcing Status KPIs"
+  },
+  {
+    "targetId": "bm.sales.customorders.filters",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Custom Order Sourcing Filters"
+  },
+  {
+    "targetId": "bm.sales.customorders.table",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Custom Orders Milestones Table"
+  },
+  {
+    "targetId": "bm.sales.customorders.create-btn",
+    "workspace": "Branch Manager",
+    "route": "/sales/custom-orders",
+    "surface": "Branch Custom Orders",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Book Custom Vehicle Order Button"
+  },
+  {
+    "targetId": "bm.service.dashboard.header",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/dashboard",
+    "surface": "After-sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "After-Sales Showroom Command Header"
+  },
+  {
+    "targetId": "bm.service.dashboard.kpis",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/dashboard",
+    "surface": "After-sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Service Workload & Claim Metrics"
+  },
+  {
+    "targetId": "bm.service.dashboard.workload-table",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/dashboard",
+    "surface": "After-sales Dashboard",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Branch Service Workload Table"
+  },
+  {
+    "targetId": "bm.service.cases.header",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/warranty",
+    "surface": "Warranty & Service Cases",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Warranty Cases Command & Case Intake"
+  },
+  {
+    "targetId": "bm.service.cases.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/warranty",
+    "surface": "Warranty & Service Cases",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Warranty Coverage & Priority Metrics"
+  },
+  {
+    "targetId": "bm.service.cases.filters",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/warranty",
+    "surface": "Warranty & Service Cases",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Warranty Filter & Search Suite"
+  },
+  {
+    "targetId": "bm.service.repairs.header",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Workshop Repair Jobs Command Header"
+  },
+  {
+    "targetId": "bm.service.repairs.kpi-cards",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Repair Operations & Readiness Metrics"
+  },
+  {
+    "targetId": "bm.service.repairs.filters",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Technician & Job Filter Controls"
+  },
+  {
+    "targetId": "bm.service.repairs.table",
+    "workspace": "Branch Manager",
+    "route": "/after-sales/repairs",
+    "surface": "Repair Jobs",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Workshop Repair Jobs Ledger"
+  },
+  {
+    "targetId": "bm.expenses.roster.header",
+    "workspace": "Branch Manager",
+    "route": "/finance/expenses",
+    "surface": "Expenses",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Operating Expenses Header"
+  },
+  {
+    "targetId": "bm.expenses.roster.kpis",
+    "workspace": "Branch Manager",
+    "route": "/finance/expenses",
+    "surface": "Expenses",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Monthly Spend & Approval KPIs"
+  },
+  {
+    "targetId": "bm.expenses.roster.filters",
+    "workspace": "Branch Manager",
+    "route": "/finance/expenses",
+    "surface": "Expenses",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Expense Search & Status Filter Matrix"
+  },
+  {
+    "targetId": "bm.expenses.roster.table",
+    "workspace": "Branch Manager",
+    "route": "/finance/expenses",
+    "surface": "Expenses",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Branch Operating Expense Ledger"
+  },
+  {
+    "targetId": "bm.finance.overview.header",
+    "workspace": "Branch Manager",
+    "route": "/finance/overview",
+    "surface": "Finance Overview",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Expense Summary & Performance Header"
+  },
+  {
+    "targetId": "bm.finance.overview.kpis",
+    "workspace": "Branch Manager",
+    "route": "/finance/overview",
+    "surface": "Finance Overview",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Collections, Expenses & Profitability Metrics"
+  },
+  {
+    "targetId": "bm.finance.overview.contributions",
+    "workspace": "Branch Manager",
+    "route": "/finance/overview",
+    "surface": "Finance Overview",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Branch Revenue & Contribution Breakdown"
+  },
+  {
+    "targetId": "bm.finance.overview.collections",
+    "workspace": "Branch Manager",
+    "route": "/finance/overview",
+    "surface": "Finance Overview",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Cash Collections Trend Analysis"
+  },
+  {
+    "targetId": "bm.communication.inbox.header",
+    "workspace": "Branch Manager",
+    "route": "/communication/inbox",
+    "surface": "Management Inbox",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Management Inbox Command Header"
+  },
+  {
+    "targetId": "bm.communication.inbox.kpis",
+    "workspace": "Branch Manager",
+    "route": "/communication/inbox",
+    "surface": "Management Inbox",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Executive Threads & Unread Metrics"
+  },
+  {
+    "targetId": "bm.communication.inbox.filters",
+    "workspace": "Branch Manager",
+    "route": "/communication/inbox",
+    "surface": "Management Inbox",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Thread Type, Priority & Sender Filters"
+  },
+  {
+    "targetId": "bm.communication.inbox.table",
+    "workspace": "Branch Manager",
+    "route": "/communication/inbox",
+    "surface": "Management Inbox",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Management Conversation Threads Roster"
+  },
+  {
+    "targetId": "bm.communication.notifications.header",
+    "workspace": "Branch Manager",
+    "route": "/communication/notifications",
+    "surface": "Notifications",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Notifications Feed Command Header"
+  },
+  {
+    "targetId": "bm.communication.notifications.kpis",
+    "workspace": "Branch Manager",
+    "route": "/communication/notifications",
+    "surface": "Notifications",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Unread Events & Category Distribution"
+  },
+  {
+    "targetId": "bm.communication.notifications.filters",
+    "workspace": "Branch Manager",
+    "route": "/communication/notifications",
+    "surface": "Notifications",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Event Category & Status Filters"
+  },
+  {
+    "targetId": "bm.communication.notifications.table",
+    "workspace": "Branch Manager",
+    "route": "/communication/notifications",
+    "surface": "Notifications",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Operational Events & Alert Logs"
+  },
+  {
+    "targetId": "bm.analytics.hub.header",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports-hub",
+    "surface": "Reports Hub",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Reports Hub Command Header"
+  },
+  {
+    "targetId": "bm.analytics.hub.kpis",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports-hub",
+    "surface": "Reports Hub",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Period Performance & Export Readiness"
+  },
+  {
+    "targetId": "bm.analytics.hub.filters",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports-hub",
+    "surface": "Reports Hub",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Report Date Filters & Export Triggers"
+  },
+  {
+    "targetId": "bm.analytics.hub.trend",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports-hub",
+    "surface": "Reports Hub",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Performance Trend & Segment Breakdown"
+  },
+  {
+    "targetId": "bm.analytics.sales.header",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/sales",
+    "surface": "Sales Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Sales Analytics Command Header"
+  },
+  {
+    "targetId": "bm.analytics.sales.filters",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/sales",
+    "surface": "Sales Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Sales Period & Scope Filters"
+  },
+  {
+    "targetId": "bm.analytics.sales.kpis",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/sales",
+    "surface": "Sales Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Net Sales, Units & Margin KPIs"
+  },
+  {
+    "targetId": "bm.analytics.sales.table",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/sales",
+    "surface": "Sales Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Detailed Sales Performance Ledger"
+  },
+  {
+    "targetId": "bm.analytics.inventory.header",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/inventory",
+    "surface": "Inventory Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Inventory Valuation Command Header"
+  },
+  {
+    "targetId": "bm.analytics.inventory.filters",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/inventory",
+    "surface": "Inventory Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Inventory Reporting Filters"
+  },
+  {
+    "targetId": "bm.analytics.inventory.kpis",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/inventory",
+    "surface": "Inventory Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Inventory Valuation & Unit Metrics"
+  },
+  {
+    "targetId": "bm.analytics.inventory.table",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/inventory",
+    "surface": "Inventory Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Model Inventory Breakdown & Valuation Table"
+  },
+  {
+    "targetId": "bm.analytics.crm.header",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/crm",
+    "surface": "CRM Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "CRM & Lead Conversion Command Header"
+  },
+  {
+    "targetId": "bm.analytics.crm.filters",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/crm",
+    "surface": "CRM Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "CRM Reporting Filters"
+  },
+  {
+    "targetId": "bm.analytics.crm.kpis",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/crm",
+    "surface": "CRM Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Lead Volume, Qualified Prospects & Conversion Rate"
+  },
+  {
+    "targetId": "bm.analytics.crm.table",
+    "workspace": "Branch Manager",
+    "route": "/analytics/reports/crm",
+    "surface": "CRM Report",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Lead Source Acquisition & Conversion Matrix"
+  },
+  {
+    "targetId": "bm.system.team.header",
+    "workspace": "Branch Manager",
+    "route": "/system/branch-team",
+    "surface": "Branch Team",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Team Command Header"
+  },
+  {
+    "targetId": "bm.system.team.kpis",
+    "workspace": "Branch Manager",
+    "route": "/system/branch-team",
+    "surface": "Branch Team",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Team Count & Department Allocation KPIs"
+  },
+  {
+    "targetId": "bm.system.team.filters",
+    "workspace": "Branch Manager",
+    "route": "/system/branch-team",
+    "surface": "Branch Team",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Staff Search & Status Filter Controls"
+  },
+  {
+    "targetId": "bm.system.team.table",
+    "workspace": "Branch Manager",
+    "route": "/system/branch-team",
+    "surface": "Branch Team",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Branch Team Members Ledger"
+  },
+  {
+    "targetId": "bm.system.account.header",
+    "workspace": "Branch Manager",
+    "route": "/system/account",
+    "surface": "Account",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Account Profile Command Header"
+  },
+  {
+    "targetId": "bm.system.account.profile-card",
+    "workspace": "Branch Manager",
+    "route": "/system/account",
+    "surface": "Account",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Personal Contact & Operating Branch Card"
+  },
+  {
+    "targetId": "bm.system.account.security-card",
+    "workspace": "Branch Manager",
+    "route": "/system/account",
+    "surface": "Account",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Security Credentials & Role Authority"
+  },
+  {
+    "targetId": "bm.system.account.save-btn",
+    "workspace": "Branch Manager",
+    "route": "/system/account",
+    "surface": "Account",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Save Profile Changes Action Trigger"
+  },
+  {
+    "targetId": "bm.system.security.header",
+    "workspace": "Branch Manager",
+    "route": "/system/security",
+    "surface": "Security & Sessions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Security & Sessions Command Header"
+  },
+  {
+    "targetId": "bm.system.security.kpis",
+    "workspace": "Branch Manager",
+    "route": "/system/security",
+    "surface": "Security & Sessions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "MFA & Session Health Metric Cards"
+  },
+  {
+    "targetId": "bm.system.security.filters",
+    "workspace": "Branch Manager",
+    "route": "/system/security",
+    "surface": "Security & Sessions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Session Device & Date Filter Controls"
+  },
+  {
+    "targetId": "bm.system.security.table",
+    "workspace": "Branch Manager",
+    "route": "/system/security",
+    "surface": "Security & Sessions",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Active Terminal Sessions Ledger"
+  },
+  {
+    "targetId": "bm.system.preferences.header",
+    "workspace": "Branch Manager",
+    "route": "/system/preferences",
+    "surface": "Preferences",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "System Preferences Command Header"
+  },
+  {
+    "targetId": "bm.system.preferences.appearance-card",
+    "workspace": "Branch Manager",
+    "route": "/system/preferences",
+    "surface": "Preferences",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "right",
+    "description": "Appearance, Localization & Table Density"
+  },
+  {
+    "targetId": "bm.system.preferences.alerts-card",
+    "workspace": "Branch Manager",
+    "route": "/system/preferences",
+    "surface": "Preferences",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Operational Alerts & Dispatch Notifications"
+  },
+  {
+    "targetId": "bm.system.preferences.save-btn",
+    "workspace": "Branch Manager",
+    "route": "/system/preferences",
+    "surface": "Preferences",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Save Preferences Action Trigger"
+  },
+  {
+    "targetId": "bm.system.audit.header",
+    "workspace": "Branch Manager",
+    "route": "/system/audit-log",
+    "surface": "Audit Log",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Branch Audit Log Command Header"
+  },
+  {
+    "targetId": "bm.system.audit.filters",
+    "workspace": "Branch Manager",
+    "route": "/system/audit-log",
+    "surface": "Audit Log",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "bottom",
+    "description": "Audit Module, Entity & Date Filter Matrix"
+  },
+  {
+    "targetId": "bm.system.audit.table",
+    "workspace": "Branch Manager",
+    "route": "/system/audit-log",
+    "surface": "Audit Log",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "top",
+    "description": "Immutable Operational Activity Ledger"
+  },
+  {
+    "targetId": "bm.system.audit.detail-btn",
+    "workspace": "Branch Manager",
+    "route": "/system/audit-log",
+    "surface": "Audit Log",
+    "readinessClass": "ROUTE_MOUNT_TARGET",
+    "preferredPlacement": "left",
+    "description": "Audit Event Forensic Inspection Trigger"
   }
 ];

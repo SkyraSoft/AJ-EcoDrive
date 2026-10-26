@@ -185,7 +185,7 @@ const handleOrderUpdated = (updatedOrder) => {
     <!-- BRANCH MANAGER VIEW -->
     <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openBranchDropdown = null">
       <!-- Header -->
-      <div id="dap-orders-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+      <div id="dap-orders-header" data-tour-id="bm.sales.orders.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
           <div class="text-[11px] text-gray-400 mb-1">
             Branch Manager / Orders / <span class="font-medium text-gray-600">Orders</span>
@@ -195,6 +195,7 @@ const handleOrderUpdated = (updatedOrder) => {
         </div>
         <button 
           id="dap-btn-new-sale"
+          data-tour-id="bm.sales.orders.create-btn"
           @click="openCreateModal" 
           class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
         >
@@ -203,7 +204,7 @@ const handleOrderUpdated = (updatedOrder) => {
       </div>
 
       <!-- 4 KPI Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div data-tour-id="bm.sales.orders.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
           <div>
@@ -214,7 +215,7 @@ const handleOrderUpdated = (updatedOrder) => {
       </div>
 
       <!-- Filters & Search Row -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div data-tour-id="bm.sales.orders.filters" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-2">
           <!-- Search Input -->
           <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -256,7 +257,7 @@ const handleOrderUpdated = (updatedOrder) => {
       </div>
 
       <!-- Branch Orders Table Card -->
-      <div id="dap-orders-table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+      <div id="dap-orders-table" data-tour-id="bm.sales.orders.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
         <h3 class="text-sm font-bold text-gray-900 mb-5">Branch Orders</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">

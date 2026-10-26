@@ -240,7 +240,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.sales.returns.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Returns / <span class="font-medium text-gray-600">Returns</span>
@@ -249,6 +249,7 @@ const resetFilters = () => {
         <p class="text-xs text-gray-500 mt-1">{{ user?.branchName || 'Peshawar' }} Branch records only.</p>
       </div>
       <button 
+        data-tour-id="bm.sales.returns.create-btn"
         @click="openCreateModal"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
       >
@@ -258,7 +259,7 @@ const resetFilters = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.returns.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="(kpi, idx) in branchKPIs" 
         :key="idx" 
@@ -273,7 +274,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Filters & Actions Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.sales.returns.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -455,7 +456,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="bm.sales.returns.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-sm font-bold text-gray-900">Branch Returns</h2>

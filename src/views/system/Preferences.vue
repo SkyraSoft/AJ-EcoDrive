@@ -63,7 +63,7 @@ const savePreferences = () => {
     </div>
 
     <!-- Header & Breadcrumbs (Matching Screenshot 5) -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.system.preferences.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           <span v-if="isBranchUser">Branch Manager / Preferences / <span class="font-medium text-gray-600">Preferences</span></span>
@@ -73,7 +73,7 @@ const savePreferences = () => {
         <p class="text-xs text-gray-500 mt-1">Personalise display, language, date formats, notifications and table density.</p>
       </div>
 
-      <button 
+      <button data-tour-id="bm.system.preferences.save-btn" 
         @click="savePreferences"
         class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
@@ -85,7 +85,7 @@ const savePreferences = () => {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       
       <!-- Left Card: Appearance -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+      <div data-tour-id="bm.system.preferences.appearance-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Appearance & Localization</h3>
         
         <div>
@@ -138,7 +138,7 @@ const savePreferences = () => {
       </div>
 
       <!-- Right Card: Notifications -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
+      <div data-tour-id="bm.system.preferences.alerts-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Operational Notification Preferences</h3>
         
         <div>

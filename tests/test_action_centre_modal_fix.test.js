@@ -1,18 +1,24 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { dapStore } from '../src/stores/dapStore.js';
 import { store } from '../src/store.js';
+import router from '../src/router/index.js';
 import { resolveTarget } from '../src/tour/targetResolver.js';
 import { cleanUpInteractionListeners } from '../src/tour/engine/interactionManager.js';
 
 describe('Action Centre Guided Tour Bug Resolution & Modal Lifecycle Contract', () => {
   let container;
+  let routerPushSpy;
 
   beforeEach(() => {
+    routerPushSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
     container = document.createElement('div');
     document.body.appendChild(container);
   });
 
   afterEach(() => {
+    if (routerPushSpy) {
+      routerPushSpy.mockRestore();
+    }
     cleanUpInteractionListeners();
     if (container && container.parentNode) {
       container.parentNode.removeChild(container);

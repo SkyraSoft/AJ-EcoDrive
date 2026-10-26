@@ -142,7 +142,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.sales.customorders.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Custom Orders / <span class="font-medium text-gray-600">Custom Orders</span>
@@ -151,6 +151,7 @@ const resetFilters = () => {
         <p class="text-xs text-gray-500 mt-1">Track customer-specific sourcing, deposits, arrivals and reservations.</p>
       </div>
       <button 
+        data-tour-id="bm.sales.customorders.create-btn"
         @click="openCreateModal" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -159,7 +160,7 @@ const resetFilters = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.customorders.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label" 
@@ -172,7 +173,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Filters & Action Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+    <div data-tour-id="bm.sales.customorders.filters" class="flex flex-wrap items-center justify-between gap-3 pt-2">
       <!-- Left Filters -->
       <div class="flex flex-wrap items-center gap-2">
         <!-- Search Input -->
@@ -197,7 +198,7 @@ const resetFilters = () => {
           </button>
           <div v-if="openBranchDropdown === 'status'" class="absolute top-full left-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
             <button 
-              v-for="status in ['All', 'Sourcing', 'Arrived', 'Ready', 'Fulfilled']"
+              v-for="status in ['All', 'Sourcing', 'Arrived', 'Ready', 'Fulfilled']" 
               :key="status"
               @click="branchStatusFilter = status; openBranchDropdown = null"
               class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -230,7 +231,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div data-tour-id="bm.sales.customorders.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <h3 class="text-sm font-bold text-gray-900">Custom Orders</h3>
 
       <div class="overflow-x-auto">

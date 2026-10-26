@@ -87,7 +87,7 @@ const handleReportCreated = (newReport) => {
   <!-- BRANCH MANAGER VIEW (Matching Screenshot 1) -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openDropdown = null">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.analytics.hub.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / My Branch Reports / <span class="font-medium text-gray-600">Reports Hub</span>
@@ -98,7 +98,7 @@ const handleReportCreated = (newReport) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.analytics.hub.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label" 
@@ -111,7 +111,7 @@ const handleReportCreated = (newReport) => {
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour-id="bm.analytics.hub.filters" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Date Filter Dropdown -->
         <div class="relative">
@@ -184,7 +184,7 @@ const handleReportCreated = (newReport) => {
     </div>
 
     <!-- 2-Card Layout (Matching Screenshot 1) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div data-tour-id="bm.analytics.hub.trend" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Left Card: Trend (Span 7) -->
       <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-7 flex flex-col justify-between min-h-[280px]">
         <h3 class="text-sm font-bold text-gray-900 mb-6">Trend</h3>

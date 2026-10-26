@@ -157,7 +157,7 @@ const revokeSession = (idx) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.system.security.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Security / <span class="font-medium text-gray-600">Security & Sessions</span>
@@ -168,7 +168,7 @@ const revokeSession = (idx) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.system.security.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in kpis" 
         :key="kpi.label" 
@@ -182,7 +182,7 @@ const revokeSession = (idx) => {
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div data-tour-id="bm.system.security.filters" class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -383,7 +383,7 @@ const revokeSession = (idx) => {
     </div>
 
     <!-- Table Card: Active Sessions -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div data-tour-id="bm.system.security.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-bold text-gray-900">Active Sessions</h3>
         <span class="text-xs text-gray-400 font-medium">{{ filteredSessions.length }} sessions</span>

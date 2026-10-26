@@ -379,7 +379,7 @@ const openConversation = (item) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.communication.inbox.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Management Inbox / <span class="font-medium text-gray-600">Management Inbox</span>
@@ -398,7 +398,7 @@ const openConversation = (item) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.communication.inbox.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label" 
@@ -411,7 +411,7 @@ const openConversation = (item) => {
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour-id="bm.communication.inbox.filters" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -635,7 +635,7 @@ const openConversation = (item) => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div data-tour-id="bm.communication.inbox.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-bold text-gray-900">Conversations</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchConversations.length }} conversations</span>

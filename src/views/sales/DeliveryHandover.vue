@@ -138,7 +138,7 @@ const submitHandover = () => {
     </div>
 
     <!-- Header -->
-    <div id="dap-delivery-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-delivery-header" data-tour-id="bm.sales.delivery.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Delivery / Handover / <span class="font-medium text-gray-600">Delivery / Handover</span>
@@ -157,7 +157,7 @@ const submitHandover = () => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.delivery.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -168,7 +168,7 @@ const submitHandover = () => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.sales.delivery.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">

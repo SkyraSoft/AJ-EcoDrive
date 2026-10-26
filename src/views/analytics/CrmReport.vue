@@ -49,7 +49,7 @@ const details = ref([
 <template>
   <div class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openDropdown = null">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.analytics.crm.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">
           Super Admin / Analytics / Reports / <span class="font-bold text-gray-800">CRM Report</span>
@@ -73,7 +73,7 @@ const details = ref([
     </div>
 
     <!-- Filters -->
-    <div class="flex flex-wrap items-center gap-3">
+    <div data-tour-id="bm.analytics.crm.filters" class="flex flex-wrap items-center gap-3">
       <!-- Branch Dropdown -->
       <div class="relative">
         <button 
@@ -130,7 +130,7 @@ const details = ref([
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.analytics.crm.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="(kpi, index) in kpis" 
         :key="index" 
@@ -174,7 +174,7 @@ const details = ref([
     </div>
 
     <!-- Detailed Report Table -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="bm.analytics.crm.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-100">
         <h3 class="text-[13px] font-bold text-gray-900">Detailed Report</h3>
       </div>

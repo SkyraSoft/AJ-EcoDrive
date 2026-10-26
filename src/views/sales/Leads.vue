@@ -221,7 +221,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Header -->
-    <div id="dap-leads-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-leads-header" data-tour-id="bm.sales.leads.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Leads / <span class="font-medium text-gray-600">Leads & Inquiries</span>
@@ -241,7 +241,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.leads.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label"
@@ -256,7 +256,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Filter Buttons Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+    <div data-tour-id="bm.sales.leads.filters" class="flex flex-wrap items-center justify-between gap-3 pt-2">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -443,7 +443,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Table Card -->
-    <div id="dap-leads-table" data-tour="lead-table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div id="dap-leads-table" data-tour-id="bm.sales.leads.table" data-tour="lead-table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-sm font-bold text-gray-900">Branch Leads</h2>

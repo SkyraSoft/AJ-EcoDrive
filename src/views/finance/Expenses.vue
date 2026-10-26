@@ -172,7 +172,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- Header -->
-    <div id="dap-expenses-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div id="dap-expenses-header" data-tour-id="bm.expenses.roster.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Expenses / <span class="font-medium text-gray-600">Expenses</span>
@@ -193,7 +193,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.expenses.roster.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label" 
@@ -206,7 +206,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour-id="bm.expenses.roster.filters" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -292,7 +292,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     </div>
 
     <!-- Table Card -->
-    <div id="dap-expenses-table" data-tour="expense-table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div id="dap-expenses-table" data-tour="expense-table" data-tour-id="bm.expenses.roster.table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <h3 class="text-sm font-bold text-gray-900">Branch Expenses</h3>
 
       <div class="overflow-x-auto">

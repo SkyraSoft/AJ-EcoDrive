@@ -228,20 +228,20 @@ const resetFilters = () => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour-id="bm.sales.invoices.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Invoices & Receivables</h1>
         <p class="text-sm text-gray-500 mt-1">Manage billing, track payments, and follow up on overdue amounts.</p>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <button @click="openCreateModal" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#165A31] text-white px-4 py-2 text-[12px] font-bold rounded-lg hover:bg-[#124a28] transition-colors shadow-sm">
+        <button data-tour-id="bm.sales.invoices.create-btn" @click="openCreateModal" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#165A31] text-white px-4 py-2 text-[12px] font-bold rounded-lg hover:bg-[#124a28] transition-colors shadow-sm">
           <Plus class="w-4 h-4" /> Create Invoice
         </button>
       </div>
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.invoices.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -252,7 +252,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Filter Buttons Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div data-tour-id="bm.sales.invoices.filters" class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Status Dropdown -->
         <div class="relative" @click.stop>
@@ -411,7 +411,7 @@ const resetFilters = () => {
     </div>
 
     <!-- Invoices Table Card -->
-    <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+    <div data-tour-id="bm.sales.invoices.table" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-sm font-bold text-gray-900">Invoices</h3>
         <span class="text-xs text-gray-400 font-medium">Showing {{ filteredBranchInvoices.length }} invoices</span>

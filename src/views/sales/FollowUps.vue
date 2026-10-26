@@ -184,7 +184,7 @@ const toggleComplete = (item) => {
     </div>
 
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.sales.followups.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Follow-ups / <span class="font-medium text-gray-600">Follow-ups</span>
@@ -193,6 +193,7 @@ const toggleComplete = (item) => {
         <p class="text-xs text-gray-500 mt-1">Today, overdue and upcoming customer follow-ups.</p>
       </div>
       <button 
+        data-tour-id="bm.sales.followups.create-btn"
         @click="openCreateModal"
         class="bg-[#165A31] text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
       >
@@ -201,7 +202,7 @@ const toggleComplete = (item) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.followups.kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKPIs" 
         :key="kpi.label"
@@ -216,7 +217,7 @@ const toggleComplete = (item) => {
     </div>
 
     <!-- Filter Buttons Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+    <div data-tour-id="bm.sales.followups.filters" class="flex flex-wrap items-center justify-between gap-3 pt-2">
       <div class="flex flex-wrap items-center gap-2">
         <!-- Search Input -->
         <div class="relative w-48 sm:w-60 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
@@ -243,7 +244,7 @@ const toggleComplete = (item) => {
               v-for="st in ['All', 'Overdue', 'Due Today', 'Upcoming', 'Completed']"
               :key="st"
               @click="branchStatusFilter = st; openBranchDropdown = null"
-              class="w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer"
+              class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer"
               :class="branchStatusFilter === st ? 'font-bold text-[#165A31] bg-[#eefcf2]/50' : 'text-gray-700'"
             >
               <span>{{ st }}</span>
@@ -272,7 +273,7 @@ const toggleComplete = (item) => {
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="bm.sales.followups.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
         <h2 class="text-sm font-bold text-gray-900 mb-4">Customer Follow-ups</h2>
 

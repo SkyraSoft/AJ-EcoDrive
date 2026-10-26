@@ -72,6 +72,8 @@ export const SHARED_ACTION_CENTRE_ALIASES = {
 export const ALL_SHARED_ALIASES = {
   ...SHARED_TABLE_ALIASES,
   ...SHARED_ACTION_CENTRE_ALIASES,
+  'bm.sales.delivery.create-btn': 'bm.sales.handover.create-btn',
+  'bm.sales.delivery.table': 'bm.sales.handover.table',
 };
 
 /**

@@ -20,7 +20,7 @@
 
 import { superAdminMissions } from './superAdmin/superAdminMissions.js';
 import { branchManagerMissions } from './branchManager/branchManagerMissions.js';
-import { branchManagerPageTours, BM_INVENTORY_SUBPAGE_ROUTES } from './branchManager/branchManagerPageTours.js';
+import { branchManagerPageTours, BM_INVENTORY_SUBPAGE_ROUTES, BM_SALES_SUBPAGE_ROUTES, BM_AFTER_SALES_SUBPAGE_ROUTES, BM_EXPENSES_SUBPAGE_ROUTES, BM_COMMUNICATION_SUBPAGE_ROUTES, BM_ANALYTICS_SUBPAGE_ROUTES, BM_SYSTEM_SUBPAGE_ROUTES } from './branchManager/branchManagerPageTours.js';
 import { crossRoleScenarios } from './scenarios/crossRoleScenarios.js';
 import { contextHelpRegistry } from './contextHelp/contextHelpRegistry.js';
 import { fieldGuideRegistry, getFieldGuide, getFieldGuidesForRoute, getFieldMatrixSummary, BUSINESS_DECISION_HOLDS } from './fieldGuides/fieldGuideRegistry.js';
@@ -76,6 +76,13 @@ export function getPageTour(route, role) {
   const cleanRoute = route.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/';
 
   // 1. Check dedicated role-specific page tour registry (ensures Branch Manager subpages use comprehensive multi-step tours)
+  // Preserves BM-08 curriculum mission as the authoritative page tour for /sales/delivery
+  if (role === 'Branch Manager' && cleanRoute === '/sales/delivery') {
+    const roleMissions = getMissionsForRole(role);
+    const bm08 = roleMissions.find(m => m.code === 'BM-08');
+    if (bm08) return bm08;
+  }
+
   if (role === 'Branch Manager' && branchManagerPageTours[cleanRoute]) {
     return branchManagerPageTours[cleanRoute];
   }
@@ -200,6 +207,12 @@ export {
   branchManagerMissions,
   branchManagerPageTours,
   BM_INVENTORY_SUBPAGE_ROUTES,
+  BM_SALES_SUBPAGE_ROUTES,
+  BM_AFTER_SALES_SUBPAGE_ROUTES,
+  BM_EXPENSES_SUBPAGE_ROUTES,
+  BM_COMMUNICATION_SUBPAGE_ROUTES,
+  BM_ANALYTICS_SUBPAGE_ROUTES,
+  BM_SYSTEM_SUBPAGE_ROUTES,
   crossRoleScenarios,
   contextHelpRegistry,
   fieldGuideRegistry,

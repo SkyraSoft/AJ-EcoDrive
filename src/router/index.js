@@ -1005,7 +1005,7 @@ const router = createRouter({
           path: 'finance/overview',
           name: 'finance-overview',
           component: () => import('@/views/finance/FinanceOverview.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin'] }
+          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
         },
         {
           path: 'finance/receivables',
@@ -1161,7 +1161,7 @@ const router = createRouter({
           path: 'system/security',
           name: 'system-security',
           component: () => import('@/views/system/SecuritySessions.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin'] }
+          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
         },
         {
           path: 'system/preferences',

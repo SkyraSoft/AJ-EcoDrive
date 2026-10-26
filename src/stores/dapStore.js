@@ -13,6 +13,12 @@ import {
   getAllScenarios,
   branchManagerPageTours,
   BM_INVENTORY_SUBPAGE_ROUTES,
+  BM_SALES_SUBPAGE_ROUTES,
+  BM_AFTER_SALES_SUBPAGE_ROUTES,
+  BM_EXPENSES_SUBPAGE_ROUTES,
+  BM_COMMUNICATION_SUBPAGE_ROUTES,
+  BM_ANALYTICS_SUBPAGE_ROUTES,
+  BM_SYSTEM_SUBPAGE_ROUTES,
   TOUR_MODES
 } from '@/tour/content/catalog.js'
 import { superAdminMissions } from '@/tour/content/superAdmin/superAdminMissions.js'
@@ -59,8 +65,59 @@ export const dapStore = reactive({
   isInventoryChainActive: saved?.isInventoryChainActive || false,
   currentInventorySubpageIndex: saved?.currentInventorySubpageIndex || 0,
 
+  // Continuous Multi-Page Sales & Customers Chain State
+  isSalesChainActive: saved?.isSalesChainActive || false,
+  currentSalesSubpageIndex: saved?.currentSalesSubpageIndex || 0,
+
+  // Continuous Multi-Page After-Sales Chain State
+  isAfterSalesChainActive: saved?.isAfterSalesChainActive || false,
+  currentAfterSalesSubpageIndex: saved?.currentAfterSalesSubpageIndex || 0,
+
+  // Continuous Multi-Page Expenses Chain State
+  isExpensesChainActive: saved?.isExpensesChainActive || false,
+  currentExpensesSubpageIndex: saved?.currentExpensesSubpageIndex || 0,
+
+  // Continuous Multi-Page Communication Chain State
+  isCommunicationChainActive: saved?.isCommunicationChainActive || false,
+  currentCommunicationSubpageIndex: saved?.currentCommunicationSubpageIndex || 0,
+
+  // Continuous Multi-Page Analytics Chain State
+  isAnalyticsChainActive: saved?.isAnalyticsChainActive || false,
+  currentAnalyticsSubpageIndex: saved?.currentAnalyticsSubpageIndex || 0,
+
+  // Continuous Multi-Page System Chain State
+  isSystemChainActive: saved?.isSystemChainActive || false,
+  currentSystemSubpageIndex: saved?.currentSystemSubpageIndex || 0,
+
   // Page Tour dedicated context
-  activePageMission: (saved?.isInventoryChainActive && branchManagerPageTours[BM_INVENTORY_SUBPAGE_ROUTES[saved?.currentInventorySubpageIndex]]) || null,
+  activePageMission: (saved?.isInventoryChainActive && branchManagerPageTours[BM_INVENTORY_SUBPAGE_ROUTES[saved?.currentInventorySubpageIndex]]) ||
+    (saved?.isSalesChainActive && branchManagerPageTours[BM_SALES_SUBPAGE_ROUTES[saved?.currentSalesSubpageIndex]]) ||
+    (saved?.isAfterSalesChainActive && branchManagerPageTours[BM_AFTER_SALES_SUBPAGE_ROUTES[saved?.currentAfterSalesSubpageIndex]]) ||
+    (saved?.isExpensesChainActive && branchManagerPageTours[BM_EXPENSES_SUBPAGE_ROUTES[saved?.currentExpensesSubpageIndex]]) ||
+    (saved?.isCommunicationChainActive && branchManagerPageTours[BM_COMMUNICATION_SUBPAGE_ROUTES[saved?.currentCommunicationSubpageIndex]]) ||
+    (saved?.isAnalyticsChainActive && branchManagerPageTours[BM_ANALYTICS_SUBPAGE_ROUTES[saved?.currentAnalyticsSubpageIndex]]) ||
+    (saved?.isSystemChainActive && branchManagerPageTours[BM_SYSTEM_SUBPAGE_ROUTES[saved?.currentSystemSubpageIndex]]) || null,
+
+  get activeContinuousModule() {
+    if (this.isInventoryChainActive) return 'inventory'
+    if (this.isSalesChainActive) return 'sales'
+    if (this.isAfterSalesChainActive) return 'afterSales'
+    if (this.isExpensesChainActive) return 'expenses'
+    if (this.isCommunicationChainActive) return 'communication'
+    if (this.isAnalyticsChainActive) return 'analytics'
+    if (this.isSystemChainActive) return 'system'
+    return null
+  },
+
+  deactivateAllChains() {
+    this.isInventoryChainActive = false
+    this.isSalesChainActive = false
+    this.isAfterSalesChainActive = false
+    this.isExpensesChainActive = false
+    this.isCommunicationChainActive = false
+    this.isAnalyticsChainActive = false
+    this.isSystemChainActive = false
+  },
   activePageSteps: [],
   currentPageRoute: null,
 
@@ -93,15 +150,27 @@ export const dapStore = reactive({
   },
 
   get currentOverallStepNumber() {
-    if (this.isInventoryChainActive) {
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+      { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex', routes: BM_SALES_SUBPAGE_ROUTES },
+      { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+      { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+      { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+      { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+      { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
       let count = 0
-      for (let i = 0; i < this.currentInventorySubpageIndex; i++) {
-        const r = BM_INVENTORY_SUBPAGE_ROUTES[i]
+      for (let i = 0; i < this[activeMod.idx]; i++) {
+        const r = activeMod.routes[i]
         const m = branchManagerPageTours[r]
         count += (m?.steps?.length || 0)
       }
       return count + this.currentStepIndex + 1
     }
+
     if (this.activePageMission) {
       return this.currentStepIndex + 1
     }
@@ -115,19 +184,43 @@ export const dapStore = reactive({
   },
 
   get isFirstStep() {
-    if (this.isInventoryChainActive) {
-      return this.currentInventorySubpageIndex === 0 && this.currentStepIndex === 0
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex' },
+      { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex' },
+      { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex' },
+      { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex' },
+      { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex' },
+      { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex' },
+      { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex' }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      return this[activeMod.idx] === 0 && this.currentStepIndex === 0
     }
+
     if (this.activePageMission) return this.currentStepIndex === 0
     return this.currentMissionIndex === 0 && this.currentStepIndex === 0
   },
 
   get isFinalStep() {
-    if (this.isInventoryChainActive) {
-      const isLastSubpage = this.currentInventorySubpageIndex >= BM_INVENTORY_SUBPAGE_ROUTES.length - 1
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+      { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex', routes: BM_SALES_SUBPAGE_ROUTES },
+      { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+      { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+      { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+      { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+      { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      const isLastSubpage = this[activeMod.idx] >= activeMod.routes.length - 1
       const isLastStepOfSubpage = this.currentStepIndex >= this.totalStepsInCurrentMission - 1
       return isLastSubpage && isLastStepOfSubpage
     }
+
     if (this.activePageMission) {
       return this.currentStepIndex >= this.totalStepsInCurrentMission - 1
     }
@@ -138,20 +231,63 @@ export const dapStore = reactive({
   },
 
   get isSubpageBoundaryStep() {
-    if (!this.isInventoryChainActive) return false
-    const isNotLastSubpage = this.currentInventorySubpageIndex < BM_INVENTORY_SUBPAGE_ROUTES.length - 1
-    const isLastStepOfSubpage = this.currentStepIndex >= this.totalStepsInCurrentMission - 1
-    return isNotLastSubpage && isLastStepOfSubpage
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+      { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex', routes: BM_SALES_SUBPAGE_ROUTES },
+      { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+      { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+      { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+      { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+      { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      const isNotLastSubpage = this[activeMod.idx] < activeMod.routes.length - 1
+      const isLastStepOfSubpage = this.currentStepIndex >= this.totalStepsInCurrentMission - 1
+      return isNotLastSubpage && isLastStepOfSubpage
+    }
+
+    return false
   },
 
   get isSubpageInitialStep() {
-    if (!this.isInventoryChainActive) return false
-    return this.currentInventorySubpageIndex > 0 && this.currentStepIndex === 0
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex' },
+      { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex' },
+      { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex' },
+      { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex' },
+      { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex' },
+      { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex' },
+      { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex' }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      return this[activeMod.idx] > 0 && this.currentStepIndex === 0
+    }
+
+    return false
   },
 
   get nextSubpageRoute() {
     if (!this.isSubpageBoundaryStep) return null
-    return BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex + 1] || null
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+      { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex', routes: BM_SALES_SUBPAGE_ROUTES },
+      { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+      { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+      { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+      { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+      { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      return activeMod.routes[this[activeMod.idx] + 1] || null
+    }
+
+    return null
   },
 
   get nextSubpageTitle() {
@@ -161,7 +297,21 @@ export const dapStore = reactive({
   },
 
   get totalMissions() {
-    if (this.isInventoryChainActive) return BM_INVENTORY_SUBPAGE_ROUTES.length
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+      { flag: 'isSalesChainActive', routes: BM_SALES_SUBPAGE_ROUTES },
+      { flag: 'isAfterSalesChainActive', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+      { flag: 'isExpensesChainActive', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+      { flag: 'isCommunicationChainActive', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+      { flag: 'isAnalyticsChainActive', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+      { flag: 'isSystemChainActive', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      return activeMod.routes.length
+    }
+
     if (this.activePageMission) return 1
     return this.missions.length
   },
@@ -171,12 +321,24 @@ export const dapStore = reactive({
   },
 
   get totalSystemSteps() {
-    if (this.isInventoryChainActive) {
-      return BM_INVENTORY_SUBPAGE_ROUTES.reduce((acc, r) => {
+    const continuousModules = [
+      { flag: 'isInventoryChainActive', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+      { flag: 'isSalesChainActive', routes: BM_SALES_SUBPAGE_ROUTES },
+      { flag: 'isAfterSalesChainActive', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+      { flag: 'isExpensesChainActive', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+      { flag: 'isCommunicationChainActive', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+      { flag: 'isAnalyticsChainActive', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+      { flag: 'isSystemChainActive', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+    ]
+
+    const activeMod = continuousModules.find(m => this[m.flag])
+    if (activeMod) {
+      return activeMod.routes.reduce((acc, r) => {
         const m = branchManagerPageTours[r]
         return acc + (m?.steps?.length || 0)
       }, 0)
     }
+
     if (this.activePageMission) {
       return this.totalStepsInCurrentMission
     }
@@ -391,11 +553,64 @@ export const dapStore = reactive({
     this.isStepValidated = false
     this.stepValidationError = null
 
-    // Check if this is a Branch Manager visiting an Inventory subpage
-    if (this.currentRole === 'Branch Manager' && BM_INVENTORY_SUBPAGE_ROUTES.includes(cleanRoute)) {
-      if (options.standalone) {
-        // Run single page tour without cross-page chain
-        this.isInventoryChainActive = false
+    if (this.currentRole === 'Branch Manager') {
+      const moduleConfigs = [
+        { routes: BM_INVENTORY_SUBPAGE_ROUTES, flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex' },
+        { routes: BM_SALES_SUBPAGE_ROUTES, flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex' },
+        { routes: BM_AFTER_SALES_SUBPAGE_ROUTES, flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex' },
+        { routes: BM_EXPENSES_SUBPAGE_ROUTES, flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex' },
+        { routes: BM_COMMUNICATION_SUBPAGE_ROUTES, flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex' },
+        { routes: BM_ANALYTICS_SUBPAGE_ROUTES, flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex' },
+        { routes: BM_SYSTEM_SUBPAGE_ROUTES, flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex' }
+      ]
+
+      for (const config of moduleConfigs) {
+        if (config.routes.includes(cleanRoute)) {
+          this.deactivateAllChains()
+
+          if (options.standalone) {
+            const pageTour = branchManagerPageTours[cleanRoute]
+            this.activePageMission = pageTour
+            this.currentMissionIndex = -1
+            this.currentStepIndex = 0
+            this.isActive = true
+
+            this.syncActiveCheckpoint()
+            this.initStepValidation()
+            this.saveState()
+
+            return {
+              success: true,
+              mission: pageTour,
+              step: pageTour.steps?.[0]
+            }
+          }
+
+          this[config.flag] = true
+          const subpageIdx = config.routes.indexOf(cleanRoute)
+          this[config.idx] = subpageIdx !== -1 ? subpageIdx : 0
+          const activeRoute = config.routes[this[config.idx]]
+          const pageTour = branchManagerPageTours[activeRoute]
+
+          this.activePageMission = pageTour
+          this.currentMissionIndex = -1
+          this.currentStepIndex = 0
+          this.isActive = true
+
+          this.syncActiveCheckpoint()
+          this.initStepValidation()
+          this.saveState()
+
+          return {
+            success: true,
+            mission: pageTour,
+            step: pageTour.steps?.[0]
+          }
+        }
+      }
+
+      if (branchManagerPageTours[cleanRoute]) {
+        this.deactivateAllChains()
         const pageTour = branchManagerPageTours[cleanRoute]
         this.activePageMission = pageTour
         this.currentMissionIndex = -1
@@ -412,51 +627,9 @@ export const dapStore = reactive({
           step: pageTour.steps?.[0]
         }
       }
-
-      // Continuous Multi-Page Inventory Chain across all 10 subpages
-      this.isInventoryChainActive = true
-      const subpageIdx = BM_INVENTORY_SUBPAGE_ROUTES.indexOf(cleanRoute)
-      this.currentInventorySubpageIndex = subpageIdx !== -1 ? subpageIdx : 0
-      const activeRoute = BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex]
-      const pageTour = branchManagerPageTours[activeRoute]
-
-      this.activePageMission = pageTour
-      this.currentMissionIndex = -1
-      this.currentStepIndex = 0
-      this.isActive = true
-
-      this.syncActiveCheckpoint()
-      this.initStepValidation()
-      this.saveState()
-
-      return {
-        success: true,
-        mission: pageTour,
-        step: pageTour.steps?.[0]
-      }
     }
 
-    // Other Branch Manager auxiliary page tours (e.g. Catalogue Products / Requests)
-    if (this.currentRole === 'Branch Manager' && branchManagerPageTours[cleanRoute]) {
-      this.isInventoryChainActive = false
-      const pageTour = branchManagerPageTours[cleanRoute]
-      this.activePageMission = pageTour
-      this.currentMissionIndex = -1
-      this.currentStepIndex = 0
-      this.isActive = true
-
-      this.syncActiveCheckpoint()
-      this.initStepValidation()
-      this.saveState()
-
-      return {
-        success: true,
-        mission: pageTour,
-        step: pageTour.steps?.[0]
-      }
-    }
-
-    this.isInventoryChainActive = false
+    this.deactivateAllChains()
     this.activePageMission = null
     const loc = this.findMissionAndStepForRoute(cleanRoute)
     this.currentMissionIndex = loc.missionIndex
@@ -480,6 +653,30 @@ export const dapStore = reactive({
 
   startInventoryContinuousTour() {
     return this.startContinuousTour('/inventory/dashboard')
+  },
+
+  startSalesContinuousTour() {
+    return this.startContinuousTour('/sales/dashboard')
+  },
+
+  startAfterSalesContinuousTour() {
+    return this.startContinuousTour('/after-sales/dashboard')
+  },
+
+  startExpensesContinuousTour() {
+    return this.startContinuousTour('/finance/expenses')
+  },
+
+  startCommunicationContinuousTour() {
+    return this.startContinuousTour('/communication/inbox')
+  },
+
+  startAnalyticsContinuousTour() {
+    return this.startContinuousTour('/analytics/reports-hub')
+  },
+
+  startSystemContinuousTour() {
+    return this.startContinuousTour('/system/branch-team')
   },
 
   /**
@@ -584,7 +781,7 @@ export const dapStore = reactive({
 
   stopDAP() {
     this.isActive = false
-    this.isInventoryChainActive = false
+    this.deactivateAllChains()
     this.activePageMission = null
     this.activePageSteps = []
     this.saveState()
@@ -726,11 +923,22 @@ export const dapStore = reactive({
       }
       
       // Advance to next mission and next page across the continuous tour
-      if (this.isInventoryChainActive) {
-        if (this.currentInventorySubpageIndex < BM_INVENTORY_SUBPAGE_ROUTES.length - 1) {
-          // Advance to next Inventory subpage in the continuous chain!
-          this.currentInventorySubpageIndex++
-          const nextRoute = BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex]
+      const continuousModules = [
+        { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+        { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex', routes: BM_SALES_SUBPAGE_ROUTES },
+        { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+        { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+        { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+        { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+        { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+      ]
+
+      const activeModule = continuousModules.find(m => this[m.flag])
+
+      if (activeModule) {
+        if (this[activeModule.idx] < activeModule.routes.length - 1) {
+          this[activeModule.idx]++
+          const nextRoute = activeModule.routes[this[activeModule.idx]]
           const nextTour = branchManagerPageTours[nextRoute]
           this.activePageMission = nextTour
           this.currentStepIndex = 0
@@ -738,9 +946,8 @@ export const dapStore = reactive({
           this.initStepValidation()
           this.navigateToCurrentStepRoute()
         } else {
-          // All 10 Inventory subpages completed!
           this.isActive = false
-          this.isInventoryChainActive = false
+          this[activeModule.flag] = false
           this.activePageMission = null
         }
       } else if (this.activePageMission) {
@@ -769,25 +976,38 @@ export const dapStore = reactive({
       this.syncActiveCheckpoint()
       this.initStepValidation()
       this.navigateToCurrentStepRoute()
-    } else if (this.isInventoryChainActive && this.currentInventorySubpageIndex > 0) {
-      // Go back to previous Inventory subpage in the continuous chain!
-      this.currentInventorySubpageIndex--
-      const prevRoute = BM_INVENTORY_SUBPAGE_ROUTES[this.currentInventorySubpageIndex]
-      const prevTour = branchManagerPageTours[prevRoute]
-      this.activePageMission = prevTour
-      const prevSteps = prevTour?.steps || []
-      this.currentStepIndex = Math.max(0, prevSteps.length - 1)
-      this.syncActiveCheckpoint()
-      this.initStepValidation()
-      this.navigateToCurrentStepRoute()
-    } else if (!this.activePageMission && this.currentMissionIndex > 0) {
-      // Go back to previous mission and its previous page
-      this.currentMissionIndex--
-      const prevSteps = this.currentMission?.steps || this.currentMission?.segments || []
-      this.currentStepIndex = Math.max(0, prevSteps.length - 1)
-      this.syncActiveCheckpoint()
-      this.initStepValidation()
-      this.navigateToCurrentStepRoute()
+    } else {
+      const continuousModules = [
+        { flag: 'isInventoryChainActive', idx: 'currentInventorySubpageIndex', routes: BM_INVENTORY_SUBPAGE_ROUTES },
+        { flag: 'isSalesChainActive', idx: 'currentSalesSubpageIndex', routes: BM_SALES_SUBPAGE_ROUTES },
+        { flag: 'isAfterSalesChainActive', idx: 'currentAfterSalesSubpageIndex', routes: BM_AFTER_SALES_SUBPAGE_ROUTES },
+        { flag: 'isExpensesChainActive', idx: 'currentExpensesSubpageIndex', routes: BM_EXPENSES_SUBPAGE_ROUTES },
+        { flag: 'isCommunicationChainActive', idx: 'currentCommunicationSubpageIndex', routes: BM_COMMUNICATION_SUBPAGE_ROUTES },
+        { flag: 'isAnalyticsChainActive', idx: 'currentAnalyticsSubpageIndex', routes: BM_ANALYTICS_SUBPAGE_ROUTES },
+        { flag: 'isSystemChainActive', idx: 'currentSystemSubpageIndex', routes: BM_SYSTEM_SUBPAGE_ROUTES }
+      ]
+
+      const activeModule = continuousModules.find(m => this[m.flag] && this[m.idx] > 0)
+
+      if (activeModule) {
+        this[activeModule.idx]--
+        const prevRoute = activeModule.routes[this[activeModule.idx]]
+        const prevTour = branchManagerPageTours[prevRoute]
+        this.activePageMission = prevTour
+        const prevSteps = prevTour?.steps || []
+        this.currentStepIndex = Math.max(0, prevSteps.length - 1)
+        this.syncActiveCheckpoint()
+        this.initStepValidation()
+        this.navigateToCurrentStepRoute()
+      } else if (!this.activePageMission && this.currentMissionIndex > 0) {
+        // Go back to previous mission and its previous page
+        this.currentMissionIndex--
+        const prevSteps = this.currentMission?.steps || this.currentMission?.segments || []
+        this.currentStepIndex = Math.max(0, prevSteps.length - 1)
+        this.syncActiveCheckpoint()
+        this.initStepValidation()
+        this.navigateToCurrentStepRoute()
+      }
     }
     this.saveState()
   },
@@ -849,8 +1069,14 @@ export const dapStore = reactive({
     this.completedCheckpoints = {}
     this.currentMissionIndex = 0
     this.currentStepIndex = 0
-    this.isInventoryChainActive = false
+    this.deactivateAllChains()
     this.currentInventorySubpageIndex = 0
+    this.currentSalesSubpageIndex = 0
+    this.currentAfterSalesSubpageIndex = 0
+    this.currentExpensesSubpageIndex = 0
+    this.currentCommunicationSubpageIndex = 0
+    this.currentAnalyticsSubpageIndex = 0
+    this.currentSystemSubpageIndex = 0
     this.activePageMission = null
     this.interactiveInputValues = {}
     this.isStepValidated = false
@@ -886,7 +1112,19 @@ export const dapStore = reactive({
         activeTourMode: this.activeTourMode,
         mode: this.mode,
         isInventoryChainActive: this.isInventoryChainActive,
-        currentInventorySubpageIndex: this.currentInventorySubpageIndex
+        currentInventorySubpageIndex: this.currentInventorySubpageIndex,
+        isSalesChainActive: this.isSalesChainActive,
+        currentSalesSubpageIndex: this.currentSalesSubpageIndex,
+        isAfterSalesChainActive: this.isAfterSalesChainActive,
+        currentAfterSalesSubpageIndex: this.currentAfterSalesSubpageIndex,
+        isExpensesChainActive: this.isExpensesChainActive,
+        currentExpensesSubpageIndex: this.currentExpensesSubpageIndex,
+        isCommunicationChainActive: this.isCommunicationChainActive,
+        currentCommunicationSubpageIndex: this.currentCommunicationSubpageIndex,
+        isAnalyticsChainActive: this.isAnalyticsChainActive,
+        currentAnalyticsSubpageIndex: this.currentAnalyticsSubpageIndex,
+        isSystemChainActive: this.isSystemChainActive,
+        currentSystemSubpageIndex: this.currentSystemSubpageIndex
       }))
     } catch (e) {
       console.warn('Failed to save tour state', e)

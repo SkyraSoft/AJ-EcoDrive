@@ -255,7 +255,7 @@ watch(() => [route.params.id, route.query.id], () => {
 <template>
   <div class="max-w-[1400px] mx-auto space-y-6 pb-12" @click="openDropdown = null">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.system.audit.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">
           <span class="font-medium">{{ isSuperAdmin ? 'Super Admin' : (currentUser.role || 'Branch Manager') }}</span> / System / <span class="font-bold text-gray-800">Audit Log</span>
@@ -288,7 +288,7 @@ watch(() => [route.params.id, route.query.id], () => {
     </div>
 
     <!-- Filters -->
-    <div data-tour-id="sa.system.audit.filters" class="flex flex-wrap items-center gap-3">
+    <div data-tour-id="bm.system.audit.filters" class="flex flex-wrap items-center gap-3">
       <!-- Search -->
       <div class="relative w-full sm:w-60">
         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -425,7 +425,7 @@ watch(() => [route.params.id, route.query.id], () => {
     </div>
 
     <!-- Table Container -->
-    <div data-tour-id="sa.system.audit.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+    <div data-tour-id="bm.system.audit.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <h3 class="text-[13px] font-bold text-gray-900">Audit Events</h3>
@@ -437,7 +437,7 @@ watch(() => [route.params.id, route.query.id], () => {
       </div>
       
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table data-tour-id="sa.system.audit.table" class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-[#fbfbfc] border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
               <th class="px-5 py-3">Timestamp</th>
@@ -501,7 +501,7 @@ watch(() => [route.params.id, route.query.id], () => {
                 {{ event.result || event.description }}
               </td>
               <td class="px-4 py-3.5 text-right" @click.stop>
-                <button 
+                <button data-tour-id="bm.system.audit.detail-btn"
                   @click="inspectEvent(event)"
                   class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
                   title="Inspect event details"

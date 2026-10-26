@@ -21,7 +21,7 @@ const branchContributions = [
 <template>
   <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div>
+    <div data-tour-id="bm.finance.overview.header">
       <div class="text-[10px] text-gray-500 mb-1">
         Super Admin / Finance / <span class="font-bold text-gray-800">Finance Overview</span>
       </div>
@@ -30,7 +30,7 @@ const branchContributions = [
     </div>
 
     <!-- 8 KPI Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.finance.overview.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="(kpi, index) in kpis" 
         :key="index" 
@@ -45,7 +45,7 @@ const branchContributions = [
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
       <!-- Branch Contribution -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5">
+      <div data-tour-id="bm.finance.overview.contributions" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5">
         <h3 class="text-[13px] font-bold text-gray-900">Branch Contribution</h3>
         
         <div class="space-y-4 pt-2">
@@ -65,7 +65,7 @@ const branchContributions = [
       </div>
 
       <!-- Cash Collections Trend -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5 flex flex-col justify-between">
+      <div data-tour-id="bm.finance.overview.collections" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5 flex flex-col justify-between">
         <h3 class="text-[13px] font-bold text-gray-900">Cash Collections</h3>
         
         <div class="h-48 flex items-center justify-center relative p-4">

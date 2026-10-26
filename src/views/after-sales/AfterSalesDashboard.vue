@@ -96,7 +96,7 @@ const openSuperAdminCase = (item) => {
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div>
+    <div data-tour-id="bm.service.dashboard.header">
       <div class="text-[11px] text-gray-400 mb-1">
         Branch Manager / Warranty & Service / <span class="font-medium text-gray-600">After-sales Dashboard</span>
       </div>
@@ -105,7 +105,7 @@ const openSuperAdminCase = (item) => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.service.dashboard.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div 
         v-for="kpi in branchKpis" 
         :key="kpi.label" 
@@ -118,7 +118,7 @@ const openSuperAdminCase = (item) => {
     </div>
 
     <!-- Table Card: Service Workload -->
-    <div class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
+    <div data-tour-id="bm.service.dashboard.workload-table" class="bg-white rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 space-y-4">
       <h3 class="text-sm font-bold text-gray-900">Service Workload</h3>
 
       <div class="overflow-x-auto">

@@ -95,7 +95,7 @@ const collections = computed(() => {
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div data-tour-id="bm.sales.dashboard.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
           Branch Manager / Sales / <span class="font-medium text-gray-600">Sales Dashboard</span>
@@ -106,7 +106,7 @@ const collections = computed(() => {
     </div>
 
     <!-- 4 KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour-id="bm.sales.dashboard.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="(kpi, index) in branchKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
         <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
         <div>
@@ -119,7 +119,7 @@ const collections = computed(() => {
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- Left Card: Sales Trend (Bar Chart) -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
+      <div data-tour-id="bm.sales.dashboard.sales-trend" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-8 flex flex-col justify-between">
         <h3 class="text-sm font-bold text-gray-900 mb-6">Sales Trend</h3>
         
         <div class="border border-gray-100 rounded-[12px] p-6 flex items-end justify-start gap-5 min-h-[220px]">
@@ -139,7 +139,7 @@ const collections = computed(() => {
       </div>
 
       <!-- Right Card: Top Products -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-4 flex flex-col justify-between space-y-4">
+      <div data-tour-id="bm.sales.dashboard.top-products" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-4 flex flex-col justify-between space-y-4">
         <h3 class="text-sm font-bold text-gray-900 mb-2">Top Products</h3>
 
         <!-- Product 1 -->
