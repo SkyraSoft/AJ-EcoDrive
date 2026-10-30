@@ -300,9 +300,10 @@ const showPurchaseOrderModal = ref(false)
 
 const showLayoutToast = ref(false)
 const layoutToastMessage = ref('')
-const triggerLayoutToast = (msg) => {
+const triggerLayoutToast = (msg, type = 'success') => {
   layoutToastMessage.value = msg
   showLayoutToast.value = true
+  store.showToast({ message: msg, type })
   setTimeout(() => { showLayoutToast.value = false }, 3500)
 }
 
@@ -850,15 +851,6 @@ const handleQuickActionCreated = (type, payload) => {
       </div>
     </main>
 
-    <!-- Global Layout Toast Notification -->
-    <div 
-      v-if="showLayoutToast" 
-      class="fixed bottom-5 right-5 z-[150] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
-    >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
-      <span class="text-xs font-bold">{{ layoutToastMessage }}</span>
-    </div>
-
     <!-- In-Context Quick Action Modals -->
     <CreateSaleModal 
       v-if="showSaleModal"
@@ -926,15 +918,29 @@ const handleQuickActionCreated = (type, payload) => {
 
     <!-- Toast Notification for Tour & In-Context Actions -->
     <div
-      v-if="showLayoutToast"
+      v-if="store.activeToast || showLayoutToast"
       id="layout-toast-notification"
-      class="fixed bottom-6 right-6 z-[10000] flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/95 text-white shadow-2xl border border-emerald-500/40 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-200 max-w-md"
+      class="fixed bottom-6 right-6 z-[10000] flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/95 text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-200 max-w-md border"
+      :class="{
+        'border-emerald-500/40': (store.activeToast?.type || 'success') === 'success',
+        'border-rose-500/40': store.activeToast?.type === 'error',
+        'border-amber-500/40': store.activeToast?.type === 'warning',
+        'border-blue-500/40': store.activeToast?.type === 'info'
+      }"
       role="alert"
     >
-      <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-      <p class="text-xs font-medium text-slate-200">{{ layoutToastMessage }}</p>
+      <div 
+        class="w-2.5 h-2.5 rounded-full animate-pulse"
+        :class="{
+          'bg-emerald-400': (store.activeToast?.type || 'success') === 'success',
+          'bg-rose-500': store.activeToast?.type === 'error',
+          'bg-amber-400': store.activeToast?.type === 'warning',
+          'bg-blue-400': store.activeToast?.type === 'info'
+        }"
+      ></div>
+      <p class="text-xs font-medium text-slate-200">{{ store.activeToast?.message || layoutToastMessage }}</p>
       <button
-        @click="showLayoutToast = false"
+        @click="showLayoutToast = false; store.dismissToast()"
         class="ml-auto text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
         aria-label="Dismiss toast"
       >

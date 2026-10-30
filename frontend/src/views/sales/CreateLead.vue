@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { X } from 'lucide-vue-next'
+import { X, Loader2, AlertCircle } from 'lucide-vue-next'
 import { store } from '@/store'
+import api from '@/services/api'
 
 const props = defineProps({
   isModal: {
@@ -22,6 +23,8 @@ const user = computed(() => store.currentUser)
 
 const showValidation = ref(false)
 const isEditMode = ref(false)
+const submitting = ref(false)
+const apiError = ref('')
 
 const formData = ref({
   leadNo: '',
@@ -42,7 +45,7 @@ const loadData = (data) => {
   isEditMode.value = true
   formData.value = {
     ...formData.value,
-    leadNo: data.leadNo || formData.value.leadNo,
+    leadNo: data.leadNo || data.id || formData.value.leadNo,
     name: data.name || data.customer || formData.value.name,
     customer: data.customer || data.name || formData.value.customer,
     phone: data.phone || formData.value.phone,
@@ -76,7 +79,7 @@ const close = () => {
   }
 }
 
-const saveLead = () => {
+const saveLead = async () => {
   if ((!formData.value.name.trim() && !formData.value.customer.trim()) || !formData.value.phone.trim()) {
     showValidation.value = true
     return
@@ -84,32 +87,53 @@ const saveLead = () => {
 
   const leadName = formData.value.name.trim() || formData.value.customer.trim()
   const payload = {
-    leadNo: formData.value.leadNo || `LD-${Math.floor(100 + Math.random() * 900)}`,
+    leadNo: formData.value.leadNo || undefined,
     name: leadName,
     customer: leadName,
-    phone: formData.value.phone,
+    customer_name: leadName,
+    phone: formData.value.phone.trim(),
     source: formData.value.source,
     branch: formData.value.branch || user.value?.branchName || 'Peshawar',
-    owner: formData.value.owner,
+    owner: formData.value.owner || user.value?.name || 'Hamza',
     product: formData.value.product,
+    product_name: formData.value.product,
     interest: formData.value.product,
     budget: formData.value.budget,
-    stage: formData.value.stage,
-    status: formData.value.stage,
-    statusClass: formData.value.stage === 'Quoted' ? 'bg-[#dcfce7] text-[#165A31]' : 'bg-[#eff6ff] text-[#2563eb]',
+    stage: formData.value.stage || 'New',
+    status: formData.value.stage || 'New',
+    statusClass: formData.value.stage === 'Quoted' ? 'bg-[#dcfce7] text-[#165A31]' : (formData.value.stage === 'Converted' ? 'bg-[#eefcf2] text-[#165A31]' : 'bg-[#eff6ff] text-[#2563eb]'),
     stageColor: formData.value.stage === 'Converted' ? 'bg-green-50 text-[#165A31]' : 'bg-blue-50 text-blue-600',
     followUp: formData.value.nextFollowUp,
-    nextFollowUp: formData.value.nextFollowUp
+    nextFollowUp: formData.value.nextFollowUp,
+    next_follow_up: formData.value.nextFollowUp
   }
 
-  if (isEditMode.value) {
-    store.updateLead(payload)
-    emit('updated', payload)
-  } else {
-    store.addLead(payload)
-    emit('created', payload)
+  submitting.value = true
+  apiError.value = ''
+
+  try {
+    if (isEditMode.value) {
+      const targetId = formData.value.leadNo || props.lead?.id || props.lead?.lead_id
+      const res = await api.leads.update(targetId, payload)
+      const updated = res?.data?.lead || res?.data || res?.lead || res || payload
+      store.updateLead(targetId, updated)
+      emit('updated', updated)
+    } else {
+      const res = await api.leads.create(payload)
+      const created = res?.data?.lead || res?.data || res?.lead || res || payload
+      store.addLead(created)
+      emit('created', created)
+    }
+    close()
+  } catch (err) {
+    if (err.status === 409 || err.data?.error === 'CONFLICT' || String(err.message).toLowerCase().includes('duplicate') || String(err.message).toLowerCase().includes('already exists')) {
+      apiError.value = err.data?.message || err.message || `A lead with phone number "${formData.value.phone}" already exists in this branch. Duplicate phone numbers are prohibited.`
+    } else {
+      apiError.value = err.data?.message || err.message || 'Failed to save lead. Please check the details and try again.'
+    }
+  } finally {
+    submitting.value = false
   }
-  close()
 }
 </script>
 
@@ -134,6 +158,15 @@ const saveLead = () => {
           </div>
           <h1 class="text-[32px] tracking-tight font-bold text-gray-900">{{ isEditMode ? 'Edit Lead' : 'Add Lead' }}</h1>
           <p class="text-sm text-gray-500 mt-1">Capture prospect details, interest level, channel and follow-up timeline.</p>
+        </div>
+
+        <!-- API Error Alert Banner -->
+        <div v-if="apiError" class="p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-start gap-3">
+          <AlertCircle class="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <div class="flex-1">
+            <div class="font-bold">Registration Conflict / Validation Error</div>
+            <div class="mt-0.5 leading-relaxed">{{ apiError }}</div>
+          </div>
         </div>
 
         <form @submit.prevent="saveLead" class="space-y-6">
@@ -277,9 +310,11 @@ const saveLead = () => {
               type="submit" 
               data-tour="lead-submit"
               data-tour-id="bm.sales.createlead.submit-btn"
-              class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm"
+              :disabled="submitting"
+              class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {{ isEditMode ? 'Update Lead' : 'Save Lead' }}
+              <Loader2 v-if="submitting" class="w-3.5 h-3.5 animate-spin" />
+              <span>{{ submitting ? 'Saving...' : (isEditMode ? 'Update Lead' : 'Save Lead') }}</span>
             </button>
           </div>
         </form>

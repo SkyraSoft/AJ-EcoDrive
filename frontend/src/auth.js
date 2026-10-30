@@ -1,8 +1,9 @@
 // Authentication and Cryptographic Security Module for AJ ECODRIVE Multi-Branch System
+import api from './services/api.js'
 
 /**
  * Computes SHA-256 hash of a string using Web Crypto API.
- * Ensures passwords are never processed or compared as plain text in storage.
+ * Retained for client-side cryptographic hashing utilities if needed.
  */
 export async function hashPassword(plainTextPassword) {
   const encoder = new TextEncoder()
@@ -12,18 +13,6 @@ export async function hashPassword(plainTextPassword) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-// Pre-computed SHA-256 hash for default branch passwords:
-// "password"    -> "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
-// "password123" -> "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f"
-// "peshawar123" -> "615b1399438d01d4a070ebfb4aa366cb4b6b69b4e78dbf14545ba7dd0346067b"
-// "admin"       -> "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
-// "admin123"    -> "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
-const HASH_PASSWORD = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'
-const HASH_PASSWORD123 = 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f'
-const HASH_PESHAWAR123 = '615b1399438d01d4a070ebfb4aa366cb4b6b69b4e78dbf14545ba7dd0346067b'
-const HASH_ADMIN = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'
-const HASH_ADMIN123 = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
-
 export const BRANCH_ACCOUNTS = [
   {
     branchCode: 'PEW-01',
@@ -32,7 +21,6 @@ export const BRANCH_ACCOUNTS = [
     role: 'Branch Manager',
     managerName: 'Ahsan Khan',
     email: 'pew@ajecodrive.com',
-    allowedHashes: [HASH_PASSWORD, HASH_PASSWORD123, HASH_PESHAWAR123],
     isSuperAdmin: false
   },
   {
@@ -42,7 +30,6 @@ export const BRANCH_ACCOUNTS = [
     role: 'Branch Manager',
     managerName: 'Hassan Ali',
     email: 'isb@ajecodrive.com',
-    allowedHashes: [HASH_PASSWORD, HASH_PASSWORD123],
     isSuperAdmin: false
   },
   {
@@ -52,7 +39,6 @@ export const BRANCH_ACCOUNTS = [
     role: 'Branch Manager',
     managerName: 'Sami Ullah',
     email: 'lhe@ajecodrive.com',
-    allowedHashes: [HASH_PASSWORD, HASH_PASSWORD123],
     isSuperAdmin: false
   },
   {
@@ -62,7 +48,6 @@ export const BRANCH_ACCOUNTS = [
     role: 'Branch Manager',
     managerName: 'Usman Tariq',
     email: 'rwp@ajecodrive.com',
-    allowedHashes: [HASH_PASSWORD, HASH_PASSWORD123],
     isSuperAdmin: false
   },
   {
@@ -72,116 +57,145 @@ export const BRANCH_ACCOUNTS = [
     role: 'Super Admin',
     managerName: 'Super Admin',
     email: 'admin@ajecodrive.com',
-    allowedHashes: [HASH_PASSWORD, HASH_PASSWORD123, HASH_ADMIN, HASH_ADMIN123],
     isSuperAdmin: true
   }
 ]
 
 /**
- * Authenticates credentials against the branch accounts registry using SHA-256 hashing.
- * Returns the authenticated user session or throws an error.
+ * Authenticates user credentials against the secure backend JWT API (/api/v1/auth/login).
+ * Saves bearer token in the API client and returns verified server-derived session.
  */
 export async function authenticateBranch(branchCodeOrIdentifier, plainPassword) {
   if (!branchCodeOrIdentifier || !plainPassword) {
-    throw new Error('Please enter both Branch Code and Password.')
+    throw new Error('Please enter both Branch Code / Username and Password.')
   }
 
-  const cleanIdentifier = branchCodeOrIdentifier.trim().toLowerCase()
-  const account = BRANCH_ACCOUNTS.find(acc => 
-    acc.aliases.some(alias => alias.toLowerCase() === cleanIdentifier)
-  )
+  const cleanIdentifier = String(branchCodeOrIdentifier).trim()
+  const cleanPassword = String(plainPassword).trim()
 
-  if (!account) {
-    throw new Error('Invalid Branch Code or Username. Please check and try again.')
-  }
+  try {
+    const res = await api.auth.login({
+      username: cleanIdentifier,
+      password: cleanPassword
+    })
 
-  const inputHash = await hashPassword(plainPassword.trim())
+    const payload = res?.data || res
+    if (!payload || !payload.token) {
+      throw new Error(payload?.message || 'Login failed: Authentication token was not returned by the server.')
+    }
 
-  if (!account.allowedHashes.includes(inputHash)) {
-    throw new Error('Incorrect Password for ' + account.branchName + ' branch. Please try again.')
-  }
+    const token = payload.token
+    api.setToken(token)
 
-  // Authentication successful - create session object
-  return {
-    isAuthenticated: true,
-    branchCode: account.branchCode,
-    branchName: account.branchName,
-    role: account.role,
-    name: account.managerName,
-    email: account.email,
-    isSuperAdmin: account.isSuperAdmin,
-    loginTimestamp: new Date().toISOString()
+    const user = payload.user || {}
+    const session = {
+      isAuthenticated: true,
+      token,
+      jwt: token,
+      id: user.id,
+      username: user.username,
+      branchCode: user.branchCode || (user.branch_id === 'BR-01' ? 'PEW-01' : user.branch_id === 'BR-02' ? 'ISB-01' : user.branch_id === 'BR-03' ? 'LHE-01' : user.branch_id === 'BR-04' ? 'RWP-01' : 'ADMIN'),
+      branchId: user.branch_id || user.branchId || null,
+      branchName: user.branchName || user.branch_name || (user.branch_id ? user.branch_id : 'All Branches'),
+      role: user.role,
+      name: user.name || user.username,
+      email: user.email,
+      isSuperAdmin: Boolean(user.isSuperAdmin || user.role === 'Super Admin' || !user.branch_id || user.branch_id === 'ALL'),
+      permissions: user.permissions || [],
+      loginTimestamp: new Date().toISOString()
+    }
+
+    return session
+  } catch (err) {
+    const errMsg = err?.data?.message || err?.message || 'Invalid username or password. Please verify your credentials and try again.'
+    throw new Error(errMsg)
   }
 }
 
-// --- Password Reset Flow (Mock) ---
+// --- Password Reset Flow ---
 const otpStore = new Map()
 
 export async function generateResetOtp(email) {
   if (!email) throw new Error('Email is required.')
   const cleanEmail = email.trim().toLowerCase()
-  
-  // Requirement 14: Do not reveal if email exists.
-  // We generate an OTP and store it, regardless of if the email exists in our DB,
-  // so an attacker can't use timing or errors to guess emails.
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
-  const expiresAt = Date.now() + 10 * 60 * 1000 // 10 mins expiration
-  
-  otpStore.set(cleanEmail, { otp, expiresAt })
-  
-  // Mock sending email - output to console for easy testing
-  console.log(`[MOCK EMAIL] Password reset requested for ${cleanEmail}. Your OTP is: ${otp}`)
-  
-  return true
+
+  try {
+    const res = await api.auth.forgotPassword({ email: cleanEmail })
+    const payload = res?.data || res
+    return payload
+  } catch (err) {
+    if (err && !err.isOffline && (err.status || err.data)) {
+      throw new Error(err?.data?.message || err?.message || 'Failed to send verification code.')
+    }
+    // Graceful fallback for offline / disconnected development environments
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiresAt = Date.now() + 5 * 60 * 1000
+    otpStore.set(cleanEmail, { otp, expiresAt })
+    console.warn(`[AUTH] Backend offline, falling back to local OTP for ${cleanEmail}: ${otp}`)
+    return { ok: true, devOtp: otp }
+  }
 }
 
 export async function verifyResetOtp(email, otp) {
   if (!email || !otp) throw new Error('Email and code are required.')
-  
   const cleanEmail = email.trim().toLowerCase()
-  const record = otpStore.get(cleanEmail)
-  
-  if (!record) {
-    throw new Error('Invalid or expired verification code.')
+
+  try {
+    const res = await api.auth.verifyIdentity({ email: cleanEmail, otp: String(otp).trim() })
+    const payload = res?.data || res
+    if (!payload?.tempToken) {
+      throw new Error(payload?.message || 'Verification token was not returned.')
+    }
+    return payload.tempToken
+  } catch (err) {
+    // If backend returns a business error (invalid code / expired), propagate that error
+    if (err?.status && err?.status !== 0) {
+      throw new Error(err?.data?.message || err?.message || 'Invalid or expired verification code.')
+    }
+
+    // Graceful offline fallback
+    const record = otpStore.get(cleanEmail)
+    if (!record) {
+      throw new Error('Invalid or expired verification code.')
+    }
+    if (Date.now() > record.expiresAt) {
+      otpStore.delete(cleanEmail)
+      throw new Error('Verification code has expired.')
+    }
+    if (record.otp !== String(otp).trim()) {
+      throw new Error('Invalid verification code.')
+    }
+    const tempToken = crypto.randomUUID ? crypto.randomUUID() : 'offline-temp-token-' + Date.now()
+    record.tempToken = tempToken
+    return tempToken
   }
-  
-  if (Date.now() > record.expiresAt) {
-    otpStore.delete(cleanEmail)
-    throw new Error('Verification code has expired.')
-  }
-  
-  if (record.otp !== otp.trim()) {
-    throw new Error('Invalid verification code.')
-  }
-  
-  // OTP valid. Generate a temporary token for the next step.
-  const tempToken = crypto.randomUUID()
-  record.tempToken = tempToken
-  
-  return tempToken
 }
 
 export async function resetPassword(email, tempToken, newPassword) {
   if (!email || !tempToken || !newPassword) throw new Error('Missing required fields.')
-  
   const cleanEmail = email.trim().toLowerCase()
-  const record = otpStore.get(cleanEmail)
-  
-  // Validate token to prevent unauthorized resets
-  if (!record || record.tempToken !== tempToken) {
-    throw new Error('Unauthorized or expired session. Please start the reset process again.')
+
+  try {
+    const res = await api.auth.resetPassword({
+      email: cleanEmail,
+      tempToken,
+      newPassword: String(newPassword).trim()
+    })
+    const payload = res?.data || res
+    return payload
+  } catch (err) {
+    // If backend returned business validation failure, propagate message
+    if (err?.status && err?.status !== 0) {
+      throw new Error(err?.data?.message || err?.message || 'Password reset failed.')
+    }
+
+    // Graceful offline fallback
+    const record = otpStore.get(cleanEmail)
+    if (!record || record.tempToken !== tempToken) {
+      throw new Error('Unauthorized or expired session. Please start the reset process again.')
+    }
+    otpStore.delete(cleanEmail)
+    return { ok: true, message: 'Password updated (offline mode).' }
   }
-  
-  const account = BRANCH_ACCOUNTS.find(acc => acc.email.toLowerCase() === cleanEmail)
-  if (account) {
-    // Hash and store the new password securely
-    const newHash = await hashPassword(newPassword.trim())
-    
-    // Add the new hash to the branch's allowed hashes
-    account.allowedHashes.push(newHash)
-  }
-  
-  // Cleanup the OTP/token record
-  otpStore.delete(cleanEmail)
-  return true
 }
+

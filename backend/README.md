@@ -1,67 +1,131 @@
 # AJ EcoDrive — Backend Services & API Gateway
 
-> **Architectural Roadmap & Enterprise Backend Specifications**  
-> *Target Stack: Node.js, Express / Fastify, PostgreSQL / SQLite (Local-First Offline-Ready), Redis Cache, and JWT Role-Based Access Control.*
+> **Step 1: Core Express Gateway & Health Check Architecture**  
+> *Stack: Node.js (ES Modules), Express 4.x, Mongoose, CORS, Dotenv, Nodemon, Supertest.*
 
 ---
 
 ## 1. Overview & Architecture
 
-The **AJ EcoDrive Backend** will provide scalable, resilient REST APIs and real-time synchronization services for the AJ EcoDrive Electric Vehicle Dealership Management System.
+The **AJ EcoDrive Backend** provides the RESTful API services for the EcoDrive Electric Vehicle ERP platform.
 
-Built to support both **Headquarters Multi-Tenant Operations** and **Branch Local-First Offline Resilience**, the backend implements:
-- **Central Headquarters API Gateway:** Manages global product catalogs, price rules, cross-branch transfers, master procurement, and organization-wide rollups.
-- **Branch Offline Sync Outbox Engine:** Syncs local branch transactions (cash receipts, job cards, customer bookings) to the central data lake with automatic conflict resolution.
-- **Deterministic Ledger & Audit Subsystem:** Immutable recording of inventory movements, serial state changes, and financial journal entries.
-
----
-
-## 2. Target Technology Stack
-
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Runtime & Framework** | Node.js (v20+ LTS) / Express / Fastify | High-throughput, asynchronous RESTful API services |
-| **Database (Primary)** | PostgreSQL (HQ) / SQLite3 (Branch Local) | ACID-compliant relational data store with JSONB support |
-| **Caching & Queues** | Redis / BullMQ | Session caching, job queues, background report generation |
-| **Authentication & RBAC** | JWT (JSON Web Tokens) & Argon2 hashing | Fine-grained Super Admin vs. Branch Manager role enforcement |
-| **Data Validation** | Zod / Joi | Strict schema enforcement matching frontend action contracts |
-| **Documentation & Spec** | OpenAPI 3.1 / Swagger | Self-documenting API contracts |
+In **Step 1**, the core runtime architecture is established:
+- **Express 4.x Application (`src/app.js`):** JSON body parsing, CORS configured for `http://localhost:5173` with authorization and branch headers, JSON 404 handler, and centralized error handling middleware.
+- **Resilient MongoDB Configuration (`src/config/db.js`):** Automatic connection handling with timeout; if MongoDB is unavailable or unconfigured, the server boots in an offline/degraded mode without crashing.
+- **Health Verification Endpoint (`GET /api/v1/health`):** Real-time JSON health check reporting uptime, environment, system memory, and actual database connection status.
+- **Server Lifecycle (`src/server.js`):** Graceful shutdown on `SIGINT` and `SIGTERM`.
 
 ---
 
-## 3. Core Domain Modules to Implement
+## 2. Directory Structure
 
-1. **Authentication & Session Management (`/api/v1/auth`)**
-   - User identity verification, multi-factor tokens, role capabilities, and password lifecycle.
-2. **Inventory & Serialized VIN Ledger (`/api/v1/inventory`)**
-   - Serialized chassis/motor/battery tracking, stock levels by branch, inbound supplier GRN, transfer manifests, cycle counts, and quarantine states.
-3. **Sales, Quotations & CRM (`/api/v1/sales`)**
-   - Quotation calculations, commercial discounts (BM 8% ceiling), invoices, partial payments, PDI delivery handover, and automatic warranty provisioning.
-4. **Procurement & Landed Costs (`/api/v1/procurement`)**
-   - Purchase orders, supplier tracking, vendor bills, and container landed cost distributions (Customs, Freight, Assembly).
-5. **After-Sales & Workshop (`/api/v1/after-sales`)**
-   - Intake diagnosis, repair job cards, warranty verification, mechanic labor and spare parts tracking.
-6. **Finance & Cash Drawers (`/api/v1/finance`)**
-   - Expense vouchers (BM PKR 15,000 threshold), payables, receivables, split payments, and cashier reconciliation.
-7. **Cross-Branch Synchronization (`/api/v1/sync`)**
-   - Delta sync endpoints consuming branch offline outboxes with deterministic timestamps.
-
----
-
-## 4. Getting Started (Upcoming Development)
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Initialize dependencies (once scaffolded)
-npm install
-
-# Start development server
-npm run dev
+```
+backend/
+├── .env                  # Local environment configuration (git-ignored)
+├── .env.example          # Safe configuration template (committed)
+├── .gitignore            # Backend-specific ignore rules
+├── package.json          # Node.js project manifest & scripts
+├── README.md             # Setup and operational instructions
+├── src/
+│   ├── app.js            # Express application configuration & middleware
+│   ├── server.js         # HTTP server entrypoint & graceful shutdown
+│   ├── config/
+│   │   ├── db.js         # Mongoose connection & real status monitor
+│   │   └── env.js        # Environment variables loader
+│   ├── middleware/
+│   │   ├── errorHandler.js # Centralized JSON error response handler
+│   │   └── notFound.js   # JSON 404 handler for unregistered routes
+│   └── routes/
+│       ├── health.routes.js # GET /api/v1/health implementation
+│       └── index.js      # Versioned API router (/api/v1)
+└── tests/
+    └── health.test.js    # Automated suite (Node native test runner + Supertest)
 ```
 
-For the complete frontend-to-backend contract definitions and schemas, refer to:
-- `../frontend/FRONTEND_BACKEND_CONTRACT_REQUIREMENTS.md`
-- `../frontend/FRONTEND_ACTION_CONTRACT_REGISTRY.md`
-- `../frontend/FRONTEND_FORM_SCHEMA_REGISTRY.md`
+---
+
+## 3. Quick Start (Windows Setup Guide)
+
+Open PowerShell in the project directory:
+
+```powershell
+# 1. Navigate to the backend directory
+cd C:\xampp\htdocs\ECodrive\backend
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment variables
+# Copy .env.example to .env (if not already created)
+Copy-Item .env.example .env
+
+# 4. Start the backend in development mode (with auto-reload)
+npm run dev
+
+# Or start in standard production mode:
+npm start
+```
+
+---
+
+## 4. Operational Verification
+
+### Run Automated Tests
+```powershell
+npm test
+```
+*Executes the automated test suite testing root routes, `/api/v1/health`, 404 handling, and CORS headers.*
+
+### Test Health Endpoint Live
+With the server running on port 3000:
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/v1/health" | ConvertTo-Json -Depth 4
+```
+
+Expected JSON response:
+```json
+{
+  "ok": true,
+  "status": "healthy",       // or "degraded (db offline)" if MongoDB is not running
+  "service": "AJ EcoDrive ERP Backend API",
+  "version": "1.0.0",
+  "uptime": "15s",
+  "timestamp": "2026-10-26T17:37:23.955Z",
+  "environment": "development",
+  "database": {
+    "status": "disconnected", // or "connected"
+    "isConnected": false,
+    "host": null,
+    "name": null,
+    "error": "connect ECONNREFUSED 127.0.0.1:27017",
+    "lastConnected": null
+  },
+  "system": {
+    "nodeVersion": "v24.15.0",
+    "platform": "win32",
+    "memoryUsageMB": 18
+  }
+}
+```
+
+---
+
+## 5. MongoDB Database Setup (Optional for Step 1)
+
+If you have a local MongoDB instance:
+1. Ensure the MongoDB service is running on `127.0.0.1:27017`:
+   ```powershell
+   net start MongoDB
+   ```
+2. Or update `MONGODB_URI` in `backend/.env` to point to your MongoDB Atlas cloud cluster:
+   ```env
+   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/ecodrive_erp?retryWrites=true&w=majority
+   ```
+3. Restart the server (`npm run dev`). The `/api/v1/health` endpoint will immediately report `"status": "healthy"` and `"isConnected": true`.
+
+---
+
+## 6. Next Steps (Step 2 Roadmap)
+- User Authentication & JWT Token Generator (`/api/v1/auth`)
+- User Schema & Role Capabilities Middleware (Super Admin vs. Branch Manager)
+- First Domain Data Model (Customers & Lead Ingestion)

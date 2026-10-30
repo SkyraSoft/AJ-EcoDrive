@@ -13,6 +13,9 @@ const showToast = ref(false)
 const toastMessage = ref('')
 
 onMounted(() => {
+  if (typeof store.fetchRemoteUnits === 'function') {
+    store.fetchRemoteUnits().catch(() => {})
+  }
   if (route.query.status) {
     const st = String(route.query.status)
     branchStatusFilter.value = st

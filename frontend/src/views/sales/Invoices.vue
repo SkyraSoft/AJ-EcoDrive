@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChevronDown, Search, Check, CheckCircle2, Plus } from 'lucide-vue-next'
+import { ChevronDown, Search, Check, CheckCircle2, AlertCircle, Plus } from 'lucide-vue-next'
 import { store } from '../../store.js'
 import CreateInvoiceModal from './CreateInvoice.vue'
 
@@ -11,21 +11,72 @@ const user = computed(() => store.currentUser)
 
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastType = ref('success')
 const showCreateModal = ref(false)
 const invoiceToEdit = ref(null)
 
+onMounted(() => {
+  store.fetchRemoteInvoices().catch(e => {
+    console.warn('[Invoices] Remote sync note:', e.message)
+  })
+})
+
 const handleInvoiceCreated = (invoice) => {
-  store.addInvoice(invoice)
-  toastMessage.value = `Custom invoice ${invoice.invoiceNo || invoice.invoice} generated successfully`
-  showToast.value = true
-  setTimeout(() => { showToast.value = false }, 3000)
+  const added = store.addInvoice(invoice)
+  showCreateModal.value = false
+
+  if (added && added._syncPromise) {
+    added._syncPromise.then(res => {
+      if (res && (res.ok || res.id || res.invoice_number)) {
+        toastType.value = 'success'
+        toastMessage.value = `Custom invoice ${added.invoiceNo || added.invoice} generated and saved to MySQL!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database save error: ${res?.error || 'Failed to save invoice'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to save invoice'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Custom invoice ${added?.invoiceNo || added?.invoice} generated successfully`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  }
 }
 
 const handleInvoiceUpdated = (invoice) => {
-  store.updateInvoice(invoice)
-  toastMessage.value = `Invoice ${invoice.invoiceNo || invoice.invoice} updated successfully`
-  showToast.value = true
-  setTimeout(() => { showToast.value = false }, 3000)
+  const updated = store.updateInvoice(invoice)
+  showCreateModal.value = false
+
+  if (updated && updated._syncPromise) {
+    updated._syncPromise.then(res => {
+      if (res && (res.ok || res.id || res.invoice_number)) {
+        toastType.value = 'success'
+        toastMessage.value = `Invoice ${updated.invoiceNo || updated.invoice} updated in MySQL successfully!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database update error: ${res?.error || 'Failed to update invoice'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to update invoice'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Invoice ${invoice.invoiceNo || invoice.invoice} updated successfully`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  }
 }
 
 const openCreateModal = () => {
@@ -221,9 +272,13 @@ const resetFilters = () => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="[
+        'fixed bottom-5 right-5 z-[110] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200',
+        toastType === 'error' ? 'bg-red-700' : 'bg-[#165A31]'
+      ]"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 text-red-200" />
+      <CheckCircle2 v-else class="w-5 h-5 text-green-300" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 

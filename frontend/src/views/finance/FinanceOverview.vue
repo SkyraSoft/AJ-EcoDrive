@@ -1,5 +1,8 @@
 <script setup>
-const kpis = [
+import { ref, onMounted } from 'vue'
+import { api } from '../../services/api.js'
+
+const kpis = ref([
   { label: 'Net Sales', value: 'PKR 28.4M' },
   { label: 'Collections', value: 'PKR 25.5M' },
   { label: 'Receivables', value: 'PKR 2.9M' },
@@ -8,14 +11,30 @@ const kpis = [
   { label: 'COGS', value: 'PKR 14.6M' },
   { label: 'Gross Profit', value: 'PKR 6.9M' },
   { label: 'Net Operating Profit', value: 'PKR 3.7M' }
-]
+])
 
-const branchContributions = [
+const branchContributions = ref([
   { branch: 'Peshawar', percentage: 35 },
   { branch: 'Islamabad', percentage: 27 },
   { branch: 'Lahore', percentage: 22 },
   { branch: 'Rawalpindi', percentage: 16 }
-]
+])
+
+onMounted(async () => {
+  try {
+    const res = await api.finance.getOverview()
+    if (res && Array.isArray(res.kpiList)) {
+      kpis.value = res.kpiList
+    } else if (res && Array.isArray(res.kpis)) {
+      kpis.value = res.kpis
+    }
+    if (res && Array.isArray(res.branchContributions)) {
+      branchContributions.value = res.branchContributions
+    }
+  } catch (err) {
+    // Graceful fallback to baseline
+  }
+})
 </script>
 
 <template>

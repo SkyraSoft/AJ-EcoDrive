@@ -155,12 +155,7 @@ const branchTabData = computed(() => {
 // --- SUPER ADMIN ACTIONS ---
 const approveExpense = () => {
   if (currentExpense.value) {
-    currentExpense.value.approval = 'Approved'
-    currentExpense.value.approvalClass = 'bg-[#eefcf2] text-[#165A31]'
-    currentExpense.value.payment = 'Paid'
-    currentExpense.value.paymentClass = 'text-[#165A31] font-bold'
-    currentExpense.value.decision = 'Approved by Super Admin'
-    
+    store.approveExpense(currentExpense.value.id)
     toastMessage.value = `Expense ${currentExpense.value.id} approved successfully!`
     showToast.value = true
     setTimeout(() => {
@@ -171,9 +166,7 @@ const approveExpense = () => {
 
 const rejectExpense = () => {
   if (currentExpense.value) {
-    currentExpense.value.approval = 'Rejected'
-    currentExpense.value.approvalClass = 'bg-red-50 text-red-700'
-    
+    store.rejectExpense(currentExpense.value.id, 'Management policy review')
     toastMessage.value = `Expense ${currentExpense.value.id} rejected.`
     showToast.value = true
     setTimeout(() => {

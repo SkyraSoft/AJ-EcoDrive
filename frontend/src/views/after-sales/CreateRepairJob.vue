@@ -277,6 +277,7 @@ const submitForm = () => {
     if (idx !== -1) {
       store.repairs[idx] = { ...store.repairs[idx], ...jobObj }
     }
+    store.updateRepairJob(form.value.repairId, jobObj)
     store.selectedRepair = jobObj
     emit('updated', jobObj)
   } else {

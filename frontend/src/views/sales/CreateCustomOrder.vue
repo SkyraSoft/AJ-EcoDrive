@@ -38,6 +38,7 @@ const defaultBranch = () => {
 }
 
 const form = ref({
+  id: '',
   orderNo: '',
   customer: '',
   product: '',
@@ -57,6 +58,7 @@ const loadData = (data) => {
   isEditMode.value = true
   form.value = {
     ...form.value,
+    id: data.id || data.orderNo || '',
     orderNo: data.orderNo || data.id || form.value.orderNo,
     customer: data.customer || form.value.customer,
     product: data.product || data.requirement || form.value.product,
@@ -109,6 +111,7 @@ const saveOrder = () => {
   }
 
   const payload = {
+    id: form.value.id || form.value.orderNo || undefined,
     orderNo: form.value.orderNo || `CO-${Math.floor(100 + Math.random() * 900)}`,
     customer: form.value.customer,
     requirement: form.value.product,
@@ -127,12 +130,19 @@ const saveOrder = () => {
   }
 
   if (isEditMode.value) {
+    if (typeof store.updateCustomOrder === 'function') {
+      store.updateCustomOrder(payload.id || payload.orderNo, payload)
+    }
     emit('updated', payload)
   } else {
+    if (typeof store.addCustomOrder === 'function') {
+      store.addCustomOrder(payload)
+    }
     emit('created', payload)
   }
   close()
 }
+
 </script>
 
 <template>

@@ -288,6 +288,7 @@ const submitForm = () => {
     if (idx !== -1) {
       store.cases[idx] = { ...store.cases[idx], ...caseObj }
     }
+    store.updateCase(form.value.caseId, caseObj)
     store.selectedCase = caseObj
     emit('updated', caseObj)
   } else {

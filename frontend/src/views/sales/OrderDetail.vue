@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import { ChevronDown } from 'lucide-vue-next'
@@ -8,6 +8,13 @@ import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
 const router = useRouter()
+
+onMounted(() => {
+  store.fetchRemoteOrders().catch(err => {
+    console.warn('[OrderDetail] Remote sync note:', err.message)
+  })
+})
+
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
@@ -390,16 +397,16 @@ const convertToDelivery = () => {
 const cancelOrder = () => {
   const o = orderRecord.value
   if (!o) return
-  if (o.status === 'Delivered') {
+  if (o.status === 'Delivered' || o.status === 'Completed') {
     alert('Delivered order cannot be cancelled.')
     return
   }
   if (confirm(`Are you sure you want to cancel order ${o.id}? Any reserved unit will be released back to available inventory.`)) {
-    if (o.unit_id) {
-      store.releaseUnitReservation(o.unit_id, `Order ${o.id} cancelled`)
+    try {
+      store.cancelOrder(o.id)
+    } catch (err) {
+      alert(`Failed to cancel order: ${err.message}`)
     }
-    o.status = 'Cancelled'
-    o.statusClass = 'bg-red-50 text-red-700'
   }
 }
 </script>

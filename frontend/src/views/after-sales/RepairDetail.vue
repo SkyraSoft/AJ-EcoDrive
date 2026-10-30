@@ -53,14 +53,18 @@ const triggerToast = (msg) => {
 
 const confirmSchedule = () => {
   if (repairData.value) {
+    const id = repairData.value.id || repairData.value.repairId
     repairData.value.status = 'Scheduled'
+    store.updateRepairJob(id, { status: 'Scheduled' })
   }
   triggerToast(`Service check ${repairData.value.repairId} scheduled and technician allocated.`)
 }
 
 const completeService = () => {
   if (repairData.value) {
+    const id = repairData.value.id || repairData.value.repairId
     repairData.value.status = 'Ready'
+    store.completeRepair(id)
   }
   triggerToast(`Service job ${repairData.value.repairId} marked as completed and ready for customer.`)
 }

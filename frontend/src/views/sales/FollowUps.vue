@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronDown, Check, Plus, Pencil, CheckCircle2 } from 'lucide-vue-next'
+import { Search, ChevronDown, Check, Plus, Pencil, CheckCircle2, Loader2, AlertCircle } from 'lucide-vue-next'
 import { store } from '@/store'
 import CreateFollowUp from './CreateFollowUp.vue'
 
@@ -10,9 +10,28 @@ const showCreateModal = ref(false)
 const selectedFollowUpToEdit = ref(null)
 const showToast = ref(false)
 const toastMessage = ref('')
+const loadingFollowUps = ref(false)
+const loadError = ref(null)
+const completingId = ref(null)
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const loadFollowUps = async () => {
+  loadingFollowUps.value = true
+  loadError.value = null
+  try {
+    await store.fetchRemoteFollowUps()
+  } catch (err) {
+    loadError.value = err?.message || 'Failed to load follow-up records'
+  } finally {
+    loadingFollowUps.value = false
+  }
+}
+
+onMounted(() => {
+  loadFollowUps()
+})
 
 // Branch Manager Data
 const branchKPIs = computed(() => {
@@ -69,20 +88,22 @@ const openEditModal = (item) => {
   showCreateModal.value = true
 }
 
-const handleFollowUpCreated = (newRecord) => {
+const handleFollowUpCreated = async (newRecord) => {
   store.addFollowUp(newRecord)
   toastMessage.value = `Follow-up for ${newRecord.customer} scheduled successfully!`
   showToast.value = true
   showCreateModal.value = false
   setTimeout(() => { showToast.value = false }, 4000)
+  await loadFollowUps()
 }
 
-const handleFollowUpUpdated = (updatedRecord) => {
+const handleFollowUpUpdated = async (updatedRecord) => {
   store.updateFollowUp(updatedRecord.id, updatedRecord)
   toastMessage.value = `Follow-up for ${updatedRecord.customer} updated successfully!`
   showToast.value = true
   showCreateModal.value = false
   setTimeout(() => { showToast.value = false }, 4000)
+  await loadFollowUps()
 }
 
 const openFollowUpDetail = (item) => {
@@ -155,18 +176,30 @@ const resetFilters = () => {
   searchQuery.value = ''
 }
 
-const toggleComplete = (item) => {
+const toggleComplete = async (item) => {
   if (item.status === 'Completed') {
     item.status = 'Open'
     item.statusColor = 'bg-blue-50 text-blue-600'
     item.statusClass = 'bg-blue-50 text-blue-600'
     item.timeBucket = 'Today'
   } else {
-    store.completeFollowUp(item.id)
-    item.timeBucket = 'Completed'
-    toastMessage.value = `Follow-up for ${item.customer} completed`
-    showToast.value = true
-    setTimeout(() => { showToast.value = false }, 3000)
+    completingId.value = item.id
+    try {
+      await store.completeFollowUp(item.id)
+      item.status = 'Completed'
+      item.statusClass = 'bg-[#dcfce7] text-[#165A31]'
+      item.statusColor = 'bg-emerald-50 text-emerald-700'
+      item.timeBucket = 'Completed'
+      toastMessage.value = `Follow-up for ${item.customer} completed`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 3000)
+    } catch (err) {
+      toastMessage.value = err?.message || 'Failed to complete follow-up'
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 3000)
+    } finally {
+      completingId.value = null
+    }
   }
 }
 </script>
@@ -272,6 +305,17 @@ const toggleComplete = (item) => {
       </div>
     </div>
 
+    <!-- Error Alert -->
+    <div v-if="loadError" class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between text-xs text-red-700">
+      <div class="flex items-center gap-2">
+        <AlertCircle class="w-4 h-4 text-red-600 flex-shrink-0" />
+        <span>{{ loadError }}</span>
+      </div>
+      <button @click="loadFollowUps" class="font-bold underline text-red-800 hover:text-red-900 cursor-pointer">
+        Retry
+      </button>
+    </div>
+
     <!-- Table Card -->
     <div data-tour-id="bm.sales.followups.table" class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
@@ -290,52 +334,66 @@ const toggleComplete = (item) => {
               </tr>
             </thead>
             <tbody class="text-xs">
-              <tr 
-                v-for="item in filteredBranchFollowUps" 
-                :key="item.id"
-                class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
-              >
-                <td class="px-5 py-4 font-bold text-gray-900">{{ item.customer }}</td>
-                <td class="px-5 py-4 font-medium text-gray-700">{{ item.linkedRecord }}</td>
-                <td class="px-5 py-4 text-gray-600">{{ item.owner }}</td>
-                <td class="px-5 py-4 text-gray-700">{{ item.due }}</td>
-                <td class="px-5 py-4">
-                  <span :class="['inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-medium', item.statusClass]">
-                    {{ item.status }}
-                  </span>
-                </td>
-                <td class="px-5 py-4 text-right">
-                  <div class="flex items-center justify-end gap-3 text-gray-400">
-                    <button 
-                      v-if="item.status !== 'Completed'"
-                      @click.stop="store.completeFollowUp(item.id); toastMessage = `Follow-up for ${item.customer} completed`; showToast = true; setTimeout(() => showToast = false, 3000)"
-                      class="text-xs font-semibold px-2.5 py-1 rounded border border-[#165A31] text-[#165A31] hover:bg-[#eefcf2] cursor-pointer transition-colors"
-                    >
-                      Complete
-                    </button>
-                    <button 
-                      @click.stop="openEditModal(item)" 
-                      title="Edit Follow-up"
-                      class="hover:text-[#165A31] transition-colors cursor-pointer"
-                    >
-                      <Pencil class="w-4 h-4" />
-                    </button>
-                    <button 
-                      @click.stop="openFollowUpDetail(item)"
-                      class="text-xs text-gray-400 font-medium hover:text-gray-700 transition-colors cursor-pointer"
-                    >
-                      Open ›
-                    </button>
+              <!-- Loading State -->
+              <tr v-if="loadingFollowUps">
+                <td colspan="6" class="text-center py-12 text-gray-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <Loader2 class="w-6 h-6 animate-spin text-[#165A31] mb-2" />
+                    <p class="text-xs font-medium">Loading follow-ups...</p>
                   </div>
                 </td>
               </tr>
 
-              <!-- Empty State -->
-              <tr v-if="filteredBranchFollowUps.length === 0">
-                <td colspan="6" class="text-center py-12 text-gray-500">
-                  <p class="text-xs font-semibold text-gray-700">No follow-ups match the selected filters</p>
-                </td>
-              </tr>
+              <template v-else>
+                <tr 
+                  v-for="item in filteredBranchFollowUps" 
+                  :key="item.id"
+                  class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
+                >
+                  <td class="px-5 py-4 font-bold text-gray-900">{{ item.customer }}</td>
+                  <td class="px-5 py-4 font-medium text-gray-700">{{ item.linkedRecord }}</td>
+                  <td class="px-5 py-4 text-gray-600">{{ item.owner }}</td>
+                  <td class="px-5 py-4 text-gray-700">{{ item.due }}</td>
+                  <td class="px-5 py-4">
+                    <span :class="['inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-medium', item.statusClass]">
+                      {{ item.status }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4 text-right">
+                    <div class="flex items-center justify-end gap-3 text-gray-400">
+                      <button 
+                        v-if="item.status !== 'Completed'"
+                        @click.stop="toggleComplete(item)"
+                        :disabled="completingId === item.id"
+                        class="text-xs font-semibold px-2.5 py-1 rounded border border-[#165A31] text-[#165A31] hover:bg-[#eefcf2] cursor-pointer transition-colors flex items-center gap-1 disabled:opacity-50"
+                      >
+                        <Loader2 v-if="completingId === item.id" class="w-3 h-3 animate-spin" />
+                        <span>Complete</span>
+                      </button>
+                      <button 
+                        @click.stop="openEditModal(item)" 
+                        title="Edit Follow-up"
+                        class="hover:text-[#165A31] transition-colors cursor-pointer"
+                      >
+                        <Pencil class="w-4 h-4" />
+                      </button>
+                      <button 
+                        @click.stop="openFollowUpDetail(item)"
+                        class="text-xs text-gray-400 font-medium hover:text-gray-700 transition-colors cursor-pointer"
+                      >
+                        Open ›
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr v-if="filteredBranchFollowUps.length === 0">
+                  <td colspan="6" class="text-center py-12 text-gray-500">
+                    <p class="text-xs font-semibold text-gray-700">No follow-ups match the selected filters</p>
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </div>
@@ -464,6 +522,17 @@ const toggleComplete = (item) => {
       </button>
     </div>
 
+    <!-- Error Alert -->
+    <div v-if="loadError" class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between text-xs text-red-700">
+      <div class="flex items-center gap-2">
+        <AlertCircle class="w-4 h-4 text-red-600 flex-shrink-0" />
+        <span>{{ loadError }}</span>
+      </div>
+      <button @click="loadFollowUps" class="font-bold underline text-red-800 hover:text-red-900 cursor-pointer">
+        Retry
+      </button>
+    </div>
+
     <!-- Table Card -->
     <div class="bg-white rounded-xl border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
       <div class="p-6">
@@ -486,53 +555,67 @@ const toggleComplete = (item) => {
               </tr>
             </thead>
             <tbody class="text-[11px]">
-              <tr v-for="item in filteredFollowUps" :key="item.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                <td class="px-5 py-4 text-gray-900 font-bold">{{ item.due }}</td>
-                <td class="px-5 py-4 text-gray-800 font-semibold">{{ item.customer }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.type }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.branch }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.owner }}</td>
-                <td class="px-5 py-4">
-                  <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold', item.priorityColor]">
-                    {{ item.priority }}
-                  </span>
-                </td>
-                <td class="px-5 py-4">
-                  <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold', item.statusColor]">
-                    {{ item.status }}
-                  </span>
-                </td>
-                <td class="px-5 py-4 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    <button 
-                      @click.stop="openEditModal(item)" 
-                      title="Edit Follow-up"
-                      class="hover:text-[#165A31] transition-colors cursor-pointer text-gray-400 p-1"
-                    >
-                      <Pencil class="w-4 h-4" />
-                    </button>
-                    <button 
-                      @click="toggleComplete(item)" 
-                      class="text-xs font-semibold px-2.5 py-1 rounded-md border cursor-pointer transition-colors"
-                      :class="item.status === 'Completed' ? 'border-gray-200 text-gray-600 hover:bg-gray-50' : 'border-[#165A31] text-[#165A31] hover:bg-[#eefcf2]'"
-                    >
-                      {{ item.status === 'Completed' ? 'Reopen' : 'Complete' }}
-                    </button>
+              <!-- Loading State -->
+              <tr v-if="loadingFollowUps">
+                <td colspan="8" class="text-center py-12 text-gray-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <Loader2 class="w-6 h-6 animate-spin text-[#165A31] mb-2" />
+                    <p class="text-xs font-medium">Loading follow-ups...</p>
                   </div>
                 </td>
               </tr>
 
-              <!-- Empty State -->
-              <tr v-if="filteredFollowUps.length === 0">
-                <td colspan="8" class="text-center py-12 text-gray-500">
-                  <div class="space-y-2">
-                    <p class="text-xs font-semibold text-gray-700">No follow-ups match the selected filters</p>
-                    <button @click="resetFilters" class="text-xs text-[#165A31] font-bold underline cursor-pointer">
-                      Reset filters
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <template v-else>
+                <tr v-for="item in filteredFollowUps" :key="item.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td class="px-5 py-4 text-gray-900 font-bold">{{ item.due }}</td>
+                  <td class="px-5 py-4 text-gray-800 font-semibold">{{ item.customer }}</td>
+                  <td class="px-5 py-4 text-gray-600 font-medium">{{ item.type }}</td>
+                  <td class="px-5 py-4 text-gray-600 font-medium">{{ item.branch }}</td>
+                  <td class="px-5 py-4 text-gray-600 font-medium">{{ item.owner }}</td>
+                  <td class="px-5 py-4">
+                    <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold', item.priorityColor]">
+                      {{ item.priority }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4">
+                    <span :class="['inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold', item.statusColor]">
+                      {{ item.status }}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <button 
+                        @click.stop="openEditModal(item)" 
+                        title="Edit Follow-up"
+                        class="hover:text-[#165A31] transition-colors cursor-pointer text-gray-400 p-1"
+                      >
+                        <Pencil class="w-4 h-4" />
+                      </button>
+                      <button 
+                        @click="toggleComplete(item)" 
+                        :disabled="completingId === item.id"
+                        class="text-xs font-semibold px-2.5 py-1 rounded-md border cursor-pointer transition-colors flex items-center gap-1 disabled:opacity-50"
+                        :class="item.status === 'Completed' ? 'border-gray-200 text-gray-600 hover:bg-gray-50' : 'border-[#165A31] text-[#165A31] hover:bg-[#eefcf2]'"
+                      >
+                        <Loader2 v-if="completingId === item.id" class="w-3 h-3 animate-spin" />
+                        <span>{{ item.status === 'Completed' ? 'Reopen' : 'Complete' }}</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr v-if="filteredFollowUps.length === 0">
+                  <td colspan="8" class="text-center py-12 text-gray-500">
+                    <div class="space-y-2">
+                      <p class="text-xs font-semibold text-gray-700">No follow-ups match the selected filters</p>
+                      <button @click="resetFilters" class="text-xs text-[#165A31] font-bold underline cursor-pointer">
+                        Reset filters
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </div>

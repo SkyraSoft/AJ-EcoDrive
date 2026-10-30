@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 
 const router = useRouter()
+const route = useRoute()
+const emit = defineEmits(['close', 'updated'])
 
 const supplierData = ref({
   name: '',
@@ -11,37 +14,86 @@ const supplierData = ref({
   phone: '',
   email: '',
   address: '',
-  currency: '',
-  terms: '',
+  currency: 'PKR',
+  terms: 'Net 30',
   taxId: '',
-  notes: ''
+  notes: '',
+  status: 'Active'
 })
 
-onMounted(() => {
-  if (store.originalEditSupplier) {
+const showValidation = ref(false)
+const isSaving = ref(false)
+const apiError = ref(null)
+
+onMounted(async () => {
+  const paramId = route.params?.id
+  if (paramId && (!store.originalEditSupplier || (store.originalEditSupplier.id !== paramId && store.originalEditSupplier.code !== paramId))) {
+    const existing = store.getSupplierById(paramId)
+    if (existing) {
+      supplierData.value = { ...supplierData.value, ...existing }
+    } else {
+      try {
+        const res = await api.procurement.getSupplierById(paramId)
+        const data = res?.data || res
+        if (data) {
+          supplierData.value = { ...supplierData.value, ...data }
+        }
+      } catch (err) {
+        console.warn('Could not fetch supplier by ID:', err)
+      }
+    }
+  } else if (store.originalEditSupplier) {
     supplierData.value = { ...supplierData.value, ...store.originalEditSupplier }
   }
 })
 
-const showValidation = ref(false)
-
-const saveChanges = () => {
-  if (!supplierData.value.name || !supplierData.value.contact || !supplierData.value.phone) {
+const saveChanges = async () => {
+  if (!supplierData.value.name?.trim() || !supplierData.value.contact?.trim() || !supplierData.value.phone?.trim()) {
     showValidation.value = true
     return
   }
 
-  const targetId = supplierData.value.id || supplierData.value.supplier_id || supplierData.value.name
-  if (targetId) {
-    store.updateSupplier(targetId, supplierData.value)
+  isSaving.value = true
+  apiError.value = null
+
+  const targetId = supplierData.value.id || supplierData.value.supplier_id || route.params?.id || supplierData.value.code
+  const payload = {
+    name: supplierData.value.name.trim(),
+    contact: supplierData.value.contact.trim(),
+    phone: supplierData.value.phone.trim(),
+    email: supplierData.value.email?.trim() || '',
+    address: supplierData.value.address?.trim() || '',
+    currency: supplierData.value.currency || 'PKR',
+    terms: supplierData.value.terms || 'Net 30',
+    tax_id: supplierData.value.taxId?.trim() || '',
+    taxId: supplierData.value.taxId?.trim() || '',
+    notes: supplierData.value.notes?.trim() || '',
+    status: supplierData.value.status || 'Active'
   }
-  if (store.originalEditSupplier) {
-    store.applyEdit(store.originalEditSupplier, supplierData.value)
+
+  try {
+    let updatedRecord = { ...supplierData.value, ...payload }
+    if (targetId) {
+      const res = await api.procurement.updateSupplier(targetId, payload)
+      updatedRecord = res?.data || res || updatedRecord
+    }
+    store.updateSupplier(targetId || updatedRecord.id, updatedRecord)
+    if (store.originalEditSupplier) {
+      store.applyEdit(store.originalEditSupplier, updatedRecord)
+    }
+    emit('updated', updatedRecord)
+    emit('close')
+    router.push('/procurement/suppliers')
+  } catch (err) {
+    console.error('Failed to update supplier via API:', err)
+    apiError.value = err.data?.message || err.message || 'Failed to update supplier. Server rejected request.'
+  } finally {
+    isSaving.value = false
   }
-  router.push('/procurement/suppliers')
 }
 
 const cancel = () => {
+  emit('close')
   router.push('/procurement/suppliers')
 }
 </script>
@@ -66,8 +118,14 @@ const cancel = () => {
       <div>
         <div class="text-[10px] text-gray-500 mb-1">Super Admin / Procurement / Suppliers / <span class="font-bold text-gray-800">Edit Supplier</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Edit Supplier</h1>
-        <p class="text-sm text-gray-500 mt-1">Update profile information for BRG Factory.</p>
+        <p class="text-sm text-gray-500 mt-1">Update profile information for {{ supplierData.name || 'supplier' }}.</p>
       </div>
+    </div>
+
+    <!-- API Error Alert -->
+    <div v-if="apiError" class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs flex items-center justify-between">
+      <span>{{ apiError }}</span>
+      <button @click="apiError = null" class="text-red-500 hover:text-red-700 font-bold ml-3">✕</button>
     </div>
 
     <!-- Form Grid -->
@@ -146,11 +204,12 @@ const cancel = () => {
     <!-- Actions Footer -->
     <div class="flex items-center justify-end pt-4">
       <div class="flex flex-wrap items-center gap-3">
-        <button @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+        <button :disabled="isSaving" @click="cancel" class="px-5 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] disabled:opacity-50 cursor-pointer">
           Cancel
         </button>
-        <button @click="saveChanges" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-          Save Changes
+        <button :disabled="isSaving" @click="saveChanges" class="px-5 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] disabled:opacity-50 cursor-pointer flex items-center gap-2">
+          <span v-if="isSaving">Saving...</span>
+          <span v-else>Save Changes</span>
         </button>
       </div>
     </div>

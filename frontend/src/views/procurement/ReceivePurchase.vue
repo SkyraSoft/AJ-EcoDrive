@@ -6,6 +6,7 @@ import {
   Package, ShieldCheck, FileText, Check, Plus, Trash2, RefreshCw
 } from 'lucide-vue-next'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,6 +14,21 @@ const route = useRoute()
 // 1. PO Binding from Route
 const poId = computed(() => route.params.id || route.query.po || route.query.id || 'PO-2048')
 const po = computed(() => store.getPurchaseOrderById(poId.value))
+const isSubmitting = ref(false)
+
+onMounted(async () => {
+  if (poId.value && !po.value) {
+    try {
+      const res = await api.procurement.getPurchaseOrderById(poId.value)
+      const data = res?.data || res
+      if (data && (data.id || data.po || data.po_number)) {
+        store.addPurchaseOrder(data)
+      }
+    } catch (err) {
+      console.warn('Could not load PO for receiving via API:', err)
+    }
+  }
+})
 
 // Branch & Authorization
 const isBranchUser = computed(() => store.isBranchUser())
@@ -93,7 +109,7 @@ const syncSerializedRows = () => {
       if (existing[i]) {
         newRows.push(existing[i])
       } else {
-        const randomNum = Math.floor(1000 + Math.random() * 9000)
+        const randomNum = `${i + 1}-${Math.floor(1000 + Math.random() * 9000)}`
         const prefix = (item.product || 'EV').replace(/[^a-zA-Z0-9]/g, '').slice(0, 4).toUpperCase()
         newRows.push({
           id: `TEMP-${Date.now()}-${i}-${randomNum}`,
@@ -103,8 +119,8 @@ const syncSerializedRows = () => {
           serial: `${prefix}-${randomNum}`,
           chassis: `CH-${prefix}-${randomNum}`,
           vin: `VIN-PK-BRG-26-${randomNum}`,
-          motorNumber: `MTR-72V-${Math.floor(1000 + Math.random() * 9000)}`,
-          batteryNumber: `BAT-7230-${Math.floor(1000 + Math.random() * 9000)}`,
+          motorNumber: `MTR-72V-${i + 1}-${Math.floor(1000 + Math.random() * 9000)}`,
+          batteryNumber: `BAT-7230-${i + 1}-${Math.floor(1000 + Math.random() * 9000)}`,
           condition: 'Good',
           qc: 'Pass',
           location: 'Showroom Floor'
@@ -311,59 +327,95 @@ const handleSaveDraft = () => {
   }, 4000)
 }
 
-const handlePostReceipt = () => {
+const handlePostReceipt = async () => {
   validationErrors.value = validateReceipt()
   if (validationErrors.value.length > 0) {
     showConfirmModal.value = false
     return
   }
 
+  isSubmitting.value = true
+
+  const poTargetId = po.value.po_id || po.value.id || po.value.po
+  const receiptPayload = {
+    po_id: poTargetId,
+    po: po.value.po,
+    delivery_note: receivingForm.value.deliveryNote,
+    deliveryNote: receivingForm.value.deliveryNote,
+    receipt_date: receivingForm.value.receiptDate,
+    received_by: receivingForm.value.receiver,
+    notes: receivingForm.value.notes,
+    location: receivingForm.value.location,
+    lines: lineItems.value.map(l => {
+      const stats = getLineStats(l)
+      return {
+        product_id: l.product_id,
+        product: l.product,
+        sku: l.sku,
+        ordered_quantity: stats.ordered,
+        previously_received_quantity: stats.prev,
+        current_received_quantity: stats.current,
+        damaged_quantity: stats.damaged,
+        accepted_quantity: stats.accepted,
+        short_quantity: stats.short,
+        excess_quantity: stats.excess,
+        discrepancy_reason: l.discrepancy_reason
+      }
+    }),
+    serializedUnits: serializedRows.value.map(u => ({
+      ...u,
+      location: receivingForm.value.location
+    })),
+    qcRecords: serializedRows.value.map(u => ({
+      serial: u.chassis || u.serial,
+      check: 'Visual + Functional EV Diagnostic',
+      finding: u.condition === 'Good' ? 'Pass (100%)' : u.condition,
+      decision: u.qc,
+      inspector: receivingForm.value.receiver
+    }))
+  }
+
   try {
-    const receiptPayload = {
-      po_id: po.value.po_id || po.value.po,
-      po: po.value.po,
-      receipt_date: receivingForm.value.receiptDate,
-      received_by: receivingForm.value.receiver,
-      notes: receivingForm.value.notes,
-      location: receivingForm.value.location,
-      deliveryNote: receivingForm.value.deliveryNote,
-      lines: lineItems.value.map(l => {
-        const stats = getLineStats(l)
-        return {
-          product_id: l.product_id,
-          product: l.product,
-          sku: l.sku,
-          ordered_quantity: stats.ordered,
-          previously_received_quantity: stats.prev,
-          current_received_quantity: stats.current,
-          damaged_quantity: stats.damaged,
-          accepted_quantity: stats.accepted,
-          short_quantity: stats.short,
-          excess_quantity: stats.excess,
-          discrepancy_reason: l.discrepancy_reason
+    const res = await api.procurement.receivePurchaseOrder(poTargetId, receiptPayload)
+    const serverReceipt = res?.data || res
+    showConfirmModal.value = false
+
+    // Sync authoritative receipt into store
+    if (serverReceipt) {
+      if (!store.receipts) store.receipts = []
+      const existingIdx = store.receipts.findIndex(r => r.id === serverReceipt.id || r.receipt_number === serverReceipt.receipt_number)
+      if (existingIdx >= 0) {
+        store.receipts[existingIdx] = serverReceipt
+      } else {
+        store.receipts.unshift(serverReceipt)
+      }
+
+      if (serverReceipt.purchaseOrder) {
+        store.addPurchaseOrder(serverReceipt.purchaseOrder)
+      } else {
+        try {
+          const refreshedPoRes = await api.procurement.getPurchaseOrderById(poTargetId)
+          if (refreshedPoRes?.data || refreshedPoRes) {
+            store.addPurchaseOrder(refreshedPoRes.data || refreshedPoRes)
+          }
+        } catch {
+          // Local fallback stats
+          po.value.totalReceived = (po.value.totalReceived || 0) + summaryStats.value.totalAccepted
+          po.value.remainingUnits = Math.max(0, (po.value.totalOrdered || 0) - po.value.totalReceived)
+          po.value.status = po.value.remainingUnits <= 0 ? 'Fully Received' : 'Partially Received'
         }
-      }),
-      serializedUnits: serializedRows.value.map(u => ({
-        ...u,
-        location: receivingForm.value.location
-      })),
-      qcRecords: serializedRows.value.map(u => ({
-        serial: u.chassis || u.serial,
-        check: 'Visual + Functional EV Diagnostic',
-        finding: u.condition === 'Good' ? 'Pass (100%)' : u.condition,
-        decision: u.qc,
-        inspector: receivingForm.value.receiver
-      }))
+      }
     }
 
-    const result = store.postReceipt({ receiptData: receiptPayload, updateInventory: true })
-    showConfirmModal.value = false
-
     // Route to receipt detail
-    router.push(`/procurement/receipts/${result.receipt.id}`)
+    const targetReceiptId = serverReceipt?.receipt_number || serverReceipt?.id || serverReceipt?.receipt_id
+    router.push(`/procurement/receipts/${targetReceiptId}`)
   } catch (err) {
+    console.error('Failed to post receipt to backend:', err)
     showConfirmModal.value = false
-    validationErrors.value = [err.message || 'Failed to post receipt.']
+    validationErrors.value = [err.data?.message || err.message || 'Failed to post goods receipt to server.']
+  } finally {
+    isSubmitting.value = false
   }
 }
 
@@ -989,16 +1041,20 @@ const regenerateSerials = () => {
 
         <div class="flex items-center justify-end gap-3 pt-2">
           <button 
+            :disabled="isSubmitting"
             @click="showConfirmModal = false" 
-            class="px-4 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            class="px-4 py-2 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
           >
             Cancel
           </button>
           <button 
+            :disabled="isSubmitting"
             @click="handlePostReceipt" 
-            class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+            class="px-5 py-2 text-xs font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
-            <Check class="w-4 h-4" /> Post Receipt Now
+            <Check class="w-4 h-4" />
+            <span v-if="isSubmitting">Posting Receipt...</span>
+            <span v-else>Post Receipt Now</span>
           </button>
         </div>
       </div>

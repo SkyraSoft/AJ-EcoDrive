@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, ChevronDown, Check, Plus, CheckCircle2, Pencil, Eye } from 'lucide-vue-next'
 import { store } from '@/store'
@@ -12,6 +12,10 @@ const showToast = ref(false)
 const toastMessage = ref('')
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+onMounted(async () => {
+  await store.fetchRemoteCases()
+})
 
 // Branch Manager KPI Cards
 const branchKpis = computed(() => {

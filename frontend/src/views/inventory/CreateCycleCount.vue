@@ -100,9 +100,10 @@ const startSession = () => {
     return
   }
 
+  const countId = form.value.id || `CC-${Math.floor(100 + Math.random() * 900)}`
   const payload = {
-    id: form.value.id || `CC-${Math.floor(100 + Math.random() * 900)}`,
-    session: form.value.id || `CC-${Math.floor(100 + Math.random() * 900)}`,
+    id: countId,
+    session: countId,
     name: form.value.countName,
     scope: form.value.scope,
     assignedTo: form.value.assignedTo,
@@ -118,12 +119,19 @@ const startSession = () => {
   }
 
   if (isEditMode.value) {
+    if (typeof store.updateCycleCount === 'function') {
+      store.updateCycleCount(payload.id, payload)
+    }
     emit('updated', payload)
   } else {
+    if (typeof store.addCycleCount === 'function') {
+      store.addCycleCount(payload)
+    }
     emit('created', payload)
   }
   close()
 }
+
 </script>
 
 <template>

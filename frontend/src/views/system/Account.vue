@@ -1,10 +1,16 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { CheckCircle2, Shield, Building2 } from 'lucide-vue-next'
+import { CheckCircle2, Shield, Building2, AlertTriangle } from 'lucide-vue-next'
 import { store } from '@/store.js'
+import api from '@/services/api.js'
 
 const isBranchUser = computed(() => store.isBranchUser())
 const currentUser = computed(() => store.currentUser || {})
+
+const isPlaceholderEmail = computed(() => {
+  const em = String(profileForm.value.email || '').trim().toLowerCase()
+  return !em || em.endsWith('@ajecodrive.com')
+})
 
 const profileForm = ref({
   name: '',
@@ -37,22 +43,54 @@ watch(currentUser, () => {
 
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastIsError = ref(false)
+const isSaving = ref(false)
 
-const saveChanges = () => {
+const saveChanges = async () => {
+  const cleanEmail = String(profileForm.value.email || '').trim().toLowerCase()
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+    toastMessage.value = 'Please provide a valid email address (e.g. name@domain.com).'
+    toastIsError.value = true
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+    return
+  }
+
+  isSaving.value = true
   try {
+    // 1. Persist to real backend API & MySQL database
+    try {
+      await api.auth.updateProfile({
+        name: profileForm.value.name,
+        email: cleanEmail,
+        phone: profileForm.value.phone
+      })
+    } catch (apiErr) {
+      if (apiErr && !apiErr.isOffline) {
+        throw new Error(apiErr.data?.message || apiErr.message || 'Failed to update email in database.')
+      }
+    }
+
+    // 2. Sync client reactive store
     store.updateUserProfile({
       name: profileForm.value.name,
-      email: profileForm.value.email,
+      email: cleanEmail,
       phone: profileForm.value.phone,
       contactPreference: profileForm.value.contactPreference
     })
-    toastMessage.value = 'Account profile changes saved successfully!'
+
+    toastMessage.value = 'Account profile and registered OTP email saved successfully!'
+    toastIsError.value = false
     showToast.value = true
-    setTimeout(() => { showToast.value = false }, 3000)
+    setTimeout(() => { showToast.value = false }, 3500)
   } catch (err) {
     toastMessage.value = `Error: ${err.message}`
+    toastIsError.value = true
     showToast.value = true
-    setTimeout(() => { showToast.value = false }, 3000)
+    setTimeout(() => { showToast.value = false }, 4000)
+  } finally {
+    isSaving.value = false
   }
 }
 </script>
@@ -62,9 +100,10 @@ const saveChanges = () => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="toastIsError ? 'bg-red-600' : 'bg-[#165A31]'"
+      class="fixed bottom-5 right-5 z-[110] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <CheckCircle2 class="w-5 h-5 text-white" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 
@@ -81,9 +120,10 @@ const saveChanges = () => {
 
       <button data-tour-id="bm.system.account.save-btn" 
         @click="saveChanges"
-        class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+        :disabled="isSaving"
+        class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer disabled:opacity-50"
       >
-        Save Changes
+        {{ isSaving ? 'Saving...' : 'Save Changes' }}
       </button>
     </div>
 
@@ -93,6 +133,17 @@ const saveChanges = () => {
       <!-- Left Card: Profile -->
       <div data-tour-id="bm.system.account.profile-card" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-4">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Personal Profile</h3>
+        
+        <!-- Profile Email Not Configured Notice -->
+        <div v-if="isPlaceholderEmail" class="p-3.5 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2.5 mb-2">
+          <AlertTriangle class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div class="text-xs text-amber-800">
+            <p class="font-bold">Recovery Email Not Configured</p>
+            <p class="mt-0.5 text-[11px] text-amber-700 leading-normal">
+              Your account is currently using an unconfigured demo address (<code>@ajecodrive.com</code>). Please configure your active personal or work email address below and click <strong>Save Changes</strong> so you can receive password reset OTP verification codes.
+            </p>
+          </div>
+        </div>
         
         <div>
           <label class="block text-[11px] font-semibold text-gray-700 mb-1.5">Full Name</label>
@@ -110,6 +161,7 @@ const saveChanges = () => {
             type="email" 
             class="w-full px-3.5 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors bg-white shadow-[0_1px_2px_rgba(0,0,0,0.01)] text-gray-800" 
           />
+          <p class="text-[10px] text-gray-500 mt-1">This email address will receive your single-use verification OTP codes for account authentication and password resets.</p>
         </div>
 
         <div>

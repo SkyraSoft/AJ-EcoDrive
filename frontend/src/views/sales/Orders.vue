@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Search, ChevronDown, Check, Pencil, Eye, CheckCircle2, Plus } from 'lucide-vue-next'
+import { Search, ChevronDown, Check, Pencil, Eye, CheckCircle2, AlertCircle, Plus } from 'lucide-vue-next'
 import CreateSaleModal from './CreateSale.vue'
 import { store } from '@/store.js'
 
@@ -12,8 +12,13 @@ const selectedOrderToEdit = ref(null)
 const initialCustomer = ref(null)
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastType = ref('success')
 
 onMounted(() => {
+  store.fetchRemoteOrders().catch(err => {
+    console.warn('[Orders] Remote sync note:', err.message)
+  })
+
   if (route.query.action === 'new') {
     initialCustomer.value = route.query.customer || null
     openCreateModal()
@@ -152,22 +157,60 @@ const openEditModal = (order) => {
 
 const handleOrderCreated = (newOrder) => {
   const added = store.addOrder(newOrder)
-  toastMessage.value = `Order ${added.order || added.orderNo} created successfully!`
-  showToast.value = true
   showCreateModal.value = false
-  setTimeout(() => {
-    showToast.value = false
-  }, 4000)
+
+  if (added && added._syncPromise) {
+    added._syncPromise.then(res => {
+      if (res && (res.ok || res.id || res.order_number)) {
+        toastType.value = 'success'
+        toastMessage.value = `Order ${added.order || added.orderNo} created and saved in MySQL!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database save error: ${res?.error || 'Failed to save order'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to save order'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Order ${added?.order || added?.orderNo} created successfully!`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 4000)
+  }
 }
 
 const handleOrderUpdated = (updatedOrder) => {
-  store.updateOrder(updatedOrder.id || updatedOrder.order || updatedOrder.orderNo, updatedOrder)
-  toastMessage.value = `Order ${updatedOrder.order || updatedOrder.orderNo} updated successfully!`
-  showToast.value = true
+  const updated = store.updateOrder(updatedOrder.id || updatedOrder.order || updatedOrder.orderNo, updatedOrder)
   showCreateModal.value = false
-  setTimeout(() => {
-    showToast.value = false
-  }, 4000)
+
+  if (updated && updated._syncPromise) {
+    updated._syncPromise.then(res => {
+      if (res && (res.ok || res.id || res.order_number)) {
+        toastType.value = 'success'
+        toastMessage.value = `Order ${updated.order || updated.orderNo} updated in MySQL successfully!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database update error: ${res?.error || 'Failed to update order'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to update order'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Order ${updatedOrder.order || updatedOrder.orderNo} updated successfully!`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 4000)
+  }
 }
 </script>
 
@@ -176,9 +219,13 @@ const handleOrderUpdated = (updatedOrder) => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="[
+        'fixed bottom-5 right-5 z-[110] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200',
+        toastType === 'error' ? 'bg-red-700' : 'bg-[#165A31]'
+      ]"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 text-red-200" />
+      <CheckCircle2 v-else class="w-5 h-5 text-green-300" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 

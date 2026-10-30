@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ChevronDown, Search, Check, CheckCircle2 } from 'lucide-vue-next'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
@@ -55,6 +56,36 @@ const branchMovements = ref([
     user: 'Ahsan'
   }
 ])
+
+onMounted(async () => {
+  try {
+    const res = await api.inventory.getLedger({ with_kpis: true })
+    if (res?.ok && res.data) {
+      const data = res.data
+      const movements = Array.isArray(data) ? data : (data.movements || [])
+      if (movements.length > 0) {
+        branchMovements.value = movements.map(m => ({
+          time: m.time ? m.time.split(' ')[1] || m.time : 'Today',
+          unitProduct: m.unitProduct || m.product || m.unit || 'Vehicle Unit',
+          movement: m.movement === 'RECEIPT' ? 'Receipt' : (m.movement?.includes('SALE') ? 'Sale' : (m.movement?.includes('TRANSFER') ? 'Transfer Out' : 'Adjustment')),
+          from: m.branch || 'Showroom',
+          to: m.movement?.includes('SALE') ? 'Customer' : (m.movement?.includes('TRANSFER') ? 'Branch' : 'Showroom'),
+          reference: m.reference || m.referenceId || 'REF',
+          user: m.user || 'Store Officer'
+        }))
+        ledgerItems.value = movements.map(m => ({
+          time: m.time || 'Today',
+          unit: m.unit || m.unitProduct || m.product || 'Unit',
+          movement: m.movement,
+          from: m.branch || 'Main Showroom',
+          to: m.movement?.includes('SALE') ? 'Customer' : 'Showroom',
+          reference: m.reference || m.referenceId || 'REF',
+          user: m.user || 'Store Officer'
+        }))
+      }
+    }
+  } catch (_) {}
+})
 
 const branchStatusFilter = ref('All')
 const branchDateFilter = ref('Date')

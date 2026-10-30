@@ -139,12 +139,19 @@ const saveHandover = () => {
   }
 
   if (isEditMode.value) {
+    if (typeof store.updateDelivery === 'function') {
+      store.updateDelivery(payload.id || payload.delivery_id, payload)
+    }
     emit('updated', payload)
   } else {
+    if (typeof store.addDelivery === 'function') {
+      store.addDelivery(payload)
+    }
     emit('created', payload)
   }
   close()
 }
+
 </script>
 
 <template>

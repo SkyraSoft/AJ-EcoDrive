@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Plus, CheckCircle2, ChevronDown, Search, Check, Pencil, Eye } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
@@ -13,6 +13,10 @@ const toastMessage = ref('')
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+onMounted(async () => {
+  await store.fetchRemoteRepairs()
+})
 
 // --- BRANCH MANAGER VIEW DATA ---
 const branchKPIs = computed(() => {

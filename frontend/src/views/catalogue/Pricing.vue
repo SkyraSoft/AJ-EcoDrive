@@ -270,8 +270,21 @@ const openHistory = (productName) => {
   </div>
 
   <!-- Create & Edit Price Rule Modal Popups -->
-  <CreatePriceRule v-if="showCreateModal" @close="showCreateModal = false" />
-  <EditPriceRule v-if="showEditModal" @close="showEditModal = false" />
+  <CreatePriceRule 
+    v-if="showCreateModal" 
+    @close="showCreateModal = false" 
+    @created="(rule) => { pricingData.unshift(rule); showCreateModal = false; }"
+  />
+  <EditPriceRule 
+    v-if="showEditModal" 
+    @close="showEditModal = false" 
+    @updated="(rule) => { 
+      const idx = pricingData.findIndex(p => p.product === rule.product); 
+      if (idx !== -1) pricingData[idx] = { ...pricingData[idx], ...rule };
+      showEditModal = false; 
+    }"
+  />
+
 
   <router-view />
 </template>

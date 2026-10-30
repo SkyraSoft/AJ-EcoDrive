@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 import EditSupplier from './EditSupplier.vue'
 
@@ -11,13 +12,53 @@ const supplierId = computed(() => route.params.id || route.query.id || '')
 
 const activeTab = ref('Overview')
 const showEditModal = ref(false)
+const isLoading = ref(false)
+const apiError = ref(null)
 const tabs = ['Overview', 'Contacts', 'Products', 'Purchase Orders', 'Receipts', 'Bills & Payments', 'Returns', 'Performance', 'Documents', 'Activity']
 
+const supplierRecord = computed(() => {
+  if (!supplierId.value) {
+    return store.suppliers[0] || null
+  }
+  return store.getSupplierById(supplierId.value) || null
+})
+
+onMounted(async () => {
+  if (!supplierId.value) return
+  isLoading.value = true
+  apiError.value = null
+  try {
+    const res = await api.procurement.getSupplierById(supplierId.value)
+    const data = res?.data || res
+    if (data && (data.id || data.name)) {
+      store.addSupplier(data)
+    }
+  } catch (err) {
+    console.warn('API error fetching supplier details:', err)
+    apiError.value = err.message
+  } finally {
+    isLoading.value = false
+  }
+})
+
 // Data for tabs
-const contacts = [
-  { name: 'Li Wei', role: 'Sales Director', email: 'sales@brgfactory.example', phone: '+86 188 0000 0000', primary: 'Yes' },
-  { name: 'Chen Yu', role: 'Logistics', email: 'logistics@brgfactory.example', phone: '+86 188 0000 0101', primary: 'No' }
-]
+const contacts = computed(() => {
+  if (supplierRecord.value?.contact) {
+    return [
+      { 
+        name: supplierRecord.value.contact, 
+        role: 'Primary Contact', 
+        email: supplierRecord.value.email || '—', 
+        phone: supplierRecord.value.phone || '—', 
+        primary: 'Yes' 
+      }
+    ]
+  }
+  return [
+    { name: 'Li Wei', role: 'Sales Director', email: 'sales@brgfactory.example', phone: '+86 188 0000 0000', primary: 'Yes' },
+    { name: 'Chen Yu', role: 'Logistics', email: 'logistics@brgfactory.example', phone: '+86 188 0000 0101', primary: 'No' }
+  ]
+})
 
 const suppliedProducts = [
   { product: 'BRG DS11', sku: 'BRG-DS11', lastCost: 'USD 505', leadTime: '25d', moq: '10', active: 'Yes' },
@@ -25,10 +66,32 @@ const suppliedProducts = [
   { product: 'Cargo Pro', sku: 'BRG-CARGO', lastCost: 'USD 740', leadTime: '30d', moq: '6', active: 'Yes' }
 ]
 
-const purchaseOrders = [
-  { po: 'PO-2048', destination: 'Peshawar', amount: '2.8M', status: 'In Transit', eta: 'Aug 29' },
-  { po: 'PO-2049', destination: 'All Branches', amount: '4.8M', status: 'Pending', eta: 'Sep 18' }
-]
+const purchaseOrders = computed(() => {
+  if (supplierRecord.value?.recentOrders && supplierRecord.value.recentOrders.length > 0) {
+    return supplierRecord.value.recentOrders.map(po => ({
+      po: po.po || po.po_number || po.id,
+      destination: po.destination || po.branch || 'Peshawar',
+      amount: po.amount || 'PKR 0',
+      status: po.status || 'Pending Approval',
+      eta: po.expected || po.expectedDate || '—'
+    }))
+  }
+  const matchingPos = (store.purchaseOrders || []).filter(po => 
+    po.supplier_id === supplierRecord.value?.id || 
+    po.supplier_id === supplierRecord.value?.code || 
+    (po.supplier && po.supplier.toLowerCase() === (supplierRecord.value?.name || '').toLowerCase())
+  )
+  if (matchingPos.length > 0) {
+    return matchingPos.map(po => ({
+      po: po.po || po.po_number || po.id,
+      destination: po.destination || po.branch || 'Peshawar',
+      amount: po.amount || 'PKR 0',
+      status: po.status || 'Pending Approval',
+      eta: po.expected || po.expectedDate || '—'
+    }))
+  }
+  return []
+})
 
 const receipts = [
   { receipt: 'GR-982', po: 'PO-1992', location: 'Peshawar', units: '20', discrepancy: '0', date: 'Jul 18' },
@@ -55,20 +118,25 @@ const activities = [
   { text: 'Vendor bill BILL-784 received', date: 'Aug 24' }
 ]
 
-const supplierRecord = computed(() => {
-  if (!supplierId.value) return null
-  return store.getSupplierById(supplierId.value) || null
-})
-
 const editSupplier = () => {
   store.originalEditSupplier = { ...supplierRecord.value }
   showEditModal.value = true
 }
+
+const onSupplierUpdated = (updated) => {
+  if (updated && (updated.id || updated.name)) {
+    store.addSupplier(updated)
+  }
+}
 </script>
 
 <template>
+  <div v-if="isLoading && !supplierRecord" class="max-w-[1400px] mx-auto py-24 text-center">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#165A31]"></div>
+    <p class="text-sm text-gray-500 mt-3 font-medium">Loading supplier details...</p>
+  </div>
   <NotFoundState
-    v-if="!supplierRecord"
+    v-else-if="!supplierRecord"
     title="Supplier Not Found"
     message="The requested supplier could not be found or is not accessible."
     back-link="/procurement/suppliers"
@@ -79,8 +147,8 @@ const editSupplier = () => {
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">Super Admin / Procurement / Suppliers / <span class="font-bold text-gray-800">Supplier Detail — {{ activeTab }}</span></div>
-        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Supplier Detail — {{ activeTab }}</h1>
-        <p class="text-sm text-gray-500 mt-1">BRG Factory - {{ activeTab }}</p>
+        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">{{ supplierRecord.name }} — {{ activeTab }}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ supplierRecord.name }} &bull; {{ activeTab }}</p>
       </div>
     </div>
 
@@ -90,14 +158,17 @@ const editSupplier = () => {
       <!-- Top Info Section -->
       <div class="px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
         <div>
-          <h2 class="text-[20px] font-bold text-gray-900 mb-1">BRG Factory</h2>
-          <div class="text-[11px] text-gray-500 font-medium">SUP-BRG-001 &middot; Shenzhen, China</div>
+          <h2 class="text-[20px] font-bold text-gray-900 mb-1">{{ supplierRecord.name }}</h2>
+          <div class="text-[11px] text-gray-500 font-medium">{{ supplierRecord.code || supplierRecord.id }} &middot; {{ supplierRecord.city ? supplierRecord.city + ', ' : '' }}{{ supplierRecord.country || 'Pakistan' }}</div>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <span class="inline-flex items-center px-2 py-1 rounded-[4px] text-[10px] font-bold bg-[#eefcf2] text-[#165A31]">
-            Active
+          <span 
+            class="inline-flex items-center px-2 py-1 rounded-[4px] text-[10px] font-bold"
+            :class="supplierRecord.status === 'Active' ? 'bg-[#eefcf2] text-[#165A31]' : 'bg-gray-100 text-gray-600'"
+          >
+            {{ supplierRecord.status || 'Active' }}
           </span>
-          <button @click="editSupplier" class="px-4 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+          <button @click="editSupplier" class="px-4 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
             Edit Supplier
           </button>
           <button class="px-3 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] flex items-center gap-1">
@@ -129,19 +200,19 @@ const editSupplier = () => {
         <div class="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
             <div class="text-[11px] font-semibold text-gray-400 mb-2">Purchases YTD</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">PKR 38.4M</div>
+            <div class="text-[22px] font-bold text-gray-900 leading-none">{{ supplierRecord.purchases || 'PKR 0.0M' }}</div>
           </div>
           <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
             <div class="text-[11px] font-semibold text-gray-400 mb-2">Open POs</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">5</div>
+            <div class="text-[22px] font-bold text-gray-900 leading-none">{{ supplierRecord.openPos || '0' }}</div>
           </div>
           <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
             <div class="text-[11px] font-semibold text-gray-400 mb-2">Payable</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">PKR 4.2M</div>
+            <div class="text-[22px] font-bold text-gray-900 leading-none">{{ supplierRecord.payable || 'PKR 0.0M' }}</div>
           </div>
           <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
             <div class="text-[11px] font-semibold text-gray-400 mb-2">On-Time</div>
-            <div class="text-[22px] font-bold text-gray-900 leading-none">92%</div>
+            <div class="text-[22px] font-bold text-gray-900 leading-none">{{ supplierRecord.onTime || '100%' }}</div>
           </div>
         </div>
 
@@ -151,19 +222,31 @@ const editSupplier = () => {
           <div class="space-y-4">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
               <span class="font-medium text-gray-500">Primary Contact</span>
-              <span class="font-bold text-gray-900">Li Wei</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.contact || '—' }}</span>
+            </div>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
+              <span class="font-medium text-gray-500">Phone</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.phone || '—' }}</span>
+            </div>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
+              <span class="font-medium text-gray-500">Email</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.email || '—' }}</span>
+            </div>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
+              <span class="font-medium text-gray-500">Address</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.address || '—' }}</span>
             </div>
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
               <span class="font-medium text-gray-500">Terms</span>
-              <span class="font-bold text-gray-900">30 days</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.terms || 'Net 30' }}</span>
             </div>
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
               <span class="font-medium text-gray-500">Lead Time</span>
-              <span class="font-bold text-gray-900">25 days</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.lead_time_days ? supplierRecord.lead_time_days + ' days' : '25 days' }}</span>
             </div>
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 text-[11px]">
               <span class="font-medium text-gray-500">Currency</span>
-              <span class="font-bold text-gray-900">USD</span>
+              <span class="font-bold text-gray-900">{{ supplierRecord.currency || 'PKR' }}</span>
             </div>
           </div>
         </div>
@@ -484,5 +567,5 @@ const editSupplier = () => {
   </div>
 
   <!-- Edit Supplier Modal Popup -->
-  <EditSupplier v-if="showEditModal" @close="showEditModal = false" />
+  <EditSupplier v-if="showEditModal" @close="showEditModal = false" @updated="onSupplierUpdated" />
 </template>

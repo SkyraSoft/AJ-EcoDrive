@@ -1,8 +1,14 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, ChevronRight, Search, Plus, Pencil, Check, X } from 'lucide-vue-next'
 import { store } from '../../store.js'
+
+onMounted(() => {
+  if (typeof store.fetchRemoteTransfers === 'function') {
+    store.fetchRemoteTransfers().catch(() => {})
+  }
+})
 import { dapStore } from '@/stores/dapStore.js'
 import CreateTransferModal from './CreateTransfer.vue'
 

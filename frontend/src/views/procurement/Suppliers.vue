@@ -1,14 +1,18 @@
 <script setup>
 import { Eye, Pencil, Plus } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 import CreateSupplier from './CreateSupplier.vue'
 import EditSupplier from './EditSupplier.vue'
 
 const router = useRouter()
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
+const selectedSupplierToEdit = ref(null)
+const isLoading = ref(false)
+const apiError = ref(null)
 const searchQuery = ref('')
 const selectedStatus = ref('All Statuses')
 const openDropdown = ref(null)
@@ -20,12 +24,35 @@ const suppliers = computed(() => store.suppliers)
 const kpis = computed(() => {
   const total = suppliers.value.length
   const activeCount = suppliers.value.filter(s => s.status === 'Active').length
+  const totalOpenPos = suppliers.value.reduce((sum, s) => sum + (parseInt(s.openPos || 0, 10)), 0)
+  const totalPayableNum = suppliers.value.reduce((sum, s) => {
+    const val = parseFloat(String(s.payable || s.totalPayableAmount || 0).replace(/[^\d.]/g, ''))
+    return sum + (isNaN(val) ? 0 : val)
+  }, 0)
+
   return [
     { label: 'Suppliers', value: String(total) },
     { label: 'Active', value: String(activeCount) },
-    { label: 'Open POs', value: '9' },
-    { label: 'Payables', value: 'PKR 6.1M' }
+    { label: 'Open POs', value: String(totalOpenPos) },
+    { label: 'Payables', value: totalPayableNum > 0 ? `PKR ${(totalPayableNum >= 1000000 ? (totalPayableNum / 1000000).toFixed(1) + 'M' : totalPayableNum.toLocaleString())}` : 'PKR 0.0M' }
   ]
+})
+
+onMounted(async () => {
+  isLoading.value = true
+  apiError.value = null
+  try {
+    const res = await api.procurement.getSuppliers()
+    const data = res?.data || res
+    if (Array.isArray(data) && data.length > 0) {
+      store.suppliers = data
+    }
+  } catch (err) {
+    console.warn('API error fetching suppliers, using store fallback:', err)
+    apiError.value = err.message
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const toggleDropdown = (name) => {
@@ -156,7 +183,7 @@ const editSupplier = (supplier) => {
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr v-for="supplier in filteredSuppliers" :key="supplier.name" @click="$router.push('/procurement/suppliers/detail')" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
+            <tr v-for="supplier in filteredSuppliers" :key="supplier.id || supplier.code || supplier.name" @click="router.push(`/procurement/suppliers/${supplier.id || supplier.code || supplier.supplier_id}`)" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
               <td class="px-5 py-4 font-semibold text-gray-900">{{ supplier.name }}</td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ supplier.contact }}</td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ supplier.products }}</td>
@@ -174,7 +201,7 @@ const editSupplier = (supplier) => {
               </td>
               <td class="px-5 py-4 text-right">
                 <div class="flex items-center justify-end gap-3 text-gray-400">
-                  <span @click.stop="$router.push('/procurement/suppliers/detail')" class="hover:text-gray-600 cursor-pointer transition-colors" title="Open"><Eye class="w-4 h-4" /></span>
+                  <span @click.stop="router.push(`/procurement/suppliers/${supplier.id || supplier.code || supplier.supplier_id}`)" class="hover:text-gray-600 cursor-pointer transition-colors" title="Open"><Eye class="w-4 h-4" /></span>
                   <span @click.stop="editSupplier(supplier)" class="hover:text-gray-600 cursor-pointer transition-colors" title="Edit"><Pencil class="w-4 h-4" /></span>
                 </div>
               </td>

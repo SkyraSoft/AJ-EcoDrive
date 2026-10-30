@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
 
 const router = useRouter()
+const emit = defineEmits(['close', 'updated'])
 
 const priceRuleData = ref({
   product: '',
@@ -31,18 +32,32 @@ const saveChanges = () => {
     return
   }
 
-  if (store.originalEditPriceRule) {
-    store.applyEdit(store.originalEditPriceRule, priceRuleData.value)
+  const updatedPayload = { ...priceRuleData.value }
+
+  if (typeof store.updatePriceRule === 'function') {
+    store.updatePriceRule(store.originalEditPriceRule?.id || updatedPayload.product, updatedPayload)
+  } else if (store.originalEditPriceRule && typeof store.applyEdit === 'function') {
+    store.applyEdit(store.originalEditPriceRule, updatedPayload)
   }
-  router.push('/catalogue/pricing')
+
+  emit('updated', updatedPayload)
+  emit('close')
+
+  if (router.currentRoute.value.path.includes('/edit')) {
+    router.push('/catalogue/pricing')
+  }
 }
 
 const cancel = () => {
-  router.push('/catalogue/pricing')
+  emit('close')
+  if (router.currentRoute.value.path.includes('/edit')) {
+    router.push('/catalogue/pricing')
+  }
 }
 </script>
 
 <template>
+
   <div class="fixed inset-0 bg-gray-900/50 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm" @click.self="router.back()">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       

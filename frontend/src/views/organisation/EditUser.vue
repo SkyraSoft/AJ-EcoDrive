@@ -78,13 +78,17 @@ const saveChanges = () => {
   showValidation.value = true
   if (!validate()) return
 
-  if (store.originalEditUser) {
+  const targetId = userData.value.id || userData.value.user_id || store.originalEditUser?.id || userData.value.email
+  if (typeof store.updateUser === 'function') {
+    store.updateUser(targetId, userData.value)
+  } else if (store.originalEditUser && typeof store.applyEdit === 'function') {
     store.applyEdit(store.originalEditUser, userData.value)
   }
 
   emit('updated', userData.value)
   cancel()
 }
+
 </script>
 
 <template>

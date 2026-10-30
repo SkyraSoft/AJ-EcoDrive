@@ -1,8 +1,9 @@
 <script setup>
 import { Pencil, ArrowLeft, PackageCheck, Truck, ShieldCheck, Eye } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
@@ -17,7 +18,72 @@ const poRecord = computed(() => {
 const activeTab = ref('Summary')
 const showMoreMenu = ref(false)
 const showCancelModal = ref(false)
+const isLoading = ref(false)
+const apiError = ref(null)
+const isCancelling = ref(false)
+const cancelError = ref(null)
+const isApproving = ref(false)
 const tabs = ['Summary', 'Items', 'Shipment', 'Receipts', 'Landed Costs', 'Vendor Bills', 'Payments', 'Documents', 'Activity']
+
+onMounted(async () => {
+  if (!poId.value) return
+  isLoading.value = true
+  apiError.value = null
+  try {
+    const res = await api.procurement.getPurchaseOrderById(poId.value)
+    const data = res?.data || res
+    if (data && (data.id || data.po || data.po_number)) {
+      store.addPurchaseOrder(data)
+    }
+  } catch (err) {
+    console.warn('API error fetching purchase order detail:', err)
+    apiError.value = err.message
+  } finally {
+    isLoading.value = false
+  }
+})
+
+const handleCancelPo = async () => {
+  if (!poRecord.value) return
+  isCancelling.value = true
+  cancelError.value = null
+  const targetId = poRecord.value.id || poRecord.value.po_id || poRecord.value.po
+  try {
+    const res = await api.procurement.cancelPurchaseOrder(targetId, { reason: 'User requested cancellation' })
+    const updated = res?.data || res
+    if (updated && (updated.id || updated.po)) {
+      store.addPurchaseOrder(updated)
+    } else {
+      poRecord.value.status = 'Cancelled'
+    }
+    showCancelModal.value = false
+  } catch (err) {
+    console.error('Failed to cancel PO:', err)
+    cancelError.value = err.message || 'Failed to cancel PO'
+  } finally {
+    isCancelling.value = false
+  }
+}
+
+const handleApprovePo = async () => {
+  if (!poRecord.value) return
+  isApproving.value = true
+  const targetId = poRecord.value.id || poRecord.value.po_id || poRecord.value.po
+  try {
+    const res = await api.procurement.approvePurchaseOrder(targetId)
+    const updated = res?.data || res
+    if (updated && (updated.id || updated.po)) {
+      store.addPurchaseOrder(updated)
+    } else {
+      poRecord.value.status = 'Approved'
+    }
+  } catch (err) {
+    console.error('Failed to approve PO:', err)
+    alert(err.message || 'Failed to approve purchase order')
+  } finally {
+    isApproving.value = false
+  }
+}
 
 // Reactive items from canonical PO
 const poItems = computed(() => {
@@ -80,8 +146,12 @@ const handleReceiveShipment = () => {
 </script>
 
 <template>
+  <div v-if="isLoading && !poRecord" class="max-w-[1400px] mx-auto py-24 text-center">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#165A31]"></div>
+    <p class="text-sm text-gray-500 mt-3 font-medium">Loading purchase order details...</p>
+  </div>
   <NotFoundState
-    v-if="!poRecord"
+    v-else-if="!poRecord"
     title="Purchase Order Not Found"
     :message="`Purchase Order '${poId}' was not found or is not accessible.`"
     back-path="/procurement/purchase-orders"
@@ -103,7 +173,7 @@ const handleReceiveShipment = () => {
       <div class="flex items-center gap-3">
         <button 
           @click="$router.push('/procurement/purchase-orders')" 
-          class="px-4 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5"
+          class="px-4 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
         >
           <ArrowLeft class="w-3.5 h-3.5" /> Back to Orders
         </button>
@@ -126,16 +196,26 @@ const handleReceiveShipment = () => {
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
+        <!-- Approve PO Button if Pending Approval -->
+        <button 
+          v-if="poRecord.status === 'Pending Approval'"
+          :disabled="isApproving"
+          @click="handleApprovePo" 
+          class="px-4 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+        >
+          <ShieldCheck class="w-4 h-4" /> {{ isApproving ? 'Approving...' : 'Approve PO' }}
+        </button>
+
         <!-- Receive Shipment Button -->
         <button 
-          v-if="poRecord.status !== 'Fully Received' && (poRecord.remainingUnits === undefined || poRecord.remainingUnits > 0)"
+          v-if="poRecord.status !== 'Fully Received' && poRecord.status !== 'Draft' && poRecord.status !== 'Cancelled' && (poRecord.remainingUnits === undefined || poRecord.remainingUnits > 0)"
           @click="handleReceiveShipment" 
           class="px-4 py-2 text-[11px] font-bold text-white bg-[#165A31] rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
         >
           <PackageCheck class="w-4 h-4" /> Receive Shipment
         </button>
 
-        <span v-else class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#eefcf2] text-[#165A31]">
+        <span v-else-if="poRecord.status === 'Fully Received' || poRecord.status === 'Received'" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#eefcf2] text-[#165A31]">
           <PackageCheck class="w-4 h-4" /> Fully Inwarded
         </span>
 
@@ -144,7 +224,7 @@ const handleReceiveShipment = () => {
         </button>
 
         <div class="relative">
-          <button @click="showMoreMenu = !showMoreMenu" class="px-3 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1">
+          <button @click="showMoreMenu = !showMoreMenu" class="px-3 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1 cursor-pointer">
             More <span class="text-[8px]">▼</span>
           </button>
           <div v-if="showMoreMenu" class="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-[12px] shadow-lg py-2 z-10">
@@ -152,7 +232,7 @@ const handleReceiveShipment = () => {
             <button @click="handleReceiveShipment; showMoreMenu = false" class="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-700 hover:bg-gray-50">Receive goods</button>
             <button class="w-full text-left px-4 py-2 text-[11px] font-medium text-gray-700 hover:bg-gray-50">Duplicate PO</button>
             <div class="my-1 border-t border-gray-50"></div>
-            <button @click="showCancelModal = true; showMoreMenu = false" class="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-50">Cancel PO</button>
+            <button v-if="poRecord.status !== 'Cancelled' && poRecord.status !== 'Fully Received'" @click="showCancelModal = true; showMoreMenu = false" class="w-full text-left px-4 py-2 text-[11px] font-medium text-red-600 hover:bg-red-50">Cancel PO</button>
           </div>
         </div>
       </div>
@@ -162,10 +242,16 @@ const handleReceiveShipment = () => {
     <div v-if="showCancelModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-[12px] w-[400px] shadow-xl">
         <h3 class="text-lg font-bold text-gray-900 mb-2">Cancel Purchase Order</h3>
-        <p class="text-[11px] text-gray-500 mb-6">Are you sure you want to cancel {{ poRecord.po }}? This action cannot be undone.</p>
+        <p class="text-[11px] text-gray-500 mb-4">Are you sure you want to cancel {{ poRecord.po }}? This action cannot be undone.</p>
+        <div v-if="cancelError" class="mb-4 text-xs text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+          {{ cancelError }}
+        </div>
         <div class="flex flex-wrap justify-end gap-3">
-          <button @click="showCancelModal = false" class="px-4 py-2 text-[11px] font-bold text-gray-600 hover:text-gray-900">Keep PO</button>
-          <button @click="showCancelModal = false" class="px-4 py-2 text-[11px] font-bold text-white bg-red-600 rounded-lg hover:bg-red-700">Confirm Cancel</button>
+          <button :disabled="isCancelling" @click="showCancelModal = false" class="px-4 py-2 text-[11px] font-bold text-gray-600 hover:text-gray-900 cursor-pointer disabled:opacity-50">Keep PO</button>
+          <button :disabled="isCancelling" @click="handleCancelPo" class="px-4 py-2 text-[11px] font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 cursor-pointer disabled:opacity-50 flex items-center gap-2">
+            <span v-if="isCancelling">Cancelling...</span>
+            <span v-else>Confirm Cancel</span>
+          </button>
         </div>
       </div>
     </div>

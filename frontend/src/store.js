@@ -1,5 +1,8 @@
 import { reactive } from 'vue'
 import { normalizeRole, isSuperAdmin, isBranchUser, matchBranch, canReadRecord, canMutateRecord, assertRecordMutationAccess, getRecordBranchIdentity, resolveCanonicalBranchId, setActiveBranchRegistry, ENTITY_BRANCH_PROPERTY_MAP } from './utils/branchAuth.js'
+import api, { ApiError } from './services/api.js'
+
+export { api, ApiError }
 
 // Load initial session from storage if available
 const savedSession = (() => {
@@ -21,6 +24,846 @@ const savedTheme = (() => {
 })()
 
 export const store = reactive({
+  // Centralized HTTP REST API Client Service Layer
+  api,
+
+  // Outbox for tracking pending, offline, and failed API mutations
+  syncOutbox: [],
+
+  // ==========================================
+  // Centralized Toast Notification System
+  // ==========================================
+  activeToast: null,
+  _toastTimer: null,
+  _lastToastKey: null,
+  _lastToastTime: 0,
+
+  showToast({ message, type = 'success', title = '', duration = 3500 }) {
+    if (!message) return
+    const key = `${type}:${message}`
+    const now = Date.now()
+    if (this._lastToastKey === key && (now - this._lastToastTime) < 1200) {
+      return
+    }
+    this._lastToastKey = key
+    this._lastToastTime = now
+
+    if (this._toastTimer) {
+      clearTimeout(this._toastTimer)
+      this._toastTimer = null
+    }
+
+    this.activeToast = {
+      id: now,
+      message,
+      type, // 'success' | 'error' | 'warning' | 'info'
+      title
+    }
+
+    if (duration > 0) {
+      this._toastTimer = setTimeout(() => {
+        this.dismissToast()
+      }, duration)
+    }
+  },
+
+  dismissToast() {
+    this.activeToast = null
+    if (this._toastTimer) {
+      clearTimeout(this._toastTimer)
+      this._toastTimer = null
+    }
+  },
+
+  toastSuccess(msg = 'Data saved successfully.', moduleName = '') {
+    const formatted = moduleName ? `[${moduleName}] ${msg}` : msg
+    this.showToast({ message: formatted, type: 'success', duration: 3500 })
+  },
+
+  toastUpdate(msg = 'Data updated successfully.', moduleName = '') {
+    const formatted = moduleName ? `[${moduleName}] ${msg}` : msg
+    this.showToast({ message: formatted, type: 'success', duration: 3500 })
+  },
+
+  toastDelete(msg = 'Data deleted successfully.', moduleName = '') {
+    const formatted = moduleName ? `[${moduleName}] ${msg}` : msg
+    this.showToast({ message: formatted, type: 'success', duration: 3500 })
+  },
+
+  toastError(err, fallback = 'Operation failed. Please try again.', moduleName = '') {
+    let msg = fallback
+    if (typeof err === 'string' && err.trim()) {
+      msg = err.trim()
+    } else if (err?.isOffline) {
+      msg = 'Network connection failure. Please check your connection and try again.'
+    } else if (err?.data?.message) {
+      msg = err.data.message
+    } else if (err?.message) {
+      msg = err.message
+    }
+    const formatted = moduleName ? `[${moduleName}] ${msg}` : msg
+    this.showToast({ message: formatted, type: 'error', duration: 5000 })
+  },
+
+  toastValidation(errors, moduleName = '') {
+    let msg = 'Validation failed. Please check form fields.'
+    if (Array.isArray(errors) && errors.length > 0) {
+      msg = typeof errors[0] === 'string' ? errors[0] : (errors[0].message || errors[0].field || msg)
+    } else if (typeof errors === 'string') {
+      msg = errors
+    }
+    const formatted = moduleName ? `[${moduleName}] ${msg}` : msg
+    this.showToast({ message: formatted, type: 'warning', duration: 4500 })
+  },
+
+  // Helper to map entityType to canonical collection name
+  getCollectionNameForEntity(entityType) {
+    const map = {
+      customer: 'customers',
+      customers: 'customers',
+      lead: 'leads',
+      leads: 'leads',
+      quotation: 'quotations',
+      quotations: 'quotations',
+      order: 'orders',
+      sales_order: 'orders',
+      orders: 'orders',
+      invoice: 'invoices',
+      invoices: 'invoices',
+      payment: 'payments',
+      payments: 'payments',
+      delivery: 'deliveries',
+      deliveries: 'deliveries',
+      transfer: 'transfers',
+      transfers: 'transfers',
+      purchase_order: 'purchaseOrders',
+      purchaseOrders: 'purchaseOrders',
+      receipt: 'receipts',
+      receipts: 'receipts',
+      expense: 'expenses',
+      expenses: 'expenses',
+      service_case: 'cases',
+      cases: 'cases',
+      repair_job: 'repairs',
+      repairs: 'repairs',
+      product: 'products',
+      products: 'products',
+      stock_adjustment: 'stockAdjustments',
+      stockAdjustments: 'stockAdjustments',
+      branch: 'branches',
+      branches: 'branches',
+      user: 'users',
+      users: 'users',
+      role: 'roles',
+      roles: 'roles'
+    }
+    return map[entityType] || entityType
+  },
+
+  // Helper to find a record in the store by entityType and id
+  findRecord(entityType, entityId) {
+    const colName = this.getCollectionNameForEntity(entityType)
+    if (!colName || !Array.isArray(this[colName])) return null
+    return this[colName].find(item => 
+      item.id === entityId ||
+      item[entityType + '_id'] === entityId ||
+      item[entityType] === entityId ||
+      item.code === entityId
+    ) || null
+  },
+
+  // Asynchronous API Persistence Dispatcher with Outbox & Rollback Support
+  _dispatchApiSync(operation, apiCallFn, metadata = {}) {
+    if (!apiCallFn || typeof apiCallFn !== 'function') return Promise.resolve(null)
+    
+    const entityType = metadata.entityType
+    const entityId = metadata.entityId
+    const record = metadata.record || (entityType && entityId ? this.findRecord(entityType, entityId) : null)
+
+    if (record) {
+      record._syncStatus = 'pending'
+      record._syncError = null
+      record._isLocalOnly = true
+      record._lastSyncAttempt = new Date().toISOString()
+    }
+
+    const syncPromise = (async () => {
+      try {
+        const response = await apiCallFn()
+        if (record) {
+          record._syncStatus = 'synced'
+          record._isLocalOnly = false
+          record._syncError = null
+          if (response?.data?.id && response.data.id !== entityId) {
+            record.serverId = response.data.id
+          }
+        }
+
+        // Remove resolved item from outbox if it existed
+        if (entityType && entityId) {
+          this.removeFromSyncOutbox(entityType, entityId)
+        }
+
+        // Trigger consistent success toast on confirmed backend response
+        const isUpdate = operation.includes('update') || operation.includes('edit')
+        const isDelete = operation.includes('delete') || operation.includes('remove')
+        const moduleLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : ''
+        if (isDelete) {
+          this.toastDelete('Data deleted successfully.', moduleLabel)
+        } else if (isUpdate) {
+          this.toastUpdate('Data updated successfully.', moduleLabel)
+        } else {
+          this.toastSuccess('Data saved successfully.', moduleLabel)
+        }
+
+        return { ok: true, status: response?.status || 200, data: response?.data, record }
+      } catch (err) {
+        const isOffline = !!err?.isOffline
+        if (record) {
+          record._syncStatus = isOffline ? 'offline_local' : 'failed'
+          record._syncError = err?.message || 'Sync failed'
+          record._isLocalOnly = true
+        }
+
+        // Add or update outbox item
+        if (entityType && entityId) {
+          this.addToSyncOutbox({
+            operation,
+            entityType,
+            entityId,
+            record,
+            error: err?.message || 'Sync failed',
+            isOffline,
+            status: isOffline ? 'offline' : 'failed',
+            httpStatus: err?.status || 0,
+            timestamp: new Date().toISOString(),
+            retryFn: apiCallFn
+          })
+        }
+
+        const moduleLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : ''
+        if (isOffline) {
+          this.toastError(err, 'Network connection failure. Please check your connection and try again.', moduleLabel)
+        } else if (err?.status === 422 || err?.status === 400 || err?.code === 'VALIDATION_ERROR') {
+          this.toastValidation(err?.data?.errors || err?.message || 'Validation failed. Please check form fields.', moduleLabel)
+        } else {
+          this.toastError(err, 'Operation failed. Please try again.', moduleLabel)
+        }
+
+        if (!isOffline) {
+          console.warn(`[API Sync: ${operation}] Failed (Status ${err?.status || 0}):`, err?.message || err)
+          this.addNotification({
+            title: `Sync Failed: ${operation}`,
+            message: err?.message || 'Server rejected the request',
+            type: 'danger',
+            priority: 'High',
+            category: 'System'
+          })
+        }
+
+        return { ok: false, error: err?.message, isOffline, status: err?.status || 0, record }
+      }
+    })()
+
+    if (record) {
+      record._syncPromise = syncPromise
+    }
+
+    return syncPromise
+  },
+
+  addToSyncOutbox(item) {
+    const existingIdx = this.syncOutbox.findIndex(o => o.entityType === item.entityType && o.entityId === item.entityId)
+    if (existingIdx !== -1) {
+      this.syncOutbox[existingIdx] = { ...this.syncOutbox[existingIdx], ...item }
+    } else {
+      this.syncOutbox.push(item)
+    }
+  },
+
+  removeFromSyncOutbox(entityType, entityId) {
+    const idx = this.syncOutbox.findIndex(o => o.entityType === entityType && o.entityId === entityId)
+    if (idx !== -1) {
+      this.syncOutbox.splice(idx, 1)
+    }
+  },
+
+  // Rollback an optimistic mutation if sync fails or is cancelled
+  rollbackMutation(entityType, entityId) {
+    const colName = this.getCollectionNameForEntity(entityType)
+    if (!colName || !Array.isArray(this[colName])) return false
+    
+    const idx = this[colName].findIndex(item => 
+      item.id === entityId || item[entityType + '_id'] === entityId || item.code === entityId
+    )
+    if (idx !== -1) {
+      this[colName].splice(idx, 1)
+      this.removeFromSyncOutbox(entityType, entityId)
+      this.reconcileInventoryTotals()
+      return true
+    }
+    return false
+  },
+
+  // Retry a failed or offline outbox item
+  async retrySync(entityType, entityId) {
+    const item = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
+    if (!item || !item.retryFn) return null
+    return this._dispatchApiSync(item.operation, item.retryFn, {
+      entityType: item.entityType,
+      entityId: item.entityId,
+      record: item.record
+    })
+  },
+
+  async retryAllFailedSyncs() {
+    const toRetry = [...this.syncOutbox]
+    const results = await Promise.allSettled(
+      toRetry.map(item => this.retrySync(item.entityType, item.entityId))
+    )
+    return results
+  },
+
+  // Intelligent non-destructive reconciliation for remote collections
+  _mergeRemoteCollection(collectionName, remoteItems, idFields = ['id']) {
+    if (!Array.isArray(remoteItems)) return this[collectionName]
+    if (!Array.isArray(this[collectionName])) {
+      this[collectionName] = remoteItems
+      return this[collectionName]
+    }
+
+    // 1. Preserve local pending/offline records
+    const localPendingRecords = this[collectionName].filter(item => 
+      item._isLocalOnly === true || item._syncStatus === 'offline_local' || item._syncStatus === 'pending'
+    )
+
+    // 2. Index existing items by their identifier fields
+    const existingMap = new Map()
+    this[collectionName].forEach(item => {
+      for (const field of idFields) {
+        if (item[field]) existingMap.set(String(item[field]), item)
+      }
+    })
+
+    // 3. Upsert remote items
+    const mergedList = [...localPendingRecords]
+    const seenIds = new Set(localPendingRecords.map(p => p.id).filter(Boolean))
+
+    for (const remote of remoteItems) {
+      let matchedLocal = null
+      for (const field of idFields) {
+        if (remote[field] && existingMap.has(String(remote[field]))) {
+          matchedLocal = existingMap.get(String(remote[field]))
+          break
+        }
+      }
+
+      if (matchedLocal) {
+        // If matched local record is NOT currently in an unsaved local state, update it
+        if (!matchedLocal._isLocalOnly) {
+          Object.assign(matchedLocal, remote, { _syncStatus: 'synced', _isLocalOnly: false })
+          if (!seenIds.has(matchedLocal.id)) {
+            mergedList.push(matchedLocal)
+            seenIds.add(matchedLocal.id)
+          }
+        }
+      } else {
+        const remoteWithMeta = { ...remote, _syncStatus: 'synced', _isLocalOnly: false }
+        mergedList.push(remoteWithMeta)
+        if (remoteWithMeta.id) seenIds.add(remoteWithMeta.id)
+      }
+    }
+
+    // 4. Retain mock baseline items that were not returned by the remote backend
+    for (const item of this[collectionName]) {
+      if (item.id && !seenIds.has(item.id)) {
+        mergedList.push(item)
+        seenIds.add(item.id)
+      }
+    }
+
+    this[collectionName] = mergedList
+    return this[collectionName]
+  },
+
+  // Safe Remote Backend State Hydration Methods
+  async fetchRemoteCustomers(params = {}) {
+    try {
+      const res = await api.customers.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('customers', res.data, ['id', 'customer_id', 'code', 'cnic'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteCustomers] Backend sync skipped:', e.message)
+    }
+    return this.customers
+  },
+
+  async fetchRemoteQuotations(params = {}) {
+    try {
+      const res = await api.quotations.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('quotations', res.data, ['id', 'quote', 'quote_id'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteQuotations] Backend sync skipped:', e.message)
+    }
+    return this.quotations
+  },
+
+  async fetchRemoteOrders(params = {}) {
+    try {
+      const res = await api.orders.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('orders', res.data, ['id', 'order_id', 'order', 'orderNo'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteOrders] Backend sync skipped:', e.message)
+    }
+    return this.orders
+  },
+
+  async fetchRemoteUnits(params = {}) {
+    try {
+      const res = await api.inventory.getUnits(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        const result = this._mergeRemoteCollection('serializedUnits', res.data, ['id', 'unit_id', 'serial', 'chassis', 'vin'])
+        this.reconcileInventoryTotals()
+        return result
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteUnits] Backend sync skipped:', e.message)
+    }
+    return this.serializedUnits
+  },
+
+  async fetchRemoteInvoices(params = {}) {
+    try {
+      const res = await api.invoices.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('invoices', res.data, ['id', 'invoice_id', 'invoice', 'invoiceNo'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteInvoices] Backend sync skipped:', e.message)
+    }
+    return this.invoices
+  },
+
+  async fetchRemotePayments(params = {}) {
+    try {
+      const res = await api.payments.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('payments', res.data, ['id', 'payment_id', 'payment', 'paymentNo'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemotePayments] Backend sync skipped:', e.message)
+    }
+    return this.payments
+  },
+
+  async fetchRemoteTransfers(params = {}) {
+    try {
+      const res = await api.inventory.transfers.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('transfers', res.data, ['id', 'transfer_id', 'transferNumber'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteTransfers] Backend sync skipped:', e.message)
+    }
+    return this.transfers
+  },
+
+  async fetchRemoteExpenses(params = {}) {
+    try {
+      const res = await api.finance.getExpenses(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('expenses', res.data, ['id', 'expense_id'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteExpenses] Backend sync skipped:', e.message)
+    }
+    return this.expenses
+  },
+
+  async fetchRemotePurchaseOrders(params = {}) {
+    try {
+      const res = await api.procurement.getPurchaseOrders(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('purchaseOrders', data, ['id', 'po_id', 'po', 'po_number'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemotePurchaseOrders] Backend sync skipped:', e.message)
+    }
+    return this.purchaseOrders
+  },
+
+  async fetchRemoteSuppliers(params = {}) {
+    try {
+      const res = await api.procurement.getSuppliers(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('suppliers', data, ['id', 'supplier_id', 'code', 'name'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteSuppliers] Backend sync skipped:', e.message)
+    }
+    return this.suppliers
+  },
+
+  async fetchRemoteReceipts(params = {}) {
+    try {
+      const res = await api.procurement.getReceipts(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('receipts', data, ['id', 'receipt_id', 'receipt_number', 'receiptNumber'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteReceipts] Backend sync skipped:', e.message)
+    }
+    return this.receipts
+  },
+
+  async fetchRemoteProducts(params = {}) {
+    try {
+      const res = await api.catalogue.getProducts(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('products', res.data, ['id', 'product_id', 'sku'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteProducts] Backend sync skipped:', e.message)
+    }
+    return this.products
+  },
+
+  async fetchRemoteCategories(params = {}) {
+    try {
+      const res = await api.catalogue.getCategories(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('categories', res.data, ['id', 'categoryId', 'code'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteCategories] Backend sync skipped:', e.message)
+    }
+    return this.categories
+  },
+
+  async fetchRemoteAdjustments(params = {}) {
+    try {
+      const res = await api.inventory.adjustments.getAll(params)
+      if (res?.ok && Array.isArray(res.data)) {
+        return this._mergeRemoteCollection('stockAdjustments', res.data, ['id', 'adjustment_id', 'adjustmentNo'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteAdjustments] Backend sync skipped:', e.message)
+    }
+    return this.stockAdjustments
+  },
+
+  async fetchRemoteCases(params = {}) {
+    try {
+      const res = await api.afterSales.getCases(params)
+      const data = Array.isArray(res) ? res : (res?.data || (res?.ok && Array.isArray(res.cases) ? res.cases : null))
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('cases', data, ['id', 'caseId', 'case_id', 'case_number'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteCases] Backend sync skipped:', e.message)
+    }
+    return this.cases
+  },
+
+  async fetchRemoteRepairs(params = {}) {
+    try {
+      const res = await api.afterSales.getRepairJobs(params)
+      const data = Array.isArray(res) ? res : (res?.data || (res?.ok && Array.isArray(res.repairs) ? res.repairs : null))
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('repairs', data, ['id', 'jobId', 'repairId', 'repair_id', 'job_number'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteRepairs] Backend sync skipped:', e.message)
+    }
+    return this.repairs
+  },
+
+  async fetchRemoteLeads(params = {}) {
+    try {
+      const res = await api.leads.getAll(params)
+      const data = Array.isArray(res) ? res : (res?.data || (res?.ok && Array.isArray(res.leads) ? res.leads : null))
+      if (Array.isArray(data)) {
+        const normalized = data.map(item => {
+          const name = item.customer_name || item.name || item.customer || 'Prospective Customer'
+          const branch = item.branch || item.branch_name || 'Peshawar'
+          const owner = item.owner || item.assigned_to_name || 'Hamza'
+          const product = item.product || item.product_name || item.interest || 'BRG X7'
+          const leadNo = item.lead_number || item.leadNo || `LD-${item.id}`
+          return {
+            ...item,
+            id: item.id,
+            lead_id: item.id,
+            leadNo: leadNo,
+            lead_number: leadNo,
+            name: name,
+            customer: name,
+            customer_name: name,
+            branch: branch,
+            branch_name: branch,
+            owner: owner,
+            assigned_to_name: owner,
+            product: product,
+            product_name: product,
+            interest: product,
+            stage: item.stage || item.status || 'New',
+            status: item.status || item.stage || 'New'
+          }
+        })
+        return this._mergeRemoteCollection('leads', normalized, ['id', 'lead_id', 'leadNo', 'lead_number'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteLeads] Backend sync skipped:', e.message)
+    }
+    return this.leads
+  },
+
+  async fetchRemoteFollowUps(params = {}) {
+    try {
+      const res = await api.followUps.getAll(params)
+      const data = Array.isArray(res) ? res : (res?.data || (res?.ok && Array.isArray(res.followUps) ? res.followUps : null))
+      if (Array.isArray(data)) {
+        const normalized = data.map(item => {
+          const cust = item.customer || item.customer_name || item.lead_name || 'Prospective Customer'
+          const branch = item.branch || item.branch_name || 'Peshawar'
+          const owner = item.owner || item.assigned_to_name || item.created_by_name || 'Hamza'
+          const linked = item.linkedRecord || (item.lead_id ? `LD-${item.lead_id}` : (item.customer_id ? `CUS-${item.customer_id}` : 'General'))
+          
+          let dueStr = item.due
+          if (!dueStr && item.due_date) {
+            try {
+              const d = new Date(item.due_date)
+              const now = new Date()
+              const isToday = d.toDateString() === now.toDateString()
+              const hours = String(d.getHours()).padStart(2, '0')
+              const mins = String(d.getMinutes()).padStart(2, '0')
+              dueStr = isToday ? `Today ${hours}:${mins}` : d.toLocaleDateString()
+            } catch (e) {
+              dueStr = item.due_date
+            }
+          }
+          if (!dueStr) dueStr = 'Today 14:00'
+
+          let status = item.status || 'Scheduled'
+          if (status === 'Scheduled') {
+            status = 'Due Today'
+          }
+
+          const statusClass = status === 'Completed'
+            ? 'bg-[#dcfce7] text-[#165A31]'
+            : status === 'Overdue'
+              ? 'bg-[#fee2e2] text-[#b91c1c]'
+              : 'bg-[#fef3c7] text-[#b45309]'
+
+          const statusColor = status === 'Completed'
+            ? 'bg-emerald-50 text-emerald-700'
+            : status === 'Overdue'
+              ? 'bg-red-50 text-red-700'
+              : 'bg-blue-50 text-blue-600'
+
+          const priorityColor = item.priority === 'High'
+            ? 'bg-orange-50 text-orange-700'
+            : item.priority === 'Low'
+              ? 'bg-gray-50 text-gray-700'
+              : 'bg-blue-50 text-blue-600'
+
+          return {
+            ...item,
+            id: item.id || item.follow_up_id,
+            follow_up_id: item.follow_up_id || item.id,
+            customer: cust,
+            customer_name: cust,
+            linkedRecord: linked,
+            branch: branch,
+            branch_name: branch,
+            owner: owner,
+            assigned_to_name: owner,
+            due: dueStr,
+            status: status,
+            statusClass: item.statusClass || statusClass,
+            statusColor: item.statusColor || statusColor,
+            priorityColor: item.priorityColor || priorityColor
+          }
+        })
+        return this._mergeRemoteCollection('followUps', normalized, ['id', 'follow_up_id'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteFollowUps] Backend sync skipped:', e.message)
+    }
+    return this.followUps
+  },
+
+  async fetchRemoteCustomOrders(params = {}) {
+    try {
+      const res = await api.customOrders.getAll(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('customOrders', data, ['id', 'orderNo', 'order_no'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteCustomOrders] Backend sync skipped:', e.message)
+    }
+    return this.customOrders
+  },
+
+  async fetchRemoteDeliveries(params = {}) {
+    try {
+      const res = await api.deliveries.getAll(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('deliveries', data, ['id', 'delivery_id', 'order', 'order_id'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteDeliveries] Backend sync skipped:', e.message)
+    }
+    return this.deliveries
+  },
+
+  async fetchRemoteSalesReturns(params = {}) {
+    try {
+      const res = await api.salesReturns.getAll(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('salesReturns', data, ['id', 'returnNo', 'return_no'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteSalesReturns] Backend sync skipped:', e.message)
+    }
+    return this.salesReturns
+  },
+
+  async fetchRemotePricingRules(params = {}) {
+    try {
+      const res = await api.catalogue.getPricingRules(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('pricingRules', data, ['id', 'rule_id', 'product'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemotePricingRules] Backend sync skipped:', e.message)
+    }
+    return this.pricingRules
+  },
+
+  async fetchRemoteProductRequests(params = {}) {
+    try {
+      const res = await api.catalogue.getProductRequests(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('productRequests', data, ['id', 'requestId', 'productName', 'product'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteProductRequests] Backend sync skipped:', e.message)
+    }
+    return this.productRequests
+  },
+
+  async fetchRemoteCycleCounts(params = {}) {
+    try {
+      const res = await api.inventory.cycleCounts.getAll(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('cycleCounts', data, ['id', 'session', 'count'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteCycleCounts] Backend sync skipped:', e.message)
+    }
+    return this.cycleCounts
+  },
+
+  async fetchRemoteQuarantineRecords(params = {}) {
+    try {
+      const res = await api.inventory.quarantine.getAll(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('quarantineRecords', data, ['id', 'unit', 'unit_id'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteQuarantineRecords] Backend sync skipped:', e.message)
+    }
+    return this.quarantineRecords
+  },
+
+  async fetchRemoteStockRequests(params = {}) {
+    try {
+      const res = await api.inventory.stockRequests.getAll(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('stockRequests', data, ['id', 'requestId', 'requestNo'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteStockRequests] Backend sync skipped:', e.message)
+    }
+    return this.stockRequests
+  },
+
+  async fetchRemoteConversations(params = {}) {
+    try {
+      const res = await api.communication.getConversations(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('conversations', data, ['id', 'title'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteConversations] Backend sync skipped:', e.message)
+    }
+    return this.conversations
+  },
+
+  async fetchRemoteCustomReports(params = {}) {
+    try {
+      const res = await api.analytics.getCustomReports(params)
+      const data = res?.data || res
+      if (Array.isArray(data)) {
+        return this._mergeRemoteCollection('customReports', data, ['id', 'name', 'report'])
+      }
+    } catch (e) {
+      if (!e?.isOffline) console.warn('[fetchRemoteCustomReports] Backend sync skipped:', e.message)
+    }
+    return this.customReports
+  },
+
+  async syncAllWithBackend() {
+    const results = await Promise.allSettled([
+      this.fetchRemoteCustomers(),
+      this.fetchRemoteQuotations(),
+      this.fetchRemoteOrders(),
+      this.fetchRemoteCustomOrders(),
+      this.fetchRemoteDeliveries(),
+      this.fetchRemoteSalesReturns(),
+      this.fetchRemoteUnits(),
+      this.fetchRemoteInvoices(),
+      this.fetchRemotePayments(),
+      this.fetchRemoteProducts(),
+      this.fetchRemoteCategories(),
+      this.fetchRemotePricingRules(),
+      this.fetchRemoteProductRequests(),
+      this.fetchRemoteAdjustments(),
+      this.fetchRemoteTransfers(),
+      this.fetchRemoteCycleCounts(),
+      this.fetchRemoteQuarantineRecords(),
+      this.fetchRemoteStockRequests(),
+      this.fetchRemoteExpenses(),
+      this.fetchRemotePurchaseOrders(),
+      this.fetchRemoteSuppliers(),
+      this.fetchRemoteReceipts(),
+      this.fetchRemoteCases(),
+      this.fetchRemoteRepairs(),
+      this.fetchRemoteLeads(),
+      this.fetchRemoteFollowUps(),
+      this.fetchRemoteConversations(),
+      this.fetchRemoteCustomReports()
+    ])
+    return results
+  },
+
   // Active User / Branch Session
   currentUser: savedSession || {
     isAuthenticated: false,
@@ -38,6 +881,9 @@ export const store = reactive({
       ...sessionData,
       isAuthenticated: true
     }
+    if (sessionData?.token) {
+      api.setToken(sessionData.token)
+    }
     try {
       const serialized = JSON.stringify(this.currentUser)
       if (remember) {
@@ -48,6 +894,13 @@ export const store = reactive({
     } catch (e) {
       console.error('Failed to persist session:', e)
     }
+
+    // Trigger non-blocking background hydration from remote backend
+    try {
+      this.syncAllWithBackend().catch(err => {
+        console.warn('[EcoDrive] Session remote sync note:', err.message)
+      })
+    } catch (_) {}
   },
 
   // Logout and clear active branch session
@@ -62,12 +915,19 @@ export const store = reactive({
       isSuperAdmin: false
     }
     try {
+      if (typeof api !== 'undefined' && api?.clearToken) {
+        api.clearToken()
+      }
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('ecodrive_auth_session')
         localStorage.removeItem('auth_user')
+        localStorage.removeItem('ecodrive_token')
+        localStorage.removeItem('auth_token')
       }
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem('ecodrive_auth_session')
+        sessionStorage.removeItem('ecodrive_token')
+        sessionStorage.removeItem('auth_token')
       }
     } catch (e) {
       console.error('Failed to clear session:', e)
@@ -1583,6 +2443,16 @@ export const store = reactive({
   ],
 
   addCustomer(newCustomer) {
+    if (newCustomer.id || newCustomer.customer_id || newCustomer.code) {
+      const existing = this.customers.find(c => 
+        (newCustomer.id && (c.id === newCustomer.id || c.customer_id === newCustomer.id)) ||
+        (newCustomer.customer_id && (c.id === newCustomer.customer_id || c.customer_id === newCustomer.customer_id)) ||
+        (newCustomer.code && c.code === newCustomer.code)
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newCustomer.id || newCustomer.customer_id || `CUST-${Math.floor(100 + Math.random() * 900)}`
     const branchMeta = this.resolveTrustedCreationBranch(newCustomer)
     const customerObj = {
@@ -1611,7 +2481,12 @@ export const store = reactive({
       metadata: { name: customerObj.name, phone: customerObj.phone, email: customerObj.email }
     })
 
-    return customerObj
+    this._dispatchApiSync('customers.create', () => api.customers.create(customerObj), {
+      entityType: 'customer',
+      entityId: customerObj.id
+    })
+
+    return this.customers[0]
   },
 
   updateCustomer(id, updatedData) {
@@ -1619,6 +2494,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('customers', this.customers[index], 'update')
       this.customers[index] = { ...this.customers[index], ...updatedData }
+
+      this._dispatchApiSync('customers.update', () => api.customers.update(id, updatedData), {
+        entityType: 'customer',
+        entityId: id
+      })
+
       return this.customers[index]
     }
     return null
@@ -2037,6 +2918,12 @@ export const store = reactive({
       statusClass: newProduct.statusClass || 'bg-[#dcfce7] text-[#165A31]'
     }
     this.products.unshift(productObj)
+
+    this._dispatchApiSync('catalogue.createProduct', () => api.catalogue.createProduct(productObj), {
+      entityType: 'product',
+      entityId: productObj.id
+    })
+
     return productObj
   },
 
@@ -2045,6 +2932,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('products', this.products[index], 'update')
       this.products[index] = { ...this.products[index], ...updatedData }
+
+      this._dispatchApiSync('catalogue.updateProduct', () => api.catalogue.updateProduct(id, updatedData), {
+        entityType: 'product',
+        entityId: id
+      })
+
       return this.products[index]
     }
     return null
@@ -2066,6 +2959,12 @@ export const store = reactive({
     const id = category.id || category.categoryId || `CAT-${String(this.categories.length + 1).padStart(2, '0')}`
     const catObj = { ...category, id, categoryId: id, status: 'Active' }
     this.categories.push(catObj)
+
+    this._dispatchApiSync('catalogue.createCategory', () => api.catalogue.createCategory(catObj), {
+      entityType: 'category',
+      entityId: catObj.id
+    })
+
     return catObj
   },
 
@@ -2786,6 +3685,11 @@ export const store = reactive({
       metadata: { oldStatus, newStatus, reason, actor: user || this.currentUser?.name }
     })
 
+    this._dispatchApiSync('inventory.transitionStatus', () => api.inventory.transitionStatus(unit.serial || unit.unit_id || id, newStatus, { reason, actor: user }), {
+      entityType: 'serialized_unit',
+      entityId: unit.serial || unit.unit_id || id
+    })
+
     return unit
   },
 
@@ -2840,6 +3744,11 @@ export const store = reactive({
       metadata: { orderId: unit.order_id, customerId: unit.customer_id, customerName: unit.customer, reason }
     })
 
+    this._dispatchApiSync('inventory.reserveUnit', () => api.inventory.reserveUnit(unit.serial || unit.unit_id || unitId, orderId || unit.order_id), {
+      entityType: 'serialized_unit',
+      entityId: unit.serial || unit.unit_id || unitId
+    })
+
     return unit
   },
 
@@ -2874,6 +3783,11 @@ export const store = reactive({
       branch: unit.branch || this.getActiveBranch(),
       description: `Reservation released for unit ${unit.serial || unit.unit_id}. Reason: ${reason}`,
       metadata: { releasedFromOrder: prevOrder, reason }
+    })
+
+    this._dispatchApiSync('inventory.releaseReservation', () => api.inventory.releaseReservation(unit.serial || unit.unit_id || unitId), {
+      entityType: 'serialized_unit',
+      entityId: unit.serial || unit.unit_id || unitId
     })
 
     return unit
@@ -3233,6 +4147,16 @@ export const store = reactive({
   ],
 
   addBranch(newBranch) {
+    if (newBranch.id || newBranch.branch_id || newBranch.code || newBranch.name) {
+      const existing = this.branches.find(b =>
+        (newBranch.id && (b.id === newBranch.id || b.branch_id === newBranch.id)) ||
+        (newBranch.code && b.code === newBranch.code) ||
+        (newBranch.name && b.name.toLowerCase() === newBranch.name.toLowerCase())
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newBranch.id || newBranch.branch_id || `BR-${String(this.branches.length + 1).padStart(2, '0')}`
     const branchObj = {
       ...newBranch,
@@ -3242,6 +4166,12 @@ export const store = reactive({
       statusClass: newBranch.statusClass || 'bg-[#dcfce7] text-[#165A31]'
     }
     this.branches.push(branchObj)
+
+    this._dispatchApiSync('system.createBranch', () => api.system.createBranch(branchObj), {
+      entityType: 'branch',
+      entityId: branchObj.id,
+      record: branchObj
+    })
 
     this.addAuditLog({
       action: 'Created',
@@ -3265,6 +4195,12 @@ export const store = reactive({
       const oldStatus = oldBranch.status
 
       this.branches[index] = { ...this.branches[index], ...updatedData }
+
+      this._dispatchApiSync('system.updateBranch', () => api.system.updateBranch(this.branches[index].id, updatedData), {
+        entityType: 'branch',
+        entityId: this.branches[index].id,
+        record: this.branches[index]
+      })
 
       let action = 'Updated'
       let eventType = 'BRANCH_UPDATED'
@@ -3472,6 +4408,12 @@ export const store = reactive({
     }
     this.users.unshift(userObj)
 
+    this._dispatchApiSync('system.createUser', () => api.system.createUser(userObj), {
+      entityType: 'user',
+      entityId: userObj.id,
+      record: userObj
+    })
+
     this.addAuditLog({
       action: 'Created',
       event_type: 'USER_CREATED',
@@ -3496,6 +4438,12 @@ export const store = reactive({
       const oldStatus = oldUser.status
 
       this.users[index] = { ...this.users[index], ...updatedData }
+
+      this._dispatchApiSync('system.updateUser', () => api.system.updateUser(this.users[index].id, updatedData), {
+        entityType: 'user',
+        entityId: this.users[index].id,
+        record: this.users[index]
+      })
 
       const safeData = { ...updatedData }
       delete safeData.password
@@ -3570,6 +4518,12 @@ export const store = reactive({
   },
 
   createRole(newRole) {
+    this._dispatchApiSync('system.createRole', () => api.system.createRole(newRole), {
+      entityType: 'role',
+      entityId: newRole.name || 'ROLE-NEW',
+      record: newRole
+    })
+
     this.addAuditLog({
       action: 'Created',
       event_type: 'ROLE_CREATED',
@@ -3710,6 +4664,7 @@ export const store = reactive({
     return this.suppliers.find(s => 
       (s.id && s.id.toLowerCase() === target) ||
       (s.supplier_id && s.supplier_id.toLowerCase() === target) ||
+      (s.code && s.code.toLowerCase() === target) ||
       (s.name && s.name.toLowerCase() === target)
     ) || null
   },
@@ -3789,6 +4744,17 @@ export const store = reactive({
   ],
 
   addOrder(newOrder) {
+    if (newOrder.id || newOrder.order_id || newOrder.order || newOrder.orderNo) {
+      const existing = this.orders.find(o =>
+        (newOrder.id && (o.id === newOrder.id || o.order_id === newOrder.id || o.order === newOrder.id || o.orderNo === newOrder.id)) ||
+        (newOrder.order_id && (o.id === newOrder.order_id || o.order_id === newOrder.order_id)) ||
+        (newOrder.order && (o.id === newOrder.order || o.order === newOrder.order)) ||
+        (newOrder.orderNo && o.orderNo === newOrder.orderNo)
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newOrder.id || newOrder.order_id || newOrder.order || this.generateDocumentId('order')
     const branchMeta = this.resolveTrustedCreationBranch(newOrder)
     const orderObj = {
@@ -3853,7 +4819,14 @@ export const store = reactive({
       metadata: { customer: orderObj.customer, total: orderObj.total || orderObj.grand_total, unit: orderObj.unit, status: orderObj.status }
     })
 
-    return orderObj
+    const syncPromise = this._dispatchApiSync('orders.create', () => api.orders.create(orderObj), {
+      entityType: 'order',
+      entityId: orderObj.id,
+      record: orderObj
+    })
+    orderObj._syncPromise = syncPromise
+
+    return this.orders[0] || orderObj
   },
 
   updateOrder(id, updatedData) {
@@ -3873,9 +4846,52 @@ export const store = reactive({
         metadata: { updatedFields: Object.keys(updatedData) }
       })
 
+      const syncPromise = this._dispatchApiSync('orders.update', () => api.orders.update(id, updatedData), {
+        entityType: 'order',
+        entityId: id,
+        record: this.orders[index]
+      })
+      this.orders[index]._syncPromise = syncPromise
+
       return this.orders[index]
     }
     return null
+  },
+
+  cancelOrder(id) {
+    const order = this.getOrderById(id)
+    if (!order) throw new Error(`Order ${id} not found.`)
+    this.assertRecordMutationAccess('orders', order, 'update')
+
+    if (order.status === 'Delivered' || order.status === 'Completed') {
+      throw new Error(`Order ${order.order || order.id} is already ${order.status} and cannot be cancelled.`)
+    }
+
+    if (order.unit_id) {
+      this.releaseUnitReservation(order.unit_id, `Order ${order.id} cancelled`)
+    }
+
+    order.status = 'Cancelled'
+    order.statusClass = 'bg-red-50 text-red-700'
+
+    this.addAuditLog({
+      action: 'Cancelled',
+      event_type: 'ORDER_CANCELLED',
+      entity_type: 'sales_order',
+      entity_id: order.id,
+      module: 'Sales',
+      branch: order.branch || 'Peshawar',
+      description: `Sales Order ${order.id} cancelled.`
+    })
+
+    const syncPromise = this._dispatchApiSync('orders.cancel', () => api.orders.cancel(order.id), {
+      entityType: 'order',
+      entityId: order.id,
+      record: order
+    })
+    order._syncPromise = syncPromise
+
+    return order
   },
 
   getOrderById(id, user = this.currentUser) {
@@ -3979,6 +4995,15 @@ export const store = reactive({
   },
 
   addQuotation(newQuote) {
+    if (newQuote.id || newQuote.quote_id || newQuote.quote) {
+      const existing = this.quotations.find(q =>
+        (newQuote.id && (q.id === newQuote.id || q.quote_id === newQuote.id || q.quote === newQuote.id)) ||
+        (newQuote.quote && (q.id === newQuote.quote || q.quote === newQuote.quote))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newQuote.id || newQuote.quote_id || newQuote.quote || this.generateDocumentId('quotation')
     const rawSelling = parseFloat(String(newQuote.sellingPrice || newQuote.total || newQuote.value || '0').replace(/[^0-9.]/g, '')) || 0
     const rawDiscount = parseFloat(String(newQuote.discount || '0').replace(/[^0-9.]/g, '')) || 0
@@ -4023,7 +5048,14 @@ export const store = reactive({
       metadata: { customer: quoteObj.customer, product: quoteObj.product, total: quoteObj.total || quoteObj.value }
     })
 
-    return quoteObj
+    const syncPromise = this._dispatchApiSync('quotations.create', () => api.quotations.create(quoteObj), {
+      entityType: 'quotation',
+      entityId: quoteObj.id,
+      record: quoteObj
+    })
+    quoteObj._syncPromise = syncPromise
+
+    return this.quotations[0] || quoteObj
   },
 
   updateQuotation(id, updatedData) {
@@ -4031,6 +5063,14 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('quotations', this.quotations[index], 'update')
       this.quotations[index] = { ...this.quotations[index], ...updatedData }
+
+      const syncPromise = this._dispatchApiSync('quotations.update', () => api.quotations.update(id, updatedData), {
+        entityType: 'quotation',
+        entityId: id,
+        record: this.quotations[index]
+      })
+      this.quotations[index]._syncPromise = syncPromise
+
       return this.quotations[index]
     }
     return null
@@ -4100,7 +5140,15 @@ export const store = reactive({
       metadata: { quotationId: quote.id, salesOrderId: orderId, customer: quote.customer, unitId }
     })
 
-    return { success: true, order: newOrder, quotation: quote }
+    const syncPromise = this._dispatchApiSync('quotations.convertToOrder', () => api.quotations.convertToOrder(quote.id, { sales_order_id: orderId, unitId, salesperson: assignedSalesperson }), {
+      entityType: 'quotation',
+      entityId: quote.id,
+      record: quote
+    })
+    newOrder._syncPromise = syncPromise
+    quote._syncPromise = syncPromise
+
+    return { success: true, order: newOrder, quotation: quote, _syncPromise: syncPromise }
   },
 
   // ==========================================
@@ -4179,6 +5227,11 @@ export const store = reactive({
       metadata: { name: leadObj.name || leadObj.customer, source: leadObj.source, phone: leadObj.phone }
     })
 
+    this._dispatchApiSync('leads.create', () => api.leads.create(leadObj), {
+      entityType: 'lead',
+      entityId: leadObj.id
+    })
+
     return leadObj
   },
 
@@ -4187,6 +5240,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('leads', this.leads[index], 'update')
       this.leads[index] = { ...this.leads[index], ...updatedData }
+
+      this._dispatchApiSync('leads.update', () => api.leads.update(id, updatedData), {
+        entityType: 'lead',
+        entityId: id
+      })
+
       return this.leads[index]
     }
     return null
@@ -4196,9 +5255,9 @@ export const store = reactive({
     if (!id) return null
     const target = String(id).toLowerCase().trim()
     const found = this.leads.find(l => 
-      (l.id && l.id.toLowerCase() === target) ||
-      (l.lead_id && l.lead_id.toLowerCase() === target) ||
-      (l.leadNo && l.leadNo.toLowerCase() === target)
+      (l.id && String(l.id).toLowerCase() === target) ||
+      (l.lead_id && String(l.lead_id).toLowerCase() === target) ||
+      (l.leadNo && String(l.leadNo).toLowerCase() === target)
     ) || null
     if (!found) return null
     return this.canReadRecord(user, 'leads', found) ? found : null
@@ -4354,6 +5413,15 @@ export const store = reactive({
   ],
 
   addInvoice(newInvoice) {
+    if (newInvoice.id || newInvoice.invoice_id || newInvoice.invoice || newInvoice.invoiceNo) {
+      const existing = this.invoices.find(inv =>
+        (newInvoice.id && (inv.id === newInvoice.id || inv.invoice_id === newInvoice.id || inv.invoice === newInvoice.id || inv.invoiceNo === newInvoice.id)) ||
+        (newInvoice.invoiceNo && inv.invoiceNo === newInvoice.invoiceNo)
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newInvoice.id || newInvoice.invoice_id || newInvoice.invoice || this.generateDocumentId('invoice')
     const subtotal = newInvoice.subtotal !== undefined ? Number(newInvoice.subtotal) : (
       newInvoice.total !== undefined ? Number(newInvoice.total) : (
@@ -4391,6 +5459,14 @@ export const store = reactive({
       items: newInvoice.items || [{ description: 'Vehicle / Service Invoice', quantity: 1, unitPrice: total, total }]
     }
     this.invoices.unshift(invObj)
+
+    const syncPromise = this._dispatchApiSync('invoices.create', () => api.invoices.create(invObj), {
+      entityType: 'invoice',
+      entityId: invObj.id,
+      record: invObj
+    })
+    invObj._syncPromise = syncPromise
+
     return invObj
   },
 
@@ -4401,6 +5477,14 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('invoices', this.invoices[index], 'update')
       this.invoices[index] = { ...this.invoices[index], ...data }
+
+      const syncPromise = this._dispatchApiSync('invoices.update', () => api.put(`/invoices/${id}`, data), {
+        entityType: 'invoice',
+        entityId: id,
+        record: this.invoices[index]
+      })
+      this.invoices[index]._syncPromise = syncPromise
+
       return this.invoices[index]
     }
     return null
@@ -4465,6 +5549,14 @@ export const store = reactive({
   ],
 
   addPayment(newPayment) {
+    if (newPayment.id || newPayment.payment_id || newPayment.payment || newPayment.paymentNo) {
+      const existing = this.payments.find(p =>
+        (newPayment.id && (p.id === newPayment.id || p.payment_id === newPayment.id || p.payment === newPayment.id || p.paymentNo === newPayment.id))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newPayment.id || newPayment.payment_id || newPayment.payment || this.generateDocumentId('payment')
     const rawAmt = typeof newPayment.amount === 'number' ? newPayment.amount : (parseFloat(String(newPayment.amount || '0').replace(/[^0-9.]/g, '')) || 0)
     const branchMeta = this.resolveTrustedCreationBranch(newPayment)
@@ -4491,6 +5583,13 @@ export const store = reactive({
         cust.outstanding = `PKR ${newBal.toLocaleString()}`
       }
     }
+
+    const syncPromise = this._dispatchApiSync('payments.create', () => api.payments.create(payObj), {
+      entityType: 'payment',
+      entityId: payObj.id,
+      record: payObj
+    })
+    payObj._syncPromise = syncPromise
 
     return payObj
   },
@@ -4624,7 +5723,15 @@ export const store = reactive({
       metadata: { paymentId: payId, invoiceId: inv.id, orderId: inv.order_id, amount: numAmount, method, remainingBalance: inv.outstandingAmount }
     })
 
-    return { success: true, payment: paymentObj, invoice: inv }
+    const syncPromise = this._dispatchApiSync('invoices.recordPayment', () => api.invoices.recordPayment(inv.id, paymentObj), {
+      entityType: 'payment',
+      entityId: payId,
+      record: paymentObj
+    })
+    paymentObj._syncPromise = syncPromise
+    inv._syncPromise = syncPromise
+
+    return { success: true, payment: paymentObj, invoice: inv, _syncPromise: syncPromise }
   },
 
   // ==========================================
@@ -4707,6 +5814,15 @@ export const store = reactive({
   },
 
   addDelivery(deliveryData) {
+    if (deliveryData.id || deliveryData.delivery_id) {
+      const existing = this.deliveries.find(d =>
+        (deliveryData.id && (d.id === deliveryData.id || d.delivery_id === deliveryData.id)) ||
+        (deliveryData.delivery_id && (d.id === deliveryData.delivery_id || d.delivery_id === deliveryData.delivery_id))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = deliveryData.id || deliveryData.delivery_id || this.generateDocumentId('delivery')
     const branchMeta = this.resolveTrustedCreationBranch(deliveryData)
     const delivObj = {
@@ -4721,6 +5837,12 @@ export const store = reactive({
       ]
     }
     this.deliveries.unshift(delivObj)
+
+    this._dispatchApiSync('deliveries.create', () => api.deliveries.create(delivObj), {
+      entityType: 'delivery',
+      entityId: delivObj.id
+    })
+
     return delivObj
   },
 
@@ -4731,6 +5853,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('deliveries', this.deliveries[index], 'update')
       this.deliveries[index] = { ...this.deliveries[index], ...data }
+
+      this._dispatchApiSync('deliveries.update', () => api.deliveries.update(id, data), {
+        entityType: 'delivery',
+        entityId: id
+      })
+
       return this.deliveries[index]
     }
     return null
@@ -4855,6 +5983,20 @@ export const store = reactive({
     })
 
     this.reconcileInventoryTotals()
+
+    this._dispatchApiSync('deliveries.complete', () => api.deliveries.complete(d.id, {
+      deliveredDate: d.deliveredDate,
+      officer: d.officer,
+      notes: d.notes,
+      unitId: unit.unit_id || unit.serial,
+      customerId: d.customer_id,
+      ownershipId: ownId,
+      warrantyId: warId
+    }), {
+      entityType: 'delivery',
+      entityId: d.id
+    })
+
     return {
       success: true,
       delivery: d,
@@ -5146,6 +6288,12 @@ export const store = reactive({
       statusClass: newCO.statusClass || 'bg-[#fef3c7] text-[#b45309]'
     }
     this.customOrders.unshift(coObj)
+
+    this._dispatchApiSync('customOrders.create', () => api.customOrders.create(coObj), {
+      entityType: 'custom_order',
+      entityId: coObj.id
+    })
+
     return coObj
   },
 
@@ -5154,6 +6302,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('customOrders', this.customOrders[index], 'update')
       this.customOrders[index] = { ...this.customOrders[index], ...updatedData }
+
+      this._dispatchApiSync('customOrders.update', () => api.customOrders.update(id, updatedData), {
+        entityType: 'custom_order',
+        entityId: id
+      })
+
       return this.customOrders[index]
     }
     return null
@@ -5171,8 +6325,200 @@ export const store = reactive({
   },
 
   // ==========================================
+  // 10B. CANONICAL CYCLE COUNTS & AUDITS MASTER
+  // ==========================================
+  cycleCounts: [
+    {
+      id: 'CC-031',
+      session: 'CC-031',
+      count: 'CC-031',
+      name: 'Showroom Count',
+      scope: 'Showroom units',
+      assignedTo: 'Branch Team',
+      date: 'Today',
+      due: 'Today',
+      expected: '20 units',
+      expectedUnits: '20 units',
+      counted: '18 units',
+      variance: '-2',
+      targetLocation: 'Main Showroom',
+      status: 'In Progress',
+      statusClass: 'bg-[#e0e7ff] text-[#3730a3]',
+      branch: 'Peshawar',
+      branch_id: 'BR-01'
+    },
+    {
+      id: 'CC-030',
+      session: 'CC-030',
+      count: 'CC-030',
+      name: 'Warehouse A Audit',
+      scope: 'Warehouse A',
+      assignedTo: 'Auditor & Storekeeper',
+      date: '30 Aug',
+      due: '30 Aug',
+      expected: '36 units',
+      expectedUnits: '36 units',
+      counted: '0 units',
+      variance: '0',
+      targetLocation: 'Warehouse Staging',
+      status: 'Scheduled',
+      statusClass: 'bg-[#f1f5f9] text-[#475569]',
+      branch: 'Peshawar',
+      branch_id: 'BR-01'
+    }
+  ],
+
+  addCycleCount(newCount) {
+    const id = newCount.id || newCount.session || `CC-${Math.floor(100 + Math.random() * 900)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newCount)
+    const countObj = {
+      ...newCount,
+      ...branchMeta,
+      id,
+      session: id,
+      count: id,
+      status: newCount.status || 'Scheduled',
+      statusClass: newCount.status === 'In Progress' ? 'bg-[#e0e7ff] text-[#3730a3]' : 'bg-[#f1f5f9] text-[#475569]'
+    }
+    this.cycleCounts.unshift(countObj)
+
+    this._dispatchApiSync('cycleCounts.create', () => api.inventory.cycleCounts.create(countObj), {
+      entityType: 'cycle_count',
+      entityId: countObj.id
+    })
+
+    return countObj
+  },
+
+  updateCycleCount(id, updatedData) {
+    const index = this.cycleCounts.findIndex(c => c.id === id || c.session === id || c.count === id)
+    if (index !== -1) {
+      this.cycleCounts[index] = { ...this.cycleCounts[index], ...updatedData }
+
+      this._dispatchApiSync('cycleCounts.update', () => api.inventory.cycleCounts.update(id, updatedData), {
+        entityType: 'cycle_count',
+        entityId: id
+      })
+
+      return this.cycleCounts[index]
+    }
+    return null
+  },
+
+  getCycleCountById(id, user = this.currentUser) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    const found = this.cycleCounts.find(c =>
+      (c.id && c.id.toLowerCase() === target) ||
+      (c.session && c.session.toLowerCase() === target) ||
+      (c.count && c.count.toLowerCase() === target)
+    ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'cycleCounts', found) ? found : null
+  },
+
+  // ==========================================
+  // 10C. CANONICAL QUARANTINE & DEFECT MASTER
+  // ==========================================
+  quarantineRecords: [
+    {
+      id: 'QR-001',
+      unit: 'UNIT-109',
+      unit_id: 'UNIT-109',
+      product: 'BRG DS11',
+      condition: 'Transit Damage',
+      source: 'Inbound GRN',
+      status: 'Quarantine',
+      statusClass: 'bg-red-50 text-red-700',
+      branch: 'Peshawar',
+      branch_id: 'BR-01',
+      date: 'Today',
+      notes: 'Front fork alignment discrepancy observed during inward quality check.'
+    }
+  ],
+
+  addQuarantineRecord(newRecord) {
+    const id = newRecord.id || newRecord.unit || `QR-${Math.floor(100 + Math.random() * 900)}`
+    const branchMeta = this.resolveTrustedCreationBranch(newRecord)
+    const qObj = {
+      ...newRecord,
+      ...branchMeta,
+      id,
+      status: newRecord.status || 'Quarantine',
+      statusClass: 'bg-red-50 text-red-700'
+    }
+    this.quarantineRecords.unshift(qObj)
+
+    this._dispatchApiSync('quarantineRecords.create', () => api.inventory.quarantine.create(qObj), {
+      entityType: 'quarantine_record',
+      entityId: qObj.id
+    })
+
+    return qObj
+  },
+
+  updateQuarantineRecord(id, updatedData) {
+    const index = this.quarantineRecords.findIndex(q => q.id === id || q.unit === id)
+    if (index !== -1) {
+      this.quarantineRecords[index] = { ...this.quarantineRecords[index], ...updatedData }
+
+      this._dispatchApiSync('quarantineRecords.update', () => api.inventory.quarantine.update(id, updatedData), {
+        entityType: 'quarantine_record',
+        entityId: id
+      })
+
+      return this.quarantineRecords[index]
+    }
+    return null
+  },
+
+  getQuarantineRecordById(id, user = this.currentUser) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    const found = this.quarantineRecords.find(q =>
+      (q.id && q.id.toLowerCase() === target) ||
+      (q.unit && q.unit.toLowerCase() === target)
+    ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'quarantineRecords', found) ? found : null
+  },
+
+  // ==========================================
+  // 10D. CANONICAL CUSTOM REPORTS BUILDER MASTER
+  // ==========================================
+  customReports: [
+    {
+      id: 'REP-001',
+      report: 'Monthly Branch Sales & Revenue Summary',
+      owner: 'Super Admin',
+      scope: 'All Branches',
+      lastRun: 'Today',
+      schedule: 'Monthly',
+      category: 'Sales Reports'
+    }
+  ],
+
+  addCustomReport(newReport) {
+    const id = newReport.id || `REP-${Math.floor(100 + Math.random() * 900)}`
+    const repObj = {
+      ...newReport,
+      id,
+      lastRun: newReport.lastRun || 'Just now'
+    }
+    this.customReports.unshift(repObj)
+
+    this._dispatchApiSync('customReports.create', () => api.analytics.createCustomReport(repObj), {
+      entityType: 'custom_report',
+      entityId: repObj.id
+    })
+
+    return repObj
+  },
+
+  // ==========================================
   // 11. CANONICAL STOCK REQUESTS MASTER
   // ==========================================
+
   stockRequests: [
     {
       id: 'SR-104',
@@ -5309,6 +6655,15 @@ export const store = reactive({
   ],
 
   addStockRequest(newSR) {
+    if (newSR.id || newSR.requestId) {
+      const existing = this.stockRequests.find(sr =>
+        (newSR.id && (sr.id === newSR.id || sr.requestId === newSR.id)) ||
+        (newSR.requestId && (sr.id === newSR.requestId || sr.requestId === newSR.requestId))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newSR.id || newSR.requestId || this.generateDocumentId('stock_request')
     
     // Prevent duplicate lines
@@ -5405,6 +6760,11 @@ export const store = reactive({
       metadata: { requestId: id, branch: srObj.branch, qty: srObj.qty, reason: srObj.reason }
     })
 
+    this._dispatchApiSync('stockRequests.create', () => api.inventory.stockRequests.create(srObj), {
+      entityType: 'stock_request',
+      entityId: srObj.id
+    })
+
     return srObj
   },
 
@@ -5413,6 +6773,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('stockRequests', this.stockRequests[index], 'update')
       this.stockRequests[index] = { ...this.stockRequests[index], ...updatedData }
+
+      this._dispatchApiSync('stockRequests.update', () => api.inventory.stockRequests.update(id, updatedData), {
+        entityType: 'stock_request',
+        entityId: id
+      })
+
       return this.stockRequests[index]
     }
     return null
@@ -5593,6 +6959,15 @@ export const store = reactive({
   },
 
   addProductRequest(newPR) {
+    if (newPR.id || newPR.requestId) {
+      const existing = this.productRequests.find(pr =>
+        (newPR.id && (pr.id === newPR.id || pr.requestId === newPR.id)) ||
+        (newPR.requestId && (pr.id === newPR.requestId || pr.requestId === newPR.requestId))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newPR.id || newPR.requestId || `PR-${Math.floor(100 + Math.random() * 900)}`
     const branchMeta = this.resolveTrustedCreationBranch(newPR)
     const prObj = {
@@ -5644,6 +7019,11 @@ export const store = reactive({
       metadata: { requestId: id, branch: prObj.branch, product: prObj.product || prObj.productName, status: prObj.status }
     })
 
+    this._dispatchApiSync('productRequests.create', () => api.catalogue.createProductRequest(prObj), {
+      entityType: 'product_request',
+      entityId: prObj.id
+    })
+
     return prObj
   },
 
@@ -5652,6 +7032,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('productRequests', this.productRequests[index], 'update')
       this.productRequests[index] = { ...this.productRequests[index], ...updatedData }
+
+      this._dispatchApiSync('productRequests.update', () => api.catalogue.updateProductRequest(id, updatedData), {
+        entityType: 'product_request',
+        entityId: id
+      })
+
       return this.productRequests[index]
     }
     return null
@@ -5992,7 +7378,18 @@ export const store = reactive({
     return true
   },
 
-  addPurchaseOrder(newPO) {
+  addPurchaseOrder(newPO, options = {}) {
+    if (newPO.id || newPO.po_id || newPO.po || newPO.po_number) {
+      const existing = this.purchaseOrders.find(p =>
+        (newPO.id && (p.id === newPO.id || p.po_id === newPO.id || p.po === newPO.id || p.po_number === newPO.id)) ||
+        (newPO.po && (p.id === newPO.po || p.po_id === newPO.po || p.po === newPO.po || p.po_number === newPO.po)) ||
+        (newPO.po_number && (p.id === newPO.po_number || p.po_id === newPO.po_number || p.po === newPO.po_number || p.po_number === newPO.po_number))
+      )
+      if (existing) {
+        Object.assign(existing, newPO)
+        return existing
+      }
+    }
     const id = newPO.id || newPO.po_id || newPO.po || this.generateDocumentId('po')
     
     // Validate PO lines if provided
@@ -6063,6 +7460,13 @@ export const store = reactive({
       description: `Purchase order ${id} created for supplier ${poObj.supplier || 'Supplier'} (${poObj.units} units).`,
       metadata: { poId: id, supplier: poObj.supplier, units: poObj.units, total: poObj.total }
     })
+
+    if (!options.skipApiSync && !newPO._fromServer) {
+      this._dispatchApiSync('procurement.createPurchaseOrder', () => api.procurement.createPurchaseOrder(poObj), {
+        entityType: 'purchase_order',
+        entityId: poObj.id
+      })
+    }
 
     return poObj
   },
@@ -6243,9 +7647,10 @@ export const store = reactive({
     if (!id) return null
     const target = String(id).toLowerCase().trim()
     const found = this.purchaseOrders.find(p => 
-      (p.id && p.id.toLowerCase() === target) ||
-      (p.po && p.po.toLowerCase() === target) ||
-      (p.po_id && p.po_id.toLowerCase() === target)
+      (p.id && String(p.id).toLowerCase() === target) ||
+      (p.po && String(p.po).toLowerCase() === target) ||
+      (p.po_id && String(p.po_id).toLowerCase() === target) ||
+      (p.po_number && String(p.po_number).toLowerCase() === target)
     ) || null
     if (!found) return null
     return canReadRecord(user, 'purchaseOrders', found) ? found : null
@@ -6298,9 +7703,10 @@ export const store = reactive({
     if (!id) return null
     const target = String(id).toLowerCase().trim()
     return this.receipts.find(r => 
-      (r.id && r.id.toLowerCase() === target) ||
-      (r.receipt_id && r.receipt_id.toLowerCase() === target) ||
-      (r.receiptNumber && r.receiptNumber.toLowerCase() === target)
+      (r.id && String(r.id).toLowerCase() === target) ||
+      (r.receipt_id && String(r.receipt_id).toLowerCase() === target) ||
+      (r.receiptNumber && String(r.receiptNumber).toLowerCase() === target) ||
+      (r.receipt_number && String(r.receipt_number).toLowerCase() === target)
     ) || null
   },
 
@@ -6591,6 +7997,11 @@ export const store = reactive({
       branch: receiptObj.branch,
       description: `Goods receipt ${receiptObj.id} posted for PO ${po.id || po.po} (${po.totalReceived}/${po.totalOrdered} units received).`,
       metadata: { receiptId: receiptObj.id, poId: po.id || po.po, supplier: po.supplier, linesCount: receiptObj.lines.length }
+    })
+
+    this._dispatchApiSync('procurement.receivePurchaseOrder', () => api.procurement.receivePurchaseOrder(po.po_id || po.po, receiptData), {
+      entityType: 'receipt',
+      entityId: receiptObj.id
     })
 
     return {
@@ -7044,6 +8455,15 @@ export const store = reactive({
   },
 
   addTransfer(transferData) {
+    if (transferData.id || transferData.transfer_id || transferData.transferNumber) {
+      const existing = this.transfers.find(t =>
+        (transferData.id && (t.id === transferData.id || t.transfer_id === transferData.id || t.transferNumber === transferData.id)) ||
+        (transferData.transfer_id && (t.id === transferData.transfer_id || t.transfer_id === transferData.transfer_id))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     if (this.isBranchUser()) {
       const userCanon = this.resolveCanonicalBranchId(this.getActiveBranch())
       const fromCanon = this.resolveCanonicalBranchId(transferData.from || transferData.fromBranch)
@@ -7193,6 +8613,11 @@ export const store = reactive({
       metadata: { transferId: id, from: fromBranch, to: toBranch, units: totalUnits }
     })
 
+    this._dispatchApiSync('inventory.createTransfer', () => api.inventory.transfers.create(transferObj), {
+      entityType: 'transfer',
+      entityId: transferObj.id
+    })
+
     return transferObj
   },
 
@@ -7251,6 +8676,11 @@ export const store = reactive({
       branch: t.from,
       description: `Transfer ${t.id} approved by ${t.approvedBy}.`,
       metadata: { transferId: t.id, approvedBy: t.approvedBy, from: t.from, to: t.to }
+    })
+
+    this._dispatchApiSync('inventory.approveTransfer', () => api.inventory.transfers.approve(t.id, approvalData), {
+      entityType: 'transfer',
+      entityId: t.id
     })
 
     return t
@@ -7382,6 +8812,12 @@ export const store = reactive({
     })
 
     this.reconcileInventoryTotals()
+
+    this._dispatchApiSync('inventory.dispatchTransfer', () => api.inventory.transfers.dispatch(t.id, dispatchData), {
+      entityType: 'transfer',
+      entityId: t.id
+    })
+
     return t
   },
 
@@ -7514,6 +8950,17 @@ export const store = reactive({
     })
 
     this.reconcileInventoryTotals()
+
+    this._dispatchApiSync('inventory.receiveTransfer', () => api.inventory.transfers.receive(t.id, {
+      receivedItems,
+      receiverNotes,
+      receiverName,
+      receiverLocation
+    }), {
+      entityType: 'transfer',
+      entityId: t.id
+    })
+
     return t
   },
 
@@ -7618,6 +9065,14 @@ export const store = reactive({
   },
 
   addStockAdjustment(data) {
+    if (data.id || data.adjustment_id) {
+      const existing = this.stockAdjustments.find(a =>
+        (data.id && (a.id === data.id || a.adjustment_id === data.id))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     // Reason validation
     const validReasons = [
       'Physical Count Correction',
@@ -7700,6 +9155,11 @@ export const store = reactive({
       })
     }
 
+    this._dispatchApiSync('inventory.createStockAdjustment', () => api.inventory.adjustments.create(adjObj), {
+      entityType: 'stock_adjustment',
+      entityId: adjObj.id
+    })
+
     return adjObj
   },
 
@@ -7740,6 +9200,11 @@ export const store = reactive({
       metadata: { adjustmentId: adj.id, approvedBy: adj.approvedBy }
     })
 
+    this._dispatchApiSync('inventory.approveStockAdjustment', () => api.inventory.adjustments.approve(adj.id), {
+      entityType: 'stock_adjustment',
+      entityId: adj.id
+    })
+
     return adj
   },
 
@@ -7751,6 +9216,12 @@ export const store = reactive({
     adj.status = 'Rejected'
     adj.statusClass = 'bg-red-50 text-red-700'
     adj.rejectionReason = reason || 'Physical recount requested.'
+
+    this._dispatchApiSync('inventory.rejectStockAdjustment', () => api.inventory.adjustments.reject(adj.id, { reason: adj.rejectionReason }), {
+      entityType: 'stock_adjustment',
+      entityId: adj.id
+    })
+
     return adj
   },
 
@@ -7949,6 +9420,12 @@ export const store = reactive({
       statusClass: newRet.statusClass || 'bg-orange-50 text-orange-700'
     }
     this.salesReturns.unshift(retObj)
+
+    this._dispatchApiSync('salesReturns.create', () => api.salesReturns.create(retObj), {
+      entityType: 'sales_return',
+      entityId: retObj.id
+    })
+
     return retObj
   },
 
@@ -7957,6 +9434,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('salesReturns', this.salesReturns[index], 'update')
       this.salesReturns[index] = { ...this.salesReturns[index], ...updatedData }
+
+      this._dispatchApiSync('salesReturns.update', () => api.salesReturns.update(id, updatedData), {
+        entityType: 'sales_return',
+        entityId: id
+      })
+
       return this.salesReturns[index]
     }
     return null
@@ -8025,14 +9508,19 @@ export const store = reactive({
   ],
 
   addPurchaseReturn(newPR) {
-    const id = newPR.id || newPR.returnNo || `PRTN-${Math.floor(45 + Math.random() * 100)}`
+    const id = newPR.id || newPR.returnNo || newPR.return_number || `PRTN-${Math.floor(45 + Math.random() * 100)}`
     const branchMeta = this.resolveTrustedCreationBranch(newPR)
     const prObj = {
       ...newPR,
       ...branchMeta,
       id,
-      returnNo: id,
-      status: newPR.status || 'Approved'
+      returnNo: newPR.returnNo || newPR.return_number || id,
+      status: newPR.status || 'Draft'
+    }
+    const existingIndex = this.purchaseReturns.findIndex(r => r.id === id || r.returnNo === id || r.return_number === id)
+    if (existingIndex !== -1) {
+      this.purchaseReturns[existingIndex] = { ...this.purchaseReturns[existingIndex], ...prObj }
+      return this.purchaseReturns[existingIndex]
     }
     this.purchaseReturns.unshift(prObj)
     return prObj
@@ -8164,6 +9652,14 @@ export const store = reactive({
   },
 
   addExpense(newExpense) {
+    if (newExpense.id || newExpense.expense_id) {
+      const existing = this.expenses.find(e =>
+        (newExpense.id && (e.id === newExpense.id || e.expense_id === newExpense.id))
+      )
+      if (existing) {
+        return existing
+      }
+    }
     const id = newExpense.id || newExpense.expense_id || this.generateDocumentId('expense')
     const branchMeta = this.resolveTrustedCreationBranch(newExpense)
     const expObj = {
@@ -8233,6 +9729,11 @@ export const store = reactive({
       metadata: { expenseId: id, category: expObj.category, amount: expObj.amount, branch: expObj.branch }
     })
 
+    this._dispatchApiSync('finance.createExpense', () => api.finance.createExpense(expObj), {
+      entityType: 'expense',
+      entityId: expObj.id
+    })
+
     return expObj
   },
 
@@ -8241,6 +9742,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('expenses', this.expenses[index], 'update')
       this.expenses[index] = { ...this.expenses[index], ...updatedData }
+
+      this._dispatchApiSync('finance.updateExpense', () => api.put(`/finance/expenses/${id}`, updatedData), {
+        entityType: 'expense',
+        entityId: id
+      })
+
       return this.expenses[index]
     }
     return null
@@ -8277,6 +9784,11 @@ export const store = reactive({
       branch: exp.branch || 'Peshawar',
       description: `Expense ${exp.id} (${exp.category} - PKR ${exp.amount}) approved by ${exp.approvedBy}.`,
       metadata: { expenseId: exp.id, approvedBy: exp.approvedBy, amount: exp.amount }
+    })
+
+    this._dispatchApiSync('finance.approveExpense', () => api.finance.approveExpense(exp.id), {
+      entityType: 'expense',
+      entityId: exp.id
     })
 
     return exp
@@ -8316,6 +9828,11 @@ export const store = reactive({
       metadata: { expenseId: exp.id, rejectedBy: exp.rejectedBy, reason }
     })
 
+    this._dispatchApiSync('finance.rejectExpense', () => api.finance.rejectExpense(exp.id, { reason }), {
+      entityType: 'expense',
+      entityId: exp.id
+    })
+
     return exp
   },
 
@@ -8327,9 +9844,17 @@ export const store = reactive({
       throw new Error(`Expense ${id} must be Approved before payment can be recorded.`)
     }
     exp.status = 'Paid'
+    exp.payment = 'Paid'
+    exp.paymentClass = 'text-[#165A31] font-bold'
     exp.paidAt = new Date().toISOString()
     exp.paymentMethod = paymentData.method || 'Bank Transfer'
     exp.paymentReference = paymentData.reference || ''
+
+    this._dispatchApiSync('finance.payExpense', () => api.finance.payExpense(exp.id, paymentData), {
+      entityType: 'expense',
+      entityId: exp.id
+    })
+
     return exp
   },
 
@@ -8641,7 +10166,24 @@ export const store = reactive({
       ] : [])
     }
     this.conversations.unshift(convObj)
+
+    this._dispatchApiSync('conversations.create', () => api.communication.createConversation(convObj), {
+      entityType: 'conversation',
+      entityId: convObj.id
+    })
+
     return convObj
+  },
+
+  updateConversation(convId, updateData) {
+    const conv = this.getConversationById(convId)
+    if (!conv) return null
+    Object.assign(conv, updateData)
+    this._dispatchApiSync('conversations.update', () => api.communication.updateConversation(convId, updateData), {
+      entityType: 'conversation',
+      entityId: convId
+    })
+    return conv
   },
 
   addMessageToConversation(convId, message) {
@@ -8683,6 +10225,11 @@ export const store = reactive({
       const [item] = this.conversations.splice(idx, 1)
       this.conversations.unshift(item)
     }
+
+    this._dispatchApiSync('conversations.addMessage', () => api.communication.addMessage(convId, msgObj), {
+      entityType: 'conversation_message',
+      entityId: convId
+    })
 
     return msgObj
   },
@@ -9060,11 +10607,19 @@ export const store = reactive({
   ],
 
   addFollowUp(newFollowUp) {
-    const id = newFollowUp.id || Date.now()
+    if (newFollowUp.id) {
+      const existing = this.followUps.find(f => f.id === newFollowUp.id || f.follow_up_id === newFollowUp.id)
+      if (existing) {
+        return existing
+      }
+    }
+    const id = newFollowUp.id || newFollowUp.follow_up_id || `FU-${Math.floor(100 + Math.random() * 900)}`
     const branchMeta = this.resolveTrustedCreationBranch(newFollowUp)
     const record = {
       ...newFollowUp,
       ...branchMeta,
+      id,
+      follow_up_id: id,
       status: newFollowUp.status || 'Due Today',
       statusClass: newFollowUp.statusClass || 'bg-[#fef3c7] text-[#b45309]',
       priority: newFollowUp.priority || 'Medium',
@@ -9072,34 +10627,52 @@ export const store = reactive({
       action: 'Complete'
     }
     this.followUps.unshift(record)
+
+    this._dispatchApiSync('followUps.create', () => api.followUps.create(record), {
+      entityType: 'follow_up',
+      entityId: record.id
+    })
+
     return record
   },
 
   updateFollowUp(id, updatedData) {
-    const index = this.followUps.findIndex(f => f.id === id)
+    const index = this.followUps.findIndex(f => f.id === id || String(f.id) === String(id) || f.follow_up_id === id)
     if (index !== -1) {
       this.assertRecordMutationAccess('followUps', this.followUps[index], 'update')
       this.followUps[index] = { ...this.followUps[index], ...updatedData }
+
+      this._dispatchApiSync('followUps.update', () => api.followUps.update(id, updatedData), {
+        entityType: 'follow_up',
+        entityId: id
+      })
+
       return this.followUps[index]
     }
     return null
   },
 
   completeFollowUp(id) {
-    const item = this.followUps.find(f => f.id === id)
+    const item = this.followUps.find(f => f.id === id || String(f.id) === String(id) || f.follow_up_id === id)
     if (item) {
       this.assertRecordMutationAccess('followUps', item, 'update')
       item.status = 'Completed'
       item.statusClass = 'bg-[#dcfce7] text-[#165A31]'
       item.statusColor = 'bg-emerald-50 text-emerald-700'
       item.completedAt = new Date().toISOString()
+
+      this._dispatchApiSync('followUps.complete', () => api.followUps.complete(item.id || item.follow_up_id), {
+        entityType: 'follow_up',
+        entityId: item.id || item.follow_up_id
+      })
+
       return true
     }
     return false
   },
 
   dismissFollowUp(id) {
-    const item = this.followUps.find(f => f.id === id)
+    const item = this.followUps.find(f => f.id === id || String(f.id) === String(id) || f.follow_up_id === id)
     if (item) {
       item.status = 'Dismissed'
       item.statusClass = 'bg-gray-100 text-gray-500'
@@ -9115,6 +10688,17 @@ export const store = reactive({
     }
     const branchName = (currentUser.branchName || 'Peshawar').toLowerCase()
     return this.followUps.filter(f => !f.branch || f.branch.toLowerCase() === branchName || f.branch.toLowerCase() === 'all branches')
+  },
+
+  getFollowUpById(id, user = this.currentUser) {
+    if (!id) return null
+    const target = String(id).toLowerCase().trim()
+    const found = this.followUps.find(f => 
+      (f.id && String(f.id).toLowerCase() === target) ||
+      (f.follow_up_id && String(f.follow_up_id).toLowerCase() === target)
+    ) || null
+    if (!found) return null
+    return this.canReadRecord(user, 'followUps', found) ? found : null
   },
 
   // Canonical Announcements Master
@@ -9332,6 +10916,11 @@ export const store = reactive({
       metadata: { caseId: id, customer: caseObj.customer, unitId, issue: caseObj.issue }
     })
 
+    this._dispatchApiSync('afterSales.createCase', () => api.afterSales.createCase(caseObj), {
+      entityType: 'service_case',
+      entityId: caseObj.id
+    })
+
     return caseObj
   },
 
@@ -9340,6 +10929,10 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('cases', this.cases[index], 'update')
       this.cases[index] = { ...this.cases[index], ...updatedData }
+      this._dispatchApiSync('afterSales.updateCase', () => api.afterSales.updateCase(id, updatedData), {
+        entityType: 'service_case',
+        entityId: id
+      })
       return this.cases[index]
     }
     return null
@@ -9618,6 +11211,12 @@ export const store = reactive({
     }
     this.repairs.unshift(jobObj)
     this.selectedRepair = jobObj
+
+    this._dispatchApiSync('afterSales.createRepairJob', () => api.afterSales.createRepairJob(jobObj), {
+      entityType: 'repair_job',
+      entityId: jobObj.id
+    })
+
     return jobObj
   },
 
@@ -9626,6 +11225,10 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('repairs', this.repairs[index], 'update')
       this.repairs[index] = { ...this.repairs[index], ...updatedData }
+      this._dispatchApiSync('afterSales.updateRepairJob', () => api.afterSales.updateRepairJob(id, updatedData), {
+        entityType: 'repair_job',
+        entityId: id
+      })
       return this.repairs[index]
     }
     return null
@@ -9667,6 +11270,11 @@ export const store = reactive({
       branch: job.branch || 'Peshawar',
       description: `Repair job ${job.id} for unit ${job.unitSerial || job.unit_id || ''} completed.`,
       metadata: { repairId: job.id, caseId: job.case_id, unitId: job.unit_id, technician: this.currentUser?.name }
+    })
+
+    this._dispatchApiSync('afterSales.completeRepairJob', () => api.afterSales.completeRepairJob(job.id || job.jobId), {
+      entityType: 'repair_job',
+      entityId: job.id || job.jobId
     })
 
     return job
@@ -9808,6 +11416,11 @@ export const store = reactive({
       branch: job.branch || 'Peshawar',
       description: `Repair job ${job.id} posted to finance as invoice ${invoiceNumber} (Payable: ${formatPKR(customerPayable)}).`,
       metadata: { repairId: job.id, invoiceId: invoiceNumber, payable: customerPayable }
+    })
+
+    this._dispatchApiSync('afterSales.postRepairToFinance', () => api.afterSales.postRepairToFinance(job.id || job.jobId), {
+      entityType: 'repair_job',
+      entityId: job.id || job.jobId
     })
 
     return { success: true, invoice: repairInvoice }
@@ -10161,6 +11774,12 @@ export const store = reactive({
       status: newRule.status || 'Active'
     }
     this.pricingRules.unshift(ruleObj)
+
+    this._dispatchApiSync('pricingRules.create', () => api.catalogue.createPriceRule(ruleObj), {
+      entityType: 'price_rule',
+      entityId: ruleObj.id
+    })
+
     return ruleObj
   },
 
@@ -10169,6 +11788,12 @@ export const store = reactive({
     if (index !== -1) {
       this.assertRecordMutationAccess('pricingRules', this.pricingRules[index], 'update')
       this.pricingRules[index] = { ...this.pricingRules[index], ...updatedData }
+
+      this._dispatchApiSync('pricingRules.update', () => api.catalogue.updatePriceRule(id, updatedData), {
+        entityType: 'price_rule',
+        entityId: id
+      })
+
       return this.pricingRules[index]
     }
     return null
@@ -10803,6 +12428,7 @@ export const store = reactive({
     return (this.purchaseOrders || []).find(po => 
       (po.id && String(po.id).toLowerCase() === target) ||
       (po.po && String(po.po).toLowerCase() === target) ||
+      (po.po_id && String(po.po_id).toLowerCase() === target) ||
       (po.po_number && String(po.po_number).toLowerCase() === target)
     ) || null
   },

@@ -118,9 +118,10 @@ const submitRequest = () => {
     return
   }
 
+  const reqId = form.value.id || `SR-${Math.floor(200 + Math.random() * 800)}`
   const payload = {
-    id: form.value.id || `SR-${Math.floor(200 + Math.random() * 800)}`,
-    requestNo: form.value.id || `SR-${Math.floor(200 + Math.random() * 800)}`,
+    id: reqId,
+    requestNo: reqId,
     product: form.value.product,
     currentStock: form.value.currentStock,
     qty: form.value.requestedQty,

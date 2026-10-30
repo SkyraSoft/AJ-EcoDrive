@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { X } from 'lucide-vue-next'
+import { X, Loader2, AlertCircle } from 'lucide-vue-next'
 import { store } from '@/store'
+import api from '@/services/api'
 
 const props = defineProps({
   isModal: {
@@ -22,6 +23,8 @@ const user = computed(() => store.currentUser)
 
 const isEditMode = ref(false)
 const showValidation = ref(false)
+const submitting = ref(false)
+const errorMessage = ref('')
 
 const form = ref({
   id: null,
@@ -77,52 +80,71 @@ const close = () => {
   }
 }
 
-const saveFollowUp = () => {
+const saveFollowUp = async () => {
   if (!form.value.customer.trim() || !form.value.linkedRecord.trim()) {
     showValidation.value = true
     return
   }
 
+  submitting.value = true
+  errorMessage.value = ''
+
   const payload = {
-    id: form.value.id || Date.now(),
-    customer: form.value.customer,
-    linkedRecord: form.value.linkedRecord,
+    id: form.value.id,
+    customer: form.value.customer.trim(),
+    customer_name: form.value.customer.trim(),
+    linkedRecord: form.value.linkedRecord.trim(),
+    linked_record: form.value.linkedRecord.trim(),
     type: form.value.taskType,
     taskType: form.value.taskType,
+    task_type: form.value.taskType,
     owner: form.value.owner,
     branch: form.value.branch,
-    due: `${form.value.dueDate} ${form.value.dueTime}`,
+    due: `${form.value.dueDate} ${form.value.dueTime}`.trim(),
+    due_date: `${form.value.dueDate} ${form.value.dueTime}`.trim(),
     dueDate: form.value.dueDate,
     dueTime: form.value.dueTime,
     priority: form.value.priority,
     channel: form.value.channel,
     notes: form.value.notes,
-    status: 'Due Today',
+    status: form.value.status || 'Due Today',
     statusClass: 'bg-[#fef3c7] text-[#b45309]',
     priorityColor: form.value.priority === 'High' ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-600'
   }
 
-  if (form.value.sendReminder) {
-    store.addNotification({
-      title: 'Follow-up Task Scheduled',
-      message: `${payload.taskType} scheduled for ${payload.customer} (${payload.linkedRecord}) due ${payload.due}.`,
-      type: 'info',
-      category: 'Sales',
-      source_type: 'follow_up',
-      source_id: String(payload.id),
-      branch: payload.branch,
-      priority: payload.priority
-    })
-  }
+  try {
+    let result
+    if (isEditMode.value && payload.id) {
+      result = await api.followUps.update(payload.id, payload)
+      const updatedRecord = result?.followUp || result || payload
+      store.updateFollowUp(payload.id, updatedRecord)
+      emit('updated', updatedRecord)
+    } else {
+      result = await api.followUps.create(payload)
+      const createdRecord = result?.followUp || result || payload
+      store.addFollowUp(createdRecord)
+      emit('created', createdRecord)
+    }
 
-  if (isEditMode.value) {
-    store.updateFollowUp(payload.id, payload)
-    emit('updated', payload)
-  } else {
-    store.addFollowUp(payload)
-    emit('created', payload)
+    if (form.value.sendReminder) {
+      store.addNotification({
+        title: 'Follow-up Task Scheduled',
+        message: `${payload.taskType} scheduled for ${payload.customer} (${payload.linkedRecord}) due ${payload.due}.`,
+        type: 'info',
+        category: 'Sales',
+        source_type: 'follow_up',
+        source_id: String(payload.id || result?.id || ''),
+        branch: payload.branch,
+        priority: payload.priority
+      })
+    }
+
+    close()
+  } catch (err) {
+    errorMessage.value = err?.message || err?.data?.message || 'Failed to save follow-up'
+  } finally {
+    submitting.value = false
   }
-  close()
 }
 </script>
 
@@ -146,6 +168,12 @@ const saveFollowUp = () => {
             <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900">{{ isEditMode ? 'Edit Follow-up' : 'Schedule Follow-up' }}</h1>
             <p class="text-xs sm:text-sm text-gray-500 mt-1">Schedule customer or lead follow-up task, priority, due date and assignment.</p>
           </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div v-if="errorMessage" class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2.5 text-xs text-red-700">
+          <AlertCircle class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>{{ errorMessage }}</div>
         </div>
 
         <!-- 2 Column Form Grid -->
@@ -314,9 +342,11 @@ const saveFollowUp = () => {
             </button>
             <button 
               type="submit" 
-              class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm"
+              :disabled="submitting"
+              class="bg-[#165A31] text-white text-xs font-semibold px-5 py-2.5 rounded-lg hover:bg-[#124a28] transition-colors cursor-pointer shadow-sm flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {{ isEditMode ? 'Update Follow-up' : 'Schedule Follow-up' }}
+              <Loader2 v-if="submitting" class="w-3.5 h-3.5 animate-spin" />
+              <span>{{ submitting ? 'Saving...' : (isEditMode ? 'Update Follow-up' : 'Schedule Follow-up') }}</span>
             </button>
           </div>
         </form>

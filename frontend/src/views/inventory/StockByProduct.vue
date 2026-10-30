@@ -14,6 +14,9 @@ const showToast = ref(false)
 const toastMessage = ref('')
 
 onMounted(() => {
+  if (typeof store.fetchRemoteProducts === 'function') {
+    store.fetchRemoteProducts().catch(() => {})
+  }
   if (route.query.filter === 'low-stock' || route.query.reorder === 'below') {
     branchReorderFilter.value = 'Below Reorder'
     selectedHealth.value = 'Below Reorder'

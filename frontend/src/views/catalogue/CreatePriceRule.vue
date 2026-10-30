@@ -32,13 +32,19 @@ const saveRule = () => {
     minimum: String(form.value.minimum).includes('K') ? form.value.minimum : `${form.value.minimum}K`
   }
 
-  if (store.pricingRules && Array.isArray(store.pricingRules)) {
+  if (typeof store.addPriceRule === 'function') {
+    store.addPriceRule(ruleObj)
+  } else if (store.pricingRules && Array.isArray(store.pricingRules)) {
     store.pricingRules.unshift(ruleObj)
   }
 
   emit('created', ruleObj)
-  router.push('/catalogue/pricing')
+  emit('close')
+  if (router.currentRoute.value.path.includes('/create')) {
+    router.push('/catalogue/pricing')
+  }
 }
+
 
 const cancel = () => {
   emit('close')

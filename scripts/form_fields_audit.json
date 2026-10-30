@@ -1,0 +1,834 @@
+[
+  {
+    "file": "after-sales/CreateCase.vue",
+    "fields": [
+      "customerSearch",
+      "form.customerPhone",
+      "form.customerEmail",
+      "unitSearch",
+      "form.odometer",
+      "form.purchaseDate",
+      "form.category",
+      "form.complaint",
+      "form.urgency",
+      "form.branch",
+      "form.assignedTech",
+      "form.estimatedCompletion",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateCase",
+      "addCase"
+    ]
+  },
+  {
+    "file": "after-sales/CreateRepairJob.vue",
+    "fields": [
+      "caseSearch",
+      "form.customer",
+      "form.unit",
+      "form.branch",
+      "form.unitModel",
+      "form.diagnosis",
+      "form.fault",
+      "form.decision",
+      "form.technician",
+      "form.partItem",
+      "form.partQty",
+      "form.partCost",
+      "form.partSource",
+      "form.readyDate",
+      "form.status",
+      "newTaskName"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateRepairJob",
+      "addRepairJob"
+    ]
+  },
+  {
+    "file": "analytics/BuildReport.vue",
+    "fields": [
+      "form.name",
+      "form.category",
+      "form.scope",
+      "form.dateRange",
+      "form.comparison",
+      "form.status",
+      "form.metrics.revenue",
+      "form.metrics.volume",
+      "form.metrics.orders",
+      "form.metrics.margins",
+      "form.metrics.kpi",
+      "form.schedule",
+      "form.format",
+      "form.email"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addCustomReport"
+    ]
+  },
+  {
+    "file": "auth/CreateNewPassword.vue",
+    "fields": [
+      "newPassword",
+      "confirmPassword"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": []
+  },
+  {
+    "file": "auth/ForgotPassword.vue",
+    "fields": [
+      "email"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": []
+  },
+  {
+    "file": "auth/Login.vue",
+    "fields": [
+      "branchCode",
+      "password"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "setSession"
+    ]
+  },
+  {
+    "file": "auth/VerifyIdentity.vue",
+    "fields": [
+      "otpValue"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": []
+  },
+  {
+    "file": "catalogue/CreateCategory.vue",
+    "fields": [
+      "form.name",
+      "form.code",
+      "form.description",
+      "form.type",
+      "form.parentCategory",
+      "form.template"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addCategory"
+    ]
+  },
+  {
+    "file": "catalogue/CreatePriceRule.vue",
+    "fields": [
+      "form.product",
+      "form.branchOverride",
+      "form.effective",
+      "form.sellingPrice",
+      "form.minimum",
+      "form.reason"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addPriceRule"
+    ]
+  },
+  {
+    "file": "catalogue/CreateProduct.vue",
+    "fields": [
+      "form.name",
+      "form.category",
+      "form.subcategory",
+      "form.model",
+      "form.sku",
+      "form.tracking",
+      "form.variants",
+      "form.warranty",
+      "form.motor",
+      "form.battery",
+      "form.range",
+      "form.speed",
+      "form.price",
+      "form.supplier",
+      "form.reorderLevel",
+      "form.poorStockDays",
+      "form.activation"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "settings",
+      "addProduct"
+    ]
+  },
+  {
+    "file": "catalogue/CreateProductRequest.vue",
+    "fields": [
+      "form.productName",
+      "form.category",
+      "form.specifications",
+      "form.reference",
+      "form.customerDemand",
+      "form.urgency",
+      "form.images",
+      "form.reason"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateProductRequest",
+      "addProductRequest"
+    ]
+  },
+  {
+    "file": "catalogue/EditPriceRule.vue",
+    "fields": [
+      "priceRuleData.product",
+      "priceRuleData.branchOverride",
+      "priceRuleData.effective",
+      "priceRuleData.sellingPrice",
+      "priceRuleData.minimum",
+      "priceRuleData.reason"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updatePriceRule"
+    ]
+  },
+  {
+    "file": "catalogue/EditProduct.vue",
+    "fields": [
+      "productData.name",
+      "productData.category",
+      "productData.subcategory",
+      "productData.model",
+      "productData.sku",
+      "productData.tracking",
+      "productData.variants",
+      "productData.warranty",
+      "productData.motor",
+      "productData.battery",
+      "productData.range",
+      "productData.speed",
+      "productData.media",
+      "productData.price",
+      "productData.reorderLevel",
+      "productData.documents",
+      "productData.activation"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateProduct"
+    ]
+  },
+  {
+    "file": "communication/ConversationDetail.vue",
+    "fields": [
+      "replyText",
+      "uploadForm.name",
+      "uploadForm.scope",
+      "uploadForm.size"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addAttachmentToConversation",
+      "addMessageToConversation"
+    ]
+  },
+  {
+    "file": "communication/CreateConversation.vue",
+    "fields": [
+      "form.title",
+      "form.linkedType",
+      "form.linked",
+      "form.recipient",
+      "form.priority",
+      "form.message",
+      "form.attachment"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addConversation"
+    ]
+  },
+  {
+    "file": "finance/CreateExpense.vue",
+    "fields": [
+      "form.branch",
+      "form.category",
+      "form.date",
+      "form.vendor",
+      "form.paymentMethod",
+      "form.transactionId",
+      "form.description",
+      "form.receipt",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addExpense"
+    ]
+  },
+  {
+    "file": "inventory/CreateAdjustmentRequest.vue",
+    "fields": [
+      "form.productUnit",
+      "form.existingState",
+      "form.correctedState",
+      "form.reason",
+      "form.evidence",
+      "form.notes",
+      "form.branch",
+      "form.requestedBy",
+      "form.approval"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateStockAdjustment",
+      "addStockAdjustment"
+    ]
+  },
+  {
+    "file": "inventory/CreateCycleCount.vue",
+    "fields": [
+      "form.countName",
+      "form.scope",
+      "form.assignedTo",
+      "form.scheduledDate",
+      "form.expectedUnits",
+      "form.branch",
+      "form.targetLocation",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateCycleCount",
+      "addCycleCount"
+    ]
+  },
+  {
+    "file": "inventory/CreateQuarantineRecord.vue",
+    "fields": [
+      "form.branch",
+      "form.unit",
+      "form.product",
+      "form.source",
+      "form.condition",
+      "form.status",
+      "form.decision",
+      "form.evidence",
+      "form.notes",
+      "form.approval"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateQuarantineRecord",
+      "addQuarantineRecord"
+    ]
+  },
+  {
+    "file": "inventory/CreateStockRequest.vue",
+    "fields": [
+      "form.branch",
+      "form.productId",
+      "form.currentStock",
+      "form.requestedQty",
+      "form.urgency",
+      "form.expectedDemand",
+      "form.orderLink",
+      "form.reason",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateStockRequest",
+      "addStockRequest"
+    ]
+  },
+  {
+    "file": "inventory/CreateTransfer.vue",
+    "fields": [
+      "form.fromBranch",
+      "form.toBranch",
+      "form.productId",
+      "form.units",
+      "form.requestedDate",
+      "form.carrier",
+      "form.driverContact",
+      "form.gatePassNo",
+      "form.expectedArrival",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateTransfer",
+      "addTransfer"
+    ]
+  },
+  {
+    "file": "organisation/CreateBranch.vue",
+    "fields": [
+      "form.name",
+      "form.code",
+      "form.status",
+      "form.address",
+      "form.city",
+      "form.area",
+      "form.phone",
+      "form.email",
+      "form.manager",
+      "form.hours",
+      "form.defaultLocation",
+      "form.expenseLimit",
+      "form.discountLimit",
+      "form.salesRules",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addBranch"
+    ]
+  },
+  {
+    "file": "organisation/CreateRole.vue",
+    "fields": [
+      "roleName",
+      "scope",
+      "description"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "createRole"
+    ]
+  },
+  {
+    "file": "organisation/CreateUser.vue",
+    "fields": [
+      "form.name",
+      "form.email",
+      "form.mobile",
+      "form.role",
+      "form.branch",
+      "form.status",
+      "form.mfa",
+      "form.sessionPolicy"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addUser"
+    ]
+  },
+  {
+    "file": "organisation/EditBranch.vue",
+    "fields": [
+      "branchData.name",
+      "branchData.code",
+      "branchData.status",
+      "branchData.address",
+      "branchData.city",
+      "branchData.area",
+      "branchData.phone",
+      "branchData.email",
+      "branchData.manager",
+      "branchData.defaultLocation",
+      "branchData.hours",
+      "branchData.expenseLimit",
+      "branchData.discountLimit",
+      "branchData.salesRules",
+      "branchData.notes",
+      "branchData.changeNote"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateBranch"
+    ]
+  },
+  {
+    "file": "organisation/EditUser.vue",
+    "fields": [
+      "userData.name",
+      "userData.email",
+      "userData.mobile",
+      "userData.role",
+      "userData.branch",
+      "userData.status",
+      "userData.mfa",
+      "userData.sessionPolicy"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateUser"
+    ]
+  },
+  {
+    "file": "procurement/CreatePurchaseOrder.vue",
+    "fields": [
+      "form.supplier",
+      "form.destination",
+      "form.expectedArrival",
+      "line.productId",
+      "line.variantId",
+      "line.quantity",
+      "line.expectedUnitCost",
+      "form.estimatedFreight",
+      "form.shipmentMethod",
+      "form.paymentTerms",
+      "form.documents",
+      "form.notes"
+    ],
+    "hasApi": true,
+    "apiCalls": [
+      "js",
+      "procurement.getSuppliers",
+      "catalogue.getProducts",
+      "procurement.createPurchaseOrder",
+      "getAuthContext"
+    ],
+    "storeMutations": [
+      "addPurchaseOrder"
+    ]
+  },
+  {
+    "file": "procurement/CreatePurchaseReturn.vue",
+    "fields": [
+      "form.supplier",
+      "form.po",
+      "form.reason",
+      "item.product",
+      "item.serial",
+      "item.quantity",
+      "item.unitCost",
+      "item.isFromQcHold"
+    ],
+    "hasApi": true,
+    "apiCalls": [
+      "js",
+      "procurement.getSuppliers",
+      "procurement.getPurchaseOrders",
+      "procurement.createPurchaseReturn",
+      "procurement.approvePurchaseReturn"
+    ],
+    "storeMutations": [
+      "addPurchaseReturn"
+    ]
+  },
+  {
+    "file": "procurement/CreateSupplier.vue",
+    "fields": [
+      "form.name",
+      "form.contact",
+      "form.phone",
+      "form.email",
+      "form.address",
+      "form.currency",
+      "form.terms",
+      "form.taxId",
+      "form.notes"
+    ],
+    "hasApi": true,
+    "apiCalls": [
+      "js",
+      "procurement.createSupplier"
+    ],
+    "storeMutations": [
+      "addSupplier"
+    ]
+  },
+  {
+    "file": "procurement/EditSupplier.vue",
+    "fields": [
+      "supplierData.name",
+      "supplierData.contact",
+      "supplierData.phone",
+      "supplierData.email",
+      "supplierData.address",
+      "supplierData.currency",
+      "supplierData.terms",
+      "supplierData.taxId",
+      "supplierData.notes"
+    ],
+    "hasApi": true,
+    "apiCalls": [
+      "js",
+      "procurement.getSupplierById",
+      "procurement.updateSupplier"
+    ],
+    "storeMutations": [
+      "updateSupplier"
+    ]
+  },
+  {
+    "file": "sales/CreateCustomer.vue",
+    "fields": [
+      "formData.firstName",
+      "formData.lastName",
+      "formData.phone",
+      "formData.email",
+      "formData.cnic",
+      "formData.address",
+      "formData.city",
+      "formData.branch",
+      "formData.status",
+      "formData.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateCustomer",
+      "addCustomer"
+    ]
+  },
+  {
+    "file": "sales/CreateCustomOrder.vue",
+    "fields": [
+      "form.customer",
+      "form.product",
+      "form.budget",
+      "form.desiredDate",
+      "form.deposit",
+      "form.paymentMethod",
+      "form.transactionId",
+      "form.status",
+      "form.reservation",
+      "form.branch",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateCustomOrder",
+      "addCustomOrder"
+    ]
+  },
+  {
+    "file": "sales/CreateDeliveryHandover.vue",
+    "fields": [
+      "form.order",
+      "form.customer",
+      "form.unit",
+      "form.scheduled",
+      "form.status",
+      "form.identityVerified",
+      "form.paymentComplete",
+      "form.chassisVerified",
+      "form.accessoriesIncluded",
+      "form.warrantyBriefed",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateDelivery",
+      "addDelivery"
+    ]
+  },
+  {
+    "file": "sales/CreateFollowUp.vue",
+    "fields": [
+      "form.customer",
+      "form.linkedRecord",
+      "form.taskType",
+      "form.priority",
+      "form.channel",
+      "form.owner",
+      "form.branch",
+      "form.dueDate",
+      "form.dueTime",
+      "form.notes",
+      "form.sendReminder"
+    ],
+    "hasApi": true,
+    "apiCalls": [
+      "followUps.update",
+      "followUps.create"
+    ],
+    "storeMutations": [
+      "updateFollowUp",
+      "addFollowUp",
+      "addNotification"
+    ]
+  },
+  {
+    "file": "sales/CreateInvoice.vue",
+    "fields": [
+      "form.branch",
+      "customerSearch",
+      "form.relatedReference",
+      "form.paymentTerms",
+      "form.issueDate",
+      "form.dueDate",
+      "form.status",
+      "item.description",
+      "item.quantity",
+      "item.unitPrice",
+      "form.discount",
+      "form.tax",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addCustomer",
+      "updateInvoice",
+      "addInvoice"
+    ]
+  },
+  {
+    "file": "sales/CreateLead.vue",
+    "fields": [
+      "formData.name",
+      "formData.phone",
+      "formData.source",
+      "formData.branch",
+      "formData.owner",
+      "formData.stage",
+      "formData.product",
+      "formData.budget",
+      "formData.nextFollowUp"
+    ],
+    "hasApi": true,
+    "apiCalls": [
+      "leads.update",
+      "leads.create"
+    ],
+    "storeMutations": [
+      "updateLead",
+      "addLead"
+    ]
+  },
+  {
+    "file": "sales/CreatePayment.vue",
+    "fields": [
+      "form.invoice_id",
+      "form.customer",
+      "form.order",
+      "form.method",
+      "form.transactionRef",
+      "form.bankAccount",
+      "form.date",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updatePayment",
+      "addPayment"
+    ]
+  },
+  {
+    "file": "sales/CreateQuotation.vue",
+    "fields": [
+      "form.branch",
+      "customerSearch",
+      "form.paymentTerms",
+      "form.taxRegFees",
+      "form.deliveryLeadTime",
+      "form.validity",
+      "item.product",
+      "item.quantity",
+      "item.sellingPrice",
+      "item.warranty",
+      "form.discount",
+      "form.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addCustomer",
+      "updateQuotation",
+      "addQuotation"
+    ]
+  },
+  {
+    "file": "sales/CreateReturn.vue",
+    "fields": [
+      "formData.orderNo",
+      "formData.customer",
+      "formData.unit",
+      "formData.branch",
+      "formData.requested",
+      "formData.reason",
+      "formData.status",
+      "formData.notes"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateSalesReturn",
+      "addSalesReturn"
+    ]
+  },
+  {
+    "file": "sales/CreateSale.vue",
+    "fields": [
+      "saleData.branch",
+      "customerSearch",
+      "saleData.product",
+      "saleData.cataloguePrice",
+      "saleData.discount",
+      "saleData.finalPrice",
+      "saleData.selectedUnit",
+      "saleData.paymentMethod",
+      "saleData.transactionId",
+      "saleData.bankAccount",
+      "saleData.chequeNo",
+      "saleData.draweeBank",
+      "saleData.amountReceived",
+      "saleData.balance"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "addCustomer",
+      "updateOrder",
+      "addOrder",
+      "addInvoice",
+      "addDelivery"
+    ]
+  },
+  {
+    "file": "system/BranchTeam.vue",
+    "fields": [
+      "searchQuery",
+      "memberForm.name",
+      "memberForm.role",
+      "memberForm.status",
+      "memberForm.contact",
+      "memberForm.email"
+    ],
+    "hasApi": false,
+    "apiCalls": [],
+    "storeMutations": [
+      "updateUser",
+      "addUser"
+    ]
+  }
+]

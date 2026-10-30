@@ -32,16 +32,30 @@ const close = () => {
 
 const submitForm = () => {
   const newReport = {
+    name: form.value.name,
     report: form.value.name,
     owner: 'Super Admin',
     scope: form.value.scope,
-    lastRun: 'Just now',
-    schedule: form.value.schedule
+    category: form.value.category,
+    dateRange: form.value.dateRange,
+    date_range: form.value.dateRange,
+    comparison: form.value.comparison,
+    status: form.value.status,
+    schedule: form.value.schedule,
+    format: form.value.format,
+    email: form.value.email,
+    metrics: form.value.metrics,
+    lastRun: 'Just now'
+  }
+
+  if (typeof store.addCustomReport === 'function') {
+    store.addCustomReport(newReport)
   }
 
   emit('created', newReport)
   close()
 }
+
 </script>
 
 <template>

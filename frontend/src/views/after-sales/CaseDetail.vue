@@ -66,6 +66,7 @@ const selectedNewStatus = ref(caseData.value?.status || 'Diagnosis')
 const updateStatus = (newStatus) => {
   if (caseData.value) {
     caseData.value.status = newStatus
+    store.updateCase(caseData.value.id || caseData.value.caseId, { status: newStatus })
   }
   showActionsDropdown.value = false
   showStatusModal.value = false

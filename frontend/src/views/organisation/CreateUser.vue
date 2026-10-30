@@ -58,9 +58,14 @@ const submitForm = () => {
     lastLogin: 'Never'
   }
 
+  if (typeof store.addUser === 'function') {
+    store.addUser(newUser)
+  }
+
   emit('created', newUser)
   cancel()
 }
+
 </script>
 
 <template>

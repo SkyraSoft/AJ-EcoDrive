@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
-import { CheckCircle2, ArrowLeft } from 'lucide-vue-next'
+import { CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-vue-next'
 import CreateQuotationModal from './CreateQuotation.vue'
 
 const route = useRoute()
@@ -13,6 +13,7 @@ const user = computed(() => store.currentUser)
 const showEditModal = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastType = ref('success')
 
 const quoteId = computed(() => route.params.id || route.query.id || 'QT-1882')
 const quoteRecord = computed(() => quoteId.value ? store.getQuotationById(quoteId.value) : null)
@@ -125,19 +126,63 @@ const branchTabData = computed(() => {
 
 const acceptQuotation = () => {
   if (!quoteRecord.value) return
-  quoteRecord.value.status = 'Accepted'
-  quoteRecord.value.statusClass = 'bg-[#dcfce7] text-[#165A31]'
-  toastMessage.value = `Quotation ${quoteId.value} accepted successfully!`
-  showToast.value = true
-  setTimeout(() => { showToast.value = false }, 3500)
+  const prevStatus = quoteRecord.value.status
+  const prevStatusClass = quoteRecord.value.statusClass
+
+  const updated = store.updateQuotation(quoteId.value, {
+    status: 'Accepted',
+    statusClass: 'bg-[#dcfce7] text-[#165A31]'
+  })
+
+  if (updated && updated._syncPromise) {
+    updated._syncPromise.then(res => {
+      if (res && res.ok) {
+        toastType.value = 'success'
+        toastMessage.value = `Quotation ${quoteId.value} accepted and saved in database!`
+      } else {
+        quoteRecord.value.status = prevStatus
+        quoteRecord.value.statusClass = prevStatusClass
+        toastType.value = 'error'
+        toastMessage.value = `Database error: ${res?.error || 'Failed to update quotation'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 3500)
+    }).catch(err => {
+      quoteRecord.value.status = prevStatus
+      quoteRecord.value.statusClass = prevStatusClass
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to update quotation'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 3500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Quotation ${quoteId.value} accepted successfully!`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  }
 }
 
 const convertToOrder = () => {
   if (!quoteRecord.value) return
   try {
     const res = store.convertQuotationToOrder(quoteId.value)
+    toastType.value = 'success'
     toastMessage.value = `Sales Order ${res.order.id} created from quotation!`
     showToast.value = true
+
+    if (res._syncPromise) {
+      res._syncPromise.then(syncRes => {
+        if (!syncRes?.ok && syncRes?.error) {
+          toastType.value = 'error'
+          toastMessage.value = `Backend note: ${syncRes.message || syncRes.error}`
+          showToast.value = true
+        }
+      }).catch(err => {
+        console.warn('[QuotationDetail] Convert order sync issue:', err.message)
+      })
+    }
+
     setTimeout(() => {
       router.push(`/sales/orders/detail?id=${res.order.id}`)
     }, 1200)
@@ -165,9 +210,11 @@ const tabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Docum
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="toastType === 'error' ? 'bg-red-700 text-white' : 'bg-[#165A31] text-white'"
+      class="fixed bottom-5 right-5 z-[110] px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 text-red-200" />
+      <CheckCircle2 v-else class="w-5 h-5 text-green-300" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Printer, Download, ArrowLeft } from 'lucide-vue-next'
 
@@ -8,6 +8,11 @@ import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
+
+onMounted(() => {
+  store.fetchRemoteInvoices().catch(e => console.warn('[InvoiceDetail] Remote sync note:', e.message))
+  store.fetchRemotePayments().catch(e => console.warn('[InvoiceDetail] Remote sync note:', e.message))
+})
 
 const rawInvId = computed(() => route.params.id || route.query.id)
 const invRecord = computed(() => {

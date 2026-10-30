@@ -38,6 +38,7 @@ const defaultBranch = () => {
 }
 
 const formData = ref({
+  id: '',
   returnNo: '',
   orderNo: '',
   customer: '',
@@ -54,6 +55,7 @@ const loadData = (data) => {
   isEditMode.value = true
   formData.value = {
     ...formData.value,
+    id: data.id || data.returnNo || '',
     returnNo: data.returnNo || formData.value.returnNo,
     orderNo: data.order || data.orderNo || formData.value.orderNo,
     customer: data.customer || formData.value.customer,
@@ -99,6 +101,7 @@ const createReturn = () => {
   }
 
   const payload = {
+    id: formData.value.id || formData.value.returnNo || undefined,
     returnNo: formData.value.returnNo || `RET-${Math.floor(100 + Math.random() * 900)}`,
     order: formData.value.orderNo,
     orderNo: formData.value.orderNo,
@@ -115,12 +118,19 @@ const createReturn = () => {
   }
 
   if (isEditMode.value) {
+    if (typeof store.updateSalesReturn === 'function') {
+      store.updateSalesReturn(payload.returnNo || payload.id, payload)
+    }
     emit('updated', payload)
   } else {
+    if (typeof store.addSalesReturn === 'function') {
+      store.addSalesReturn(payload)
+    }
     emit('created', payload)
   }
   close()
 }
+
 </script>
 
 <template>

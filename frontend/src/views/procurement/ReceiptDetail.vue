@@ -1,8 +1,9 @@
 <script setup>
 import { ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck, FileText, Package, Eye } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
@@ -16,7 +17,33 @@ const receipt = computed(() => {
 })
 
 const activeTab = ref('Summary')
+const isLoading = ref(false)
+const apiError = ref(null)
 const tabs = ['Summary', 'Received Lines', 'Serial & Chassis Units', 'Discrepancies', 'QC', 'Costs', 'Documents', 'Activity']
+
+onMounted(async () => {
+  if (!receiptId.value) return
+  isLoading.value = true
+  apiError.value = null
+  try {
+    const res = await api.procurement.getReceiptById(receiptId.value)
+    const data = res?.data || res
+    if (data && (data.id || data.receipt_number)) {
+      if (!store.receipts) store.receipts = []
+      const existingIdx = store.receipts.findIndex(r => r.id === data.id || r.receipt_number === data.receipt_number)
+      if (existingIdx >= 0) {
+        store.receipts[existingIdx] = data
+      } else {
+        store.receipts.unshift(data)
+      }
+    }
+  } catch (err) {
+    console.warn('API error fetching receipt detail:', err)
+    apiError.value = err.message
+  } finally {
+    isLoading.value = false
+  }
+})
 
 // Calculated receipt statistics
 const totalUnitsReceived = computed(() => {
@@ -44,16 +71,22 @@ const discrepanciesList = computed(() => {
   return receipt.value.lines.filter(l => (l.short_quantity > 0 || l.excess_quantity > 0 || l.damaged_quantity > 0))
 })
 
-const documents = computed(() => [
-  { name: `Delivery_Note_${receipt.value.po_id || receipt.value.po}.pdf`, type: 'Delivery Note', uploaded: receipt.value.receipt_date },
-  { name: `GRN_${receipt.value.id}.pdf`, type: 'Goods Receipt Note', uploaded: receipt.value.receipt_date }
-])
+const documents = computed(() => {
+  if (!receipt.value) return []
+  return [
+    { name: `Delivery_Note_${receipt.value.po_id || receipt.value.po}.pdf`, type: 'Delivery Note', uploaded: receipt.value.receipt_date },
+    { name: `GRN_${receipt.value.id}.pdf`, type: 'Goods Receipt Note', uploaded: receipt.value.receipt_date }
+  ]
+})
 
-const activities = computed(() => [
-  { text: `GRN ${receipt.value.id} posted into ${receipt.value.branch} inventory`, date: receipt.value.receipt_date },
-  { text: `QC and physical inspection completed by ${receipt.value.received_by || receipt.value.receiver}`, date: receipt.value.receipt_date },
-  { text: `Delivery consignment received for ${receipt.value.po_id || receipt.value.po}`, date: receipt.value.receipt_date }
-])
+const activities = computed(() => {
+  if (!receipt.value) return []
+  return [
+    { text: `GRN ${receipt.value.id} posted into ${receipt.value.branch} inventory`, date: receipt.value.receipt_date },
+    { text: `QC and physical inspection completed by ${receipt.value.received_by || receipt.value.receiver}`, date: receipt.value.receipt_date },
+    { text: `Delivery consignment received for ${receipt.value.po_id || receipt.value.po}`, date: receipt.value.receipt_date }
+  ]
+})
 
 const openPo = () => {
   if (receipt.value?.po_id || receipt.value?.po) {
@@ -65,8 +98,12 @@ const openPo = () => {
 </script>
 
 <template>
+  <div v-if="isLoading && !receipt" class="max-w-[1400px] mx-auto py-24 text-center">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#165A31]"></div>
+    <p class="text-sm text-gray-500 mt-3 font-medium">Loading goods receipt...</p>
+  </div>
   <NotFoundState
-    v-if="!receipt"
+    v-else-if="!receipt"
     title="Goods Receipt Not Found"
     message="The requested goods receipt could not be found or is not accessible from your current branch context."
     back-link="/procurement/purchase-orders"

@@ -19,6 +19,9 @@ coverage/
 .env.test.local
 .env.production.local
 !.env.example
+vault/
+*_vault.json
+*credentials*vault*
 
 # Logs
 logs/
@@ -47,3 +50,8 @@ tmp/
 temp/
 *.tmp
 *.bak
+backups/
+*.sql
+*.sql.gz
+tmp_*/
+tmp_chrome_biz_audit/

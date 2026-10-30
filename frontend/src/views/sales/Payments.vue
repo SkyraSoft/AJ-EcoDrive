@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ChevronDown, Check, CheckCircle2, Pencil, Search, Plus } from 'lucide-vue-next'
+import { ChevronDown, Check, CheckCircle2, AlertCircle, Pencil, Search, Plus } from 'lucide-vue-next'
 import { store } from '../../store.js'
 import CreatePaymentModal from './CreatePayment.vue'
 
@@ -15,13 +15,58 @@ const selectedPaymentToEdit = ref(null)
 const initialCustomer = ref(null)
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastType = ref('success')
 
 onMounted(() => {
+  store.fetchRemotePayments().catch(e => console.warn('[Payments] Remote sync note:', e.message))
+  store.fetchRemoteInvoices().catch(e => console.warn('[Payments/Invoices] Remote sync note:', e.message))
+
   if (route.query.action === 'new' || route.query.customer) {
     initialCustomer.value = route.query.customer || null
     showCreateModal.value = true
   }
 })
+
+const handlePaymentCreated = (payment) => {
+  if (payment && !store.payments.some(p => (p.id && p.id === (payment.id || payment.payment)) || (p.payment_id && p.payment_id === (payment.id || payment.payment)))) {
+    store.addPayment(payment)
+  }
+  showCreateModal.value = false
+  if (payment && payment._syncPromise) {
+    payment._syncPromise.then(res => {
+      if (res && (res.ok || res.id || res.payment_number)) {
+        toastType.value = 'success'
+        toastMessage.value = `Payment ${payment.paymentNo || payment.payment || payment.id} recorded and saved to MySQL!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database save error: ${res?.error || 'Failed to save payment'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to save payment'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Payment ${payment?.paymentNo || payment?.payment || payment?.id} recorded successfully!`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 3500)
+  }
+}
+
+const handlePaymentUpdated = (payment) => {
+  if (payment) {
+    store.updatePayment(payment)
+  }
+  showCreateModal.value = false
+  toastType.value = 'success'
+  toastMessage.value = `Payment ${payment?.paymentNo || payment?.payment || payment?.id} updated successfully!`
+  showToast.value = true
+  setTimeout(() => { showToast.value = false }, 3500)
+}
 
 // Branch Manager Data
 const branchKpis = [
@@ -77,24 +122,6 @@ const openEditModal = (item) => {
   selectedPaymentToEdit.value = item
   store.originalEditPayment = item
   showCreateModal.value = true
-}
-
-const handlePaymentCreated = (newPayment) => {
-  if (!store.payments.some(p => (p.id && p.id === (newPayment.id || newPayment.payment)) || (p.payment_id && p.payment_id === (newPayment.id || newPayment.payment)))) {
-    store.addPayment(newPayment)
-  }
-  toastMessage.value = `Payment ${newPayment.id || newPayment.payment || newPayment.paymentNo} recorded successfully!`
-  showToast.value = true
-  showCreateModal.value = false
-  setTimeout(() => { showToast.value = false }, 4000)
-}
-
-const handlePaymentUpdated = (updatedPayment) => {
-  store.updatePayment(updatedPayment)
-  toastMessage.value = `Payment ${updatedPayment.id || updatedPayment.payment || updatedPayment.paymentNo} updated successfully!`
-  showToast.value = true
-  showCreateModal.value = false
-  setTimeout(() => { showToast.value = false }, 4000)
 }
 
 // Super Admin Data
@@ -154,9 +181,13 @@ const resetFilters = () => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="[
+        'fixed bottom-5 right-5 z-[110] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200',
+        toastType === 'error' ? 'bg-red-700' : 'bg-[#165A31]'
+      ]"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 text-red-200" />
+      <CheckCircle2 v-else class="w-5 h-5 text-green-300" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 

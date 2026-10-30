@@ -1,8 +1,14 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, Search, Check, Plus, Pencil } from 'lucide-vue-next'
 import { store } from '../../store.js'
+
+onMounted(() => {
+  if (typeof store.fetchRemoteAdjustments === 'function') {
+    store.fetchRemoteAdjustments().catch(() => {})
+  }
+})
 import { dapStore } from '@/stores/dapStore.js'
 import CreateAdjustmentRequestModal from './CreateAdjustmentRequest.vue'
 

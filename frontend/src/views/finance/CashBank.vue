@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { api } from '../../services/api.js'
 
 const searchQuery = ref('')
 const selectedAccount = ref('All Accounts')
@@ -9,12 +10,34 @@ const openDropdown = ref(null)
 const accounts = ['All Accounts', 'Bank', 'Cash']
 const statuses = ['All Statuses', 'Matched', 'Review']
 
-const kpis = [
+const kpis = ref([
   { label: 'Bank Balance', value: 'PKR 18.6M' },
   { label: 'Cash on Hand', value: 'PKR 1.2M' },
   { label: 'Unreconciled', value: 'PKR 0.14M' },
   { label: 'Last Reconciled', value: 'Aug 26' }
-]
+])
+
+onMounted(async () => {
+  try {
+    const res = await api.finance.getCashBank()
+    if (res && res.kpis) {
+      const bankM = (res.kpis.bankBalance / 1000000).toFixed(1)
+      const cashM = (res.kpis.cashOnHand / 1000000).toFixed(1)
+      const unrecM = (res.kpis.unreconciled / 1000000).toFixed(2)
+      kpis.value = [
+        { label: 'Bank Balance', value: `PKR ${bankM}M` },
+        { label: 'Cash on Hand', value: `PKR ${cashM}M` },
+        { label: 'Unreconciled', value: `PKR ${unrecM}M` },
+        { label: 'Last Reconciled', value: res.kpis.lastReconciled || 'Aug 26' }
+      ]
+    }
+    if (res && Array.isArray(res.reconciliations) && res.reconciliations.length > 0) {
+      reconciliations.value = res.reconciliations
+    }
+  } catch (err) {
+    // Graceful fallback to baseline fixtures
+  }
+})
 
 const reconciliations = ref([
   {

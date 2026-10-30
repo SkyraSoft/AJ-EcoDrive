@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import { ArrowLeft, Plus } from 'lucide-vue-next'
@@ -11,6 +11,11 @@ const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 const showCreateModal = ref(false)
+
+onMounted(() => {
+  store.fetchRemotePayments().catch(e => console.warn('[PaymentDetail] Remote sync note:', e.message))
+  store.fetchRemoteInvoices().catch(e => console.warn('[PaymentDetail] Remote sync note:', e.message))
+})
 
 const rawPayId = computed(() => route.params.id || route.query.id)
 const currentPayment = computed(() => {

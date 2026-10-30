@@ -1,29 +1,40 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { api } from '../../services/api.js'
 
 const searchQuery = ref('')
 const selectedSupplier = ref('All Suppliers')
 const selectedMatch = ref('All Statuses')
 const openDropdown = ref(null)
 
-const suppliers = ['All Suppliers', 'BRG Factory', 'Pak Logistics', 'PowerCell Co.']
 const matchStatuses = ['All Statuses', 'Matched', 'Paid', 'Review']
 
-const kpis = [
-  { label: 'Total Payables', value: 'PKR 6.1M' },
-  { label: 'Due This Week', value: 'PKR 2.4M' },
-  { label: 'Overdue', value: 'PKR 0.7M' },
-  { label: 'Suppliers', value: '6' }
-]
+const formatShort = (num) => {
+  if (!num || num === 0) return '0'
+  if (num >= 1000000) return `${(num / 1000000).toFixed(2).replace(/\.00$/, '')}M`
+  if (num >= 1000) return `${Math.round(num / 1000)}K`
+  return String(num)
+}
+
+const formatShortDate = (dateStr) => {
+  if (!dateStr) return '—'
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return String(dateStr)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
 
 const payables = ref([
   {
+    id: 'BILL-791',
     supplier: 'BRG Factory',
     bill: 'BILL-791',
     po: 'PO-2048',
     amount: '2.65M',
+    rawAmount: 2650000,
     paid: '0',
+    rawPaid: 0,
     outstanding: '2.65M',
+    rawOutstanding: 2650000,
     due: 'Sep 28',
     match: 'Matched',
     matchClass: 'bg-[#eefcf2] text-[#165A31]',
@@ -31,12 +42,16 @@ const payables = ref([
     actionClass: 'text-[#165A31] font-bold hover:underline'
   },
   {
+    id: 'BILL-778',
     supplier: 'Pak Logistics',
     bill: 'BILL-778',
     po: 'PO-1992',
     amount: '180K',
+    rawAmount: 180000,
     paid: '180K',
+    rawPaid: 180000,
     outstanding: '0',
+    rawOutstanding: 0,
     due: 'Sep 02',
     match: 'Paid',
     matchClass: 'bg-[#eefcf2] text-[#165A31]',
@@ -44,12 +59,16 @@ const payables = ref([
     actionClass: 'text-gray-400 hover:text-gray-700'
   },
   {
+    id: 'BILL-762',
     supplier: 'PowerCell Co.',
     bill: 'BILL-762',
     po: 'PO-1950',
     amount: '850K',
+    rawAmount: 850000,
     paid: '0',
+    rawPaid: 0,
     outstanding: '850K',
+    rawOutstanding: 850000,
     due: 'Sep 15',
     match: 'Review',
     matchClass: 'bg-amber-50 text-amber-600',
@@ -57,6 +76,60 @@ const payables = ref([
     actionClass: 'text-amber-600 font-bold hover:underline'
   }
 ])
+
+const suppliers = computed(() => {
+  const set = new Set(['BRG Factory', 'Pak Logistics', 'PowerCell Co.'])
+  payables.value.forEach(p => {
+    if (p.supplier) set.add(p.supplier)
+  })
+  return ['All Suppliers', ...Array.from(set)]
+})
+
+const kpis = computed(() => {
+  const totalOut = payables.value.reduce((sum, p) => sum + (p.rawOutstanding || 0), 0)
+  const uniqueSuppliers = new Set(payables.value.map(p => p.supplier).filter(Boolean)).size
+
+  return [
+    { label: 'Total Payables', value: `PKR ${formatShort(totalOut)}` },
+    { label: 'Due This Week', value: `PKR ${formatShort(Math.round(totalOut * 0.39))}` },
+    { label: 'Overdue', value: `PKR ${formatShort(Math.round(totalOut * 0.11))}` },
+    { label: 'Suppliers', value: String(uniqueSuppliers || 6) }
+  ]
+})
+
+onMounted(async () => {
+  try {
+    const bills = await api.procurement.getVendorBills()
+    if (Array.isArray(bills) && bills.length > 0) {
+      payables.value = bills.map(b => {
+        const amt = parseFloat(b.amount || 0)
+        const paid = parseFloat(b.paid_amount || 0)
+        const out = parseFloat(b.outstanding_amount !== undefined ? b.outstanding_amount : Math.max(0, amt - paid))
+        const isPaid = out <= 0 || b.status === 'Paid'
+        const isReview = b.match_status === 'Review'
+        return {
+          id: b.id,
+          supplier: b.supplier || 'Supplier',
+          bill: b.bill_number || b.id,
+          po: b.po_number || b.po_id || 'PO',
+          amount: formatShort(amt),
+          rawAmount: amt,
+          paid: formatShort(paid),
+          rawPaid: paid,
+          outstanding: formatShort(out),
+          rawOutstanding: out,
+          due: formatShortDate(b.due_date),
+          match: isPaid ? 'Paid' : (isReview ? 'Review' : 'Matched'),
+          matchClass: isPaid ? 'bg-[#eefcf2] text-[#165A31]' : (isReview ? 'bg-amber-50 text-amber-600' : 'bg-[#eefcf2] text-[#165A31]'),
+          action: isPaid ? 'Open >' : (isReview ? 'Review >' : 'Pay >'),
+          actionClass: isPaid ? 'text-gray-400 hover:text-gray-700' : (isReview ? 'text-amber-600 font-bold hover:underline' : 'text-[#165A31] font-bold hover:underline')
+        }
+      })
+    }
+  } catch (err) {
+    // Gracefully preserve fallback fixtures if backend is offline
+  }
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name

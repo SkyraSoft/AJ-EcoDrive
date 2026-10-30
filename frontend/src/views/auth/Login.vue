@@ -6,7 +6,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { authenticateBranch } from '@/auth.js'
 import { store } from '@/store.js'
-import { KeyRound, Sparkles, ArrowRight, ShieldCheck, Check, BookOpen, ExternalLink } from 'lucide-vue-next'
+import { KeyRound, Sparkles, ArrowRight, Check, BookOpen, ExternalLink } from 'lucide-vue-next'
 
 const router = useRouter()
 const branchCode = ref('ADMIN')
@@ -76,7 +76,7 @@ const handleLogin = async () => {
 
   try {
     const session = await authenticateBranch(branchCode.value, password.value)
-    store.setSession(session, false)
+    store.setSession(session, true)
     router.push('/dashboard')
   } catch (err) {
     errorMessage.value = err.message || 'Email/username or password is incorrect. Review your details and try again.'

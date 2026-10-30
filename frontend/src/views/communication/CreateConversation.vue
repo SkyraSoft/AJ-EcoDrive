@@ -84,9 +84,13 @@ const submitForm = () => {
       lastMsg: form.value.message || 'Updated thread',
       priorityClass: form.value.priority === 'High' ? 'bg-[#fff7ed] text-[#ea580c]' : 'bg-blue-50 text-blue-700'
     }
-    const idx = store.conversations.findIndex(c => c.id === form.value.id)
-    if (idx !== -1) {
-      store.conversations[idx] = { ...store.conversations[idx], ...updatedConv }
+    if (typeof store.updateConversation === 'function') {
+      store.updateConversation(form.value.id, updatedConv)
+    } else {
+      const idx = store.conversations.findIndex(c => c.id === form.value.id)
+      if (idx !== -1) {
+        store.conversations[idx] = { ...store.conversations[idx], ...updatedConv }
+      }
     }
     emit('updated', updatedConv)
     close()

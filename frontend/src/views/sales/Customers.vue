@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronDown, Check, Plus, Pencil, CheckCircle2 } from 'lucide-vue-next'
+import { Search, ChevronDown, Check, Plus, Pencil, CheckCircle2, AlertCircle } from 'lucide-vue-next'
 import { store } from '@/store'
 import CreateCustomerModal from './CreateCustomer.vue'
 
@@ -10,6 +10,7 @@ const showCreateModal = ref(false)
 const selectedCustomerToEdit = ref(null)
 const showToast = ref(false)
 const toastMessage = ref('')
+const toastType = ref('success')
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
@@ -67,18 +68,60 @@ const openEditModal = (customer) => {
 
 const handleCustomerCreated = (newCustomer) => {
   const added = store.addCustomer(newCustomer)
-  toastMessage.value = `Customer ${added.name} added successfully!`
-  showToast.value = true
   showCreateModal.value = false
-  setTimeout(() => { showToast.value = false }, 4000)
+
+  if (added && added._syncPromise) {
+    added._syncPromise.then(res => {
+      if (res && res.ok) {
+        toastType.value = 'success'
+        toastMessage.value = `Customer ${added.name} saved to database successfully!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database save error: ${res?.error || 'Server rejected customer'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to save customer'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Customer ${added.name} registered!`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 4000)
+  }
 }
 
 const handleCustomerUpdated = (updatedCustomer) => {
-  store.updateCustomer(updatedCustomer.id || updatedCustomer.code, updatedCustomer)
-  toastMessage.value = `Customer ${updatedCustomer.name} updated successfully!`
-  showToast.value = true
+  const updated = store.updateCustomer(updatedCustomer.id || updatedCustomer.code, updatedCustomer)
   showCreateModal.value = false
-  setTimeout(() => { showToast.value = false }, 4000)
+
+  if (updated && updated._syncPromise) {
+    updated._syncPromise.then(res => {
+      if (res && res.ok) {
+        toastType.value = 'success'
+        toastMessage.value = `Customer ${updatedCustomer.name} updated in database successfully!`
+      } else {
+        toastType.value = 'error'
+        toastMessage.value = `Database update error: ${res?.error || 'Failed to update'}`
+      }
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    }).catch(err => {
+      toastType.value = 'error'
+      toastMessage.value = `Database error: ${err?.message || 'Failed to update'}`
+      showToast.value = true
+      setTimeout(() => { showToast.value = false }, 4500)
+    })
+  } else {
+    toastType.value = 'success'
+    toastMessage.value = `Customer ${updatedCustomer.name} updated!`
+    showToast.value = true
+    setTimeout(() => { showToast.value = false }, 4000)
+  }
 }
 
 const openCustomerDetail = (customer) => {
@@ -141,9 +184,11 @@ const resetFilters = () => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="toastType === 'error' ? 'bg-red-700 text-white' : 'bg-[#165A31] text-white'"
+      class="fixed bottom-5 right-5 z-[110] px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 text-red-200" />
+      <CheckCircle2 v-else class="w-5 h-5 text-green-300" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 
@@ -319,9 +364,11 @@ const resetFilters = () => {
     <!-- Toast Notification -->
     <div 
       v-if="showToast" 
-      class="fixed bottom-5 right-5 z-[110] bg-[#165A31] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
+      :class="toastType === 'error' ? 'bg-red-700 text-white' : 'bg-[#165A31] text-white'"
+      class="fixed bottom-5 right-5 z-[110] px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200"
     >
-      <CheckCircle2 class="w-5 h-5 text-green-300" />
+      <AlertCircle v-if="toastType === 'error'" class="w-5 h-5 text-red-200" />
+      <CheckCircle2 v-else class="w-5 h-5 text-green-300" />
       <span class="text-xs font-bold">{{ toastMessage }}</span>
     </div>
 

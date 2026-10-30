@@ -1,5 +1,7 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import { store } from '@/store.js'
+import { X } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -52,6 +54,38 @@ import { RouterView } from 'vue-router'
       <div class="w-full max-w-md">
         <RouterView />
       </div>
+    </div>
+
+    <!-- Toast Notification for Auth Layout -->
+    <div
+      v-if="store.activeToast"
+      id="layout-toast-notification"
+      class="fixed bottom-6 right-6 z-[10000] flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900/95 text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-200 max-w-md border"
+      :class="{
+        'border-emerald-500/40': (store.activeToast?.type || 'success') === 'success',
+        'border-rose-500/40': store.activeToast?.type === 'error',
+        'border-amber-500/40': store.activeToast?.type === 'warning',
+        'border-blue-500/40': store.activeToast?.type === 'info'
+      }"
+      role="alert"
+    >
+      <div 
+        class="w-2.5 h-2.5 rounded-full animate-pulse"
+        :class="{
+          'bg-emerald-400': (store.activeToast?.type || 'success') === 'success',
+          'bg-rose-500': store.activeToast?.type === 'error',
+          'bg-amber-400': store.activeToast?.type === 'warning',
+          'bg-blue-400': store.activeToast?.type === 'info'
+        }"
+      ></div>
+      <p class="text-xs font-medium text-slate-200">{{ store.activeToast?.message }}</p>
+      <button
+        @click="store.dismissToast()"
+        class="ml-auto text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+        aria-label="Dismiss toast"
+      >
+        <X class="w-3.5 h-3.5" />
+      </button>
     </div>
   </div>
 </template>

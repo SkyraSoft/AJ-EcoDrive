@@ -1,0 +1,1370 @@
+[
+  {
+    "file": "dashboard/ActionCentre.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 42,
+    "vmodels": [
+      "searchQuery",
+      "actionForm.title",
+      "actionForm.priority",
+      "actionForm.pricing.customerName",
+      "actionForm.pricing.customerContact",
+      "actionForm.pricing.modelName",
+      "actionForm.pricing.orderRef",
+      "actionForm.pricing.unitCount",
+      "actionForm.pricing.requestedDiscountPercent",
+      "actionForm.pricing.competitorContext",
+      "actionForm.stock.originBranch",
+      "actionForm.stock.destinationBranch",
+      "actionForm.stock.modelName",
+      "actionForm.stock.requestedQty",
+      "actionForm.stock.chassisVins",
+      "actionForm.stock.linkedBookingRef",
+      "actionForm.stock.logisticsCarrier",
+      "actionForm.stock.freightCostEstimate",
+      "actionForm.stock.urgencyReason",
+      "actionForm.expense.expenseCategory",
+      "actionForm.expense.amountPkr",
+      "actionForm.expense.payeeVendor",
+      "actionForm.expense.vendorNtn",
+      "actionForm.expense.paymentMethod",
+      "actionForm.expense.invoiceRef",
+      "actionForm.expense.operationalEmergencyJustification",
+      "actionForm.warranty.customerName",
+      "actionForm.warranty.vehicleVin",
+      "actionForm.warranty.odometerKm",
+      "actionForm.warranty.defectComponent",
+      "actionForm.warranty.diagnosticCode",
+      "actionForm.warranty.replacementSkuNeeded",
+      "actionForm.warranty.technicianFindings",
+      "actionForm.governance.affectedVinOrSku",
+      "actionForm.governance.modelName",
+      "actionForm.governance.discrepancyUnitCount",
+      "actionForm.governance.estimatedVariancePkr",
+      "actionForm.governance.rootCauseClassification",
+      "actionForm.governance.recommendedAction",
+      "actionForm.governance.incidentDescription",
+      "decisionNotes",
+      "counterDiscountPercent"
+    ],
+    "inputCount": 42
+  },
+  {
+    "file": "system/Settings.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 22,
+    "vmodels": [
+      "businessProfile.name",
+      "businessProfile.brand",
+      "businessProfile.email",
+      "businessProfile.phone",
+      "businessProfile.website",
+      "businessProfile.taxNumber",
+      "businessProfile.address",
+      "businessProfile.timezone",
+      "businessProfile.currency",
+      "branchDefaults.openingHours",
+      "branchDefaults.expenseLimit",
+      "branchDefaults.discountLimit",
+      "productMasterData.tracking",
+      "productMasterData.skuFormat",
+      "productMasterData.warrantyDefault",
+      "pricingRules.pricingMode",
+      "pricingRules.minMargin",
+      "pricingRules.discountThreshold",
+      "num.prefix",
+      "securitySettings.mfaPolicy",
+      "securitySettings.sessionTimeout",
+      "securitySettings.passwordPolicy"
+    ],
+    "inputCount": 22
+  },
+  {
+    "file": "catalogue/CreateProduct.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 17,
+    "vmodels": [
+      "form.name",
+      "form.category",
+      "form.subcategory",
+      "form.model",
+      "form.sku",
+      "form.tracking",
+      "form.variants",
+      "form.warranty",
+      "form.motor",
+      "form.battery",
+      "form.range",
+      "form.speed",
+      "form.price",
+      "form.supplier",
+      "form.reorderLevel",
+      "form.poorStockDays",
+      "form.activation"
+    ],
+    "inputCount": 19
+  },
+  {
+    "file": "catalogue/EditProduct.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 17,
+    "vmodels": [
+      "productData.name",
+      "productData.category",
+      "productData.subcategory",
+      "productData.model",
+      "productData.sku",
+      "productData.tracking",
+      "productData.variants",
+      "productData.warranty",
+      "productData.motor",
+      "productData.battery",
+      "productData.range",
+      "productData.speed",
+      "productData.media",
+      "productData.price",
+      "productData.reorderLevel",
+      "productData.documents",
+      "productData.activation"
+    ],
+    "inputCount": 17
+  },
+  {
+    "file": "after-sales/CreateRepairJob.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 16,
+    "vmodels": [
+      "caseSearch",
+      "form.customer",
+      "form.unit",
+      "form.branch",
+      "form.unitModel",
+      "form.diagnosis",
+      "form.fault",
+      "form.decision",
+      "form.technician",
+      "form.partItem",
+      "form.partQty",
+      "form.partCost",
+      "form.partSource",
+      "form.readyDate",
+      "form.status",
+      "newTaskName"
+    ],
+    "inputCount": 17
+  },
+  {
+    "file": "organisation/EditBranch.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 16,
+    "vmodels": [
+      "branchData.name",
+      "branchData.code",
+      "branchData.status",
+      "branchData.address",
+      "branchData.city",
+      "branchData.area",
+      "branchData.phone",
+      "branchData.email",
+      "branchData.manager",
+      "branchData.defaultLocation",
+      "branchData.hours",
+      "branchData.expenseLimit",
+      "branchData.discountLimit",
+      "branchData.salesRules",
+      "branchData.notes",
+      "branchData.changeNote"
+    ],
+    "inputCount": 16
+  },
+  {
+    "file": "organisation/CreateBranch.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 15,
+    "vmodels": [
+      "form.name",
+      "form.code",
+      "form.status",
+      "form.address",
+      "form.city",
+      "form.area",
+      "form.phone",
+      "form.email",
+      "form.manager",
+      "form.hours",
+      "form.defaultLocation",
+      "form.expenseLimit",
+      "form.discountLimit",
+      "form.salesRules",
+      "form.notes"
+    ],
+    "inputCount": 15
+  },
+  {
+    "file": "analytics/BuildReport.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 14,
+    "vmodels": [
+      "form.name",
+      "form.category",
+      "form.scope",
+      "form.dateRange",
+      "form.comparison",
+      "form.status",
+      "form.metrics.revenue",
+      "form.metrics.volume",
+      "form.metrics.orders",
+      "form.metrics.margins",
+      "form.metrics.kpi",
+      "form.schedule",
+      "form.format",
+      "form.email"
+    ],
+    "inputCount": 14
+  },
+  {
+    "file": "sales/CreateSale.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 14,
+    "vmodels": [
+      "saleData.branch",
+      "customerSearch",
+      "saleData.product",
+      "saleData.cataloguePrice",
+      "saleData.discount",
+      "saleData.finalPrice",
+      "saleData.selectedUnit",
+      "saleData.paymentMethod",
+      "saleData.transactionId",
+      "saleData.bankAccount",
+      "saleData.chequeNo",
+      "saleData.draweeBank",
+      "saleData.amountReceived",
+      "saleData.balance"
+    ],
+    "inputCount": 16
+  },
+  {
+    "file": "after-sales/CreateCase.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 13,
+    "vmodels": [
+      "customerSearch",
+      "form.customerPhone",
+      "form.customerEmail",
+      "unitSearch",
+      "form.odometer",
+      "form.purchaseDate",
+      "form.category",
+      "form.complaint",
+      "form.urgency",
+      "form.branch",
+      "form.assignedTech",
+      "form.estimatedCompletion",
+      "form.notes"
+    ],
+    "inputCount": 13
+  },
+  {
+    "file": "procurement/ReceivePurchase.vue",
+    "hasForm": false,
+    "hasSubmit": true,
+    "vmodelCount": 13,
+    "vmodels": [
+      "receivingForm.location",
+      "receivingForm.receiver",
+      "receivingForm.receiptDate",
+      "receivingForm.deliveryNote",
+      "line.current_received_quantity",
+      "line.damaged_quantity",
+      "line.discrepancy_reason",
+      "unit.chassis",
+      "unit.motorNumber",
+      "unit.batteryNumber",
+      "unit.condition",
+      "unit.qc",
+      "receivingForm.notes"
+    ],
+    "inputCount": 13
+  },
+  {
+    "file": "sales/CreateInvoice.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 13,
+    "vmodels": [
+      "form.branch",
+      "customerSearch",
+      "form.relatedReference",
+      "form.paymentTerms",
+      "form.issueDate",
+      "form.dueDate",
+      "form.status",
+      "item.description",
+      "item.quantity",
+      "item.unitPrice",
+      "form.discount",
+      "form.tax",
+      "form.notes"
+    ],
+    "inputCount": 13
+  },
+  {
+    "file": "procurement/CreatePurchaseOrder.vue",
+    "hasForm": false,
+    "hasSubmit": true,
+    "vmodelCount": 12,
+    "vmodels": [
+      "form.supplier",
+      "form.destination",
+      "form.expectedArrival",
+      "line.productId",
+      "line.variantId",
+      "line.quantity",
+      "line.expectedUnitCost",
+      "form.estimatedFreight",
+      "form.shipmentMethod",
+      "form.paymentTerms",
+      "form.documents",
+      "form.notes"
+    ],
+    "inputCount": 12
+  },
+  {
+    "file": "sales/CreateQuotation.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 12,
+    "vmodels": [
+      "form.branch",
+      "customerSearch",
+      "form.paymentTerms",
+      "form.taxRegFees",
+      "form.deliveryLeadTime",
+      "form.validity",
+      "item.product",
+      "item.quantity",
+      "item.sellingPrice",
+      "item.warranty",
+      "form.discount",
+      "form.notes"
+    ],
+    "inputCount": 13
+  },
+  {
+    "file": "sales/CreateCustomOrder.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 11,
+    "vmodels": [
+      "form.customer",
+      "form.product",
+      "form.budget",
+      "form.desiredDate",
+      "form.deposit",
+      "form.paymentMethod",
+      "form.transactionId",
+      "form.status",
+      "form.reservation",
+      "form.branch",
+      "form.notes"
+    ],
+    "inputCount": 11
+  },
+  {
+    "file": "sales/CreateDeliveryHandover.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 11,
+    "vmodels": [
+      "form.order",
+      "form.customer",
+      "form.unit",
+      "form.scheduled",
+      "form.status",
+      "form.identityVerified",
+      "form.paymentComplete",
+      "form.chassisVerified",
+      "form.accessoriesIncluded",
+      "form.warrantyBriefed",
+      "form.notes"
+    ],
+    "inputCount": 12
+  },
+  {
+    "file": "sales/CreateFollowUp.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 11,
+    "vmodels": [
+      "form.customer",
+      "form.linkedRecord",
+      "form.taskType",
+      "form.priority",
+      "form.channel",
+      "form.owner",
+      "form.branch",
+      "form.dueDate",
+      "form.dueTime",
+      "form.notes",
+      "form.sendReminder"
+    ],
+    "inputCount": 12
+  },
+  {
+    "file": "inventory/CreateQuarantineRecord.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 10,
+    "vmodels": [
+      "form.branch",
+      "form.unit",
+      "form.product",
+      "form.source",
+      "form.condition",
+      "form.status",
+      "form.decision",
+      "form.evidence",
+      "form.notes",
+      "form.approval"
+    ],
+    "inputCount": 12
+  },
+  {
+    "file": "inventory/CreateTransfer.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 10,
+    "vmodels": [
+      "form.fromBranch",
+      "form.toBranch",
+      "form.productId",
+      "form.units",
+      "form.requestedDate",
+      "form.carrier",
+      "form.driverContact",
+      "form.gatePassNo",
+      "form.expectedArrival",
+      "form.notes"
+    ],
+    "inputCount": 10
+  },
+  {
+    "file": "sales/CreateCustomer.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 10,
+    "vmodels": [
+      "formData.firstName",
+      "formData.lastName",
+      "formData.phone",
+      "formData.email",
+      "formData.cnic",
+      "formData.address",
+      "formData.city",
+      "formData.branch",
+      "formData.status",
+      "formData.notes"
+    ],
+    "inputCount": 10
+  },
+  {
+    "file": "finance/CreateExpense.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 9,
+    "vmodels": [
+      "form.branch",
+      "form.category",
+      "form.date",
+      "form.vendor",
+      "form.paymentMethod",
+      "form.transactionId",
+      "form.description",
+      "form.receipt",
+      "form.notes"
+    ],
+    "inputCount": 10
+  },
+  {
+    "file": "inventory/CreateAdjustmentRequest.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 9,
+    "vmodels": [
+      "form.productUnit",
+      "form.existingState",
+      "form.correctedState",
+      "form.reason",
+      "form.evidence",
+      "form.notes",
+      "form.branch",
+      "form.requestedBy",
+      "form.approval"
+    ],
+    "inputCount": 9
+  },
+  {
+    "file": "inventory/CreateStockRequest.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 9,
+    "vmodels": [
+      "form.branch",
+      "form.productId",
+      "form.currentStock",
+      "form.requestedQty",
+      "form.urgency",
+      "form.expectedDemand",
+      "form.orderLink",
+      "form.reason",
+      "form.notes"
+    ],
+    "inputCount": 9
+  },
+  {
+    "file": "procurement/CreateSupplier.vue",
+    "hasForm": false,
+    "hasSubmit": true,
+    "vmodelCount": 9,
+    "vmodels": [
+      "form.name",
+      "form.contact",
+      "form.phone",
+      "form.email",
+      "form.address",
+      "form.currency",
+      "form.terms",
+      "form.taxId",
+      "form.notes"
+    ],
+    "inputCount": 9
+  },
+  {
+    "file": "procurement/EditSupplier.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 9,
+    "vmodels": [
+      "supplierData.name",
+      "supplierData.contact",
+      "supplierData.phone",
+      "supplierData.email",
+      "supplierData.address",
+      "supplierData.currency",
+      "supplierData.terms",
+      "supplierData.taxId",
+      "supplierData.notes"
+    ],
+    "inputCount": 9
+  },
+  {
+    "file": "sales/CreateLead.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 9,
+    "vmodels": [
+      "formData.name",
+      "formData.phone",
+      "formData.source",
+      "formData.branch",
+      "formData.owner",
+      "formData.stage",
+      "formData.product",
+      "formData.budget",
+      "formData.nextFollowUp"
+    ],
+    "inputCount": 10
+  },
+  {
+    "file": "catalogue/CreateProductRequest.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "form.productName",
+      "form.category",
+      "form.specifications",
+      "form.reference",
+      "form.customerDemand",
+      "form.urgency",
+      "form.images",
+      "form.reason"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "inventory/CreateCycleCount.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "form.countName",
+      "form.scope",
+      "form.assignedTo",
+      "form.scheduledDate",
+      "form.expectedUnits",
+      "form.branch",
+      "form.targetLocation",
+      "form.notes"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "inventory/ReceiveSupplierDelivery.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 8,
+    "vmodels": [
+      "form.inbound",
+      "form.poReference",
+      "form.expectedProducts",
+      "form.receivingLocation",
+      "form.serializedUnits",
+      "form.condition",
+      "form.photos",
+      "form.discrepancy"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "organisation/CreateUser.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "form.name",
+      "form.email",
+      "form.mobile",
+      "form.role",
+      "form.branch",
+      "form.status",
+      "form.mfa",
+      "form.sessionPolicy"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "organisation/EditUser.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "userData.name",
+      "userData.email",
+      "userData.mobile",
+      "userData.role",
+      "userData.branch",
+      "userData.status",
+      "userData.mfa",
+      "userData.sessionPolicy"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "procurement/CreatePurchaseReturn.vue",
+    "hasForm": false,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "form.supplier",
+      "form.po",
+      "form.reason",
+      "item.product",
+      "item.serial",
+      "item.quantity",
+      "item.unitCost",
+      "item.isFromQcHold"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "sales/CreatePayment.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "form.invoice_id",
+      "form.customer",
+      "form.order",
+      "form.method",
+      "form.transactionRef",
+      "form.bankAccount",
+      "form.date",
+      "form.notes"
+    ],
+    "inputCount": 9
+  },
+  {
+    "file": "sales/CreateReturn.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 8,
+    "vmodels": [
+      "formData.orderNo",
+      "formData.customer",
+      "formData.unit",
+      "formData.branch",
+      "formData.requested",
+      "formData.reason",
+      "formData.status",
+      "formData.notes"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "system/Preferences.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 8,
+    "vmodels": [
+      "preferencesForm.theme",
+      "preferencesForm.language",
+      "preferencesForm.dateFormat",
+      "preferencesForm.tableDensity",
+      "preferencesForm.inventoryAlerts",
+      "preferencesForm.salesAlerts",
+      "preferencesForm.serviceAlerts",
+      "preferencesForm.managementMessages"
+    ],
+    "inputCount": 8
+  },
+  {
+    "file": "communication/CreateConversation.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 7,
+    "vmodels": [
+      "form.title",
+      "form.linkedType",
+      "form.linked",
+      "form.recipient",
+      "form.priority",
+      "form.message",
+      "form.attachment"
+    ],
+    "inputCount": 7
+  },
+  {
+    "file": "sales/LeadDetail.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 7,
+    "vmodels": [
+      "convertForm.name",
+      "convertForm.phone",
+      "convertForm.cnic",
+      "convertForm.city",
+      "convertForm.type",
+      "convertForm.address",
+      "convertForm.notes"
+    ],
+    "inputCount": 7
+  },
+  {
+    "file": "catalogue/CreateCategory.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 6,
+    "vmodels": [
+      "form.name",
+      "form.code",
+      "form.description",
+      "form.type",
+      "form.parentCategory",
+      "form.template"
+    ],
+    "inputCount": 6
+  },
+  {
+    "file": "catalogue/CreatePriceRule.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 6,
+    "vmodels": [
+      "form.product",
+      "form.branchOverride",
+      "form.effective",
+      "form.sellingPrice",
+      "form.minimum",
+      "form.reason"
+    ],
+    "inputCount": 6
+  },
+  {
+    "file": "catalogue/EditPriceRule.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 6,
+    "vmodels": [
+      "priceRuleData.product",
+      "priceRuleData.branchOverride",
+      "priceRuleData.effective",
+      "priceRuleData.sellingPrice",
+      "priceRuleData.minimum",
+      "priceRuleData.reason"
+    ],
+    "inputCount": 6
+  },
+  {
+    "file": "system/BranchTeam.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 6,
+    "vmodels": [
+      "searchQuery",
+      "memberForm.name",
+      "memberForm.role",
+      "memberForm.status",
+      "memberForm.contact",
+      "memberForm.email"
+    ],
+    "inputCount": 6
+  },
+  {
+    "file": "inventory/ReceiveTransfer.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 5,
+    "vmodels": [
+      "line.currentReceived",
+      "line.damagedQty",
+      "receiverName",
+      "receiverLocation",
+      "receiverNotes"
+    ],
+    "inputCount": 5
+  },
+  {
+    "file": "system/Account.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 5,
+    "vmodels": [
+      "profileForm.name",
+      "profileForm.email",
+      "profileForm.phone",
+      "profileForm.photo",
+      "profileForm.contactPreference"
+    ],
+    "inputCount": 5
+  },
+  {
+    "file": "communication/ConversationDetail.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 4,
+    "vmodels": [
+      "replyText",
+      "uploadForm.name",
+      "uploadForm.scope",
+      "uploadForm.size"
+    ],
+    "inputCount": 4
+  },
+  {
+    "file": "sales/DeliveryHandover.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 4,
+    "vmodels": [
+      "branchSearchQuery",
+      "formData.recipientName",
+      "formData.handoverDate",
+      "formData.notes"
+    ],
+    "inputCount": 4
+  },
+  {
+    "file": "after-sales/RepairJobs.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 3,
+    "vmodels": [
+      "branchSearchQuery",
+      "col.visible",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "after-sales/WarrantyService.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 3,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery",
+      "selectedBranch"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "communication/Notifications.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 3,
+    "vmodels": [
+      "branchSearchQuery",
+      "col.visible",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "organisation/CreateRole.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 3,
+    "vmodels": [
+      "roleName",
+      "scope",
+      "description"
+    ],
+    "inputCount": 6
+  },
+  {
+    "file": "sales/Leads.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 3,
+    "vmodels": [
+      "branchSearchQuery",
+      "col.visible",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "auth/CreateNewPassword.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 2,
+    "vmodels": [
+      "newPassword",
+      "confirmPassword"
+    ],
+    "inputCount": 0
+  },
+  {
+    "file": "auth/Login.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchCode",
+      "password"
+    ],
+    "inputCount": 0
+  },
+  {
+    "file": "catalogue/ProductRequests.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "catalogue/Products.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "communication/ManagementInbox.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 4
+  },
+  {
+    "file": "finance/Expenses.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "inventory/CycleCounts.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "inventory/InboundDeliveries.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 6
+  },
+  {
+    "file": "inventory/Quarantine.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "inventory/SerializedUnits.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "inventory/StockAdjustments.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "inventory/StockByProduct.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "inventory/StockMovementLedger.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "inventory/StockRequests.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "inventory/Transfers.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 5
+  },
+  {
+    "file": "sales/Customers.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "sales/CustomOrders.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "sales/FollowUps.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "sales/Orders.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "sales/Quotations.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "sales/Returns.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "branchSearchQuery",
+      "searchQuery"
+    ],
+    "inputCount": 3
+  },
+  {
+    "file": "system/SecuritySessions.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 2,
+    "vmodels": [
+      "searchQuery",
+      "col.visible"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "auth/ForgotPassword.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 1,
+    "vmodels": [
+      "email"
+    ],
+    "inputCount": 0
+  },
+  {
+    "file": "auth/VerifyIdentity.vue",
+    "hasForm": true,
+    "hasSubmit": true,
+    "vmodelCount": 1,
+    "vmodels": [
+      "otpValue"
+    ],
+    "inputCount": 0
+  },
+  {
+    "file": "catalogue/Categories.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "catalogue/Pricing.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "finance/CashBank.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "finance/Payables.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "finance/Receivables.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "inventory/UnitDetail.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "statusReason"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "organisation/Branches.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "organisation/RolesPermissions.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "organisation/UsersAccess.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "procurement/PurchaseOrders.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "procurement/PurchaseReturns.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "procurement/Suppliers.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "procurement/VendorBills.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "sales/Invoices.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "branchSearchQuery"
+    ],
+    "inputCount": 2
+  },
+  {
+    "file": "sales/Payments.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "branchSearchQuery"
+    ],
+    "inputCount": 1
+  },
+  {
+    "file": "system/AuditLog.vue",
+    "hasForm": false,
+    "hasSubmit": false,
+    "vmodelCount": 1,
+    "vmodels": [
+      "searchQuery"
+    ],
+    "inputCount": 1
+  }
+]

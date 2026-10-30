@@ -1,12 +1,14 @@
 <script setup>
 import { Eye, Plus } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import CreatePurchaseOrder from './CreatePurchaseOrder.vue'
-
 import { store } from '../../store.js'
+import { api } from '@/services/api.js'
 
 const activeFilter = ref('All')
 const showCreateModal = ref(false)
+const isLoading = ref(false)
+const apiError = ref(null)
 const filters = ['All', 'Draft', 'Pending Approval', 'Approved', 'In Transit', 'Partially Received', 'Fully Received']
 const searchQuery = ref('')
 const selectedDestination = ref('All Destinations')
@@ -15,6 +17,23 @@ const openDropdown = ref(null)
 const destinations = ['All Destinations', 'All Branches', 'Peshawar', 'Islamabad', 'Lahore']
 
 const purchaseOrders = computed(() => store.purchaseOrders)
+
+onMounted(async () => {
+  isLoading.value = true
+  apiError.value = null
+  try {
+    const res = await api.procurement.getPurchaseOrders()
+    const data = res?.data || res
+    if (Array.isArray(data) && data.length > 0) {
+      store.purchaseOrders = data
+    }
+  } catch (err) {
+    console.warn('API error fetching purchase orders, using store fallback:', err)
+    apiError.value = err.message
+  } finally {
+    isLoading.value = false
+  }
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -47,8 +66,8 @@ const filteredOrders = computed(() => {
     if (selectedDestination.value !== 'All Destinations' && item.destination !== selectedDestination.value) return false
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
-      const match = item.po.toLowerCase().includes(q) ||
-                    item.supplier.toLowerCase().includes(q) ||
+      const match = (item.po && item.po.toLowerCase().includes(q)) ||
+                    (item.supplier && item.supplier.toLowerCase().includes(q)) ||
                     (item.destination || '').toLowerCase().includes(q) ||
                     (item.amount || '').toLowerCase().includes(q) ||
                     (item.status || '').toLowerCase().includes(q)

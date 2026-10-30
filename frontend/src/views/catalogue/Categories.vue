@@ -212,7 +212,11 @@ const filteredCategories = computed(() => {
   </div>
 
   <!-- Create Category Modal Popup -->
-  <CreateCategory v-if="showCreateModal" @close="showCreateModal = false" />
+  <CreateCategory 
+    v-if="showCreateModal" 
+    @close="showCreateModal = false" 
+    @created="(newCat) => { categories.unshift(newCat); showCreateModal = false; }" 
+  />
 
   <router-view />
 </template>

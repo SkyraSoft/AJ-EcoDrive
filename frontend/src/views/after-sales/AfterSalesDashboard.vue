@@ -1,11 +1,18 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '@/store'
 
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+onMounted(async () => {
+  await Promise.allSettled([
+    store.fetchRemoteCases(),
+    store.fetchRemoteRepairs()
+  ])
+})
 
 // Branch Manager KPIs
 const branchKpis = computed(() => {

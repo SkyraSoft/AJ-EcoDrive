@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronDown, Check, ChevronRight, Plus, CheckCircle2 } from 'lucide-vue-next'
+import { Search, ChevronDown, Check, ChevronRight, Plus, CheckCircle2, Loader2, AlertCircle } from 'lucide-vue-next'
 import { store } from '@/store'
 import CreateLeadModal from './CreateLead.vue'
 
@@ -10,13 +10,46 @@ const showCreateModal = ref(false)
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
+const loading = ref(false)
+const errorMessage = ref('')
+
+const loadLeads = async () => {
+  loading.value = true
+  errorMessage.value = ''
+  try {
+    await store.fetchRemoteLeads()
+  } catch (err) {
+    errorMessage.value = err.message || 'Failed to load leads from backend.'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadLeads()
+})
+
+const onLeadCreated = () => {
+  loadLeads()
+  toastMessage.value = 'New lead registered successfully!'
+  showToast.value = true
+  setTimeout(() => { showToast.value = false }, 3000)
+}
+
 // Branch Manager Data
-const branchKPIs = computed(() => [
-  { label: 'New', value: '14', change: 'Today +3' },
-  { label: 'Contacted', value: '21', change: 'This week' },
-  { label: 'Quoted', value: '9', change: '43%' },
-  { label: 'Overdue', value: '4', change: 'Needs action' }
-])
+const branchKPIs = computed(() => {
+  const all = branchLeads.value
+  const newCount = all.filter(l => l.status === 'New').length
+  const contactedCount = all.filter(l => l.status === 'Contacted').length
+  const quotedCount = all.filter(l => l.status === 'Quoted').length
+  const convertedCount = all.filter(l => l.status === 'Converted').length
+  return [
+    { label: 'New', value: String(newCount), change: 'Pipeline' },
+    { label: 'Contacted', value: String(contactedCount), change: 'In progress' },
+    { label: 'Quoted', value: String(quotedCount), change: 'Opportunities' },
+    { label: 'Converted', value: String(convertedCount), change: 'Won customers' }
+  ]
+})
 
 const branchLeads = computed(() => {
   const branchName = user.value?.branchName || 'Peshawar'
@@ -450,6 +483,19 @@ const openLead = (lead) => {
           <span class="text-xs text-gray-400 font-medium">{{ filteredBranchLeads.length }} leads</span>
         </div>
 
+        <!-- Real loading and error states -->
+        <div v-if="loading" class="p-6 text-center text-xs text-gray-500 flex items-center justify-center gap-2">
+          <Loader2 class="w-4 h-4 text-[#165A31] animate-spin" />
+          <span>Syncing leads with backend...</span>
+        </div>
+        <div v-else-if="errorMessage" class="p-3 bg-red-50 text-red-700 text-xs rounded-lg mb-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <AlertCircle class="w-4 h-4 text-red-600" />
+            <span>{{ errorMessage }}</span>
+          </div>
+          <button @click="loadLeads" class="font-bold underline cursor-pointer">Retry</button>
+        </div>
+
         <div class="border border-gray-100 rounded-xl overflow-hidden">
           <table class="w-full text-left">
             <thead>
@@ -620,7 +666,7 @@ const openLead = (lead) => {
     </div>
 
     <!-- Create Modal -->
-    <CreateLeadModal v-if="showCreateModal" @close="showCreateModal = false" />
+    <CreateLeadModal v-if="showCreateModal" @close="showCreateModal = false" @created="onLeadCreated" />
   </div>
 </template>
 

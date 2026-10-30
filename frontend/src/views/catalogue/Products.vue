@@ -1,8 +1,17 @@
 <script setup>
 import { Search, ChevronDown, Eye, Pencil, MoreHorizontal, Plus, Check, CheckCircle2 } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
+
+onMounted(() => {
+  if (typeof store.fetchRemoteProducts === 'function') {
+    store.fetchRemoteProducts().catch(() => {})
+  }
+  if (typeof store.fetchRemoteCategories === 'function') {
+    store.fetchRemoteCategories().catch(() => {})
+  }
+})
 import CreateProduct from './CreateProduct.vue'
 import EditProduct from './EditProduct.vue'
 

@@ -98,12 +98,19 @@ const submitQuarantineRecord = () => {
   }
 
   if (isEditMode.value) {
+    if (typeof store.updateQuarantineRecord === 'function') {
+      store.updateQuarantineRecord(payload.id, payload)
+    }
     emit('updated', payload)
   } else {
+    if (typeof store.addQuarantineRecord === 'function') {
+      store.addQuarantineRecord(payload)
+    }
     emit('created', payload)
   }
   close()
 }
+
 </script>
 
 <template>
