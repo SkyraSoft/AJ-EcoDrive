@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-6 right-6 z-[9999] font-sans">
+  <div v-if="false" class="fixed bottom-6 right-6 z-[9999] font-sans">
     <!-- Collapsed Floating Badge / Trigger -->
     <button
       v-if="!dapStore.hudExpanded"

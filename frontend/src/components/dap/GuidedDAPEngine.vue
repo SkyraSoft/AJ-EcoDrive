@@ -1,5 +1,5 @@
 <template>
-  <Teleport to="body">
+  <Teleport to="body" v-if="false">
     <div v-if="dapStore.isActive" class="dap-root-container">
       <!-- SVG Spotlight Overlay -->
       <SpotlightOverlay

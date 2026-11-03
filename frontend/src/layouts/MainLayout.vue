@@ -558,8 +558,7 @@ const handleQuickActionCreated = (type, payload) => {
         <!-- Right Section (Actions & Profile) -->
         <div class="flex items-center gap-2 sm:gap-3 ml-4 flex-shrink-0">
           <!-- DAP Guided Tour & Training Engine Launcher -->
-          <button
-            id="dap-header-tour-btn"
+          <button v-if="false" id="dap-header-tour-btn"
             @click="handleTakeTour"
             class="px-2.5 py-1.5 sm:px-3 sm:py-2 text-[11px] font-bold rounded-lg border transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
             :class="dapStore.isActive ? 'bg-emerald-50 text-[#165A31] border-emerald-300 ring-2 ring-emerald-500/20' : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'"
@@ -729,18 +728,6 @@ const handleQuickActionCreated = (type, payload) => {
               <span>Guide</span>
               <ExternalLink class="w-3 h-3 opacity-60" />
             </a>
-
-            <!-- Theme Toggle Button -->
-            <button 
-              @click="toggleTheme" 
-              class="hidden md:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer shadow-sm"
-              :class="isDark ? 'bg-slate-800 text-amber-300 border-slate-700 hover:bg-slate-700 hover:text-amber-200' : 'bg-gray-50 text-gray-700 hover:text-gray-900 hover:bg-gray-100 border-gray-200'"
-              :title="`Current theme: ${currentThemeDisplay}. Click to switch.`"
-            >
-              <Sun v-if="isDark" class="w-3.5 h-3.5 text-amber-400" />
-              <Moon v-else class="w-3.5 h-3.5 text-gray-500" />
-              <span>{{ isDark ? 'Dark' : 'Light' }}</span>
-            </button>
             
             <!-- Profile -->
             <div class="relative ml-1">
@@ -914,7 +901,7 @@ const handleQuickActionCreated = (type, payload) => {
     />
 
     <!-- Guided DAP Engine & Interactive Training Overlay -->
-    <GuidedDAPEngine />
+    <GuidedDAPEngine v-if="false" />
 
     <!-- Toast Notification for Tour & In-Context Actions -->
     <div
