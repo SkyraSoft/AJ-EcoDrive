@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
-import { ArrowLeft, Plus } from 'lucide-vue-next'
+import { ArrowLeft, Plus, Printer } from 'lucide-vue-next'
 import CreatePaymentModal from './CreatePayment.vue'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 
@@ -11,6 +11,10 @@ const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 const showCreateModal = ref(false)
+
+const handlePrint = () => {
+  window.print()
+}
 
 onMounted(() => {
   store.fetchRemotePayments().catch(e => console.warn('[PaymentDetail] Remote sync note:', e.message))
@@ -21,6 +25,11 @@ const rawPayId = computed(() => route.params.id || route.query.id)
 const currentPayment = computed(() => {
   if (!rawPayId.value) return null
   return store.getPaymentById(rawPayId.value)
+})
+
+const branchRecord = computed(() => {
+  const bName = currentPayment.value?.branch || user.value?.branchName || 'Peshawar'
+  return store.branches?.find(b => b.name?.toLowerCase() === bName.toLowerCase() || b.id === bName || b.code === bName) || null
 })
 
 const paymentId = computed(() => currentPayment.value?.id || currentPayment.value?.payment || rawPayId.value || 'PAY-7791')
@@ -156,6 +165,12 @@ const tabs = ['Summary', 'Allocation', 'Bank Details', 'Customer Account', 'Acti
           Back to List
         </button>
         <button 
+          @click="handlePrint" 
+          class="bg-white border border-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <Printer class="w-4 h-4" /> Print Receipt
+        </button>
+        <button 
           @click="showCreateModal = true" 
           class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
         >
@@ -240,4 +255,84 @@ const tabs = ['Summary', 'Allocation', 'Bank Details', 'Customer Account', 'Acti
     :is-modal="true" 
     @close="showCreateModal = false" 
   />
+
+  <!-- PRINTABLE PAYMENT RECEIPT (Hidden on screen, visible on print) -->
+  <div class="print-document hidden print:block bg-white text-black p-8 font-sans max-w-2xl mx-auto border-2 border-black">
+    <div class="border-b-2 border-black pb-4 mb-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }} / {{ store.settings?.company?.brand || 'BRG ELECTRIC VEHICLES' }}</h1>
+          <p class="text-xs text-gray-700 mt-1 uppercase">{{ branchRecord?.name || currentPayment?.branch || 'Peshawar' }} Showroom & Cash Office</p>
+          <p class="text-[11px] text-gray-600">{{ branchRecord?.address || `${currentPayment?.branch || 'Peshawar'}, Pakistan` }}</p>
+          <p class="text-[11px] text-gray-600">Phone: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }} | NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>
+        </div>
+        <div class="text-right">
+          <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">PAYMENT RECEIPT</span>
+          <div class="text-xs text-right mt-2 space-y-0.5">
+            <p><strong>Receipt No:</strong> {{ paymentId }}</p>
+            <p><strong>Date:</strong> {{ currentPayment?.date || new Date().toLocaleDateString() }}</p>
+            <p><strong>Customer File:</strong> #FILE-{{ String(currentPayment?.order || '2241').replace(/[^0-9]/g, '').slice(-4) || '101' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt Body -->
+    <div class="border border-gray-300 p-4 mb-6 text-xs space-y-3">
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Received With Thanks From:</span>
+        <span class="font-bold text-sm uppercase">{{ currentPayment?.customer || 'Valued Customer' }}</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">On Account Of / Order Reference:</span>
+        <span class="font-bold">{{ currentPayment?.order || currentPayment?.orderNo || 'ORD-2241' }} (Vehicle Booking)</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Payment Instrument / Mode:</span>
+        <span class="font-bold">{{ currentPayment?.method || 'Bank Transfer' }}</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600">Deposit Account / Slip Ref:</span>
+        <span class="font-mono">{{ currentPayment?.ref || currentPayment?.transactionRef || currentPayment?.bankAccount || 'Meezan Bank Operations' }}</span>
+      </div>
+      <div class="flex justify-between pt-2 text-base font-black border-t-2 border-black">
+        <span>Total Amount Received:</span>
+        <span class="text-[#165A31]">{{ currentPayment?.amount || 'PKR 280,000' }}</span>
+      </div>
+    </div>
+
+    <!-- Triple Signature Blocks & Stamp Box -->
+    <div class="grid grid-cols-3 gap-6 pt-10 text-center text-xs">
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Received By Cashier</p>
+        <p class="text-[10px] text-gray-500 mt-6">{{ currentPayment?.cashier || user?.name || 'Showroom Cashier' }}</p>
+      </div>
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Customer Signature</p>
+        <p class="text-[10px] text-gray-500 mt-6">Depositor / Payer</p>
+      </div>
+      <div class="border border-black p-2 h-24 flex items-center justify-center">
+        <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL CASH OFFICE STAMP</span>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

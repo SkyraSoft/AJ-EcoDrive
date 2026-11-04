@@ -365,12 +365,14 @@ export const DeliveryHandoverModel = {
     const officer = data.officer !== undefined ? data.officer : existing.officer
     const status = data.status !== undefined ? data.status : existing.status
     const statusClass = data.statusClass || data.status_class || existing.statusClass
+    const gatePassNumber = data.gate_pass_number !== undefined ? data.gate_pass_number : (existing.gate_pass_number || null)
     const identityVerified = data.identityVerified !== undefined ? (data.identityVerified ? 1 : 0) : (existing.identityVerified ? 1 : 0)
     const paymentComplete = data.paymentComplete !== undefined ? (data.paymentComplete ? 1 : 0) : (existing.paymentComplete ? 1 : 0)
     const chassisVerified = data.chassisVerified !== undefined ? (data.chassisVerified ? 1 : 0) : (existing.chassisVerified ? 1 : 0)
     const accessoriesIncluded = data.accessoriesIncluded !== undefined ? (data.accessoriesIncluded ? 1 : 0) : (existing.accessoriesIncluded ? 1 : 0)
     const warrantyBriefed = data.warrantyBriefed !== undefined ? (data.warrantyBriefed ? 1 : 0) : (existing.warrantyBriefed ? 1 : 0)
     const notes = data.notes !== undefined ? data.notes : existing.notes
+    const deliveredAt = data.delivered_at !== undefined ? data.delivered_at : (status === 'Delivered' ? (existing.delivered_at || new Date()) : existing.delivered_at)
 
     await query(`
       UPDATE \`delivery_handovers\` SET
@@ -381,17 +383,19 @@ export const DeliveryHandoverModel = {
         \`officer\` = ?,
         \`status\` = ?,
         \`status_class\` = ?,
+        \`gate_pass_number\` = ?,
         \`identity_verified\` = ?,
         \`payment_complete\` = ?,
         \`chassis_verified\` = ?,
         \`accessories_included\` = ?,
         \`warranty_briefed\` = ?,
-        \`notes\` = ?
+        \`notes\` = ?,
+        \`delivered_at\` = ?
       WHERE \`id\` = ? OR \`delivery_id\` = ?
     `, [
       customer, unit, scheduled, scheduledTime, officer,
-      status, statusClass, identityVerified, paymentComplete,
-      chassisVerified, accessoriesIncluded, warrantyBriefed, notes,
+      status, statusClass, gatePassNumber, identityVerified, paymentComplete,
+      chassisVerified, accessoriesIncluded, warrantyBriefed, notes, deliveredAt,
       id, id
     ])
 

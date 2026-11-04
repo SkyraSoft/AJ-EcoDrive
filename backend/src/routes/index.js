@@ -17,6 +17,8 @@ import followUpRoutes from './follow_up.routes.js'
 import organisationRoutes from './organisation.routes.js'
 import communicationRoutes from './communication.routes.js'
 import analyticsRoutes from './analytics.routes.js'
+import auditRoutes from './audit.routes.js'
+import settingsRoutes from './settings.routes.js'
 import { customOrdersRouter, deliveriesRouter, salesReturnsRouter } from './sales_extensions.routes.js'
 import { authenticateJWT } from '../middleware/auth.js'
 
@@ -90,6 +92,14 @@ apiRouter.use('/communication', authenticateJWT, communicationRoutes)
 
 // Analytics & Reports Hub -> /api/v1/analytics
 apiRouter.use('/analytics', authenticateJWT, analyticsRoutes)
+
+// System Audit Logs -> /api/v1/system/audit-logs & /api/v1/audit-logs
+apiRouter.use('/system/audit-logs', authenticateJWT, auditRoutes)
+apiRouter.use('/audit-logs', authenticateJWT, auditRoutes)
+
+// System Settings & Configuration -> /api/v1/system/settings & /api/v1/settings
+apiRouter.use('/system/settings', authenticateJWT, settingsRoutes)
+apiRouter.use('/settings', authenticateJWT, settingsRoutes)
 
 // API root metadata
 apiRouter.get('/', (req, res) => {

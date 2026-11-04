@@ -1,5 +1,7 @@
 import { CustomOrderModel, DeliveryHandoverModel, SalesReturnModel } from '../models/sales_extensions.model.js'
-import { getEffectiveBranch } from '../utils/branchScope.js'
+import { OrderModel } from '../models/order.model.js'
+import { query } from '../config/db.js'
+import { getEffectiveBranch, assertBranchAccess, assertSuperAdminRole, isUserSuperAdmin } from '../utils/branchScope.js'
 
 export const SalesExtensionsController = {
   // ==========================================
@@ -152,16 +154,77 @@ export const SalesExtensionsController = {
   async completeDelivery(req, res, next) {
     try {
       const { id } = req.params
+      const existing = await DeliveryHandoverModel.findById(id)
+      if (!existing) {
+        return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `Delivery handover ${id} not found` })
+      }
+
+      // 1. Payment Clearance Verification
+      const orderId = existing.order_id || req.body.order_id || existing.id
+      let isCleared = false
+      let orderRecord = null
+
+      if (orderId) {
+        orderRecord = await OrderModel.findById(orderId)
+      }
+
+      if (orderRecord) {
+        const bal = parseFloat(String(orderRecord.balance || orderRecord.outstanding_amount || 0).replace(/[^0-9.]/g, ''))
+        const pStatus = String(orderRecord.payment_status || orderRecord.status || '').toLowerCase()
+        if (pStatus === 'paid' || bal === 0 || req.body.payment_complete === true || req.body.payment_complete === 1 || existing.payment_complete) {
+          isCleared = true
+        }
+      } else if (existing.payment_complete || req.body.payment_complete) {
+        isCleared = true
+      }
+
+      if (!isCleared) {
+        return res.status(400).json({
+          ok: false,
+          error: 'PAYMENT_UNCLEARED',
+          message: 'Vehicle cannot be marked Delivered or authorized for Gate Pass without 100% payment clearance.'
+        })
+      }
+
+      // 2. Generate Security Gate Pass number
+      const gatePassNo = existing.gate_pass_number || req.body.gate_pass_number || `GP-DEL-${Math.floor(1000 + Math.random() * 9000)}`
+
       const updated = await DeliveryHandoverModel.update(id, {
         status: 'Delivered',
         status_class: 'bg-[#165A31] text-white',
         statusClass: 'bg-[#165A31] text-white',
+        payment_complete: 1,
+        gate_pass_number: gatePassNo,
+        delivered_at: new Date(),
         ...req.body
       })
-      if (!updated) {
-        return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `Delivery handover ${id} not found` })
+
+      // 3. Update allocated serialized unit status to Delivered
+      const unitIdentifier = existing.unit || existing.unit_id || req.body.unit || req.body.unit_id
+      if (unitIdentifier) {
+        try {
+          await query(
+            'UPDATE `serialized_units` SET `status` = "Delivered", `status_class` = "bg-[#165A31] text-white", `location` = "Customer Handover" WHERE `id` = ? OR `unit_id` = ? OR `serial_number` = ? OR `chassis_number` = ? OR `vin` = ?',
+            [unitIdentifier, unitIdentifier, unitIdentifier, unitIdentifier, unitIdentifier]
+          )
+        } catch (e) {
+          console.warn('[completeDelivery] Unit status update note:', e.message)
+        }
       }
-      res.status(200).json({ ok: true, data: updated })
+
+      // 4. Update order status if exists
+      if (orderRecord) {
+        try {
+          await query(
+            'UPDATE `orders` SET `delivery_status` = "Delivered", `status` = "Completed" WHERE `id` = ?',
+            [orderRecord.id]
+          )
+        } catch (e) {
+          console.warn('[completeDelivery] Order status update note:', e.message)
+        }
+      }
+
+      res.status(200).json({ ok: true, data: { ...updated, gate_pass_number: gatePassNo } })
     } catch (err) {
       next(err)
     }
@@ -240,10 +303,17 @@ export const SalesExtensionsController = {
   async updateSalesReturn(req, res, next) {
     try {
       const { id } = req.params
-      const updated = await SalesReturnModel.update(id, req.body)
-      if (!updated) {
+      const existing = await SalesReturnModel.findById(id)
+      if (!existing) {
         return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `Sales return ${id} not found` })
       }
+      if (!assertBranchAccess(existing.branch_id, req, res)) return
+
+      if (req.body.status && (req.body.status === 'Approved' || req.body.status === 'Refunded')) {
+        if (!assertSuperAdminRole(req, res, 'Sales Return & Refund Approval')) return
+      }
+
+      const updated = await SalesReturnModel.update(id, req.body)
       res.status(200).json({ ok: true, data: updated })
     } catch (err) {
       next(err)

@@ -432,6 +432,7 @@ class ApiClient {
     createCategory: (payload) => this.post('/catalogue/categories', payload),
 
     getPricingRules: (params) => this.get('/catalogue/pricing-rules', params),
+    resolvePricingRule: (params) => this.get('/catalogue/pricing-rules/resolve', params),
     getPriceRuleById: (id) => this.get(`/catalogue/pricing-rules/${id}`),
     createPriceRule: (payload) => this.post('/catalogue/pricing-rules', payload),
     updatePriceRule: (id, payload) => this.put(`/catalogue/pricing-rules/${id}`, payload),
@@ -548,8 +549,8 @@ class ApiClient {
   // Domain 11: System, Organisation & Audit
   // ==========================================
   system = {
-    getSettings: () => this.get('/system/settings'),
-    updateSettings: (payload) => this.put('/system/settings', payload),
+    getSettings: (section) => this.get(section ? `/system/settings/${section}` : '/system/settings'),
+    updateSettings: (section, payload) => this.put(`/system/settings/${section}`, payload),
     getAuditLogs: (params) => this.get('/system/audit-logs', params),
 
     getBranches: (params) => this.get('/organisation/branches', params),

@@ -50,25 +50,50 @@ const form = ref({
   gatePassNo: '',
   expectedArrival: '',
   notes: '',
-  status: 'Draft'
+  status: 'Pending Approval'
 })
+
+const selectedUnitIds = ref([])
 
 const selectedProduct = computed(() => {
   return store.getProductById(form.value.productId) || store.products[0]
 })
 
+const availableUnitsList = computed(() => {
+  if (!selectedProduct.value) return []
+  const branchName = form.value.fromBranch || ''
+  const branchId = store.resolveCanonicalBranchId(branchName)
+  return store.serializedUnits.filter(u => {
+    const uBranchId = store.resolveCanonicalBranchId(u.branch_id || u.branchId || u.branch)
+    const matchesBranch = uBranchId === branchId
+    const matchesProd = (u.product_id && u.product_id === selectedProduct.value.id) ||
+                        (u.product && u.product.toLowerCase() === selectedProduct.value.name.toLowerCase())
+    const isAvail = (u.status || '').toLowerCase() === 'available'
+    return matchesBranch && matchesProd && isAvail
+  })
+})
+
 const availableAtSource = computed(() => {
   if (!selectedProduct.value) return 0
   const branchKey = (form.value.fromBranch || '').toLowerCase().replace(/\s+/g, '')
-  if (selectedProduct.value.isSerialized) {
-    return store.serializedUnits.filter(u => 
-      ((u.product_id && u.product_id === selectedProduct.value.id) || (u.product && u.product.toLowerCase() === selectedProduct.value.name.toLowerCase())) &&
-      (u.branch || '').toLowerCase() === (form.value.fromBranch || '').toLowerCase() &&
-      u.status === 'Available'
-    ).length
+  if (selectedProduct.value.isSerialized !== false) {
+    return availableUnitsList.value.length
   } else {
     return selectedProduct.value[branchKey] ?? selectedProduct.value.available ?? 0
   }
+})
+
+const toggleUnitSelection = (uid) => {
+  if (selectedUnitIds.value.includes(uid)) {
+    selectedUnitIds.value = selectedUnitIds.value.filter(id => id !== uid)
+  } else {
+    selectedUnitIds.value.push(uid)
+  }
+  form.value.units = String(selectedUnitIds.value.length || 1)
+}
+
+watch([() => form.value.productId, () => form.value.fromBranch], () => {
+  selectedUnitIds.value = []
 })
 
 const loadData = (data) => {
@@ -88,6 +113,9 @@ const loadData = (data) => {
     expectedArrival: data.expectedArrival || form.value.expectedArrival,
     notes: data.notes || form.value.notes,
     status: data.status || form.value.status
+  }
+  if (data.items?.[0]?.unit_ids) {
+    selectedUnitIds.value = Array.isArray(data.items[0].unit_ids) ? data.items[0].unit_ids : []
   }
 }
 
@@ -138,6 +166,11 @@ const submitTransfer = () => {
     return
   }
 
+  if (selectedProduct.value.isSerialized !== false && selectedUnitIds.value.length === 0) {
+    errorMessage.value = 'Please select at least one physical vehicle unit (Chassis/VIN) to transfer.'
+    return
+  }
+
   if (requestedCount > availableAtSource.value) {
     errorMessage.value = `Cannot transfer ${requestedCount} units. Only ${availableAtSource.value} units available at ${form.value.fromBranch}.`
     return
@@ -146,20 +179,33 @@ const submitTransfer = () => {
   const payload = {
     id: form.value.id || `TR-${Math.floor(225 + Math.random() * 100)}`,
     from: form.value.fromBranch,
+    from_branch_id: store.resolveCanonicalBranchId(form.value.fromBranch),
     to: form.value.toBranch,
+    to_branch_id: store.resolveCanonicalBranchId(form.value.toBranch),
     product_id: selectedProduct.value.id,
     product: selectedProduct.value.name,
     sku: selectedProduct.value.sku,
     isSerialized: selectedProduct.value.isSerialized !== false,
-    units: String(requestedCount),
+    units: String(selectedProduct.value.isSerialized !== false ? selectedUnitIds.value.length : requestedCount),
     requestedBy: user.value?.name || (isBranchUser.value ? 'Branch Manager' : 'Super Admin'),
     dispatched: form.value.requestedDate || 'Today',
-    status: isBranchUser.value ? 'Requested' : 'Approved',
+    status: isBranchUser.value ? 'Pending Approval' : 'Approved',
+    statusClass: isBranchUser.value ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-[#e0e7ff] text-[#3730a3]',
     carrier: form.value.carrier,
     driverContact: form.value.driverContact,
     gatePassNo: form.value.gatePassNo,
     expectedArrival: form.value.expectedArrival,
-    notes: form.value.notes
+    notes: form.value.notes,
+    items: [
+      {
+        product_id: selectedProduct.value.id,
+        product: selectedProduct.value.name,
+        product_name: selectedProduct.value.name,
+        quantity: selectedProduct.value.isSerialized !== false ? selectedUnitIds.value.length : requestedCount,
+        unit_ids: selectedUnitIds.value,
+        serials: selectedUnitIds.value
+      }
+    ]
   }
 
   try {
@@ -282,10 +328,53 @@ const submitTransfer = () => {
                     type="number" 
                     min="1"
                     :max="availableAtSource || 1"
+                    :readonly="selectedProduct && selectedProduct.isSerialized !== false"
                     placeholder="e.g. 2" 
                     class="w-full px-3 py-2 text-xs font-bold bg-white dark:bg-[#0f172a] border rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#165A31] transition-colors"
                     :class="showValidation && (!String(form.units).trim() || parseInt(form.units) > availableAtSource) ? 'border-red-300 bg-red-50/20 dark:border-red-500/50' : 'border-gray-200 dark:border-gray-700'"
                   />
+                  <p v-if="selectedProduct && selectedProduct.isSerialized !== false" class="text-[10px] text-gray-500 mt-1">Auto-calculated from selected chassis/VINs below.</p>
+                </div>
+
+                <!-- Serialized Unit Selection Checklist -->
+                <div v-if="selectedProduct && selectedProduct.isSerialized !== false" class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <div class="flex items-center justify-between">
+                    <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300">
+                      Select Physical Vehicles (Chassis / VIN) *
+                    </label>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" :class="selectedUnitIds.length > 0 ? 'bg-[#165A31] text-white' : 'bg-gray-100 text-gray-500'">
+                      {{ selectedUnitIds.length }} Selected
+                    </span>
+                  </div>
+
+                  <div v-if="availableUnitsList.length === 0" class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-lg text-xs text-amber-800 dark:text-amber-300">
+                    No "Available" units found for this model at {{ form.fromBranch }}. Units under repair, QC hold, or reserved cannot be transferred.
+                  </div>
+
+                  <div v-else class="max-h-48 overflow-y-auto space-y-1.5 p-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div 
+                      v-for="u in availableUnitsList" 
+                      :key="u.id || u.unit_id"
+                      @click="toggleUnitSelection(u.unit_id || u.id || u.serial_number)"
+                      class="flex items-center justify-between p-2 rounded border cursor-pointer transition-colors text-xs"
+                      :class="selectedUnitIds.includes(u.unit_id || u.id || u.serial_number) ? 'bg-emerald-50 dark:bg-emerald-950/40 border-[#165A31] dark:border-emerald-700' : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-100 dark:border-gray-800'"
+                    >
+                      <div class="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          :checked="selectedUnitIds.includes(u.unit_id || u.id || u.serial_number)"
+                          class="rounded text-[#165A31] focus:ring-[#165A31]"
+                        />
+                        <div>
+                          <div class="font-bold text-gray-900 dark:text-white font-mono">{{ u.chassis_number || u.unit_id || u.serial_number }}</div>
+                          <div class="text-[10px] text-gray-500">VIN: {{ u.vin || 'N/A' }} · Motor: {{ u.motor_number || 'N/A' }}</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 text-[#165A31] dark:text-emerald-300">
+                        Available
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div>

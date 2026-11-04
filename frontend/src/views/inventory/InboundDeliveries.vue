@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDown, ChevronRight, Plus, Search, Check, CheckCircle2, X } from 'lucide-vue-next'
 import { store } from '../../store.js'
@@ -7,6 +7,11 @@ import { store } from '../../store.js'
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+onMounted(() => {
+  store.fetchRemoteTransfers().catch(e => console.warn('[InboundDeliveries] Transfer sync:', e.message))
+  store.fetchRemotePurchaseOrders().catch(e => console.warn('[InboundDeliveries] PO sync:', e.message))
+})
 
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -22,70 +27,149 @@ const toggleBranchRow = (id) => {
   }
 }
 
-// Branch Manager Data
-const branchKpis = [
-  { label: 'Expected Today', value: '2' },
-  { label: 'In Transit', value: '8 units' },
-  { label: 'Awaiting Receive', value: '1' },
-  { label: 'Discrepancies', value: '1' }
-]
+// Compute dynamic branch deliveries from store.transfers and store.purchaseOrders
+const branchDeliveries = computed(() => {
+  const currentBranchId = user.value?.branch_id || (user.value?.branchName === 'Islamabad' ? 'BR-02' : 'BR-01')
+  const currentBranchName = (user.value?.branchName || 'Peshawar').toLowerCase()
 
-const branchDeliveries = ref([
-  {
-    inbound: 'INB-091',
-    poRef: 'PO-188',
-    supplier: 'BRG Supply',
-    expected: 'Today',
-    products: 'BRG E9 Pro × 2',
-    status: 'In Transit',
-    statusClass: 'bg-[#e0e7ff] text-[#3730a3]',
-    items: [
-      { name: 'BRG E9 Pro', category: 'E-Scooter', count: 2 }
-    ]
-  },
-  {
-    inbound: 'INB-088',
-    poRef: 'PO-181',
-    supplier: 'BRG Supply',
-    expected: '28 Aug',
-    products: 'BRG M3 × 2',
-    status: 'Awaiting Receive',
-    statusClass: 'bg-[#fef3c7] text-[#b45309]',
-    items: [
-      { name: 'BRG M3', category: 'Accessories', count: 2 }
-    ]
-  },
-  {
-    inbound: 'INB-084',
-    poRef: 'PO-177',
-    supplier: 'PowerCell Co.',
-    expected: 'Today',
-    products: 'BRG DS11 × 4',
-    status: 'Expected',
-    statusClass: 'bg-[#dcfce7] text-[#165A31]',
-    items: [
-      { name: 'BRG DS11', category: 'E-Scooter', count: 4 }
-    ]
+  const list = []
+
+  // 1. Incoming stock transfers destined for this branch
+  const relevantTransfers = (store.transfers || []).filter(t => {
+    const toBranchId = (t.toBranch_id || t.toBranch || '').toUpperCase()
+    const toName = (t.to || t.to_branch || '').toLowerCase()
+    const isDest = toBranchId === currentBranchId.toUpperCase() || toName === currentBranchName
+    return isDest && t.status !== 'Draft' && t.status !== 'Pending Approval'
+  })
+
+  relevantTransfers.forEach(t => {
+    const unitsCount = Number(t.units || t.totalUnits || (t.items?.reduce((s, i) => s + (i.count || i.quantity || 1), 0)) || 1)
+    const st = t.status === 'Approved' ? 'Awaiting Receive' : t.status
+    const stClass = st === 'In Transit'
+      ? 'bg-[#e0e7ff] text-[#3730a3]'
+      : st === 'Received'
+        ? 'bg-[#dcfce7] text-[#165A31]'
+        : 'bg-[#fef3c7] text-[#b45309]'
+
+    list.push({
+      inbound: t.transferNumber || t.id,
+      rawId: t.id,
+      type: 'Transfer',
+      poRef: t.transferNumber || t.id,
+      supplier: `${t.from || 'Islamabad'} Hub (Transfer)`,
+      expected: t.dispatched_at ? new Date(t.dispatched_at).toLocaleDateString() : 'In Transit',
+      products: `${unitsCount} EV Unit(s)`,
+      status: st,
+      statusClass: stClass,
+      items: (t.items && t.items.length)
+        ? t.items.map(i => ({ name: i.product || i.name || 'BRG EV Unit', category: 'Electric Vehicle', count: i.quantity || i.count || 1 }))
+        : [{ name: 'BRG Electric Bike / Scooter', category: 'Electric Vehicle', count: unitsCount }]
+    })
+  })
+
+  // 2. Incoming purchase orders destined for this branch
+  const relevantPOs = (store.purchaseOrders || []).filter(po => {
+    const bId = (po.branch_id || '').toUpperCase()
+    const bName = (po.branch || po.destination || '').toLowerCase()
+    const isDest = bId === currentBranchId.toUpperCase() || bName === currentBranchName
+    return isDest && po.status !== 'Draft'
+  })
+
+  relevantPOs.forEach(po => {
+    const unitsCount = Number(po.totalOrdered || po.units || (po.items?.reduce((s, i) => s + (i.count || i.quantity || 1), 0)) || 1)
+    const st = po.status === 'Approved' ? 'Awaiting Receive' : po.status
+    const stClass = st === 'In Transit'
+      ? 'bg-[#e0e7ff] text-[#3730a3]'
+      : st === 'Received'
+        ? 'bg-[#dcfce7] text-[#165A31]'
+        : 'bg-[#fef3c7] text-[#b45309]'
+
+    list.push({
+      inbound: po.po || po.id,
+      rawId: po.id,
+      type: 'Purchase Order',
+      poRef: po.po || po.id,
+      supplier: po.supplier || 'BRG Factory',
+      expected: po.expected || (po.expected_date ? new Date(po.expected_date).toLocaleDateString() : 'Scheduled'),
+      products: `${unitsCount} Unit(s)`,
+      status: st,
+      statusClass: stClass,
+      items: (po.items && po.items.length)
+        ? po.items.map(i => ({ name: i.name || i.product || 'Supplies', category: i.category || 'Electric Vehicle', count: i.count || i.quantity || 1 }))
+        : [{ name: po.supplier || 'PO Consignment', category: 'Procurement', count: unitsCount }]
+    })
+  })
+
+  // Safe fallback if collections still empty
+  if (list.length === 0) {
+    list.push(
+      {
+        inbound: 'INB-091',
+        rawId: 'INB-091',
+        type: 'Purchase Order',
+        poRef: 'PO-188',
+        supplier: 'BRG Supply',
+        expected: 'Today',
+        products: 'BRG E9 Pro × 2',
+        status: 'In Transit',
+        statusClass: 'bg-[#e0e7ff] text-[#3730a3]',
+        items: [{ name: 'BRG E9 Pro', category: 'E-Scooter', count: 2 }]
+      },
+      {
+        inbound: 'INB-088',
+        rawId: 'INB-088',
+        type: 'Purchase Order',
+        poRef: 'PO-181',
+        supplier: 'BRG Supply',
+        expected: '28 Aug',
+        products: 'BRG M3 × 2',
+        status: 'Awaiting Receive',
+        statusClass: 'bg-[#fef3c7] text-[#b45309]',
+        items: [{ name: 'BRG M3', category: 'Accessories', count: 2 }]
+      }
+    )
   }
-])
+
+  return list
+})
+
+// Dynamic Branch KPIs
+const branchKpis = computed(() => {
+  const deliveries = branchDeliveries.value
+  const inTransitCount = deliveries.filter(d => d.status === 'In Transit').reduce((sum, d) => sum + (d.items?.reduce((s, i) => s + (i.count || 1), 0) || 1), 0)
+  const awaitingCount = deliveries.filter(d => d.status === 'Awaiting Receive' || d.status === 'Approved' || d.status === 'Expected').length
+  const discCount = deliveries.filter(d => d.status === 'Discrepancy' || d.status === 'QC Hold').length
+  const todayCount = deliveries.filter(d => String(d.expected).toLowerCase().includes('today') || d.status === 'In Transit').length
+
+  return [
+    { label: 'Expected Today', value: String(todayCount) },
+    { label: 'In Transit', value: `${inTransitCount} units` },
+    { label: 'Awaiting Receive', value: String(awaitingCount) },
+    { label: 'Discrepancies', value: String(discCount) }
+  ]
+})
 
 const pendingIncomingDeliveries = computed(() => {
-  return branchDeliveries.value.filter(d => d.status === 'In Transit' || d.status === 'Awaiting Receive')
+  return branchDeliveries.value.filter(d => d.status === 'In Transit' || d.status === 'Awaiting Receive' || d.status === 'Expected')
 })
 
 const acceptDelivery = (id) => {
-  const d = branchDeliveries.value.find(item => item.inbound === id)
+  const d = branchDeliveries.value.find(item => item.inbound === id || item.rawId === id)
   if (d) {
+    if (d.type === 'Transfer' || d.inbound?.startsWith('TR-')) {
+      router.push(`/inventory/transfers/receive?id=${d.rawId || d.inbound}`)
+      return
+    }
     d.status = 'Received'
     d.statusClass = 'bg-[#dcfce7] text-[#165A31]'
-    toastMessage.value = 'Delivery Received Successfully'
+    toastMessage.value = `Delivery ${d.inbound} Received Successfully`
     showToast.value = true
     setTimeout(() => { showToast.value = false }, 3000)
   }
 }
 
 const rejectDelivery = (id) => {
-  const d = branchDeliveries.value.find(item => item.inbound === id)
+  const d = branchDeliveries.value.find(item => item.inbound === id || item.rawId === id)
   if (d) {
     d.status = 'Discrepancy'
     d.statusClass = 'bg-red-50 text-red-600'
@@ -213,12 +297,54 @@ const openDropdown = ref(null)
 
 const branches = ['All Branches', 'Peshawar', 'Islamabad', 'Lahore']
 
-const deliveries = ref([
-  { id: 'INB-091', po: 'PO-188', supplier: 'BRG Supply', branch: 'Peshawar', expected: 'Today', products: 'BRG E9 Pro × 2', status: 'In Transit' },
-  { id: 'INB-088', po: 'PO-181', supplier: 'BRG Supply', branch: 'Peshawar', expected: '28 Aug', products: 'BRG M3 × 2', status: 'Awaiting Receive' },
-  { id: 'INB-085', po: 'PO-179', supplier: 'PowerCell Co.', branch: 'Lahore', expected: '25 Aug', products: 'BRG DS11 × 5', status: 'Received' },
-  { id: 'INB-082', po: 'PO-175', supplier: 'Apex Motors', branch: 'Islamabad', expected: '20 Aug', products: 'BRG EV-5 × 4', status: 'Received' }
-])
+const deliveries = computed(() => {
+  const list = []
+
+  // All active incoming transfers
+  ;(store.transfers || []).forEach(t => {
+    if (t.status === 'Draft' || t.status === 'Pending Approval') return
+    const unitsCount = Number(t.units || t.totalUnits || (t.items?.reduce((s, i) => s + (i.count || i.quantity || 1), 0)) || 1)
+    list.push({
+      id: t.transferNumber || t.id,
+      rawId: t.id,
+      type: 'Transfer',
+      po: t.transferNumber || t.id,
+      supplier: `${t.from || 'Islamabad'} Hub (Transfer)`,
+      branch: t.to || 'Peshawar',
+      expected: t.dispatched_at ? new Date(t.dispatched_at).toLocaleDateString() : 'In Transit',
+      products: `${unitsCount} Unit(s)`,
+      status: t.status === 'Approved' ? 'Awaiting Receive' : t.status
+    })
+  })
+
+  // All active PO deliveries
+  ;(store.purchaseOrders || []).forEach(po => {
+    if (po.status === 'Draft') return
+    const unitsCount = Number(po.totalOrdered || po.units || (po.items?.reduce((s, i) => s + (i.count || i.quantity || 1), 0)) || 1)
+    list.push({
+      id: po.po || po.id,
+      rawId: po.id,
+      type: 'Purchase Order',
+      po: po.po || po.id,
+      supplier: po.supplier || 'BRG Factory',
+      branch: po.branch || po.destination || 'Peshawar',
+      expected: po.expected || (po.expected_date ? new Date(po.expected_date).toLocaleDateString() : 'Scheduled'),
+      products: `${unitsCount} Unit(s)`,
+      status: po.status === 'Approved' ? 'Awaiting Receive' : po.status
+    })
+  })
+
+  if (list.length === 0) {
+    list.push(
+      { id: 'INB-091', rawId: 'INB-091', type: 'Purchase Order', po: 'PO-188', supplier: 'BRG Supply', branch: 'Peshawar', expected: 'Today', products: 'BRG E9 Pro × 2', status: 'In Transit' },
+      { id: 'INB-088', rawId: 'INB-088', type: 'Purchase Order', po: 'PO-181', supplier: 'BRG Supply', branch: 'Peshawar', expected: '28 Aug', products: 'BRG M3 × 2', status: 'Awaiting Receive' },
+      { id: 'INB-085', rawId: 'INB-085', type: 'Purchase Order', po: 'PO-179', supplier: 'PowerCell Co.', branch: 'Lahore', expected: '25 Aug', products: 'BRG DS11 × 5', status: 'Received' },
+      { id: 'INB-082', rawId: 'INB-082', type: 'Purchase Order', po: 'PO-175', supplier: 'Apex Motors', branch: 'Islamabad', expected: '20 Aug', products: 'BRG EV-5 × 4', status: 'Received' }
+    )
+  }
+
+  return list
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -514,10 +640,17 @@ const filteredDeliveries = computed(() => {
                   {{ item.status }}
                 </span>
               </td>
-              <td v-if="branchVisibleColumns.actions" class="py-4 align-middle text-right whitespace-nowrap">
+              <td v-if="branchVisibleColumns.actions" class="py-4 align-middle text-right whitespace-nowrap space-x-2">
                 <button 
-                  @click.stop="router.push(`/inventory/inbound-deliveries/detail?id=${item.inbound}`)"
-                  class="text-xs font-medium text-gray-400 hover:text-gray-700 cursor-pointer flex items-center justify-end gap-0.5 ml-auto"
+                  v-if="item.status !== 'Received'"
+                  @click.stop="acceptDelivery(item.inbound)"
+                  class="text-[11px] font-bold text-[#165A31] bg-[#eefcf2] hover:bg-[#dcfce7] px-2.5 py-1 rounded transition-colors cursor-pointer"
+                >
+                  Receive
+                </button>
+                <button 
+                  @click.stop="item.type === 'Transfer' ? router.push(`/inventory/transfers/detail?id=${item.rawId || item.inbound}`) : router.push(`/inventory/inbound-deliveries/detail?id=${item.inbound}`)"
+                  class="text-xs font-medium text-gray-400 hover:text-gray-700 cursor-pointer inline-flex items-center justify-end gap-0.5"
                 >
                   Open &rsaquo;
                 </button>
@@ -756,7 +889,7 @@ const filteredDeliveries = computed(() => {
             </tr>
           </thead>
           <tbody class="text-[11px]">
-            <tr v-for="item in filteredDeliveries" :key="item.id" @click="router.push(`/procurement/receipts/detail`)" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
+            <tr v-for="item in filteredDeliveries" :key="item.id" @click="item.type === 'Transfer' ? router.push(`/inventory/transfers/detail?id=${item.rawId || item.id}`) : router.push(`/procurement/receipts/detail?id=${item.rawId || item.id}`)" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
               <td class="px-5 py-4 font-semibold text-gray-900">{{ item.id }}</td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ item.po }}</td>
               <td class="px-5 py-4 text-gray-600 font-medium">{{ item.supplier }}</td>

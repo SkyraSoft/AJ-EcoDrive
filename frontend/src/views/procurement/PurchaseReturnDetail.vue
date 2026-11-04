@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { Printer } from 'lucide-vue-next'
 import { store } from '../../store.js'
 import { api } from '@/services/api.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
@@ -12,6 +13,10 @@ const returnRecord = computed(() => {
   if (!returnId.value) return null
   return store.getPurchaseReturnById(returnId.value) || null
 })
+
+const handlePrint = () => {
+  window.print()
+}
 
 const activeTab = ref('Summary')
 const showEditModal = ref(false)
@@ -145,6 +150,13 @@ const activities = computed(() => {
         >
           <span v-if="isApproving">Approving...</span>
           <span v-else>Approve Return</span>
+        </button>
+
+        <button 
+          @click="handlePrint" 
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" /> Print Debit Note / Return
         </button>
 
         <button @click="showEditModal = true" class="px-4 py-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)] cursor-pointer">
@@ -368,4 +380,122 @@ const activities = computed(() => {
 
   <!-- Create Modal -->
   <CreatePurchaseReturn v-if="showEditModal" @close="showEditModal = false" />
+
+  <!-- PRINTABLE PURCHASE RETURN / VENDOR DEBIT NOTE -->
+  <div class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black">
+    <!-- Header -->
+    <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <h1 class="text-2xl font-bold tracking-wider uppercase text-gray-900">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+        <p class="text-xs text-gray-700 mt-1">Official OEM Procurement & Logistics &middot; Pakistan Network</p>
+        <p class="text-[10px] text-gray-500 font-mono mt-0.5">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Form: PROC-VDN-REV2</p>
+      </div>
+      <div class="text-right">
+        <div class="inline-block bg-black text-white px-3 py-1 font-bold text-sm tracking-widest uppercase mb-1">
+          VENDOR DEBIT NOTE & RETURN
+        </div>
+        <div class="text-xs font-mono font-bold text-gray-800">REF: {{ returnRecord.returnNo || returnRecord.return_number || returnRecord.id }}</div>
+        <div class="text-[10px] text-gray-600">Date: {{ returnRecord.date || new Date().toLocaleDateString('en-GB') }}</div>
+      </div>
+    </div>
+
+    <!-- Particulars Grid -->
+    <div class="grid grid-cols-2 gap-4 border border-gray-400 p-4 mb-6 text-xs bg-gray-50/50">
+      <div>
+        <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800 text-[10px]">Supplier / Vendor Details</h4>
+        <p class="mb-1"><strong class="text-gray-900">Vendor:</strong> {{ returnRecord.supplier || 'BRG Manufacturing Ltd' }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Vendor Ref / Code:</strong> {{ returnRecord.supplierCode || 'VEND-OEM-01' }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Orig. Purchase Order:</strong> {{ returnRecord.po || returnRecord.po_number || 'PO-2022' }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Inbound Delivery Ref:</strong> {{ returnRecord.grn || 'GRN-INB-088' }}</p>
+      </div>
+      <div>
+        <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800 text-[10px]">Debit & Dispatch Particulars</h4>
+        <p class="mb-1"><strong class="text-gray-900">Return Status:</strong> <span class="font-bold uppercase">{{ returnRecord.status }}</span></p>
+        <p class="mb-1"><strong class="text-gray-900">Origin Warehouse / Branch:</strong> Central Hub / Islamabad Receiving Bay</p>
+        <p class="mb-1"><strong class="text-gray-900">Debit Note Applied:</strong> Vendor Ledger Account Credited</p>
+        <p class="mb-1"><strong class="text-gray-900">Total Credit Amount:</strong> <span class="font-bold text-green-800">{{ returnRecord.creditFormatted || returnRecord.credit || 'PKR 336,000' }}</span></p>
+      </div>
+    </div>
+
+    <!-- Returned Units Table -->
+    <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+      <thead>
+        <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+          <th class="p-2 border-r border-black">#</th>
+          <th class="p-2 border-r border-black">Product / Unit Particulars</th>
+          <th class="p-2 border-r border-black font-mono">Serial / Chassis #</th>
+          <th class="p-2 border-r border-black">QC Fault / Return Reason</th>
+          <th class="p-2 border-r border-black text-center">Unit State</th>
+          <th class="p-2 text-right">Debit Amount (PKR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(line, idx) in displayLines" :key="idx" class="border-b border-gray-300">
+          <td class="p-2 border-r border-gray-300">{{ idx + 1 }}</td>
+          <td class="p-2 border-r border-gray-300 font-bold">{{ line.product || 'BRG EV-5' }}</td>
+          <td class="p-2 border-r border-gray-300 font-mono text-[11px]">{{ line.serial || 'EVS-00431' }}</td>
+          <td class="p-2 border-r border-gray-300 text-red-600 font-semibold">{{ line.condition || line.reason || returnRecord.reason || 'Factory QC Failure' }}</td>
+          <td class="p-2 border-r border-gray-300 text-center">{{ line.status || 'Quarantine' }}</td>
+          <td class="p-2 text-right font-mono font-bold">{{ line.subtotal ? `PKR ${line.subtotal.toLocaleString()}` : (line.amount || 'PKR 168,000') }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="border-t-2 border-black bg-gray-50 font-bold">
+          <td colspan="5" class="p-2 text-right uppercase text-[10px]">Total Vendor Debit Note Value:</td>
+          <td class="p-2 text-right font-mono text-sm text-green-900">{{ returnRecord.creditFormatted || returnRecord.credit || 'PKR 336,000' }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Carrier & Transport Authorization -->
+    <div class="border border-gray-400 p-4 mb-6 text-xs bg-gray-50/50">
+      <h4 class="font-bold uppercase text-gray-800 text-[10px] mb-2">Carrier & Dispatch Handover:</h4>
+      <div class="grid grid-cols-3 gap-3">
+        <div><strong>Transporter:</strong> Central Logistics / Vendor Carrier</div>
+        <div><strong>Vehicle Reg #:</strong> ICT-TX-9921</div>
+        <div><strong>Driver / Bilty #:</strong> BL-99218 / Muhammad Nawaz</div>
+      </div>
+      <p class="text-[10px] text-gray-500 italic mt-2">
+        Note: The items listed above are dispatched under RMA / Warranty Claim. The issuing supplier's ledger is debited accordingly.
+      </p>
+    </div>
+
+    <!-- Quad Signature Blocks -->
+    <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">QC Inspector</p>
+        <p class="text-[9px] text-gray-500 mt-6">Inspected & Documented</p>
+      </div>
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Procurement Manager</p>
+        <p class="text-[9px] text-gray-500 mt-6">Debit Note Approved</p>
+      </div>
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Super Admin / Authorized</p>
+        <p class="text-[9px] text-gray-500 mt-6">Executive Sign-off</p>
+      </div>
+      <div class="border border-black p-2 h-20 flex items-center justify-center">
+        <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL DEALERSHIP STAMP</span>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

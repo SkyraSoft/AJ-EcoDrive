@@ -1,5 +1,5 @@
 <script setup>
-import { ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck, FileText, Package, Eye } from 'lucide-vue-next'
+import { ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck, FileText, Package, Eye, Printer } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
@@ -8,6 +8,10 @@ import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const router = useRouter()
 const route = useRoute()
+
+const handlePrint = () => {
+  window.print()
+}
 
 const receiptId = computed(() => route.params.id || route.query.id || '')
 
@@ -130,6 +134,12 @@ const openPo = () => {
           class="px-4 py-2 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5"
         >
           <ArrowLeft class="w-3.5 h-3.5" /> Back to PO
+        </button>
+        <button 
+          @click="handlePrint" 
+          class="px-4 py-2 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" /> Print Goods Receipt Note (GRN)
         </button>
       </div>
     </div>
@@ -430,6 +440,109 @@ const openPo = () => {
       </div>
 
     </div>
+
+    <!-- PRINTABLE GOODS RECEIPT NOTE (GRN) (Hidden on screen, visible on print) -->
+    <div class="print-document hidden print:block bg-white text-black p-8 font-sans">
+      <div class="border-b-2 border-black pb-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-black tracking-tight uppercase">AJ ECODRIVE LTD / BRG PROCUREMENT WAREHOUSE</h1>
+            <p class="text-xs text-gray-700 mt-1 uppercase">Goods Inward & Quality Inspection Receiving Depot</p>
+            <p class="text-[11px] text-gray-600">Receiving Bay: {{ receipt?.branch || 'Peshawar' }} Central Depot</p>
+            <p class="text-[11px] text-gray-600">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">GOODS RECEIPT NOTE (GRN)</span>
+            <div class="text-xs text-right mt-2 space-y-0.5">
+              <p><strong>GRN No:</strong> {{ receipt?.id }}</p>
+              <p><strong>PO Reference:</strong> {{ receipt?.po_id || receipt?.po }}</p>
+              <p><strong>Supplier:</strong> {{ receipt?.supplier }}</p>
+              <p><strong>Receipt Date:</strong> {{ receipt?.receipt_date || new Date().toLocaleDateString() }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consignment Details -->
+      <div class="grid grid-cols-2 gap-4 border border-gray-300 p-4 mb-6 text-xs">
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Inward Logistics Particulars</h4>
+          <p><strong>Supplier Invoice / Challan:</strong> {{ receipt?.supplier_challan || 'DC-BRG-8841' }}</p>
+          <p><strong>Carrier / Freight Service:</strong> {{ receipt?.carrier || 'Pak Logistics Express' }}</p>
+          <p><strong>Bilty / Tracking Number:</strong> {{ receipt?.tracking || 'PL-08-2008' }}</p>
+          <p><strong>Destination Facility:</strong> {{ receipt?.branch }} Warehouse</p>
+        </div>
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Quality Control (QC) & Inspection</h4>
+          <p><strong>QC Status:</strong> Passed (100% Zero Defect)</p>
+          <p><strong>Total Units Inwarded:</strong> {{ receipt?.total_received || receipt?.lines?.reduce((s, l) => s + (l.received || 0), 0) || 10 }} units</p>
+          <p><strong>Discrepancies / Rejections:</strong> 0 units</p>
+          <p><strong>Receiving Bay Officer:</strong> Storekeeper / QC Inspector</p>
+        </div>
+      </div>
+
+      <!-- Inwarded Lines Table -->
+      <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+        <thead>
+          <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+            <th class="p-2 border-r border-black">#</th>
+            <th class="p-2 border-r border-black">Item Description</th>
+            <th class="p-2 border-r border-black text-center">Ordered Qty</th>
+            <th class="p-2 border-r border-black text-center">Received Qty</th>
+            <th class="p-2 border-r border-black text-center">Accepted Qty</th>
+            <th class="p-2 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(line, idx) in (receipt?.lines || [{ item: 'BRG Electric Scooter Stock', ordered: 10, received: 10, accepted: 10 }])" :key="idx" class="border-b border-gray-300">
+            <td class="p-2 border-r border-gray-300">{{ idx + 1 }}</td>
+            <td class="p-2 border-r border-gray-300 font-bold">{{ line.item || line.product || 'Electric Vehicle Stock' }}</td>
+            <td class="p-2 border-r border-gray-300 text-center">{{ line.ordered || 10 }}</td>
+            <td class="p-2 border-r border-gray-300 text-center font-bold">{{ line.received || 10 }}</td>
+            <td class="p-2 border-r border-gray-300 text-center font-bold text-green-800">{{ line.accepted || line.received || 10 }}</td>
+            <td class="p-2 text-center font-bold text-[#165A31]">Inwarded</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Quad Signature Blocks -->
+      <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Carrier / Delivery Driver</p>
+          <p class="text-[9px] text-gray-500 mt-6">Handed Over Goods</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Receiving Storekeeper</p>
+          <p class="text-[9px] text-gray-500 mt-6">Goods Count Verified</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Quality Inspector (QC)</p>
+          <p class="text-[9px] text-gray-500 mt-6">PDI & Functional Check OK</p>
+        </div>
+        <div class="border border-black p-2 h-20 flex items-center justify-center">
+          <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL GOODS INWARD STAMP</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>
 

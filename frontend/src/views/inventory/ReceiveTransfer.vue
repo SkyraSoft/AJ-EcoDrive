@@ -39,7 +39,7 @@ const initializeReceivingLines = (t) => {
       currentReceived: remainingToReceive, // default to receiving the remaining
       damagedQty: 0,
       isSerialized: item.isSerialized,
-      serials: item.serials || []
+      serials: item.serials || item.unit_ids || []
     }
   })
 }

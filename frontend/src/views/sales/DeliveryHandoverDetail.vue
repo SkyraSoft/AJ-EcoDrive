@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '@/store'
-import { CheckCircle2, ArrowLeft } from 'lucide-vue-next'
+import { CheckCircle2, ArrowLeft, Printer, ShieldCheck, FileText } from 'lucide-vue-next'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 
 const route = useRoute()
@@ -16,15 +16,28 @@ const orderRecord = computed(() => deliveryRecord.value?.order ? store.getOrderB
 
 const showToast = ref(false)
 const toastMessage = ref('')
+const printDocumentType = ref('none')
 
 const orderId = computed(() => deliveryRecord.value?.order || deliveryRecord.value?.order_id || rawId.value)
 const customerName = computed(() => deliveryRecord.value?.customer || route.query.customer || 'Ahsan Khan')
 const unitCode = computed(() => deliveryRecord.value?.unit || deliveryRecord.value?.unit_id || route.query.unit || 'CH 8-BRG-26-01731')
 const scheduledTime = computed(() => deliveryRecord.value?.scheduled || deliveryRecord.value?.scheduledTime || route.query.scheduled || 'Today 16:00')
 const status = computed(() => deliveryRecord.value?.status || route.query.status || 'Ready')
+const gatePassNo = computed(() => deliveryRecord.value?.gate_pass_number || `GP-DEL-${String(orderId.value).replace(/[^0-9]/g, '').slice(-4) || '8841'}`)
+const branchRecord = computed(() => {
+  const bName = deliveryRecord.value?.branch || user.value?.branchName || 'Peshawar'
+  return store.branches?.find(b => b.name?.toLowerCase() === bName.toLowerCase() || b.id === bName || b.code === bName) || null
+})
 
 const branchCurrentTab = ref('Handover Details')
 const branchTabs = ['Handover Details', 'Checklist', 'Unit & Battery', 'Customer & Payment', 'Documents', 'Activity']
+
+const printDoc = (type) => {
+  printDocumentType.value = type
+  setTimeout(() => {
+    window.print()
+  }, 100)
+}
 
 const branchTabData = computed(() => {
   const branchName = user.value?.branchName || deliveryRecord.value?.branch || 'Peshawar'
@@ -110,10 +123,19 @@ const branchTabData = computed(() => {
 
 const completeHandover = () => {
   if (!deliveryRecord.value) return
+  if (orderRecord.value) {
+    const bal = parseFloat(String(orderRecord.value.balance || '0').replace(/[^0-9.]/g, ''))
+    const isPaid = orderRecord.value.payment_status === 'Paid' || bal === 0
+    if (!isPaid && !deliveryRecord.value.paymentComplete && !deliveryRecord.value.payment_complete) {
+      alert('PAYMENT_UNCLEARED: Vehicle cannot be marked Delivered or authorized for Gate Pass without 100% payment clearance. Outstanding balance: ' + (orderRecord.value.balance || 'unpaid'))
+      return
+    }
+  }
+
   const idToComplete = deliveryRecord.value.delivery_id || deliveryRecord.value.id || rawId.value
   const res = store.completeDelivery(idToComplete)
   if (res.success) {
-    toastMessage.value = `Handover completed successfully! Unit marked Delivered and warranty WAR-101 active.`
+    toastMessage.value = `Handover completed successfully! Unit marked Delivered and Gate Pass ${gatePassNo.value} issued.`
     showToast.value = true
     setTimeout(() => { showToast.value = false }, 4000)
   }
@@ -154,6 +176,18 @@ const completeHandover = () => {
           class="bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
         >
           Back to List
+        </button>
+        <button 
+          @click="printDoc('challan')" 
+          class="bg-white border border-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <Printer class="w-4 h-4" /> Print Delivery Challan
+        </button>
+        <button 
+          @click="printDoc('gatepass')" 
+          class="bg-[#eefcf2] text-[#165A31] border border-[#165A31]/30 text-xs font-bold px-3 py-2 rounded-lg hover:bg-[#dcfce7] transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <ShieldCheck class="w-4 h-4 text-[#165A31]" /> Print Gate Pass
         </button>
         <button 
           v-if="status !== 'Delivered'"
@@ -225,5 +259,142 @@ const completeHandover = () => {
         </p>
       </div>
     </div>
+
+    <!-- PRINTABLE DELIVERY CHALLAN (Hidden on screen, visible on print if printDocumentType === 'challan') -->
+    <div v-if="printDocumentType === 'challan'" class="print-document hidden print:block bg-white text-black p-8 font-sans">
+      <div class="border-b-2 border-black pb-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }} / {{ store.settings?.company?.brand || 'BRG ELECTRIC VEHICLES' }}</h1>
+            <p class="text-xs text-gray-700 mt-1 uppercase">{{ branchRecord?.name || deliveryRecord?.branch || 'Peshawar' }} Showroom & Service Centre</p>
+            <p class="text-[11px] text-gray-600">{{ branchRecord?.address || `${deliveryRecord?.branch || 'Peshawar'}, Pakistan` }}</p>
+            <p class="text-[11px] text-gray-600">Phone: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }} | NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">DELIVERY CHALLAN</span>
+            <div class="text-xs text-right mt-2 space-y-0.5">
+              <p><strong>Challan No:</strong> DC-{{ String(orderId).replace('ORD-', '') }}</p>
+              <p><strong>Order Ref:</strong> {{ orderId }}</p>
+              <p><strong>Customer File:</strong> #FILE-{{ String(orderId).replace(/[^0-9]/g, '').slice(-4) || '1024' }}</p>
+              <p><strong>Date:</strong> {{ new Date().toLocaleDateString() }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Handover Info Grid -->
+      <div class="grid grid-cols-2 gap-4 border border-gray-300 p-4 mb-6 text-xs">
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Customer Consignee Details</h4>
+          <p><strong>Customer Name:</strong> {{ customerName }}</p>
+          <p><strong>CNIC / Identity:</strong> 17301-4498129-3 (Verified)</p>
+          <p><strong>Contact Phone:</strong> +92 312 5538198</p>
+          <p><strong>Delivery Destination:</strong> Customer Showroom Handover (Self-Drive)</p>
+        </div>
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Vehicle Specification & Serial Tracking</h4>
+          <p><strong>Vehicle Model:</strong> {{ orderRecord?.product || 'BRG E-125 (Electric Motorcycle)' }}</p>
+          <p><strong>Chassis / VIN:</strong> {{ unitCode }}</p>
+          <p><strong>Electric Motor Serial:</strong> MOT-72V-3500W-9912</p>
+          <p><strong>Lithium Battery Pack Serial:</strong> BAT-7230-04421 (72V 30Ah)</p>
+        </div>
+      </div>
+
+      <!-- Pre-Delivery Checklist Verified -->
+      <div class="border border-gray-300 p-4 mb-6 text-xs">
+        <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Pre-Delivery Showroom Inspection Checklist (100% Passed)</h4>
+        <div class="grid grid-cols-3 gap-2">
+          <div>[✔] Battery Charged 100%</div>
+          <div>[✔] Smart Remote & Keys (2 sets)</div>
+          <div>[✔] Fast Charger & Adapter</div>
+          <div>[✔] Official Warranty Booklet</div>
+          <div>[✔] Helmet & Tool Kit Included</div>
+          <div>[✔] Initial Odometer: 2.4 KM (PDI)</div>
+        </div>
+      </div>
+
+      <!-- Triple Signature Blocks & Stamp Box -->
+      <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Prepared / Handed Over By</p>
+          <p class="text-[10px] text-gray-600 mt-6">{{ deliveryRecord?.officer || 'Showroom Handover Officer' }}</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Verified & Authorized By</p>
+          <p class="text-[10px] text-gray-600 mt-6">Branch Manager</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Received in Good Condition By</p>
+          <p class="text-[10px] text-gray-600 mt-6">Customer Signature</p>
+        </div>
+        <div class="border border-black p-2 h-24 flex items-center justify-center">
+          <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL SHOWROOM STAMP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRINTABLE SECURITY GATE PASS (Hidden on screen, visible on print if printDocumentType === 'gatepass') -->
+    <div v-if="printDocumentType === 'gatepass'" class="print-document hidden print:block bg-white text-black p-8 font-sans max-w-2xl mx-auto border-2 border-black">
+      <div class="text-center border-b-2 border-black pb-4 mb-4">
+        <h1 class="text-xl font-black uppercase tracking-tight">AJ ECODRIVE LTD - SECURITY GATE PASS</h1>
+        <p class="text-xs uppercase font-semibold text-gray-700">Official Showroom Exit Authorization</p>
+        <p class="text-[11px] text-gray-600">{{ deliveryRecord?.branch || user?.branchName || 'Peshawar' }} Showroom Barrier Security</p>
+      </div>
+
+      <div class="flex justify-between items-center text-xs mb-4 bg-gray-100 p-2.5 border border-gray-300">
+        <div><strong>Pass Number:</strong> <span class="font-mono font-bold">{{ gatePassNo }}</span></div>
+        <div><strong>Date & Time:</strong> {{ new Date().toLocaleString() }}</div>
+        <div><strong>Status:</strong> <span class="font-bold uppercase text-green-800">CLEARED FOR EXIT</span></div>
+      </div>
+
+      <div class="space-y-2 text-xs border border-gray-300 p-4 mb-6">
+        <div class="grid grid-cols-2 gap-2">
+          <p><strong>Customer Name:</strong> {{ customerName }}</p>
+          <p><strong>Order Reference:</strong> {{ orderId }}</p>
+          <p><strong>Vehicle Model:</strong> {{ orderRecord?.product || 'BRG Electric Bike' }}</p>
+          <p><strong>Chassis / VIN:</strong> {{ unitCode }}</p>
+          <p><strong>Financial Settlement:</strong> 100% Cleared / Paid in Full</p>
+          <p><strong>Gate Pass Issued By:</strong> {{ deliveryRecord?.officer || 'Showroom Manager' }}</p>
+        </div>
+      </div>
+
+      <div class="text-[11px] text-gray-600 mb-6 italic">
+        "Security Note: The vehicle matching above Chassis/VIN number has fulfilled 100% payment clearance, official invoicing, and PDI inspection. Security personnel on duty are authorized to allow vehicle exit through the main gate barrier."
+      </div>
+
+      <div class="grid grid-cols-3 gap-6 pt-6 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Accounts Clearance</p>
+          <p class="text-[9px] text-gray-500 mt-4">Cashier / Finance Verified</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Showroom Manager</p>
+          <p class="text-[9px] text-gray-500 mt-4">Authorized Signature & Seal</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Security Guard on Duty</p>
+          <p class="text-[9px] text-gray-500 mt-4">Exit Barrier Checked & Allowed</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

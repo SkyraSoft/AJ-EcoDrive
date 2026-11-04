@@ -1215,26 +1215,43 @@ CREATE TABLE IF NOT EXISTS \`sales_returns\` (
 export const CREATE_PRICE_RULES_TABLE_SQL = `
 CREATE TABLE IF NOT EXISTS \`price_rules\` (
   \`id\` VARCHAR(64) NOT NULL,
-  \`rule_name\` VARCHAR(255) NULL,
+  \`rule_name\` VARCHAR(255) NOT NULL,
   \`product\` VARCHAR(255) NOT NULL,
   \`product_id\` VARCHAR(64) NULL,
-  \`selling_price\` VARCHAR(64) NOT NULL,
-  \`minimum\` VARCHAR(64) NOT NULL,
+  \`branch_id\` VARCHAR(64) NULL,
+  \`branch\` VARCHAR(128) NOT NULL DEFAULT 'All Branches',
+  \`customer_segment\` VARCHAR(64) NOT NULL DEFAULT 'Standard',
+  \`base_price\` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+  \`selling_price\` VARCHAR(64) NOT NULL DEFAULT '0',
+  \`branch_price\` DECIMAL(12, 2) NULL,
+  \`minimum\` VARCHAR(64) NULL,
+  \`minimum_price\` DECIMAL(12, 2) NULL,
   \`landed_cost_ref\` VARCHAR(64) NULL,
   \`markup\` VARCHAR(64) NULL,
   \`margin\` VARCHAR(64) NULL,
+  \`min_margin_percent\` DECIMAL(5, 2) NULL,
+  \`max_discount_percent\` DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
+  \`max_discount_pkr\` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+  \`requires_approval\` TINYINT(1) NOT NULL DEFAULT 1,
   \`branch_override\` VARCHAR(128) NOT NULL DEFAULT 'None',
   \`effective\` VARCHAR(64) NULL,
   \`discount_percent\` DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
   \`start_date\` VARCHAR(64) NULL,
   \`end_date\` VARCHAR(64) NULL,
+  \`effective_from\` DATE NULL,
+  \`effective_to\` DATE NULL,
+  \`priority\` INT NOT NULL DEFAULT 1,
   \`rule_type\` VARCHAR(64) NOT NULL DEFAULT 'standard',
   \`reason\` TEXT NULL,
+  \`created_by\` VARCHAR(128) NULL,
+  \`approved_by\` VARCHAR(128) NULL,
   \`status\` VARCHAR(64) NOT NULL DEFAULT 'Active',
   \`created_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   \`updated_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (\`id\`),
   KEY \`idx_price_rule_product\` (\`product\`),
+  KEY \`idx_price_rule_prod_id\` (\`product_id\`),
+  KEY \`idx_price_rule_branch_id\` (\`branch_id\`),
   KEY \`idx_price_rule_branch\` (\`branch_override\`),
   KEY \`idx_price_rule_status\` (\`status\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1412,6 +1429,40 @@ CREATE TABLE IF NOT EXISTS \`custom_reports\` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 `
 
+export const CREATE_AUDIT_LOGS_TABLE_SQL = `
+CREATE TABLE IF NOT EXISTS \`audit_logs\` (
+  \`id\` VARCHAR(64) NOT NULL,
+  \`user_id\` VARCHAR(64) NULL,
+  \`user_name\` VARCHAR(128) NULL,
+  \`role\` VARCHAR(64) NULL,
+  \`branch_id\` VARCHAR(64) NULL,
+  \`branch\` VARCHAR(128) NULL,
+  \`acting_user_branch_id\` VARCHAR(64) NULL,
+  \`acting_user_branch\` VARCHAR(128) NULL,
+  \`affected_branch_id\` VARCHAR(64) NULL,
+  \`affected_branch\` VARCHAR(128) NULL,
+  \`source_branch_id\` VARCHAR(64) NULL,
+  \`source_branch\` VARCHAR(128) NULL,
+  \`destination_branch_id\` VARCHAR(64) NULL,
+  \`destination_branch\` VARCHAR(128) NULL,
+  \`action\` VARCHAR(128) NOT NULL,
+  \`entity_type\` VARCHAR(64) NOT NULL,
+  \`entity_id\` VARCHAR(64) NULL,
+  \`details\` TEXT NULL,
+  \`before_state\` JSON NULL,
+  \`after_state\` JSON NULL,
+  \`ip_address\` VARCHAR(64) NULL,
+  \`status\` VARCHAR(64) NOT NULL DEFAULT 'Success',
+  \`created_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_audit_branch\` (\`branch_id\`),
+  KEY \`idx_audit_acting_branch\` (\`acting_user_branch_id\`),
+  KEY \`idx_audit_affected_branch\` (\`affected_branch_id\`),
+  KEY \`idx_audit_entity\` (\`entity_type\`, \`entity_id\`),
+  KEY \`idx_audit_created\` (\`created_at\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`
+
 export async function runMigrations() {
   const dbStatus = getDbStatus()
   if (!dbStatus.isConnected) {
@@ -1576,6 +1627,105 @@ export async function runMigrations() {
 
     await query(CREATE_CUSTOM_REPORTS_TABLE_SQL)
     console.log('[Migrations] Schema verification: table "custom_reports" is ready.')
+
+    await query(CREATE_AUDIT_LOGS_TABLE_SQL)
+    console.log('[Migrations] Schema verification: table "audit_logs" is ready.')
+
+    // Safe helper function to ensure columns exist in existing tables
+    const ensureColumn = async (tableName, columnName, columnDefinition) => {
+      const colCheck = await query(`
+        SELECT COUNT(*) as count 
+        FROM information_schema.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+          AND TABLE_NAME = ? 
+          AND COLUMN_NAME = ?
+      `, [tableName, columnName])
+      if (colCheck[0]?.count === 0) {
+        await query(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${columnName}\` ${columnDefinition}`)
+        console.log(`[Migrations] Altered table "${tableName}": added column "${columnName}".`)
+      }
+    }
+
+    // Upgrade price_rules table schema with enterprise pricing and discount controls
+    await ensureColumn('price_rules', 'branch_id', 'VARCHAR(64) NULL AFTER `product_id`')
+    await ensureColumn('price_rules', 'branch', "VARCHAR(128) NOT NULL DEFAULT 'All Branches' AFTER `branch_id`")
+    await ensureColumn('price_rules', 'customer_segment', "VARCHAR(64) NOT NULL DEFAULT 'Standard' AFTER `branch`")
+    await ensureColumn('price_rules', 'base_price', 'DECIMAL(12, 2) NOT NULL DEFAULT 0.00 AFTER `customer_segment`')
+    await ensureColumn('price_rules', 'branch_price', 'DECIMAL(12, 2) NULL AFTER `base_price`')
+    await ensureColumn('price_rules', 'minimum_price', 'DECIMAL(12, 2) NULL AFTER `branch_price`')
+    await ensureColumn('price_rules', 'min_margin_percent', 'DECIMAL(5, 2) NULL AFTER `minimum_price`')
+    await ensureColumn('price_rules', 'max_discount_percent', 'DECIMAL(5, 2) NOT NULL DEFAULT 0.00 AFTER `min_margin_percent`')
+    await ensureColumn('price_rules', 'max_discount_pkr', 'DECIMAL(12, 2) NOT NULL DEFAULT 0.00 AFTER `max_discount_percent`')
+    await ensureColumn('price_rules', 'requires_approval', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER `max_discount_pkr`')
+    await ensureColumn('price_rules', 'effective_from', 'DATE NULL AFTER `requires_approval`')
+    await ensureColumn('price_rules', 'effective_to', 'DATE NULL AFTER `effective_from`')
+    await ensureColumn('price_rules', 'priority', 'INT NOT NULL DEFAULT 1 AFTER `effective_to`')
+    await ensureColumn('price_rules', 'created_by', 'VARCHAR(128) NULL AFTER `priority`')
+    await ensureColumn('price_rules', 'approved_by', 'VARCHAR(128) NULL AFTER `created_by`')
+    await ensureColumn('price_rules', 'policy_classification', "VARCHAR(64) NOT NULL DEFAULT 'Unconfirmed configuration' AFTER `approved_by`")
+    await ensureColumn('price_rules', 'product_variant', 'VARCHAR(128) NULL AFTER `product_id`')
+
+    // Create system_settings table for durable enterprise configuration
+    await query(`
+      CREATE TABLE IF NOT EXISTS \`system_settings\` (
+        \`id\` VARCHAR(64) PRIMARY KEY,
+        \`section\` VARCHAR(64) NOT NULL UNIQUE,
+        \`settings_data\` JSON NOT NULL,
+        \`updated_by\` VARCHAR(128) NULL,
+        \`updated_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `)
+
+    // Upgrade audit_logs table schema: remove default to BR-01/Peshawar and add specific branch tracking
+    try {
+      await query("ALTER TABLE `audit_logs` MODIFY COLUMN `branch_id` VARCHAR(64) NULL DEFAULT NULL")
+      await query("ALTER TABLE `audit_logs` MODIFY COLUMN `branch` VARCHAR(128) NULL DEFAULT NULL")
+    } catch (e) {
+      console.warn('[Migrations] audit_logs column modify skipped:', e.message)
+    }
+    await ensureColumn('audit_logs', 'acting_user_branch_id', 'VARCHAR(64) NULL AFTER `branch`')
+    await ensureColumn('audit_logs', 'acting_user_branch', 'VARCHAR(128) NULL AFTER `acting_user_branch_id`')
+    await ensureColumn('audit_logs', 'affected_branch_id', 'VARCHAR(64) NULL AFTER `acting_user_branch`')
+    await ensureColumn('audit_logs', 'affected_branch', 'VARCHAR(128) NULL AFTER `affected_branch_id`')
+    await ensureColumn('audit_logs', 'source_branch_id', 'VARCHAR(64) NULL AFTER `affected_branch`')
+    await ensureColumn('audit_logs', 'source_branch', 'VARCHAR(128) NULL AFTER `source_branch_id`')
+    await ensureColumn('audit_logs', 'destination_branch_id', 'VARCHAR(64) NULL AFTER `source_branch`')
+    await ensureColumn('audit_logs', 'destination_branch', 'VARCHAR(128) NULL AFTER `destination_branch_id`')
+    await ensureColumn('audit_logs', 'before_state', 'JSON NULL AFTER `details`')
+    await ensureColumn('audit_logs', 'after_state', 'JSON NULL AFTER `before_state`')
+
+    // Seed comprehensive product-specific and branch-specific price rules
+    await query(`
+      INSERT IGNORE INTO \`price_rules\` (
+        \`id\`, \`rule_name\`, \`product\`, \`product_id\`, \`branch_id\`, \`branch\`,
+        \`customer_segment\`, \`base_price\`, \`selling_price\`, \`branch_price\`,
+        \`minimum\`, \`minimum_price\`, \`max_discount_percent\`, \`max_discount_pkr\`,
+        \`requires_approval\`, \`branch_override\`, \`effective\`, \`priority\`,
+        \`rule_type\`, \`reason\`, \`status\`
+      ) VALUES
+      ('RULE-E125-ALL', 'BRG E-125 Standard Policy', 'BRG E-125', 'PROD-001', 'ALL', 'All Branches', 'Standard', 280000.00, '280K', 280000.00, '270K', 270000.00, 3.50, 10000.00, 1, 'None', 'Aug 01', 1, 'standard', 'Standard showroom discount allowance for BRG E-125', 'Demo'),
+      ('RULE-E125-PEW', 'BRG E-125 Peshawar Regional Tier', 'BRG E-125', 'PROD-001', 'BR-01', 'Peshawar', 'Standard', 280000.00, '280K', 280000.00, '266K', 266000.00, 5.00, 14000.00, 1, 'Peshawar: 280K', 'Aug 10', 2, 'promotional', 'Peshawar regional competitive showroom promotion', 'Demo'),
+      ('RULE-E125-ISB', 'BRG E-125 Islamabad Prime Showroom', 'BRG E-125', 'PROD-001', 'BR-02', 'Islamabad', 'Standard', 280000.00, '285K', 285000.00, '275K', 275000.00, 2.50, 7000.00, 1, 'Islamabad: 285K', 'Aug 15', 2, 'standard', 'Capital territory prime showroom price schedule', 'Demo'),
+      ('RULE-X7-ALL', 'BRG X7 Standard Policy', 'BRG X7', 'PROD-002', 'ALL', 'All Branches', 'Standard', 340000.00, '340K', 340000.00, '325K', 325000.00, 4.00, 15000.00, 1, 'None', 'Aug 01', 1, 'standard', 'Company-wide standard margin allowance for X7 series', 'Demo'),
+      ('RULE-DS11-ALL', 'BRG DS11 Standard Policy', 'BRG DS11', 'PROD-003', 'ALL', 'All Branches', 'Standard', 240000.00, '240K', 240000.00, '232K', 232000.00, 3.00, 8000.00, 1, 'None', 'Aug 01', 1, 'standard', 'Volume commuter bike price policy', 'Demo'),
+      ('RULE-E9P-ALL', 'BRG E9 Pro Standard Policy', 'BRG E9 Pro', 'PROD-004', 'ALL', 'All Branches', 'Standard', 390000.00, '390K', 390000.00, '370K', 370000.00, 5.00, 20000.00, 1, 'None', 'Aug 01', 1, 'standard', 'High-end long-range model pricing schedule', 'Demo'),
+      ('RULE-CITY-ALL', 'BRG City Pro Standard Policy', 'BRG City Pro', 'PROD-005', 'ALL', 'All Branches', 'Standard', 220000.00, '220K', 220000.00, '214.5K', 214500.00, 2.50, 5500.00, 1, 'None', 'Aug 01', 1, 'standard', 'City commuter entry tier', 'Demo'),
+      ('RULE-CARGO-ALL', 'Cargo Pro Commercial Delivery EV', 'Cargo Pro EV', 'PROD-006', 'ALL', 'All Branches', 'Standard', 450000.00, '450K', 450000.00, '440K', 440000.00, 2.00, 10000.00, 1, 'None', 'Jul 15', 1, 'commercial', 'Commercial logistics vehicles policy', 'Demo'),
+      ('RULE-BATT-ZERO', 'PowerCell Battery Protection Policy', 'PowerCell 72V 30Ah', 'PROD-007', 'ALL', 'All Branches', 'Standard', 115000.00, '115K', 115000.00, '115K', 115000.00, 0.00, 0.00, 1, 'None', 'Aug 01', 1, 'fixed', 'High-value lithium cell zero showroom discount enforcement', 'Demo'),
+      ('RULE-PARTS-ZERO', 'Genuine Spare Parts Policy', 'All Products', NULL, 'ALL', 'All Branches', 'Standard', 0.00, 'List', 0.00, 'List', 0.00, 0.00, 0.00, 1, 'None', 'Aug 01', 1, 'fixed', 'Genuine spare parts zero showroom discount enforcement', 'Demo'),
+      ('RULE-CORP-VIP', 'Corporate & B2B Fleet Incentive', 'All Products', NULL, 'ALL', 'All Branches', 'Corporate', 0.00, 'Custom', 0.00, 'Custom', 0.00, 8.00, 30000.00, 1, 'None', 'Aug 01', 3, 'corporate', 'Special institutional client negotiated rate (requires Super Admin signoff)', 'Demo')
+    `)
+
+    // Classify all existing seeded price rules as unconfirmed demo data
+    await query(`
+      UPDATE \`price_rules\`
+      SET
+        \`status\` = 'Demo',
+        \`policy_classification\` = 'Demo/example data',
+        \`requires_approval\` = 1,
+        \`approved_by\` = NULL
+      WHERE \`approved_by\` IS NULL
+    `)
 
     // Safe baseline categories seeding
     await query(`
@@ -2178,6 +2328,30 @@ export async function runMigrations() {
         '+92 321 9988771', 'Lead', 'LD-548', 'Lead follow-up',
         'Phone Call', 'Medium', 'bg-blue-50 text-blue-700', 'Upcoming', 'bg-blue-50 text-blue-600',
         DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY), '11:00', 'Ahsan Khan', 'Schedule showroom test drive.'
+      )
+    `)
+
+    // Safe baseline audit logs seeding
+    await query(`
+      INSERT IGNORE INTO \`audit_logs\` (
+        \`id\`, \`user_id\`, \`user_name\`, \`role\`, \`branch_id\`, \`branch\`,
+        \`action\`, \`entity_type\`, \`entity_id\`, \`details\`, \`ip_address\`, \`status\`
+      ) VALUES
+      (
+        'LOG-9001', 'USR-001', 'Hamza Ali', 'Super Admin', 'BR-01', 'Peshawar',
+        'Approve Transfer', 'transfer', 'TR-041', 'Approved transfer TR-041 (Peshawar to Islamabad, 3 units)', '127.0.0.1', 'Success'
+      ),
+      (
+        'LOG-9002', 'USR-PEW', 'Ahsan Khan', 'Branch Manager', 'BR-01', 'Peshawar',
+        'Complete Handover', 'delivery_handover', 'DH-1044', 'Issued Gate Pass GP-DEL-1044 after full payment clearance for ORD-2241', '127.0.0.1', 'Success'
+      ),
+      (
+        'LOG-9003', 'USR-PEW', 'Ahsan Khan', 'Branch Manager', 'BR-01', 'Peshawar',
+        'Create Sale', 'order', 'ORD-2241', 'Created sales order ORD-2241 with 0% discount within branch limits', '127.0.0.1', 'Success'
+      ),
+      (
+        'LOG-9004', 'USR-001', 'Hamza Ali', 'Super Admin', 'BR-01', 'Peshawar',
+        'System Configuration', 'settings', 'CONFIG-01', 'Updated dealership tax profiles and NTN/STRN settings', '127.0.0.1', 'Success'
       )
     `)
 

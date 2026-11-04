@@ -65,6 +65,69 @@ const onProductChange = (item) => {
   }
 }
 
+const quoteSubtotal = computed(() => {
+  return form.value.items.reduce((acc, curr) => acc + (Number(curr.sellingPrice || 0) * Number(curr.quantity || 1)), 0)
+})
+
+const activeQuotePriceRule = computed(() => {
+  const firstItem = form.value.items[0]
+  if (!firstItem || !firstItem.product) return null
+  const prodName = firstItem.product
+  const branch = form.value.branch || activeBranch.value || 'Peshawar'
+  const canonicalBranch = store.resolveCanonicalBranchId(branch)
+
+  if (!store.pricingRules || !store.pricingRules.length) return null
+
+  // 1. Exact match
+  const exact = store.pricingRules.find(r =>
+    (r.product === prodName || r.product_id === prodName) &&
+    (r.branch_id === canonicalBranch || r.branch === branch || (r.branch_override && r.branch_override.includes(branch))) &&
+    r.status !== 'Inactive'
+  )
+  if (exact) return exact
+
+  // 2. Global rule
+  const globalRule = store.pricingRules.find(r =>
+    (r.product === prodName || r.product_id === prodName) &&
+    (!r.branch_id || r.branch_id === 'ALL' || r.branch === 'All Branches' || r.branch_override === 'None') &&
+    r.status !== 'Inactive'
+  )
+  return globalRule || null
+})
+
+const isQuoteRuleApproved = computed(() => {
+  const rule = activeQuotePriceRule.value
+  if (!rule) return false
+  return rule.status === 'Active' && 
+         (rule.policy_classification === 'Business-approved' || rule.policyClassification === 'Business-approved') &&
+         Boolean(rule.approved_by || rule.approvedBy)
+})
+
+const maxQuoteDiscountAllowed = computed(() => {
+  if (isSuperAdmin.value) return 999999999
+  if (!isQuoteRuleApproved.value) return 0
+  const subtotal = quoteSubtotal.value
+  const rule = activeQuotePriceRule.value
+  if (!rule) return 0
+  const maxPercent = Number(rule.maxDiscountPercent ?? rule.max_discount_percent ?? rule.discountPercent ?? rule.discount_percent ?? 0)
+  const maxPkr = Number(rule.maxDiscountPkr ?? rule.max_discount_pkr ?? 0)
+  const allowedByPercent = maxPercent > 0 ? Math.round(subtotal * (maxPercent / 100)) : 0
+  return Math.max(allowedByPercent, maxPkr)
+})
+
+const isQuoteDiscountExceeded = computed(() => {
+  if (isSuperAdmin.value) return false
+  const disc = Number(form.value.discount || 0)
+  if (!isQuoteRuleApproved.value && disc > 0) return true
+  if (disc > maxQuoteDiscountAllowed.value) return true
+  const rule = activeQuotePriceRule.value
+  if (rule && (rule.minimumPrice || rule.minimum_price)) {
+    const minFloor = Number(rule.minimumPrice || rule.minimum_price) * (form.value.items[0]?.quantity || 1)
+    if ((quoteSubtotal.value - disc) < minFloor) return true
+  }
+  return false
+})
+
 const customerSearch = ref('')
 const showCustomerDropdown = ref(false)
 const showCreateCustomerModal = ref(false)
@@ -148,6 +211,9 @@ const loadData = (data) => {
 }
 
 onMounted(() => {
+  if (typeof store.fetchRemotePricingRules === 'function') {
+    store.fetchRemotePricingRules()
+  }
   if (props.quotation) {
     loadData(props.quotation)
   } else if (store.originalEditQuotation) {
@@ -189,6 +255,14 @@ const saveAndSend = () => {
 
   if (!form.value.branch || form.value.branch === 'All Branches' || form.value.branch === 'ALL') {
     showValidation.value = true
+    return
+  }
+
+  if (isQuoteDiscountExceeded.value) {
+    showValidation.value = true
+    const rule = activeQuotePriceRule.value
+    const ruleDesc = rule ? `'${rule.ruleName || rule.name}' (Configured Limit: PKR ${maxQuoteDiscountAllowed.value.toLocaleString()})` : 'Zero discount authorized without configured rule'
+    alert(`Discount of PKR ${Number(form.value.discount).toLocaleString()} exceeds Branch Manager limit under ${ruleDesc}. Super Admin approval required.`)
     return
   }
 
@@ -429,8 +503,11 @@ const saveAndSend = () => {
                     </div>
                     
                     <div>
-                      <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Unit Price (PKR)</label>
-                      <input data-tour="item-sellingprice" v-model="item.sellingPrice" type="number" min="0" class="w-full px-3 py-2 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded text-xs focus:border-[#165A31] focus:ring-0" />
+                      <div class="flex items-center justify-between mb-1">
+                        <label class="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unit Price (PKR)</label>
+                        <span class="text-[9px] text-gray-400 font-medium">Read-only</span>
+                      </div>
+                      <input data-tour="item-sellingprice" v-model="item.sellingPrice" readonly disabled type="number" min="0" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs cursor-not-allowed font-medium" />
                     </div>
                     
                     <div class="sm:col-span-2">
@@ -453,9 +530,19 @@ const saveAndSend = () => {
                 <div class="flex items-center justify-between">
                   <div>
                     <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 block">Overall Discount (PKR)</span>
-                    <span class="text-[10px] text-gray-400 dark:text-gray-500">Max 8% branch allowance</span>
+                    <span class="text-[10px]" :class="isQuoteRuleApproved ? 'text-emerald-600' : 'text-amber-600'">
+                      {{ isQuoteRuleApproved ? `${activeQuotePriceRule?.ruleName || activeQuotePriceRule?.name}: Max PKR ${maxQuoteDiscountAllowed.toLocaleString()}` : 'Policy Unconfirmed (Demo) · Requires Super Admin Approval' }}
+                    </span>
                   </div>
-                  <input v-model="form.discount" data-tour="quote-discount" type="number" min="0" class="w-28 px-2.5 py-1.5 bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded text-xs text-right focus:border-[#165A31] focus:ring-0 font-semibold" />
+                  <input v-model="form.discount" data-tour="quote-discount" type="number" min="0" class="w-28 px-2.5 py-1.5 bg-white dark:bg-[#0f172a] border rounded text-xs text-right focus:border-[#165A31] focus:ring-0 font-semibold" :class="isQuoteDiscountExceeded ? 'border-red-400 bg-red-50/20 text-red-900' : 'border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100'" />
+                </div>
+                <div v-if="isQuoteDiscountExceeded" class="text-right">
+                  <span v-if="!isQuoteRuleApproved && Number(form.discount || 0) > 0" class="text-[10px] font-bold text-amber-700">
+                    ⚠️ Discount policy for this product is an unconfirmed demo configuration. Any discount requires Super Admin authorization.
+                  </span>
+                  <span v-else class="text-[10px] font-bold text-red-600">
+                    ⚠️ Discount exceeds authorized limit (Max PKR {{ maxQuoteDiscountAllowed.toLocaleString() }}). Requires Super Admin approval.
+                  </span>
                 </div>
                 <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
                   <span class="text-sm font-bold text-gray-900 dark:text-white">Net Quoted Total</span>

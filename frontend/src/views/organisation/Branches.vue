@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Search, ChevronDown, Eye, Pencil, MoreHorizontal, Check, Plus, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
@@ -7,6 +7,11 @@ import EditBranch from './EditBranch.vue'
 import CreateBranch from './CreateBranch.vue'
 
 const router = useRouter()
+
+onMounted(async () => {
+  if (typeof store.fetchRemoteBranches === 'function') await store.fetchRemoteBranches()
+  if (typeof store.fetchRemoteUsers === 'function') await store.fetchRemoteUsers()
+})
 
 const activeStatusTab = ref('All')
 const statusTabs = ['All', 'Active', 'Inactive']

@@ -123,7 +123,7 @@ const router = createRouter({
           path: 'organisation/users',
           name: 'organisation-users',
           component: () => import('@/views/organisation/UsersAccess.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'organisation/users/create',
@@ -147,13 +147,13 @@ const router = createRouter({
           path: 'organisation/users/detail',
           name: 'organisation-user-detail-legacy',
           component: () => import('@/views/organisation/UserDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'organisation/users/:id',
           name: 'organisation-user-detail',
           component: () => import('@/views/organisation/UserDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'organisation/roles',
@@ -289,7 +289,7 @@ const router = createRouter({
           path: 'procurement/suppliers',
           name: 'procurement-suppliers',
           component: () => import('@/views/procurement/Suppliers.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/suppliers/create',
@@ -313,13 +313,13 @@ const router = createRouter({
           path: 'procurement/suppliers/detail',
           name: 'procurement-supplier-detail-legacy',
           component: () => import('@/views/procurement/SupplierDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/suppliers/:id',
           name: 'procurement-supplier-detail',
           component: () => import('@/views/procurement/SupplierDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-orders',
@@ -1119,25 +1119,25 @@ const router = createRouter({
           path: 'system/audit-log',
           name: 'system-audit-log',
           component: () => import('@/views/system/AuditLog.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'system/audit-log/:id',
           name: 'system-audit-log-detail',
           component: () => import('@/views/system/AuditLog.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'audit-logs/:id',
           name: 'audit-log-direct-alias',
           component: () => import('@/views/system/AuditLog.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'audit-log/:id',
           name: 'audit-log-direct-alias-2',
           component: () => import('@/views/system/AuditLog.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'system/settings',

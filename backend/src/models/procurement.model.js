@@ -642,7 +642,7 @@ export const ProcurementModel = {
       params.push(status)
     }
 
-    if (branch_id && branch_id !== 'all' && branch_id !== 'BR-01' && branch_id !== 'HQ') {
+    if (branch_id && branch_id !== 'all' && branch_id !== 'ALL') {
       sql += ' AND po.branch_id = ?'
       params.push(branch_id)
     }
@@ -1100,7 +1100,7 @@ export const ProcurementModel = {
       params.push(po_id, po_id)
     }
 
-    if (branch_id && branch_id !== 'all' && branch_id !== 'BR-01' && branch_id !== 'HQ') {
+    if (branch_id && branch_id !== 'all' && branch_id !== 'ALL') {
       sql += ' AND branch_id = ?'
       params.push(branch_id)
     }
@@ -1617,7 +1617,7 @@ export const ProcurementModel = {
       params.push(status)
     }
 
-    if (branch_id && branch_id !== 'all' && branch_id !== 'BR-01' && branch_id !== 'HQ') {
+    if (branch_id && branch_id !== 'all' && branch_id !== 'ALL') {
       sql += ' AND branch_id = ?'
       params.push(branch_id)
     }
@@ -1705,7 +1705,7 @@ export const ProcurementModel = {
       params.push(status)
     }
 
-    if (branch_id && branch_id !== 'all' && branch_id !== 'BR-01' && branch_id !== 'HQ') {
+    if (branch_id && branch_id !== 'all' && branch_id !== 'ALL') {
       sql += ' AND branch_id = ?'
       params.push(branch_id)
     }
@@ -2272,7 +2272,7 @@ export const ProcurementModel = {
       params.push(status)
     }
 
-    if (branch_id && branch_id !== 'all' && branch_id !== 'BR-01' && branch_id !== 'HQ') {
+    if (branch_id && branch_id !== 'all' && branch_id !== 'ALL') {
       sql += ' AND branch_id = ?'
       params.push(branch_id)
     }

@@ -238,6 +238,73 @@ const loadData = (data) => {
 const parseRupees = (val) => parseFloat(String(val || '0').replace(/[^0-9.]/g, '')) || 0
 const formatRupees = (num) => `PKR ${Math.round(num).toLocaleString()}`
 
+const activePriceRule = computed(() => {
+  const prodName = saleData.value.product
+  const branch = activeBranch.value || 'Peshawar'
+  const canonicalBranch = store.resolveCanonicalBranchId(branch)
+  
+  if (!store.pricingRules || !store.pricingRules.length) return null
+  
+  // 1. Exact product AND branch match
+  const exact = store.pricingRules.find(r => 
+    (r.product === prodName || r.product_id === prodName) && 
+    (r.branch_id === canonicalBranch || r.branch === branch || (r.branch_override && r.branch_override.includes(branch))) &&
+    r.status !== 'Inactive'
+  )
+  if (exact) return exact
+
+  // 2. Product match for ALL branches
+  const globalProd = store.pricingRules.find(r =>
+    (r.product === prodName || r.product_id === prodName) &&
+    (!r.branch_id || r.branch_id === 'ALL' || r.branch === 'All Branches' || r.branch_override === 'None') &&
+    r.status !== 'Inactive'
+  )
+  if (globalProd) return globalProd
+
+  return null
+})
+
+const isRuleApproved = computed(() => {
+  const rule = activePriceRule.value
+  if (!rule) return false
+  return rule.status === 'Active' && 
+         (rule.policy_classification === 'Business-approved' || rule.policyClassification === 'Business-approved') &&
+         Boolean(rule.approved_by || rule.approvedBy)
+})
+
+const maxDiscountAllowed = computed(() => {
+  if (isSuperAdmin.value) return 999999999
+  // Unapproved demo rules cannot grant autonomous showroom discounts
+  if (!isRuleApproved.value) return 0
+
+  const cat = parseRupees(saleData.value.cataloguePrice)
+  const rule = activePriceRule.value
+  if (!rule) return 0
+  const maxPercent = Number(rule.maxDiscountPercent ?? rule.max_discount_percent ?? rule.discountPercent ?? rule.discount_percent ?? 0)
+  const maxPkr = Number(rule.maxDiscountPkr ?? rule.max_discount_pkr ?? 0)
+  const allowedByPercent = maxPercent > 0 ? Math.round(cat * (maxPercent / 100)) : 0
+  return Math.max(allowedByPercent, maxPkr)
+})
+
+const minimumFloorPrice = computed(() => {
+  const rule = activePriceRule.value
+  const cat = parseRupees(saleData.value.cataloguePrice)
+  if (!rule) return cat
+  if (rule.minimumPrice || rule.minimum_price) return Number(rule.minimumPrice || rule.minimum_price)
+  return Math.round(cat * 0.95)
+})
+
+const isDiscountExceeded = computed(() => {
+  if (isSuperAdmin.value) return false
+  const cat = parseRupees(saleData.value.cataloguePrice)
+  const disc = parseRupees(saleData.value.discount)
+  const finalPrice = Math.max(0, cat - disc)
+  if (!isRuleApproved.value && disc > 0) return true
+  if (disc > maxDiscountAllowed.value) return true
+  if (finalPrice < minimumFloorPrice.value) return true
+  return false
+})
+
 watch([() => saleData.value.cataloguePrice, () => saleData.value.discount], () => {
   const cat = parseRupees(saleData.value.cataloguePrice)
   const disc = parseRupees(saleData.value.discount)
@@ -267,6 +334,9 @@ const selectUnit = (unit) => {
 }
 
 onMounted(() => {
+  if (typeof store.fetchRemotePricingRules === 'function') {
+    store.fetchRemotePricingRules()
+  }
   if (props.order) {
     loadData(props.order)
   } else if (store.originalEditOrder) {
@@ -381,6 +451,15 @@ const createOrder = () => {
 
   if (saleData.value.paymentMethod === 'Cheque / Pay Order' && !saleData.value.chequeNo?.trim()) {
     showValidation.value = true
+    return
+  }
+
+  // Validate discount authorization limit for Branch Managers
+  if (isDiscountExceeded.value) {
+    showValidation.value = true
+    const rule = activePriceRule.value
+    const ruleDesc = rule ? `'${rule.ruleName || rule.name}' (Configured Limit: PKR ${maxDiscountAllowed.value.toLocaleString()})` : 'Zero discount policy (No rule configured)'
+    validationError.value = `Discount of ${saleData.value.discount} exceeds Branch Manager authorization under ${ruleDesc}. Minimum floor price is PKR ${minimumFloorPrice.value.toLocaleString()}. Super Admin approval is required.`
     return
   }
 
@@ -644,16 +723,29 @@ const createOrder = () => {
               
               <div class="space-y-4">
                 <div>
-                  <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300 mb-1">MSRP / Catalogue Price</label>
-                  <input data-tour="sale-catalogueprice" v-model="saleData.cataloguePrice" type="text" placeholder="e.g. PKR 240,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300">MSRP / Official Catalogue Price</label>
+                    <span class="text-[10px] text-gray-400 font-medium bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">Locked / Read-only</span>
+                  </div>
+                  <input data-tour="sale-catalogueprice" v-model="saleData.cataloguePrice" readonly disabled type="text" placeholder="Select product to pull catalogue price" class="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg cursor-not-allowed font-medium" />
                 </div>
                 <div>
                   <div class="flex items-center justify-between mb-1">
-                    <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300">Authorized Discount</label>
-                    <span class="text-[10px] text-gray-400">Max 8% branch allowance</span>
+                    <label class="block text-[11px] font-semibold text-gray-700 dark:text-gray-300">Authorized Discount (PKR)</label>
+                    <span class="text-[10px] font-medium" :class="isRuleApproved ? 'text-emerald-600' : 'text-amber-600'">
+                      {{ isRuleApproved ? `${activePriceRule?.ruleName || activePriceRule?.name}: Max PKR ${maxDiscountAllowed.toLocaleString()}` : 'Policy Unconfirmed (Demo) · Requires Super Admin Approval' }}
+                    </span>
                   </div>
-                  <input data-tour="sale-discount" v-model="saleData.discount" type="text" placeholder="e.g. PKR 10,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" />
-                  <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Discounts exceeding 8% will automatically prompt for Head Office Action Centre approval.</p>
+                  <input data-tour="sale-discount" v-model="saleData.discount" type="text" placeholder="e.g. PKR 5,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" :class="isDiscountExceeded ? 'border-red-400 bg-red-50/20 text-red-900' : 'border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100'" />
+                  <p v-if="isDiscountExceeded && !isRuleApproved && parseRupees(saleData.discount) > 0" class="text-[10px] font-bold text-amber-700 mt-1 flex items-center gap-1">
+                    ⚠️ Discount policy for this model is an unconfirmed demo configuration. Any discount requires Super Admin authorization.
+                  </p>
+                  <p v-else-if="isDiscountExceeded" class="text-[10px] font-bold text-red-600 mt-1 flex items-center gap-1">
+                    ⚠️ Discount exceeds authorized limit (Max PKR {{ maxDiscountAllowed.toLocaleString() }} · Floor PKR {{ minimumFloorPrice.toLocaleString() }}). Requires Super Admin approval.
+                  </p>
+                  <p v-else class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                    {{ activePriceRule ? `Governed by rule '${activePriceRule.ruleName || activePriceRule.name}'. Minimum selling floor: PKR ${minimumFloorPrice.toLocaleString()}.` : 'Discounts require configured price rule authorization or Super Admin approval.' }}
+                  </p>
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-1">Net Vehicle Sale Price (Payable)</label>

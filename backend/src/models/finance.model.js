@@ -25,7 +25,7 @@ export const FinanceModel = {
     const params = []
 
     if (branch_id && branch_id !== 'ALL' && branch_id !== 'All Branches') {
-      sql += ' AND (`branch_id` = ? OR `branch_id` = "BR-HQ" OR `branch` = ?)'
+      sql += ' AND (`branch_id` = ? OR `branch` = ?)'
       params.push(branch_id, branch_id)
     }
 
@@ -392,53 +392,99 @@ export const FinanceModel = {
   // 5. FINANCE OVERVIEW KPIS & CHARTS
   // ==========================================================================
   async getOverviewKPIs(branch_id = null) {
+    const isGlobal = !branch_id || branch_id === 'ALL' || branch_id === 'All Branches'
+
     // 1. Invoices & Receivables
-    let invSql = 'SELECT SUM(`total`) as net_sales, SUM(`paid_amount`) as collections, SUM(`outstanding_amount`) as receivables FROM `invoices` WHERE `status` != "Cancelled"'
+    let invSql = 'SELECT COALESCE(SUM(`total`), 0) as net_sales, COALESCE(SUM(`paid_amount`), 0) as collections, COALESCE(SUM(`outstanding_amount`), 0) as receivables FROM `invoices` WHERE `status` != "Cancelled"'
     const invParams = []
-    if (branch_id && branch_id !== 'ALL' && branch_id !== 'All Branches') {
+    if (!isGlobal) {
       invSql += ' AND (`branch_id` = ? OR `branch` = ?)'
       invParams.push(branch_id, branch_id)
     }
     const invRes = await query(invSql, invParams)
-    const netSales = parseFloat(invRes[0]?.net_sales || 28400000)
-    const collections = parseFloat(invRes[0]?.collections || 25500000)
-    const receivables = parseFloat(invRes[0]?.receivables || 2900000)
+    const netSales = parseFloat(invRes[0]?.net_sales || 0)
+    const collections = parseFloat(invRes[0]?.collections || 0)
+    const receivables = parseFloat(invRes[0]?.receivables || 0)
 
     // 2. Payables (Vendor bills)
-    let billSql = 'SELECT SUM(`outstanding_amount`) as payables FROM `vendor_bills` WHERE `status` != "Paid"'
+    let billSql = 'SELECT COALESCE(SUM(`outstanding_amount`), 0) as payables FROM `vendor_bills` WHERE `status` != "Paid"'
     const billParams = []
-    if (branch_id && branch_id !== 'ALL' && branch_id !== 'All Branches') {
+    if (!isGlobal) {
       billSql += ' AND (`branch_id` = ? OR `branch` = ?)'
       billParams.push(branch_id, branch_id)
     }
     const billRes = await query(billSql, billParams)
-    const payables = parseFloat(billRes[0]?.payables || 6100000)
+    const payables = parseFloat(billRes[0]?.payables || 0)
 
     // 3. Operational Expenses
-    let expSql = 'SELECT SUM(`raw_amount`) as expenses FROM `expenses` WHERE `approval` = "Approved" OR `payment` = "Paid"'
+    let expSql = 'SELECT COALESCE(SUM(`raw_amount`), 0) as expenses FROM `expenses` WHERE `approval` = "Approved" OR `payment` = "Paid"'
     const expParams = []
-    if (branch_id && branch_id !== 'ALL' && branch_id !== 'All Branches') {
+    if (!isGlobal) {
       expSql += ' AND (`branch_id` = ? OR `branch` = ?)'
       expParams.push(branch_id, branch_id)
     }
     const expRes = await query(expSql, expParams)
-    const expenses = parseFloat(expRes[0]?.expenses || 3200000)
+    const expenses = parseFloat(expRes[0]?.expenses || 0)
 
     // 4. Cash and Bank Balances
-    let cbSql = 'SELECT SUM(CASE WHEN account_type = "Cash" THEN current_balance ELSE 0 END) as cash_on_hand, SUM(CASE WHEN account_type = "Bank" THEN current_balance ELSE 0 END) as bank_balance FROM `cash_bank_accounts` WHERE `status` = "Active"'
+    let cbSql = 'SELECT COALESCE(SUM(CASE WHEN account_type = "Cash" THEN current_balance ELSE 0 END), 0) as cash_on_hand, COALESCE(SUM(CASE WHEN account_type = "Bank" THEN current_balance ELSE 0 END), 0) as bank_balance FROM `cash_bank_accounts` WHERE `status` = "Active"'
     const cbParams = []
-    if (branch_id && branch_id !== 'ALL' && branch_id !== 'All Branches') {
-      cbSql += ' AND (`branch_id` = ? OR `branch_id` = "BR-HQ" OR `branch` = ?)'
+    if (!isGlobal) {
+      cbSql += ' AND (`branch_id` = ? OR `branch` = ?)'
       cbParams.push(branch_id, branch_id)
     }
     const cbRes = await query(cbSql, cbParams)
-    const cashOnHand = parseFloat(cbRes[0]?.cash_on_hand || 850000)
-    const bankBalance = parseFloat(cbRes[0]?.bank_balance || 4200000)
+    const cashOnHand = parseFloat(cbRes[0]?.cash_on_hand || 0)
+    const bankBalance = parseFloat(cbRes[0]?.bank_balance || 0)
 
     // 5. Calculations
-    const cogs = Math.round(netSales * 0.514) // Baseline ~51.4%
+    const cogs = Math.round(netSales * 0.514) // Estimated inventory cost of sales
     const grossProfit = Math.max(0, netSales - cogs)
     const netOperatingProfit = Math.max(0, grossProfit - expenses)
+
+    // 6. Real Branch Distribution (Only visible for Super Admin / Global scope)
+    let branchContributions = []
+    let branchExpenses = []
+
+    if (isGlobal) {
+      const salesByBranch = await query(`
+        SELECT COALESCE(\`branch\`, 'Head Office') as branch, COALESCE(SUM(\`total\`), 0) as sales
+        FROM \`invoices\`
+        WHERE \`status\` != 'Cancelled'
+        GROUP BY \`branch\`
+      `)
+      const totalSales = salesByBranch.reduce((acc, r) => acc + parseFloat(r.sales || 0), 0)
+      branchContributions = salesByBranch.map(r => ({
+        branch: r.branch,
+        percentage: totalSales > 0 ? Math.round((parseFloat(r.sales || 0) / totalSales) * 100) : 0,
+        amount: parseFloat(r.sales || 0)
+      }))
+
+      const expByBranch = await query(`
+        SELECT COALESCE(\`branch\`, 'Head Office') as branch, COALESCE(SUM(\`raw_amount\`), 0) as expenses
+        FROM \`expenses\`
+        WHERE \`approval\` = 'Approved' OR \`payment\` = 'Paid'
+        GROUP BY \`branch\`
+      `)
+      branchExpenses = expByBranch.map(r => ({
+        branch: r.branch,
+        amount: parseFloat(r.expenses || 0)
+      }))
+    } else {
+      branchContributions = [
+        { branch: branch_id, percentage: 100, amount: netSales }
+      ]
+      branchExpenses = [
+        { branch: branch_id, amount: expenses }
+      ]
+    }
+
+    const formatM = (num) => {
+      if (num === 0) return 'PKR 0'
+      if (Math.abs(num) >= 1000000) return `PKR ${(num / 1000000).toFixed(2)}M`
+      if (Math.abs(num) >= 1000) return `PKR ${(num / 1000).toFixed(0)}K`
+      return `PKR ${num.toLocaleString()}`
+    }
 
     return {
       kpis: {
@@ -454,27 +500,17 @@ export const FinanceModel = {
         netOperatingProfit
       },
       kpiList: [
-        { label: 'Net Sales', value: `PKR ${(netSales / 1000000).toFixed(1)}M`, raw: netSales },
-        { label: 'Collections', value: `PKR ${(collections / 1000000).toFixed(1)}M`, raw: collections },
-        { label: 'Receivables', value: `PKR ${(receivables / 1000000).toFixed(1)}M`, raw: receivables },
-        { label: 'Payables', value: `PKR ${(payables / 1000000).toFixed(1)}M`, raw: payables },
-        { label: 'Expenses', value: `PKR ${(expenses / 1000000).toFixed(1)}M`, raw: expenses },
-        { label: 'COGS', value: `PKR ${(cogs / 1000000).toFixed(1)}M`, raw: cogs },
-        { label: 'Gross Profit', value: `PKR ${(grossProfit / 1000000).toFixed(1)}M`, raw: grossProfit },
-        { label: 'Net Operating Profit', value: `PKR ${(netOperatingProfit / 1000000).toFixed(1)}M`, raw: netOperatingProfit }
+        { label: 'Net Sales', value: formatM(netSales), raw: netSales },
+        { label: 'Collections', value: formatM(collections), raw: collections },
+        { label: 'Receivables', value: formatM(receivables), raw: receivables },
+        { label: 'Payables', value: formatM(payables), raw: payables },
+        { label: 'Expenses', value: formatM(expenses), raw: expenses },
+        { label: 'COGS', value: formatM(cogs), raw: cogs },
+        { label: 'Gross Profit', value: formatM(grossProfit), raw: grossProfit },
+        { label: 'Net Operating Profit', value: formatM(netOperatingProfit), raw: netOperatingProfit }
       ],
-      branchContributions: [
-        { branch: 'Peshawar', percentage: 35 },
-        { branch: 'Islamabad', percentage: 27 },
-        { branch: 'Lahore', percentage: 22 },
-        { branch: 'Rawalpindi', percentage: 16 }
-      ],
-      branchExpenses: [
-        { branch: 'Peshawar', amount: Math.round(expenses * 0.35) },
-        { branch: 'Islamabad', amount: Math.round(expenses * 0.27) },
-        { branch: 'Lahore', amount: Math.round(expenses * 0.22) },
-        { branch: 'Rawalpindi', amount: Math.round(expenses * 0.16) }
-      ]
+      branchContributions,
+      branchExpenses
     }
   }
 }

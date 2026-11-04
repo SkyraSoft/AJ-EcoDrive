@@ -1,5 +1,5 @@
 import { ProcurementModel } from '../models/procurement.model.js'
-import { getEffectiveBranch, assertBranchAccess, resolveBranchId, getBranchName } from '../utils/branchScope.js'
+import { getEffectiveBranch, assertBranchAccess, resolveBranchId, getBranchName, assertSuperAdminRole, assertNotSelf } from '../utils/branchScope.js'
 
 export const ProcurementController = {
   // =========================================================================
@@ -200,8 +200,10 @@ export const ProcurementController = {
       }
 
       if (!assertBranchAccess(existing.branch_id, req, res)) return
+      if (!assertSuperAdminRole(req, res, 'Purchase Order Approval')) return
+      if (!assertNotSelf(req, res, existing.requested_by || existing.created_by, 'Purchase Order Approval')) return
 
-      const user = req.body.user || req.user?.name || req.user?.username || 'Manager'
+      const user = req.body.user || req.user?.name || req.user?.username || 'Super Admin'
       const approved = await ProcurementModel.approvePurchaseOrder(id, { user })
       res.status(200).json(approved)
     } catch (err) {
@@ -514,6 +516,8 @@ export const ProcurementController = {
       }
 
       if (!assertBranchAccess(existing.branch_id, req, res)) return
+      if (!assertSuperAdminRole(req, res, 'Purchase Return Approval')) return
+      if (!assertNotSelf(req, res, existing.requested_by || existing.created_by, 'Purchase Return Approval')) return
 
       const approved = await ProcurementModel.approvePurchaseReturn(id, req.user)
       res.status(200).json(approved)

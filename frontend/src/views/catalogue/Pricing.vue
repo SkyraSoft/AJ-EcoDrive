@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Search, ChevronDown, Pencil, Clock, Plus } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
@@ -20,12 +20,35 @@ const openDropdown = ref(null)
 const categories = ['All Categories', 'Electric Bikes', 'Cargo', 'Scooters']
 const overrides = ['All Overrides', 'With Override', 'No Override']
 
-const pricingData = ref([
-  { product: 'BRG DS11', category: 'Electric Bikes', sellingPrice: '185K', landedCostRef: '146K', markup: '26.7%', margin: '21.1%', minimum: '176K', branchOverride: 'None', effective: 'Aug 01' },
-  { product: 'BRG EV-5', category: 'Electric Bikes', sellingPrice: '210K', landedCostRef: '168K', markup: '25.0%', margin: '20.0%', minimum: '198K', branchOverride: 'Peshawar: 205K', effective: 'Aug 10' },
-  { product: 'Cargo Pro', category: 'Cargo', sellingPrice: '275K', landedCostRef: '214K', markup: '28.5%', margin: '22.2%', minimum: '260K', branchOverride: 'None', effective: 'Jul 15' },
-  { product: 'City Mini E-Scoot', category: 'Scooters', sellingPrice: '125K', landedCostRef: '95K', markup: '31.5%', margin: '24.0%', minimum: '115K', branchOverride: 'Lahore: 120K', effective: 'Aug 15' }
-])
+onMounted(() => {
+  store.fetchRemotePricingRules().catch(e => console.warn('[Pricing] Remote pricing rules sync:', e.message))
+})
+
+const pricingData = computed(() => {
+  const rules = store.pricingRules || []
+  return rules.map(r => ({
+    id: r.id || r.rule_id,
+    product: r.product || r.rule_name || 'Standard Vehicle',
+    productVariant: r.product_variant || r.productVariant || '—',
+    category: r.category || 'Electric Bikes',
+    sellingPrice: r.sellingPrice || r.selling_price || '0',
+    landedCostRef: r.landedCostRef || r.landed_cost_ref || '—',
+    markup: r.markup || '—',
+    margin: r.margin || '—',
+    minimum: r.minimum || r.minimum_price || '0',
+    branchOverride: r.branchOverride || r.branch_override || (r.branch && r.branch !== 'All Branches' ? r.branch : 'None'),
+    effective: r.effective || r.effective_from || 'Immediate',
+    status: r.status || 'Draft',
+    policyClassification: r.policy_classification || r.policyClassification || (r.status === 'Demo' ? 'Demo/example data' : 'Unconfirmed configuration'),
+    approvedBy: r.approved_by || r.approvedBy || null,
+    maxDiscountPercent: r.max_discount_percent ?? r.maxDiscountPercent ?? r.discount_percent ?? 0,
+    maxDiscountPkr: r.max_discount_pkr ?? r.maxDiscountPkr ?? 0,
+    customerSegment: r.customer_segment || r.customerSegment || 'Standard',
+    requiresApproval: Boolean(r.requires_approval ?? 1),
+    priority: r.priority || 1,
+    rawRule: r
+  }))
+})
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -83,6 +106,21 @@ const openHistory = (productName) => {
       <button data-tour-id="sa.catalogue.pricing.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>New Price Rule</span>
       </button>
+    </div>
+
+    <!-- Showroom Pricing Policy Status Banner -->
+    <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 flex items-start gap-3 text-amber-900 shadow-sm">
+      <div class="p-1.5 bg-amber-100 rounded-lg text-amber-700 mt-0.5">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="space-y-1">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800">Dealership Pricing & Discount Policy Notice</h4>
+        <p class="text-[11px] text-amber-700 leading-relaxed">
+          Seeded discount percentages and PKR limits represent <strong>unconfirmed demo / example configurations</strong>. Dealership leadership has not yet ratified official showroom discount rules. Until approved by Super Admin, all unconfirmed rules operate in <strong>Demo / Draft</strong> mode with mandatory Super Admin authorization.
+        </p>
+      </div>
     </div>
 
     <!-- Filters & Table -->
@@ -168,27 +206,42 @@ const openHistory = (productName) => {
                 <th class="px-5 py-3">Product</th>
                 <th class="px-5 py-3">Category</th>
                 <th class="px-5 py-3">Selling Price</th>
-                <th class="px-5 py-3">Landed Cost Ref</th>
-                <th class="px-5 py-3">Markup</th>
-                <th class="px-5 py-3">Margin</th>
-                <th class="px-5 py-3">Minimum</th>
-                <th class="px-5 py-3">Branch Override</th>
+                <th class="px-5 py-3">Minimum Floor</th>
+                <th class="px-5 py-3">Max Discount</th>
+                <th class="px-5 py-3">Branch Scope</th>
+                <th class="px-5 py-3">Policy Classification</th>
                 <th class="px-5 py-3">Effective</th>
                 <th class="px-5 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="text-[11px]">
-              <tr v-for="item in filteredPricing" :key="item.product" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                <td class="px-5 py-4 font-semibold text-gray-900">{{ item.product }}</td>
+              <tr v-for="item in filteredPricing" :key="item.id || item.product" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <td class="px-5 py-4 font-semibold text-gray-900">
+                  <div>{{ item.product }}</div>
+                  <div v-if="item.productVariant && item.productVariant !== '—'" class="text-[10px] text-gray-400 font-normal">{{ item.productVariant }}</div>
+                </td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ item.category }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.sellingPrice }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.landedCostRef }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.markup }}</td>
-                <td class="px-5 py-4 text-gray-600 font-medium">{{ item.margin }}</td>
+                <td class="px-5 py-4 text-gray-900 font-semibold">{{ item.sellingPrice }}</td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ item.minimum }}</td>
                 <td class="px-5 py-4 text-gray-600 font-medium">
+                  <span v-if="item.maxDiscountPercent > 0 || item.maxDiscountPkr > 0" class="font-mono text-gray-700">
+                    {{ item.maxDiscountPercent > 0 ? `${item.maxDiscountPercent}%` : '' }}
+                    {{ item.maxDiscountPercent > 0 && item.maxDiscountPkr > 0 ? ' / ' : '' }}
+                    {{ item.maxDiscountPkr > 0 ? `PKR ${item.maxDiscountPkr.toLocaleString()}` : '' }}
+                  </span>
+                  <span v-else class="text-gray-400">0% (Strict Floor)</span>
+                </td>
+                <td class="px-5 py-4 text-gray-600 font-medium">
                   <span v-if="item.branchOverride !== 'None'" class="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-amber-50 text-amber-600">{{ item.branchOverride }}</span>
-                  <span v-else class="text-gray-400">{{ item.branchOverride }}</span>
+                  <span v-else class="text-gray-400">All Branches</span>
+                </td>
+                <td class="px-5 py-4">
+                  <span v-if="item.status === 'Active' && item.policyClassification === 'Business-approved'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Business-Approved
+                  </span>
+                  <span v-else class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Demo / Unconfirmed
+                  </span>
                 </td>
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ item.effective }}</td>
                 <td class="px-5 py-4 text-right">
@@ -273,16 +326,12 @@ const openHistory = (productName) => {
   <CreatePriceRule 
     v-if="showCreateModal" 
     @close="showCreateModal = false" 
-    @created="(rule) => { pricingData.unshift(rule); showCreateModal = false; }"
+    @created="(rule) => { showCreateModal = false; store.fetchRemotePricingRules(); }"
   />
   <EditPriceRule 
     v-if="showEditModal" 
     @close="showEditModal = false" 
-    @updated="(rule) => { 
-      const idx = pricingData.findIndex(p => p.product === rule.product); 
-      if (idx !== -1) pricingData[idx] = { ...pricingData[idx], ...rule };
-      showEditModal = false; 
-    }"
+    @updated="(rule) => { showEditModal = false; store.fetchRemotePricingRules(); }"
   />
 
 

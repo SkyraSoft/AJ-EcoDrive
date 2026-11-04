@@ -1,6 +1,6 @@
 import { ExpenseModel } from '../models/expense.model.js'
 import { FinanceModel } from '../models/finance.model.js'
-import { getEffectiveBranch, assertBranchAccess, getBranchName } from '../utils/branchScope.js'
+import { getEffectiveBranch, assertBranchAccess, getBranchName, assertSuperAdminRole, assertNotSelf, isUserSuperAdmin } from '../utils/branchScope.js'
 
 export const FinanceController = {
   // ==========================================================================
@@ -192,8 +192,13 @@ export const FinanceController = {
       }
 
       // Dealership governance policy check:
+      // Separation of duties: requester cannot approve their own expense
+      if (!assertNotSelf(req, res, existing.user || existing.submitted_by || existing.recorded_by, 'Expense Approval')) {
+        return
+      }
+
       // If expense > 15,000, only Super Admin can approve
-      const isSuperAdmin = req.user.role === 'Super Admin' || !req.user.branch_id || req.user.branch_id === 'ALL'
+      const isSuperAdmin = isUserSuperAdmin(req.user)
       if (existing.rawAmount > 15000 && !isSuperAdmin) {
         return res.status(403).json({
           ok: false,

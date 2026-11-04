@@ -102,7 +102,7 @@ export const OrganisationModel = {
       LEFT JOIN \`branches\` b ON u.branch_id = b.id
     `
     const params = []
-    if (branch_id && branch_id !== 'ALL' && branch_id !== 'BR-HQ') {
+    if (branch_id && branch_id !== 'ALL' && branch_id !== 'All Branches') {
       sql += ' WHERE u.branch_id = ?'
       params.push(branch_id)
     }
@@ -150,7 +150,7 @@ export const OrganisationModel = {
       if (bRows.length > 0) branchId = bRows[0].id
     }
     if (!branchId && roleId !== 'ROLE-ADMIN') branchId = 'BR-01'
-    if (roleId === 'ROLE-ADMIN') branchId = 'BR-HQ'
+    if (roleId === 'ROLE-ADMIN') branchId = branchId || null
 
     const status = data.status || 'Active'
     const phone = (data.phone || data.mobile || '').trim()

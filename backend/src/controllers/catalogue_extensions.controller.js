@@ -1,5 +1,6 @@
 import { PriceRuleModel, ProductRequestModel } from '../models/catalogue_extensions.model.js'
 import { getEffectiveBranch } from '../utils/branchScope.js'
+import { PricingService } from '../services/pricing.service.js'
 
 export const CatalogueExtensionsController = {
   // ==========================================
@@ -17,6 +18,22 @@ export const CatalogueExtensionsController = {
         offset
       })
       res.status(200).json({ ok: true, data })
+    } catch (err) {
+      next(err)
+    }
+  },
+
+  async resolvePriceRule(req, res, next) {
+    try {
+      const { productId, product_id, product, productName, branchId, branch_id, customerSegment, customer_segment } = { ...req.query, ...req.body }
+      const effectiveBranch = getEffectiveBranch(req) || branchId || branch_id || 'BR-01'
+      const rule = await PricingService.resolveEffectiveRule({
+        productId: productId || product_id,
+        productName: productName || product,
+        branchId: effectiveBranch,
+        customerSegment: customerSegment || customer_segment || 'Standard'
+      })
+      res.status(200).json({ ok: true, data: rule })
     } catch (err) {
       next(err)
     }

@@ -5,6 +5,8 @@ import { InventoryGovernanceController } from '../controllers/inventory_governan
 const router = Router()
 
 // Stock overview and low stock alerts
+router.get('/dashboard-stats', InventoryController.getDashboardStats)
+router.get('/kpis', InventoryController.getDashboardStats)
 router.get('/stock', InventoryController.getStock)
 router.get('/low-stock', InventoryController.getLowStock)
 
@@ -26,6 +28,8 @@ router.post('/adjustments/:id/reject', InventoryController.rejectAdjustment)
 router.get('/transfers', InventoryController.listTransfers)
 router.get('/transfers/:id', InventoryController.getTransferById)
 router.post('/transfers', InventoryController.createTransfer)
+router.post('/transfers/:id/approve', InventoryController.approveTransfer)
+router.post('/transfers/:id/reject', InventoryController.rejectTransfer)
 router.post('/transfers/:id/dispatch', InventoryController.dispatchTransfer)
 router.post('/transfers/:id/receive', InventoryController.receiveTransfer)
 

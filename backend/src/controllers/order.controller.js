@@ -1,6 +1,8 @@
 import { OrderModel } from '../models/order.model.js'
 import { CustomerModel } from '../models/customer.model.js'
-import { getEffectiveBranch, assertBranchAccess, resolveBranchId, getBranchName } from '../utils/branchScope.js'
+import { AuditModel } from '../models/audit.model.js'
+import { PricingService } from '../services/pricing.service.js'
+import { getEffectiveBranch, assertBranchAccess, resolveBranchId, getBranchName, isUserSuperAdmin } from '../utils/branchScope.js'
 
 export const OrderController = {
   /**
@@ -87,7 +89,7 @@ export const OrderController = {
 
       // 2. Branch context validation
       const user = req.user
-      const isSuperAdmin = user?.isSuperAdmin || user?.role === 'Super Admin' || !user?.branch_id || user?.branch_id === 'ALL'
+      const isSuperAdmin = isUserSuperAdmin(user)
       const rawBranch = isSuperAdmin
         ? (body.branch_id || body.branchId || body.branch || matchedCustomer?.branch_id || '')
         : (user?.branch_id || 'BR-01')
@@ -112,6 +114,39 @@ export const OrderController = {
       } else if (!body.product || String(body.product).trim() === '') {
         errors.push({ field: 'product', message: 'Sales order requires a valid product name.' })
         errors.push({ field: 'items', message: 'Sales order must include at least one product line item.' })
+      }
+
+      // 4. Server-side dynamic product/branch discount authorization
+      const discount = parseFloat(String(body.discount || 0).replace(/[^0-9.]/g, '')) || 0
+      const totalAmount = parseFloat(String(body.rawTotal || body.total || 0).replace(/[^0-9.]/g, '')) || 0
+      const subtotal = totalAmount + discount
+      const targetBranchId = isSuperAdmin ? (resolveBranchId(rawBranch) || 'BR-01') : (resolveBranchId(user.branch_id) || 'BR-01')
+
+      const primaryItem = Array.isArray(body.items) && body.items.length > 0 ? body.items[0] : null
+      const productId = primaryItem?.product_id || body.product_id || null
+      const productName = primaryItem?.product || body.product || null
+
+      const effectiveRule = await PricingService.resolveEffectiveRule({
+        productId,
+        productName,
+        branchId: targetBranchId,
+        customerSegment: matchedCustomer?.type || body.customer_type || 'Standard',
+        date: new Date()
+      })
+
+      const validation = PricingService.validateDiscount({
+        rule: effectiveRule,
+        subtotal,
+        discount,
+        isSuperAdmin
+      })
+
+      if (!validation.allowed) {
+        errors.push({
+          field: 'discount',
+          message: validation.message,
+          rule: effectiveRule.ruleName
+        })
       }
 
       if (errors.length > 0) {
@@ -216,7 +251,26 @@ export const OrderController = {
       // Prevent cross-branch IDOR
       if (!assertBranchAccess(existing.branch_id, req, res)) return
 
-      const cancelled = await OrderModel.cancel(id)
+      const reason = req.body?.reason || 'Created during test verification'
+      const cancelled = await OrderModel.cancel(id, reason)
+
+      // Mandatory audit log trail for order cancellation
+      await AuditModel.createLog({
+        user: req.user?.name || 'Super Admin',
+        role: req.user?.role || 'Super Admin',
+        action: 'Cancel Order',
+        category: 'Sales',
+        entity_id: existing.order || existing.id,
+        details: `Cancelled order ${existing.order || existing.id}. Reason: ${reason}`,
+        severity: 'Warning',
+        branch_id: existing.branch_id,
+        branch: existing.branch,
+        acting_user_branch_id: req.user?.branch_id || 'BR-HQ',
+        affected_branch_id: existing.branch_id,
+        before_state: { status: existing.status, order_number: existing.order },
+        after_state: { status: 'Cancelled', reason }
+      })
+
       res.status(200).json({
         ok: true,
         message: `Order ${existing.order} has been cancelled.`,

@@ -243,7 +243,8 @@ const resolveFromRoute = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await store.fetchRemoteAuditLogs()
   resolveFromRoute()
 })
 

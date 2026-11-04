@@ -10,6 +10,8 @@ router.post('/categories', ProductController.createCategory)
 
 // Pricing rules routes
 router.get('/pricing-rules', CatalogueExtensionsController.listPriceRules)
+router.get('/pricing-rules/resolve', CatalogueExtensionsController.resolvePriceRule)
+router.post('/pricing-rules/resolve', CatalogueExtensionsController.resolvePriceRule)
 router.get('/pricing-rules/:id', CatalogueExtensionsController.getPriceRuleById)
 router.post('/pricing-rules', CatalogueExtensionsController.createPriceRule)
 router.put('/pricing-rules/:id', CatalogueExtensionsController.updatePriceRule)

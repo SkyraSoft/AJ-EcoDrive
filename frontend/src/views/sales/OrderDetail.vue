@@ -97,7 +97,7 @@ const branchTabData = computed(() => {
         items: [
           { label: 'Invoice Number', value: `INV-${orderId.value.replace('ORD-', '')}` },
           { label: 'Issue Date', value: 'Today' },
-          { label: 'Tax Status', value: 'FBR Verified Invoice' },
+          { label: 'Tax Status', value: 'Standard Sales Tax Document' },
           { label: 'Payment Terms', value: 'Due Upon Receipt' },
           { label: 'Digital Stamp', value: 'Active Official Seal' },
           { label: 'Invoice PDF', value: `INV-${orderId.value.replace('ORD-', '')}.pdf` }
@@ -274,7 +274,7 @@ const adminTabData = computed(() => {
         items: [
           { label: 'Invoice Number', value: `INV-${orderId.value.replace('ORD-', '')}` },
           { label: 'Billing Date', value: 'Today' },
-          { label: 'Tax Regulatory Status', value: 'FBR POS Integrated / Compliant' },
+          { label: 'Tax Regulatory Status', value: 'National Tax Registered (NTN on Record)' },
           { label: 'Payment Terms', value: 'Due Upon Vehicle Delivery' },
           { label: 'Invoice PDF Document', value: `INV-${orderId.value.replace('ORD-', '')}.pdf` },
           { label: 'Commercial Terms', value: 'Ex-Showroom with Warranty' }

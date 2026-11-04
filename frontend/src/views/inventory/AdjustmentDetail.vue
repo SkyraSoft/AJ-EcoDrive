@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { CheckCircle2, ArrowLeft, Check, X, AlertCircle } from 'lucide-vue-next'
+import { CheckCircle2, ArrowLeft, Check, X, AlertCircle, Printer } from 'lucide-vue-next'
 import { store } from '../../store.js'
 
 import NotFoundState from '@/components/common/NotFoundState.vue'
@@ -10,6 +10,10 @@ const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const handlePrint = () => {
+  window.print()
+}
 
 // Toast State
 const showToast = ref(false)
@@ -259,6 +263,13 @@ const adminTabData = computed(() => {
         </button>
 
         <button 
+          @click="handlePrint"
+          class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" /> Print Adjustment Sheet
+        </button>
+
+        <button 
           v-if="currentStatus === 'Pending'"
           @click="rejectAdjustment"
           class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors shadow-sm cursor-pointer"
@@ -266,13 +277,13 @@ const adminTabData = computed(() => {
           <X class="w-3.5 h-3.5" /> Reject / Recount
         </button>
 
-        <button 
+        <span 
           v-if="currentStatus === 'Pending'"
-          @click="approveAdjustment"
-          class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#165A31] hover:bg-[#124a28] rounded-lg transition-colors shadow-sm cursor-pointer"
+          class="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg"
+          title="Stock adjustments must be reviewed and approved by Super Admin / Head Office."
         >
-          <Check class="w-3.5 h-3.5" /> Approve Adjustment
-        </button>
+          <AlertCircle class="w-3.5 h-3.5 text-amber-600" /> Awaiting HQ Approval
+        </span>
       </div>
     </div>
 
@@ -369,6 +380,14 @@ const adminTabData = computed(() => {
         >
           {{ currentStatus }}
         </span>
+
+        <button 
+          @click="handlePrint"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" /> Print Adjustment Sheet
+        </button>
+
         <button 
           v-if="currentStatus === 'Pending'"
           @click="approveAdjustment" 
@@ -411,4 +430,114 @@ const adminTabData = computed(() => {
       </div>
     </div>
   </div>
+
+  <!-- PRINTABLE STOCK RECONCILIATION & ADJUSTMENT SHEET -->
+  <div class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black">
+    <!-- Header -->
+    <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <h1 class="text-2xl font-bold tracking-wider uppercase text-gray-900">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+        <p class="text-xs text-gray-700 mt-1">Official Showroom & Warehouse Inventory Control &middot; Pakistan Network</p>
+        <p class="text-[10px] text-gray-500 font-mono mt-0.5">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Form: INV-ADJ-REV3</p>
+      </div>
+      <div class="text-right">
+        <div class="inline-block bg-black text-white px-3 py-1 font-bold text-sm tracking-widest uppercase mb-1">
+          STOCK ADJUSTMENT VOUCHER
+        </div>
+        <div class="text-xs font-mono font-bold text-gray-800">REF: {{ adjustment?.id || adjustmentId }}</div>
+        <div class="text-[10px] text-gray-600">Date: {{ adjustment?.date || new Date().toLocaleDateString('en-GB') }}</div>
+      </div>
+    </div>
+
+    <!-- Summary Particulars -->
+    <div class="grid grid-cols-2 gap-4 border border-gray-400 p-4 mb-6 text-xs bg-gray-50/50">
+      <div>
+        <p class="mb-1"><strong class="text-gray-900">Showroom / Branch:</strong> {{ adjustment?.branch || user?.branchName || 'Peshawar' }} Showroom</p>
+        <p class="mb-1"><strong class="text-gray-900">Stock Bay / Location:</strong> {{ adjustment?.location || 'Main Showroom Floor / Bay 1' }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Submitted By:</strong> {{ adjustment?.requestedBy || 'Store Inventory Officer' }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Reason Classification:</strong> {{ adjustment?.reason || 'Cycle count physical reconciliation variance' }}</p>
+      </div>
+      <div>
+        <p class="mb-1"><strong class="text-gray-900">Approval State:</strong> <span class="font-bold uppercase">{{ currentStatus }}</span></p>
+        <p class="mb-1"><strong class="text-gray-900">Approving Authority:</strong> {{ adjustment?.approvedBy || (currentStatus === 'Approved' ? 'Head Office Executive Auditor' : 'Pending Super Admin Sign-off') }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Ledger Posting:</strong> {{ currentStatus === 'Approved' ? 'Posted to Stock Movement Ledger' : 'Pending Posting' }}</p>
+        <p class="mb-1"><strong class="text-gray-900">Audit Compliance:</strong> Standard Showroom Stock Governance Protocol</p>
+      </div>
+    </div>
+
+    <!-- Variance Table -->
+    <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+      <thead>
+        <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+          <th class="p-2 border-r border-black">#</th>
+          <th class="p-2 border-r border-black">Vehicle / Product Particulars</th>
+          <th class="p-2 border-r border-black font-mono">Chassis / Serial #</th>
+          <th class="p-2 border-r border-black text-center">System State</th>
+          <th class="p-2 border-r border-black text-center">Physical Count</th>
+          <th class="p-2 border-r border-black text-center">Variance (Delta)</th>
+          <th class="p-2 text-right">Ledger Valuation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-gray-300">
+          <td class="p-2 border-r border-gray-300">1</td>
+          <td class="p-2 border-r border-gray-300 font-bold">{{ adjustment?.productUnit || adjustment?.unitProduct || 'BRG Electric Bike' }}</td>
+          <td class="p-2 border-r border-gray-300 font-mono text-[11px]">{{ adjustment?.serial || 'CH8-BRG-26-01882' }}</td>
+          <td class="p-2 border-r border-gray-300 text-center">{{ adjustment?.existingState || '6 Units' }}</td>
+          <td class="p-2 border-r border-gray-300 text-center font-bold">{{ adjustment?.correctedState || '5 Units' }}</td>
+          <td class="p-2 border-r border-gray-300 text-center font-bold text-red-600">{{ adjustment?.qtyEffect || adjustment?.difference || '-1 Unit' }}</td>
+          <td class="p-2 text-right font-mono font-bold">{{ adjustment?.financialImpact || 'Standard Landed Cost' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Investigation & Root Cause Remarks -->
+    <div class="border border-gray-400 p-4 mb-6 text-xs space-y-2">
+      <h4 class="font-bold uppercase text-gray-900 text-[10px] tracking-wider">Root Cause Analysis & Corrective Actions:</h4>
+      <p class="text-gray-800 leading-relaxed">
+        {{ adjustment?.notes || 'Physical recount verified by branch store custodian. Discrepancy reconciled between bay staging and floor inventory. Corrective serial scan updated in the primary vehicle register.' }}
+      </p>
+      <p class="text-[10px] text-gray-500 italic mt-2">
+        Notice: In accordance with AJ EcoDrive / BRG dealership policy, no physical inventory write-off or stock adjustment may take effect without Super Admin authorization and physical count sheet verification.
+      </p>
+    </div>
+
+    <!-- Quad Signature Blocks -->
+    <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Counted / Prepared By</p>
+        <p class="text-[9px] text-gray-500 mt-6">{{ adjustment?.requestedBy || 'Showroom Store Officer' }}</p>
+      </div>
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Branch Manager</p>
+        <p class="text-[9px] text-gray-500 mt-6">Verified & Recommended</p>
+      </div>
+      <div class="border-t border-black pt-2">
+        <p class="font-bold">Super Admin / Head Office</p>
+        <p class="text-[9px] text-gray-500 mt-6">Approved & Authorized</p>
+      </div>
+      <div class="border border-black p-2 h-20 flex items-center justify-center">
+        <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">SHOWROOM AUDIT STAMP</span>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

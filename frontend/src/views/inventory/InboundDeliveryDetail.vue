@@ -10,15 +10,30 @@ const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
 
-// Branch Manager Data & Logic
+// Dynamic Inbound Lookup
 const inboundId = computed(() => route.params.id || route.query.id || '')
-const isValidInbound = computed(() => ['INB-088', 'INB-091'].includes(inboundId.value))
+const matchedTransfer = computed(() => inboundId.value ? store.getTransferById(inboundId.value) : null)
+const matchedPO = computed(() => inboundId.value ? (store.purchaseOrders?.find(p => p.id === inboundId.value || p.po === inboundId.value || p.po_number === inboundId.value)) : null)
+const isTransfer = computed(() => !!matchedTransfer.value || String(inboundId.value).startsWith('TR-'))
+
+const isValidInbound = computed(() => {
+  if (!inboundId.value) return false
+  if (matchedTransfer.value || matchedPO.value) return true
+  return ['INB-088', 'INB-091', 'INB-085', 'INB-082', 'PO-181', 'PO-188'].includes(inboundId.value) || inboundId.value.length > 2
+})
+
 const isINB088 = computed(() => inboundId.value === 'INB-088')
 const branchCurrentTab = ref('Summary')
 const branchTabs = ['Summary', 'Items & Units', 'Inspection', 'Receiving', 'Discrepancies', 'Documents', 'Activity']
 
 const branchTabData = computed(() => {
   const branchName = user.value?.branchName || 'Peshawar'
+  const poRef = matchedTransfer.value?.transferNumber || matchedPO.value?.po || (isINB088.value ? 'PO-181' : 'PO-188')
+  const supplierName = matchedPO.value?.supplier || (matchedTransfer.value ? `${matchedTransfer.value.from} Depot (Transfer)` : 'BRG Supply')
+  const expectedDate = matchedPO.value?.expected || (matchedTransfer.value?.dispatched_at ? new Date(matchedTransfer.value.dispatched_at).toLocaleDateString() : (isINB088.value ? '28 Aug' : 'Today'))
+  const destBranch = matchedTransfer.value?.to || matchedPO.value?.branch || `${branchName} Branch`
+  const statusStr = matchedTransfer.value?.status || matchedPO.value?.status || (isINB088.value ? 'Awaiting Receive' : 'In Transit')
+  const totalUnits = matchedTransfer.value?.units || matchedTransfer.value?.totalUnits || matchedPO.value?.totalOrdered || 2
 
   switch (branchCurrentTab.value) {
     case 'Summary':
@@ -26,22 +41,22 @@ const branchTabData = computed(() => {
         title: 'Summary',
         items: [
           { label: 'Inbound', value: inboundId.value },
-          { label: 'PO Reference', value: isINB088.value ? 'PO-181' : 'PO-188' },
-          { label: 'Supplier', value: 'BRG Supply' },
-          { label: 'Expected Date', value: isINB088.value ? '28 Aug' : 'Today' },
-          { label: 'Destination', value: `${branchName} Branch` },
-          { label: 'Status', value: isINB088.value ? 'Awaiting Receive' : 'In Transit' }
+          { label: isTransfer.value ? 'Transfer Reference' : 'PO Reference', value: poRef },
+          { label: isTransfer.value ? 'Origin Facility' : 'Supplier', value: supplierName },
+          { label: 'Expected Date', value: expectedDate },
+          { label: 'Destination', value: destBranch },
+          { label: 'Status', value: statusStr }
         ]
       }
     case 'Items & Units':
       return {
         title: 'Items & Units',
         items: [
-          { label: 'Expected Products', value: isINB088.value ? 'BRG M3 × 2' : 'BRG E9 Pro × 2' },
-          { label: 'Total Units', value: '2' },
-          { label: 'Serialized Tracking', value: '2 / 2 Serialized' },
-          { label: 'Source Batch', value: 'BAT-2024-SUP-09' },
-          { label: 'Packaging', value: '2 Standard Crates' },
+          { label: 'Expected Products', value: `${totalUnits} Units Assigned` },
+          { label: 'Total Units', value: String(totalUnits) },
+          { label: 'Serialized Tracking', value: `${totalUnits} / ${totalUnits} Serialized` },
+          { label: 'Consignment Ref', value: matchedTransfer.value?.transferNumber || matchedPO.value?.po || 'BAT-2024-SUP-09' },
+          { label: 'Packaging', value: `${totalUnits} Standard Crates / Secured Fleet` },
           { label: 'Unit Cost Scope', value: 'Restricted (HQ Procurement)' }
         ]
       }
@@ -49,11 +64,11 @@ const branchTabData = computed(() => {
       return {
         title: 'Inspection',
         items: [
-          { label: 'Inspection Status', value: isINB088.value ? 'Pending Physical Check' : 'Pending on Arrival' },
-          { label: 'Required Checks', value: 'Visual, Battery, Frame' },
-          { label: 'Photos Required', value: '2 Attached' },
+          { label: 'Inspection Status', value: statusStr === 'Received' ? 'Completed' : 'Pending on Arrival' },
+          { label: 'Required Checks', value: 'Visual, Battery, Frame, Odometer' },
+          { label: 'Logistics Documentation', value: isTransfer.value ? 'Inter-Branch Transfer Manifest & Gate Pass' : 'Goods Receipt Note & Bilty' },
           { label: 'Assigned Inspector', value: `${branchName} QC Lead` },
-          { label: 'QC Standard', value: 'Zero Tolerance Policy' },
+          { label: 'QC Standard', value: 'Zero Tolerance Discrepancy Policy' },
           { label: 'Condition', value: 'Good' }
         ]
       }
@@ -61,21 +76,21 @@ const branchTabData = computed(() => {
       return {
         title: 'Receiving',
         items: [
-          { label: 'Receiving Status', value: isINB088.value ? 'Awaiting Receive' : 'In Transit' },
-          { label: 'Expected Arrival', value: isINB088.value ? '28 Aug 15:00' : 'Today 17:30' },
-          { label: 'Receiving Location', value: 'Warehouse A' },
-          { label: 'Assigned Receiver', value: 'Branch Manager' },
-          { label: 'Logistics Fleet', value: 'BRG Dedicated Fleet' },
-          { label: 'Challan / Waybill', value: 'DC-SUP-9104' }
+          { label: 'Receiving Status', value: statusStr },
+          { label: 'Expected Arrival', value: expectedDate },
+          { label: 'Receiving Location', value: `${branchName} Delivery Bay` },
+          { label: 'Assigned Receiver', value: `${branchName} Branch Manager` },
+          { label: 'Carrier / Logistics', value: matchedTransfer.value?.carrier || 'AJ Express Fleet' },
+          { label: 'Challan / Gate Pass', value: matchedTransfer.value?.gate_pass_number || 'GP-INB-091' }
         ]
       }
     case 'Discrepancies':
       return {
         title: 'Discrepancies',
         items: [
-          { label: 'Discrepancies Recorded', value: 'None' },
+          { label: 'Discrepancies Recorded', value: matchedTransfer.value?.discrepancy_notes ? 'Discrepancy Reported' : 'None' },
+          { label: 'Notes', value: matchedTransfer.value?.discrepancy_notes || 'All items intact' },
           { label: 'Shortage', value: '0' },
-          { label: 'Overage', value: '0' },
           { label: 'Damaged Units', value: '0' },
           { label: 'Report Status', value: 'Clear' },
           { label: 'Resolution Note', value: 'No active claim required' }
@@ -85,24 +100,24 @@ const branchTabData = computed(() => {
       return {
         title: 'Documents',
         items: [
-          { label: 'PO Document', value: isINB088.value ? 'PO-181.pdf (Approved)' : 'PO-188.pdf (Approved)' },
-          { label: 'Delivery Challan', value: 'DC-SUP-9104.pdf' },
-          { label: 'Gate Pass', value: 'GP-INB-091.pdf' },
+          { label: isTransfer.value ? 'Transfer Manifest' : 'PO Document', value: `${poRef}.pdf (Approved)` },
+          { label: 'Gate Pass', value: matchedTransfer.value?.gate_pass_number || 'GP-INB-091.pdf' },
           { label: 'Inspection Checklist', value: 'QC-CHECK-v2.pdf' },
           { label: 'Attached Photos', value: '2 Images attached' },
-          { label: 'Total Verified', value: '2 Documents' }
+          { label: 'Total Verified', value: '2 Documents' },
+          { label: 'Audit Seal', value: 'Verified Digital Hash' }
         ]
       }
     case 'Activity':
       return {
         title: 'Activity',
         items: [
-          { label: 'Latest Milestone', value: 'Shipment dispatched by supplier hub' },
+          { label: 'Latest Milestone', value: `Consignment status: ${statusStr}` },
           { label: 'Gate Pass Issuance', value: 'Gate pass generated & sealed' },
-          { label: 'PO Approval', value: 'PO approved for dispatch' },
-          { label: 'Order Scheduling', value: 'Supplier delivery order confirmed' },
-          { label: 'Current Stage', value: isINB088.value ? 'Awaiting Receive' : 'In Transit (On Schedule)' },
-          { label: 'Logged By', value: 'System Logistics Integration' }
+          { label: 'Authorization', value: 'Approved for branch transit' },
+          { label: 'Current Stage', value: statusStr },
+          { label: 'Logged By', value: 'System Logistics Integration' },
+          { label: 'Audit Trail', value: 'Immutable Ledger Record' }
         ]
       }
     default:
@@ -112,6 +127,14 @@ const branchTabData = computed(() => {
       }
   }
 })
+
+const handleReceiveNavigation = () => {
+  if (isTransfer.value) {
+    router.push(`/inventory/transfers/receive?id=${inboundId.value}`)
+  } else {
+    router.push(`/procurement/receipts/new?po_id=${inboundId.value}`)
+  }
+}
 </script>
 
 <template>
@@ -133,7 +156,7 @@ const branchTabData = computed(() => {
         <p class="text-xs text-gray-500 mt-1">Inbound delivery detail — {{ branchCurrentTab }}.</p>
       </div>
       <button 
-        @click="router.push(`/inventory/inbound-deliveries/receive?id=${inboundId}`)" 
+        @click="handleReceiveNavigation" 
         class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
       >
         <Plus class="w-4 h-4" /> <span>Receive Delivery</span>

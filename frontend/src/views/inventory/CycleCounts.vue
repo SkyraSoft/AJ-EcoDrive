@@ -1,13 +1,17 @@
 <script setup>
 import { ref, computed, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChevronDown, Search, Check, Plus, Pencil } from 'lucide-vue-next'
+import { ChevronDown, Search, Check, Plus, Pencil, Printer } from 'lucide-vue-next'
 import { store } from '../../store.js'
 import CreateCycleCountModal from './CreateCycleCount.vue'
 
 const router = useRouter()
 const showCreateModal = ref(false)
 const selectedCountToEdit = ref(null)
+
+const handlePrint = () => {
+  window.print()
+}
 
 const dapStore = inject('dapStore', null)
 
@@ -189,14 +193,23 @@ const filteredCycleCounts = computed(() => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Cycle Counts</h1>
         <p class="text-xs text-gray-500 mt-1">Assigned and scheduled {{ user?.branchName || 'Peshawar' }} Branch physical counts.</p>
       </div>
-      <button 
-        data-tour-id="bm.inventory.cycle.create-btn"
-        @click="openCreateModal" 
-        class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
-      >
-        <Plus class="w-4 h-4" />
-        <span>Start Count</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button 
+          @click="handlePrint" 
+          class="bg-white border border-gray-200 text-gray-700 text-xs font-bold px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <Printer class="w-4 h-4" />
+          <span>Print Stock Count Sheet</span>
+        </button>
+        <button 
+          data-tour-id="bm.inventory.cycle.create-btn"
+          @click="openCreateModal" 
+          class="bg-[#165A31] text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer"
+        >
+          <Plus class="w-4 h-4" />
+          <span>Start Count</span>
+        </button>
+      </div>
     </div>
 
     <!-- 4 KPI Cards -->
@@ -446,5 +459,106 @@ const filteredCycleCounts = computed(() => {
       @created="handleCreated"
       @updated="handleUpdated"
     />
+
+    <!-- PRINTABLE PHYSICAL STOCK COUNT & TALLY SHEET (Hidden on screen, visible on print) -->
+    <div class="print-document hidden print:block bg-white text-black p-8 font-sans">
+      <div class="border-b-2 border-black pb-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-black tracking-tight uppercase">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+            <p class="text-xs text-gray-700 mt-1 uppercase">{{ user?.branchName || 'Peshawar' }} Showroom & Depot Inventory</p>
+            <p class="text-[11px] text-gray-600">Physical Stock Count & Showroom Floor Tally Register</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">PHYSICAL COUNT SHEET</span>
+            <div class="text-xs text-right mt-2 space-y-0.5">
+              <p><strong>Session ID:</strong> CC-{{ new Date().getFullYear() }}-{{ String(Math.floor(100 + Math.random() * 900)) }}</p>
+              <p><strong>Count Date:</strong> {{ new Date().toLocaleDateString() }}</p>
+              <p><strong>Branch:</strong> {{ user?.branchName || 'Peshawar' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scope Summary Grid -->
+      <div class="border border-gray-300 p-3 mb-6 text-xs grid grid-cols-3 gap-2">
+        <div><strong>Assigned Team:</strong> Branch Floor Team & Storekeeper</div>
+        <div><strong>Location Scope:</strong> Showroom Floor + Service Bay + Depot</div>
+        <div><strong>Procedure:</strong> 100% Blind Physical Verification</div>
+      </div>
+
+      <!-- Inventory Tally Table -->
+      <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+        <thead>
+          <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+            <th class="p-2 border-r border-black w-8">#</th>
+            <th class="p-2 border-r border-black w-48">Product Model</th>
+            <th class="p-2 border-r border-black w-24 text-center">System Stock</th>
+            <th class="p-2 border-r border-black w-28 text-center">Physical Count (Tally)</th>
+            <th class="p-2 border-r border-black w-40">Chassis / VIN Notes</th>
+            <th class="p-2 border-r border-black w-24 text-center">Condition</th>
+            <th class="p-2 text-center w-24">Variance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(prod, idx) in (store.products || [{ name: 'BRG DS11 Pro' }, { name: 'BRG EV-5' }, { name: 'Cargo Pro' }, { name: 'City Mini E-Scoot' }])" :key="idx" class="border-b border-gray-300">
+            <td class="p-2 border-r border-gray-300">{{ idx + 1 }}</td>
+            <td class="p-2 border-r border-gray-300 font-bold">{{ prod.name }}</td>
+            <td class="p-2 border-r border-gray-300 text-center font-mono">____</td>
+            <td class="p-2 border-r border-gray-300 text-center font-mono">[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ]</td>
+            <td class="p-2 border-r border-gray-300 text-gray-400 font-mono text-[10px]">VIN: ________________</td>
+            <td class="p-2 border-r border-gray-300 text-center">[ ] OK &nbsp;[ ] DMG</td>
+            <td class="p-2 text-center font-mono">______</td>
+          </tr>
+          <tr v-for="n in 4" :key="'blank-' + n" class="border-b border-gray-300">
+            <td class="p-2 border-r border-gray-300">{{ (store.products?.length || 4) + n }}</td>
+            <td class="p-2 border-r border-gray-300 text-gray-400 italic">___________________</td>
+            <td class="p-2 border-r border-gray-300 text-center">____</td>
+            <td class="p-2 border-r border-gray-300 text-center">[ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ]</td>
+            <td class="p-2 border-r border-gray-300 text-gray-400 font-mono text-[10px]">VIN: ________________</td>
+            <td class="p-2 border-r border-gray-300 text-center">[ ] OK &nbsp;[ ] DMG</td>
+            <td class="p-2 text-center font-mono">______</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Quad Signature Blocks -->
+      <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Physical Counter 1</p>
+          <p class="text-[9px] text-gray-500 mt-6">Showroom Staff Signature</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Physical Counter 2</p>
+          <p class="text-[9px] text-gray-500 mt-6">Independent Verifier</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Storekeeper In-charge</p>
+          <p class="text-[9px] text-gray-500 mt-6">Stock Reconciled</p>
+        </div>
+        <div class="border border-black p-2 h-20 flex items-center justify-center">
+          <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL INVENTORY AUDIT STAMP</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

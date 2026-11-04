@@ -1,4 +1,5 @@
 import { OrganisationModel } from '../models/organisation.model.js'
+import { getEffectiveBranch, isUserSuperAdmin, assertSuperAdminRole, assertBranchAccess } from '../utils/branchScope.js'
 
 export const OrganisationController = {
   // Branches
@@ -55,7 +56,8 @@ export const OrganisationController = {
   // Users
   async listUsers(req, res, next) {
     try {
-      const users = await OrganisationModel.findAllUsers({ branch_id: req.query.branch_id })
+      const effectiveBranch = getEffectiveBranch(req)
+      const users = await OrganisationModel.findAllUsers({ branch_id: effectiveBranch || req.query.branch_id })
       res.status(200).json(users)
     } catch (err) {
       next(err)
@@ -67,6 +69,9 @@ export const OrganisationController = {
       const user = await OrganisationModel.findUserById(req.params.id)
       if (!user) {
         return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `User '${req.params.id}' not found.` })
+      }
+      if (!isUserSuperAdmin(req.user) && user.branch_id && user.branch_id !== req.user.branch_id) {
+        return res.status(403).json({ ok: false, error: 'FORBIDDEN', message: 'Access denied: You can only view users in your branch.' })
       }
       res.status(200).json(user)
     } catch (err) {

@@ -155,6 +155,13 @@ export function formatTransferRow(row, items = []) {
     approvedBy: row.approved_by,
     dispatchedBy: row.dispatched_by,
     receivedBy: row.received_by,
+    vehicleNumber: row.vehicle_number || '',
+    driverName: row.driver_name || '',
+    driverPhone: row.driver_phone || '',
+    gatePassNumber: row.gate_pass_number || '',
+    paperManifestRef: row.paper_manifest_ref || '',
+    discrepancyNotes: row.discrepancy_notes || '',
+    approvedAt: row.approved_at,
     notes: row.notes || '',
     dispatched: row.dispatched_at ? new Date(row.dispatched_at).toISOString().split('T')[0] : null,
     receivedDate: row.received_at ? new Date(row.received_at).toISOString().split('T')[0] : null,
@@ -722,12 +729,39 @@ export const InventoryModel = {
     const totalUnits = items.reduce((sum, item) => sum + parseInt(item.requestedQty || item.quantity || 1, 10), 0)
 
     await withTransaction(async (conn) => {
+      // Validate any provided serialized units
+      for (const item of items) {
+        const uids = item.unit_ids || item.serials || []
+        for (const uid of uids) {
+          const [uRows] = await conn.execute(
+            'SELECT `id`, `unit_id`, `serial_number`, `branch_id`, `status` FROM `serialized_units` WHERE `unit_id` = ? OR `serial_number` = ? OR `id` = ?',
+            [uid, uid, uid]
+          )
+          if (uRows.length > 0) {
+            const u = uRows[0]
+            if (u.branch_id && resolveBranchId(u.branch_id) !== fromId) {
+              throw new Error(`Serialized unit "${uid}" is assigned to branch ${u.branch_id}, not the origin branch ${fromName}.`)
+            }
+            if (u.status && u.status.toLowerCase() !== 'available') {
+              throw new Error(`Serialized unit "${uid}" cannot be transferred: current status is "${u.status}". Only "Available" units can be transferred.`)
+            }
+          }
+        }
+      }
+
       await conn.execute(
         `INSERT INTO \`stock_transfers\` (
           \`id\`, \`transfer_number\`, \`from_branch_id\`, \`from_branch\`, \`to_branch_id\`, \`to_branch\`,
-          \`total_units\`, \`carrier\`, \`status\`, \`status_class\`, \`requested_by\`, \`notes\`
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 'bg-[#fef3c7] text-[#b45309]', ?, ?)`,
-        [id, id, fromId, fromName, toId, toName, totalUnits, carrier, requestedBy, notes]
+          \`total_units\`, \`carrier\`, \`vehicle_number\`, \`driver_name\`, \`driver_phone\`,
+          \`status\`, \`status_class\`, \`requested_by\`, \`notes\`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending Approval', 'bg-[#fef3c7] text-[#b45309]', ?, ?)`,
+        [
+          id, id, fromId, fromName, toId, toName, totalUnits,
+          carrier, data.vehicle_number || data.vehicleNumber || null,
+          data.driver_name || data.driverName || null,
+          data.driver_phone || data.driverPhone || null,
+          requestedBy, notes
+        ]
       )
 
       for (const item of items) {
@@ -747,9 +781,48 @@ export const InventoryModel = {
   },
 
   /**
+   * Super Admin Approves Inter-Branch Transfer
+   */
+  async approveTransfer(id, approvedBy = 'Super Admin') {
+    const existing = await this.findTransferById(id)
+    if (!existing) throw new Error(`Transfer ${id} not found`)
+    if (existing.status !== 'Pending' && existing.status !== 'Pending Approval') {
+      throw new Error(`Transfer ${id} cannot be approved from current status: "${existing.status}"`)
+    }
+
+    await query(
+      `UPDATE \`stock_transfers\`
+       SET \`status\` = 'Approved', \`status_class\` = 'bg-[#e0e7ff] text-[#3730a3]',
+           \`approved_by\` = ?, \`approved_at\` = NOW(), \`updated_at\` = NOW()
+       WHERE \`id\` = ?`,
+      [approvedBy, id]
+    )
+
+    return this.findTransferById(id)
+  },
+
+  /**
+   * Super Admin Rejects Inter-Branch Transfer
+   */
+  async rejectTransfer(id, rejectedBy = 'Super Admin', reason = 'Rejected by Head Office') {
+    const existing = await this.findTransferById(id)
+    if (!existing) throw new Error(`Transfer ${id} not found`)
+
+    await query(
+      `UPDATE \`stock_transfers\`
+       SET \`status\` = 'Rejected', \`status_class\` = 'bg-red-50 text-red-700',
+           \`notes\` = CONCAT(COALESCE(\`notes\`, ''), ' | Rejected: ', ?), \`updated_at\` = NOW()
+       WHERE \`id\` = ?`,
+      [reason, id]
+    )
+
+    return this.findTransferById(id)
+  },
+
+  /**
    * Dispatch Transfer: Mutates origin branch stock inside ACID transaction with FOR UPDATE lock
    */
-  async dispatchTransfer(id, { dispatchedBy = 'Dispatcher', carrier = null } = {}) {
+  async dispatchTransfer(id, { dispatchedBy = 'Dispatcher', carrier = null, vehicleNumber = null, driverName = null, driverPhone = null } = {}) {
     await withTransaction(async (conn) => {
       // 1. Lock transfer row
       const [transRows] = await conn.execute('SELECT * FROM `stock_transfers` WHERE `id` = ? FOR UPDATE', [id])
@@ -758,6 +831,10 @@ export const InventoryModel = {
 
       if (t.status === 'In Transit' || t.status === 'Received') {
         throw new Error(`Transfer ${id} has already been dispatched (current status: ${t.status})`)
+      }
+
+      if (t.status !== 'Approved' && t.status !== 'Pending Dispatch') {
+        throw new Error(`Transfer ${id} must be approved by Super Admin before it can be dispatched. Current status: "${t.status}"`)
       }
 
       const [items] = await conn.execute('SELECT * FROM `stock_transfer_items` WHERE `transfer_id` = ? FOR UPDATE', [t.id])
@@ -806,30 +883,39 @@ export const InventoryModel = {
           [
             movementNumber, t.transfer_number || t.id, item.product_id, item.product_name,
             t.from_branch_id, t.from_branch, -qty, beforeOnHand, afterOnHand,
-            dispatchedBy, `Dispatched from ${t.from_branch} to ${t.to_branch} via ${carrier || t.carrier}`
+            dispatchedBy, `Dispatched from ${t.from_branch} to ${t.to_branch} via ${carrier || t.carrier || 'Logistics'}`
           ]
         )
 
-        // If serialized units are linked, transition them to 'Transfer In Transit'
+        // Transition serialized units to 'Transfer In Transit'
         const unitIds = JSON.parse(item.unit_ids || '[]')
         for (const uid of unitIds) {
           await conn.execute(
             `UPDATE \`serialized_units\`
              SET \`status\` = 'Transfer In Transit', \`status_class\` = 'bg-blue-50 text-blue-700', \`location\` = 'Transfer In Transit', \`updated_at\` = NOW()
-             WHERE \`unit_id\` = ? OR \`serial_number\` = ?`,
-            [uid, uid]
+             WHERE \`unit_id\` = ? OR \`serial_number\` = ? OR \`id\` = ?`,
+            [uid, uid, uid]
           )
         }
       }
 
-      // 3. Update transfer status
+      // Generate Gate Pass and Paper Manifest References
+      const numPart = (t.transfer_number || t.id).replace(/\D/g, '') || String(Math.floor(1000 + Math.random() * 9000))
+      const gatePass = t.gate_pass_number || `GP-TR-${numPart}`
+      const manifest = t.paper_manifest_ref || `MAN-TR-${numPart}`
+
+      // 3. Update transfer status to In Transit
       await conn.execute(
         `UPDATE \`stock_transfers\`
          SET \`status\` = 'In Transit', \`status_class\` = 'bg-blue-50 text-blue-700',
              \`dispatched_by\` = ?, \`carrier\` = COALESCE(?, \`carrier\`),
+             \`vehicle_number\` = COALESCE(?, \`vehicle_number\`),
+             \`driver_name\` = COALESCE(?, \`driver_name\`),
+             \`driver_phone\` = COALESCE(?, \`driver_phone\`),
+             \`gate_pass_number\` = ?, \`paper_manifest_ref\` = ?,
              \`dispatched_at\` = NOW(), \`updated_at\` = NOW()
          WHERE \`id\` = ?`,
-        [dispatchedBy, carrier, id]
+        [dispatchedBy, carrier, vehicleNumber, driverName, driverPhone, gatePass, manifest, id]
       )
     })
 
@@ -838,9 +924,9 @@ export const InventoryModel = {
 
   /**
    * Receive Transfer: Mutates destination branch stock inside ACID transaction with FOR UPDATE lock
-   * Stock is 100% conserved across branches
+   * Handles physical inspection and discrepancy recording
    */
-  async receiveTransfer(id, { receivedBy = 'Receiver', receivedItems = null, notes = '' } = {}) {
+  async receiveTransfer(id, { receivedBy = 'Receiver', acceptedUnits = null, damagedUnits = null, missingUnits = null, notes = '', discrepancyNotes = '' } = {}) {
     await withTransaction(async (conn) => {
       // 1. Lock transfer row
       const [transRows] = await conn.execute('SELECT * FROM `stock_transfers` WHERE `id` = ? FOR UPDATE', [id])
@@ -853,9 +939,20 @@ export const InventoryModel = {
 
       const [items] = await conn.execute('SELECT * FROM `stock_transfer_items` WHERE `transfer_id` = ? FOR UPDATE', [t.id])
 
+      const acceptedList = Array.isArray(acceptedUnits) ? acceptedUnits.map(String) : null
+      const damagedList = Array.isArray(damagedUnits) ? damagedUnits.map(String) : []
+      const missingList = Array.isArray(missingUnits) ? missingUnits.map(String) : []
+
       // 2. For each item: add on_hand to destination branch
       for (const item of items) {
-        const qtyToReceive = parseInt(item.dispatched_qty || item.quantity, 10)
+        const dispatchedQty = parseInt(item.dispatched_qty || item.quantity, 10)
+        let itemMissingCount = 0
+
+        const itemUnitIds = JSON.parse(item.unit_ids || '[]')
+        if (itemUnitIds.length > 0) {
+          itemMissingCount = itemUnitIds.filter(u => missingList.includes(String(u))).length
+        }
+        const qtyToReceive = Math.max(0, dispatchedQty - itemMissingCount)
 
         // Ensure stock row exists at destination
         await this.ensureStockRow(conn, item.product_id, t.to_branch_id, t.to_branch)
@@ -894,28 +991,55 @@ export const InventoryModel = {
           ]
         )
 
-        // Update serialized units destination branch and status to 'Available'
-        const unitIds = JSON.parse(item.unit_ids || '[]')
-        for (const uid of unitIds) {
-          await conn.execute(
-            `UPDATE \`serialized_units\`
-             SET \`branch_id\` = ?, \`branch\` = ?, \`status\` = 'Available',
-                 \`status_class\` = 'bg-[#dcfce7] text-[#165A31]', \`location\` = 'Showroom Floor',
-                 \`updated_at\` = NOW()
-             WHERE \`unit_id\` = ? OR \`serial_number\` = ?`,
-            [t.to_branch_id, t.to_branch, uid, uid]
-          )
+        // Update serialized units destination branch and status
+        for (const uid of itemUnitIds) {
+          const uidStr = String(uid)
+          if (missingList.includes(uidStr)) {
+            // Unit missing in transit
+            await conn.execute(
+              `UPDATE \`serialized_units\`
+               SET \`status\` = 'Missing in Transit', \`status_class\` = 'bg-red-50 text-red-700',
+                   \`location\` = 'Transit Discrepancy', \`updated_at\` = NOW()
+               WHERE \`unit_id\` = ? OR \`serial_number\` = ? OR \`id\` = ?`,
+              [uid, uid, uid]
+            )
+          } else if (damagedList.includes(uidStr)) {
+            // Unit damaged on arrival -> QC Hold
+            await conn.execute(
+              `UPDATE \`serialized_units\`
+               SET \`branch_id\` = ?, \`branch\` = ?, \`status\` = 'QC Hold',
+                   \`status_class\` = 'bg-amber-50 text-amber-700', \`location\` = 'Showroom QC Bay',
+                   \`updated_at\` = NOW()
+               WHERE \`unit_id\` = ? OR \`serial_number\` = ? OR \`id\` = ?`,
+              [t.to_branch_id, t.to_branch, uid, uid, uid]
+            )
+          } else {
+            // Unit accepted and available for sale
+            await conn.execute(
+              `UPDATE \`serialized_units\`
+               SET \`branch_id\` = ?, \`branch\` = ?, \`status\` = 'Available',
+                   \`status_class\` = 'bg-[#dcfce7] text-[#165A31]', \`location\` = 'Showroom Floor',
+                   \`updated_at\` = NOW()
+               WHERE \`unit_id\` = ? OR \`serial_number\` = ? OR \`id\` = ?`,
+              [t.to_branch_id, t.to_branch, uid, uid, uid]
+            )
+          }
         }
       }
 
-      // 3. Update transfer status to Received
+      // 3. Update transfer status
+      const hasDiscrepancy = missingList.length > 0 || damagedList.length > 0 || Boolean(discrepancyNotes)
+      const finalStatus = hasDiscrepancy ? 'Received (Discrepancy)' : 'Received'
+      const finalStatusClass = hasDiscrepancy ? 'bg-amber-50 text-amber-800' : 'bg-[#dcfce7] text-[#165A31]'
+
       await conn.execute(
         `UPDATE \`stock_transfers\`
-         SET \`status\` = 'Received', \`status_class\` = 'bg-[#dcfce7] text-[#165A31]',
+         SET \`status\` = ?, \`status_class\` = ?,
              \`received_by\` = ?, \`received_at\` = NOW(),
+             \`discrepancy_notes\` = ?,
              \`notes\` = CONCAT(COALESCE(\`notes\`, ''), ' | Received: ', ?), \`updated_at\` = NOW()
          WHERE \`id\` = ?`,
-        [receivedBy, notes || 'Received in full', id]
+        [finalStatus, finalStatusClass, receivedBy, discrepancyNotes || null, notes || (hasDiscrepancy ? 'Received with exceptions' : 'Received in full'), id]
       )
     })
 
@@ -1178,6 +1302,126 @@ export const InventoryModel = {
         sales: String(salesCount),
         transfers: String(transferCount)
       }
+    }
+  },
+
+  /**
+   * Authoritative Unified Inventory Dashboard KPIs & Stats
+   */
+  async getInventoryDashboardStats(branch_id = null) {
+    const isGlobal = !branch_id || branch_id === 'ALL' || branch_id === 'All Branches'
+    
+    let baseWhere = ''
+    const baseParams = []
+    if (!isGlobal) {
+      baseWhere = ' WHERE (`branch_id` = ? OR `branch` = ?)'
+      baseParams.push(branch_id, branch_id)
+    }
+
+    // 1. Available
+    const availRows = await query(
+      `SELECT COUNT(*) as count FROM \`serialized_units\` ${baseWhere ? baseWhere + ' AND' : 'WHERE'} LOWER(\`status\`) = 'available'`,
+      baseParams
+    )
+    const available = parseInt(availRows[0]?.count || 0, 10)
+
+    // 2. Reserved
+    const resRows = await query(
+      `SELECT COUNT(*) as count FROM \`serialized_units\` ${baseWhere ? baseWhere + ' AND' : 'WHERE'} LOWER(\`status\`) = 'reserved'`,
+      baseParams
+    )
+    const reserved = parseInt(resRows[0]?.count || 0, 10)
+
+    // 3. QC Hold / Damaged
+    const qcRows = await query(
+      `SELECT COUNT(*) as count FROM \`serialized_units\` ${baseWhere ? baseWhere + ' AND' : 'WHERE'} LOWER(\`status\`) IN ('qc hold', 'receiving / qc', 'damaged / quarantine', 'quarantine')`,
+      baseParams
+    )
+    const qcHold = parseInt(qcRows[0]?.count || 0, 10)
+
+    // 4. Maintenance / Service
+    const maintRows = await query(
+      `SELECT COUNT(*) as count FROM \`serialized_units\` ${baseWhere ? baseWhere + ' AND' : 'WHERE'} LOWER(\`status\`) IN ('in service', 'maintenance', 'repair')`,
+      baseParams
+    )
+    const maintenance = parseInt(maintRows[0]?.count || 0, 10)
+
+    // 5. Delivered / Sold
+    const soldRows = await query(
+      `SELECT COUNT(*) as count FROM \`serialized_units\` ${baseWhere ? baseWhere + ' AND' : 'WHERE'} LOWER(\`status\`) IN ('sold', 'delivered')`,
+      baseParams
+    )
+    const sold = parseInt(soldRows[0]?.count || 0, 10)
+
+    // 6. In Transit Transfers (Destined for this branch)
+    let transSql = 'SELECT COALESCE(SUM(`total_units`), 0) as count FROM `stock_transfers` WHERE `status` = "In Transit"'
+    const transParams = []
+    if (!isGlobal) {
+      transSql += ' AND (`to_branch_id` = ? OR `to_branch` = ?)'
+      transParams.push(branch_id, branch_id)
+    }
+    const transRows = await query(transSql, transParams)
+    const transferInTransit = parseInt(transRows[0]?.count || 0, 10)
+
+    // 7. Supplier In Transit (POs pending receipt)
+    let poSql = 'SELECT COALESCE(SUM(`total_quantity`), 0) as count FROM `purchase_orders` WHERE `status` IN ("Approved", "In Transit", "Partially Received")'
+    const poParams = []
+    if (!isGlobal) {
+      poSql += ' AND (`branch_id` = ? OR `destination` LIKE ?)'
+      poParams.push(branch_id, `%${branch_id}%`)
+    }
+    const poRows = await query(poSql, poParams)
+    const supplierInTransit = parseInt(poRows[0]?.count || 0, 10)
+
+    // 8. Valuation
+    const valRows = await query(
+      `SELECT COALESCE(SUM(\`landed_cost\`), 0) as val FROM \`serialized_units\` ${baseWhere ? baseWhere + ' AND' : 'WHERE'} LOWER(\`status\`) IN ('available', 'reserved', 'qc hold', 'receiving / qc', 'in service')`,
+      baseParams
+    )
+    const inventoryValuation = parseFloat(valRows[0]?.val || 0)
+
+    const onHandUnits = available + reserved + qcHold + maintenance
+    const totalIncoming = transferInTransit + supplierInTransit
+    const totalActiveUnits = onHandUnits + totalIncoming
+
+    // 9. Branch Breakdown for Super Admin
+    let branchBreakdown = []
+    if (isGlobal) {
+      const branches = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
+      for (const b of branches) {
+        const bId = b === 'Peshawar' ? 'BR-01' : (b === 'Islamabad' ? 'BR-02' : (b === 'Lahore' ? 'BR-03' : 'BR-04'))
+        const bAvail = await query('SELECT COUNT(*) as c FROM `serialized_units` WHERE (`branch_id` = ? OR `branch` = ?) AND LOWER(`status`) = "available"', [bId, b])
+        const bTrans = await query('SELECT COALESCE(SUM(`total_units`), 0) as c FROM `stock_transfers` WHERE (`to_branch_id` = ? OR `to_branch` = ?) AND `status` = "In Transit"', [bId, b])
+        branchBreakdown.push({
+          name: b,
+          branch_id: bId,
+          available: parseInt(bAvail[0]?.c || 0, 10),
+          incoming: parseInt(bTrans[0]?.c || 0, 10),
+          count: parseInt(bAvail[0]?.c || 0, 10)
+        })
+      }
+    }
+
+    return {
+      available,
+      reserved,
+      transferInTransit,
+      supplierInTransit,
+      inTransit: transferInTransit,
+      incoming: totalIncoming,
+      qcHold,
+      receivingQc: qcHold,
+      maintenance,
+      inService: maintenance,
+      sold,
+      returned: 0,
+      onHand: onHandUnits,
+      onHandUnits,
+      total: totalActiveUnits,
+      totalUnits: totalActiveUnits,
+      serialized: totalActiveUnits,
+      valuation: inventoryValuation,
+      branchBreakdown
     }
   }
 }

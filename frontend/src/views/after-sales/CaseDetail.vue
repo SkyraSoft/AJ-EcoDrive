@@ -6,13 +6,17 @@ import NotFoundState from '@/components/common/NotFoundState.vue'
 import { 
   ChevronDown, ArrowLeft, CheckCircle2, AlertCircle, Clock, User, 
   ShieldCheck, Wrench, FileText, MessageSquare, DollarSign, Cpu, 
-  Calendar, Phone, Mail, MapPin, Check, Plus, Paperclip, Download
+  Calendar, Phone, Mail, MapPin, Check, Plus, Paperclip, Download, Printer
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const handlePrint = () => {
+  window.print()
+}
 
 const activeTab = ref('Summary')
 const tabs = [
@@ -119,6 +123,14 @@ const commLogs = ref([
 
       <!-- Action Button -->
       <div class="flex items-center gap-2">
+        <button 
+          @click="handlePrint"
+          class="bg-white border border-gray-300 text-gray-700 text-xs font-bold px-3.5 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" />
+          <span>Print Warranty Certificate</span>
+        </button>
+
         <button 
           @click="createRepairFromCase"
           class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
@@ -421,13 +433,23 @@ const commLogs = ref([
         <p class="text-sm text-gray-500 mt-1">Manage claim investigation, technician dispatch, warranty coverage and customer handover.</p>
       </div>
 
-      <button 
-        @click="createRepairFromCase"
-        class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
-      >
-        <Wrench class="w-3.5 h-3.5" />
-        <span>+ Create Repair Job</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button 
+          @click="handlePrint"
+          class="bg-white border border-gray-300 text-gray-700 text-xs font-bold px-3.5 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" />
+          <span>Print Warranty Certificate</span>
+        </button>
+
+        <button 
+          @click="createRepairFromCase"
+          class="bg-[#165A31] text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#124a28] transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+        >
+          <Wrench class="w-3.5 h-3.5" />
+          <span>+ Create Repair Job</span>
+        </button>
+      </div>
     </div>
 
     <!-- Status Bar -->
@@ -443,4 +465,112 @@ const commLogs = ref([
       </div>
     </div>
   </div>
+
+  <!-- PRINTABLE OFFICIAL 2-YEAR OEM WARRANTY CERTIFICATE -->
+  <div class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black border-[3px] border-[#165A31] rounded-sm relative">
+    <!-- Double border inner box -->
+    <div class="border border-[#165A31] p-6">
+      <!-- Certificate Header -->
+      <div class="text-center pb-4 mb-6 border-b-2 border-[#165A31]">
+        <div class="inline-block bg-[#165A31] text-white px-4 py-1 text-xs font-bold tracking-[0.2em] uppercase rounded-full mb-2">
+          OFFICIAL DEALERSHIP DOCUMENT
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-wider uppercase text-gray-900">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+        <p class="text-sm font-semibold text-gray-700 mt-1">CERTIFICATE OF OEM COMPREHENSIVE WARRANTY</p>
+        <p class="text-[10px] text-gray-500 font-mono mt-0.5">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Policy Ref: BRG-WAR-2026-PK</p>
+      </div>
+
+      <!-- Warranty ID & Validity Bar -->
+      <div class="flex justify-between items-center bg-gray-50 border border-gray-300 p-3 mb-6 text-xs">
+        <div>
+          <span class="text-gray-500 uppercase font-semibold text-[10px]">Warranty Certificate #:</span>
+          <span class="font-mono font-bold text-gray-900 ml-2">WAR-CERT-{{ caseData.caseId || '2026-00441' }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 uppercase font-semibold text-[10px]">Issuing Showroom:</span>
+          <span class="font-bold text-gray-900 ml-2">{{ caseData.branch || user?.branchName || 'Peshawar' }} Showroom</span>
+        </div>
+        <div>
+          <span class="text-gray-500 uppercase font-semibold text-[10px]">Coverage Term:</span>
+          <span class="font-bold text-[#165A31] ml-2">2 Years / 30,000 KM</span>
+        </div>
+      </div>
+
+      <!-- Vehicle & Owner Identification Grid -->
+      <div class="grid grid-cols-2 gap-4 border border-gray-300 p-4 mb-6 text-xs bg-white">
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800 text-[10px] tracking-wider">Vehicle Identification</h4>
+          <p class="mb-1.5"><strong class="text-gray-900">Model / Variant:</strong> {{ caseData.unit || 'BRG DS11 Pro Electric' }}</p>
+          <p class="mb-1.5"><strong class="text-gray-900">Chassis / VIN:</strong> <span class="font-mono font-bold text-gray-900">{{ caseData.unitSerial || 'CH8-BRG-26-00441' }}</span></p>
+          <p class="mb-1.5"><strong class="text-gray-900">Motor Serial #:</strong> <span class="font-mono text-gray-800">MOT-72V-3500W-8812</span></p>
+          <p class="mb-1.5"><strong class="text-gray-900">Battery Pack Serial:</strong> <span class="font-mono text-gray-800">BAT-LFP-72V45AH-0419</span></p>
+          <p class="mb-1.5"><strong class="text-gray-900">Controller SKU:</strong> <span class="font-mono text-gray-800">CTL-72V-BRG-SMART</span></p>
+        </div>
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800 text-[10px] tracking-wider">Registered Owner Particulars</h4>
+          <p class="mb-1.5"><strong class="text-gray-900">Registered Name:</strong> {{ caseData.customer || 'Muhammad Tariq Khan' }}</p>
+          <p class="mb-1.5"><strong class="text-gray-900">Contact Number:</strong> {{ caseData.customerPhone || '+92 312 5538198' }}</p>
+          <p class="mb-1.5"><strong class="text-gray-900">Showroom File Ref:</strong> <span class="font-mono font-bold text-gray-900">#FILE-{{ (caseData.caseId || '1088').replace(/\D/g, '') }}</span></p>
+          <p class="mb-1.5"><strong class="text-gray-900">Purchase / Handover Date:</strong> {{ caseData.date || new Date().toLocaleDateString('en-GB') }}</p>
+          <p class="mb-1.5"><strong class="text-gray-900">Warranty Valid Until:</strong> <span class="font-bold text-[#165A31]">{{ caseData.warrantyExpiry || 'Aug 25, 2028' }}</span></p>
+        </div>
+      </div>
+
+      <!-- Scope of Warranty Coverage -->
+      <div class="border border-gray-300 p-4 mb-6 text-xs bg-gray-50/50 space-y-2">
+        <h4 class="font-bold uppercase text-gray-800 text-[10px] tracking-wider">Warranty Policy & Schedule Terms:</h4>
+        <div class="grid grid-cols-2 gap-4 text-[11px] text-gray-700">
+          <div>
+            <p class="font-semibold text-gray-900 mb-1">&bull; Battery & Motor (2 Years / 30,000 KM):</p>
+            <p>100% replacement or repair coverage against manufacturing defect, cell failure, or BMS failure below 70% state of health.</p>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 mb-1">&bull; Smart Controller & Electricals (1 Year):</p>
+            <p>Complete coverage for electronic speed controller, DC-DC converter, digital cluster instrument, and OEM wiring harness.</p>
+          </div>
+        </div>
+        <p class="text-[10px] text-gray-500 italic pt-1">
+          * Conditions: Warranty remains valid subject to timely periodic service checkups at authorized AJ EcoDrive / BRG service centres (every 3,000 KM or 3 months). Unauthorized physical modifications void coverage.
+        </p>
+      </div>
+
+      <!-- Quad Signature & Dealership Stamp -->
+      <div class="grid grid-cols-4 gap-4 pt-8 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Customer Acknowledgment</p>
+          <p class="text-[9px] text-gray-500 mt-6">Terms Accepted by Owner</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Certified EV Technician</p>
+          <p class="text-[9px] text-gray-500 mt-6">PDI & Diagnostics Passed</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Dealership Principal / Manager</p>
+          <p class="text-[9px] text-gray-500 mt-6">Authorized Signatory</p>
+        </div>
+        <div class="border border-black p-2 h-20 flex items-center justify-center">
+          <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL DEALERSHIP SEAL</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

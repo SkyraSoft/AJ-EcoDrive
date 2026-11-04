@@ -9154,7 +9154,7 @@ export const unifiedFrontendArchitectureRegistry = [
         "info@ajecodrive.com",
         "+92 91 588 4000",
         "https://ecodrive.com.pk",
-        "NTN-7489201-3",
+        "Not configured",
         "University Road, Phase 3, Peshawar, Khyber Pakhtunkhwa",
         "Asia/Karachi",
         "PKR",

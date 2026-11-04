@@ -1,7 +1,21 @@
 import { InventoryModel } from '../models/inventory.model.js'
-import { getEffectiveBranch, assertBranchAccess, resolveBranchId } from '../utils/branchScope.js'
+import { getEffectiveBranch, assertBranchAccess, resolveBranchId, assertSuperAdminRole, assertNotSelf, isUserSuperAdmin } from '../utils/branchScope.js'
 
 export const InventoryController = {
+  /**
+   * GET /api/v1/inventory/dashboard-stats
+   * Returns authoritative calculated inventory KPIs for current branch or company
+   */
+  async getDashboardStats(req, res, next) {
+    try {
+      const effectiveBranch = getEffectiveBranch(req)
+      const stats = await InventoryModel.getInventoryDashboardStats(effectiveBranch)
+      res.status(200).json({ ok: true, stats, ...stats })
+    } catch (err) {
+      next(err)
+    }
+  },
+
   /**
    * GET /api/v1/inventory/stock
    */
@@ -252,6 +266,8 @@ export const InventoryController = {
       }
 
       if (!assertBranchAccess(existing.branch_id, req, res)) return
+      if (!assertSuperAdminRole(req, res, 'Stock Adjustment Approval')) return
+      if (!assertNotSelf(req, res, existing.requested_by || existing.user, 'Stock Adjustment Approval')) return
 
       const approvedBy = req.body.approved_by || req.body.approvedBy || req.user?.name || req.user?.username || 'Super Admin'
       const adj = await InventoryModel.approveAdjustment(id, approvedBy)
@@ -426,6 +442,52 @@ export const InventoryController = {
   },
 
   /**
+   * POST /api/v1/inventory/transfers/:id/approve
+   * Super Admin approves inter-branch transfer
+   */
+  async approveTransfer(req, res, next) {
+    try {
+      const { id } = req.params
+      const existing = await InventoryModel.findTransferById(id)
+      if (!existing) {
+        return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `Transfer ${id} not found` })
+      }
+
+      if (!assertSuperAdminRole(req, res, 'Transfer Approval')) return
+      if (!assertNotSelf(req, res, existing.requestedBy || existing.requested_by, 'Transfer Approval')) return
+
+      const approvedBy = req.body.approved_by || req.body.approvedBy || req.user?.name || 'Super Admin'
+      const transfer = await InventoryModel.approveTransfer(id, approvedBy)
+      res.status(200).json({ ok: true, transfer, ...transfer })
+    } catch (err) {
+      next(err)
+    }
+  },
+
+  /**
+   * POST /api/v1/inventory/transfers/:id/reject
+   * Super Admin rejects inter-branch transfer
+   */
+  async rejectTransfer(req, res, next) {
+    try {
+      const { id } = req.params
+      const existing = await InventoryModel.findTransferById(id)
+      if (!existing) {
+        return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `Transfer ${id} not found` })
+      }
+
+      if (!assertSuperAdminRole(req, res, 'Transfer Rejection')) return
+
+      const rejectedBy = req.body.rejected_by || req.user?.name || 'Super Admin'
+      const reason = req.body.reason || 'Rejected by Head Office'
+      const transfer = await InventoryModel.rejectTransfer(id, rejectedBy, reason)
+      res.status(200).json({ ok: true, transfer, ...transfer })
+    } catch (err) {
+      next(err)
+    }
+  },
+
+  /**
    * POST /api/v1/inventory/transfers/:id/dispatch
    */
   async dispatchTransfer(req, res, next) {
@@ -437,8 +499,8 @@ export const InventoryController = {
       }
 
       const user = req.user
-      const isSuperAdmin = user?.isSuperAdmin || user?.role === 'Super Admin' || !user?.branch_id || user?.branch_id === 'ALL'
-      if (!isSuperAdmin && resolveBranchId(user?.branch_id) !== resolveBranchId(existing.from_branch_id)) {
+      const isSuperAdmin = isUserSuperAdmin(user)
+      if (!isSuperAdmin && resolveBranchId(user?.branch_id) !== resolveBranchId(existing.fromBranch_id || existing.from_branch_id)) {
         return res.status(403).json({
           ok: false,
           error: 'FORBIDDEN',
@@ -446,8 +508,24 @@ export const InventoryController = {
         })
       }
 
+      if (existing.status !== 'Approved' && existing.status !== 'Pending Dispatch') {
+        return res.status(400).json({
+          ok: false,
+          error: 'TRANSFER_NOT_APPROVED',
+          message: `Transfer ${id} must be approved by Super Admin before it can be dispatched. Current status: "${existing.status}".`
+        })
+      }
+
       const dispatchedBy = req.body.dispatchedBy || req.body.dispatched_by || user?.name || user?.username || 'Dispatcher'
-      const transfer = await InventoryModel.dispatchTransfer(id, { ...req.body, dispatched_by: dispatchedBy })
+      const transfer = await InventoryModel.dispatchTransfer(id, {
+        ...req.body,
+        dispatched_by: dispatchedBy,
+        dispatchedBy,
+        carrier: req.body.carrier || existing.carrier,
+        vehicleNumber: req.body.vehicle_number || req.body.vehicleNumber,
+        driverName: req.body.driver_name || req.body.driverName,
+        driverPhone: req.body.driver_phone || req.body.driverPhone
+      })
       res.status(200).json({ ok: true, transfer, ...transfer })
     } catch (err) {
       if (err.message && err.message.includes('already dispatched')) {
@@ -472,8 +550,8 @@ export const InventoryController = {
       }
 
       const user = req.user
-      const isSuperAdmin = user?.isSuperAdmin || user?.role === 'Super Admin' || !user?.branch_id || user?.branch_id === 'ALL'
-      if (!isSuperAdmin && resolveBranchId(user?.branch_id) !== resolveBranchId(existing.to_branch_id)) {
+      const isSuperAdmin = isUserSuperAdmin(user)
+      if (!isSuperAdmin && resolveBranchId(user?.branch_id) !== resolveBranchId(existing.toBranch_id || existing.to_branch_id)) {
         return res.status(403).json({
           ok: false,
           error: 'FORBIDDEN',
@@ -482,7 +560,15 @@ export const InventoryController = {
       }
 
       const receivedBy = req.body.receiverName || req.body.received_by || user?.name || user?.username || 'Receiver'
-      const transfer = await InventoryModel.receiveTransfer(id, { ...req.body, received_by: receivedBy })
+      const transfer = await InventoryModel.receiveTransfer(id, {
+        ...req.body,
+        received_by: receivedBy,
+        acceptedUnits: req.body.acceptedUnits || req.body.accepted_units,
+        damagedUnits: req.body.damagedUnits || req.body.damaged_units,
+        missingUnits: req.body.missingUnits || req.body.missing_units,
+        discrepancyNotes: req.body.discrepancyNotes || req.body.discrepancy_notes,
+        notes: req.body.notes
+      })
       res.status(200).json({ ok: true, transfer, ...transfer })
     } catch (err) {
       if (err.message && err.message.includes('already received')) {

@@ -62,6 +62,11 @@ const invoiceData = computed(() => {
   }
 })
 
+const branchRecord = computed(() => {
+  const bName = invRecord.value?.branch || 'Peshawar'
+  return store.branches?.find(b => b.name?.toLowerCase() === bName.toLowerCase() || b.id === bName || b.code === bName) || null
+})
+
 const handlePrint = () => {
   window.print()
 }
@@ -98,9 +103,10 @@ const handlePrint = () => {
       <!-- Invoice Header -->
       <div class="flex items-start justify-between border-b border-gray-100 pb-8 mb-8">
         <div>
-          <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE' }}</h1>
-          <p class="text-sm text-gray-500 mt-1 uppercase">{{ store.settings?.company?.brand || 'BRG Management System' }}</p>
-          <p class="text-sm text-gray-500 mt-4">{{ invoiceData.branch }}</p>
+          <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }}</h1>
+          <p class="text-sm text-gray-500 mt-1 uppercase">{{ store.settings?.company?.brand || 'BRG Electric Vehicles' }}</p>
+          <p class="text-sm font-semibold text-gray-800 mt-2">{{ invoiceData.branch }}</p>
+          <p class="text-[11px] text-gray-500">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Phone: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }}</p>
         </div>
         <div class="text-right">
           <h2 class="text-4xl font-black text-gray-200 uppercase tracking-widest mb-4">Invoice</h2>
@@ -181,10 +187,28 @@ const handlePrint = () => {
         </div>
       </div>
 
+      <!-- Triple Signature Blocks & Stamp Box -->
+      <div class="mt-14 pt-8 border-t border-gray-200 grid grid-cols-4 gap-4 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold text-gray-900">Prepared By</p>
+          <p class="text-[10px] text-gray-500 mt-6">Sales / Billing Officer</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold text-gray-900">Verified By</p>
+          <p class="text-[10px] text-gray-500 mt-6">Accounts & Finance</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold text-gray-900">Authorized Signatory</p>
+          <p class="text-[10px] text-gray-500 mt-6">Showroom Manager</p>
+        </div>
+        <div class="border border-black p-2 h-20 flex items-center justify-center">
+          <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL SHOWROOM STAMP</span>
+        </div>
+      </div>
+
       <!-- Footer Notes -->
-      <div class="mt-16 pt-8 border-t border-gray-100 text-center text-[11px] text-gray-400">
-        <p>Thank you for your business.</p>
-        <p class="mt-1">This is a system generated document and does not require a signature.</p>
+      <div class="mt-6 text-center text-[10px] text-gray-400">
+        <p>Thank you for choosing AJ EcoDrive. All sales subject to standard warranty and vehicle registration terms.</p>
       </div>
 
     </div>

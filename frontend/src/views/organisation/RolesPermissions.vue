@@ -1,8 +1,14 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { Eye, Search, Plus } from 'lucide-vue-next'
 import { dapStore } from '@/stores/dapStore.js'
+import { store } from '../../store.js'
 import CreateRole from './CreateRole.vue'
+
+onMounted(async () => {
+  if (typeof store.fetchRemoteRoles === 'function') await store.fetchRemoteRoles()
+  if (typeof store.fetchRemoteUsers === 'function') await store.fetchRemoteUsers()
+})
 
 const showCreateModal = ref(false)
 const selectedRole = ref('Branch Manager')

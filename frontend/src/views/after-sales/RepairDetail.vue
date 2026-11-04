@@ -5,13 +5,17 @@ import { store } from '../../store.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 import { 
   ChevronDown, ArrowLeft, Check, CheckCircle2, Clock, 
-  Wrench, FileText, Plus, Download, ShieldCheck, User
+  Wrench, FileText, Plus, Download, ShieldCheck, User, Printer
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const handlePrintJobCard = () => {
+  window.print()
+}
 
 const repairData = computed(() => {
   const paramId = route.params.id || route.query.id
@@ -28,6 +32,11 @@ const repairAuditLogs = computed(() => {
   if (!repairData.value) return []
   const id = repairData.value.id || repairData.value.repairId
   return store.getAuditLogsForEntity('repair_job', id)
+})
+
+const branchRecord = computed(() => {
+  const bName = repairData.value?.branch || user.value?.branchName || 'Peshawar'
+  return store.branches?.find(b => b.name?.toLowerCase() === bName.toLowerCase() || b.id === bName || b.code === bName) || null
 })
 
 const postToFinance = () => {
@@ -536,6 +545,13 @@ const getStatusBadgeClass = (status) => {
             </div>
           </div>
 
+          <button 
+            @click="handlePrintJobCard"
+            class="px-3.5 py-2 text-[11px] font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
+          >
+            <Printer class="w-3.5 h-3.5" /> <span>Print Job Card</span>
+          </button>
+
           <!-- More Dropdown -->
           <div class="relative">
             <button 
@@ -548,7 +564,7 @@ const getStatusBadgeClass = (status) => {
               v-if="showMoreDropdown" 
               class="absolute right-0 mt-2 w-44 bg-white border border-gray-100 rounded-xl shadow-xl py-2 z-30 text-xs text-gray-700 animate-in fade-in zoom-in-95 duration-150"
             >
-              <button @click="showMoreDropdown = false" class="w-full text-left px-4 py-1.5 hover:bg-gray-50 text-gray-700">Print Job Card</button>
+              <button @click="handlePrintJobCard(); showMoreDropdown = false" class="w-full text-left px-4 py-1.5 hover:bg-gray-50 text-gray-700 font-semibold">Print Job Card</button>
               <button @click="showMoreDropdown = false" class="w-full text-left px-4 py-1.5 hover:bg-gray-50 text-gray-700">Generate Invoice</button>
               <button @click="showMoreDropdown = false" class="w-full text-left px-4 py-1.5 hover:bg-gray-50 text-red-600">Cancel Repair Job</button>
             </div>
@@ -825,5 +841,120 @@ const getStatusBadgeClass = (status) => {
       </div>
     </div>
 
+    <!-- PRINTABLE WORKSHOP JOB CARD (Hidden on screen, visible on print) -->
+    <div class="print-document hidden print:block bg-white text-black p-8 font-sans">
+      <div class="border-b-2 border-black pb-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }} / {{ store.settings?.company?.brand || 'BRG EV WORKSHOP' }}</h1>
+            <p class="text-xs text-gray-700 mt-1 uppercase">{{ branchRecord?.name || repairData?.branch || 'Peshawar' }} Service Centre & Technical Workshop</p>
+            <p class="text-[11px] text-gray-600">{{ branchRecord?.address || `Service Lane, ${repairData?.branch || 'Peshawar'}, Pakistan` }}</p>
+            <p class="text-[11px] text-gray-600">Helpline: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }} | NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">WORKSHOP JOB CARD</span>
+            <div class="text-xs text-right mt-2 space-y-0.5">
+              <p><strong>Job Card No:</strong> {{ repairData?.id || repairData?.jobId || 'JOB-9921' }}</p>
+              <p><strong>Status:</strong> <span class="font-bold uppercase">{{ repairData?.status || 'In Progress' }}</span></p>
+              <p><strong>Date In:</strong> {{ repairData?.date || new Date().toLocaleDateString() }}</p>
+              <p><strong>Target Delivery:</strong> {{ repairData?.eta || 'Tomorrow 17:00' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Vehicle Info Grid -->
+      <div class="grid grid-cols-2 gap-4 border border-gray-300 p-4 mb-6 text-xs">
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Customer Particulars</h4>
+          <p><strong>Customer Name:</strong> {{ repairData?.customer || 'Hamza Ali' }}</p>
+          <p><strong>Contact Phone:</strong> +92 312 5538198</p>
+          <p><strong>Warranty Policy:</strong> {{ repairData?.warrantyType || '2-Year OEM Battery & Motor Warranty' }}</p>
+          <p><strong>Assigned Lead Tech:</strong> {{ repairData?.technician || 'Zubair (Senior EV Specialist)' }}</p>
+        </div>
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Vehicle Identification & Mileage</h4>
+          <p><strong>Vehicle Model:</strong> {{ repairData?.product || 'BRG DS11 Pro' }}</p>
+          <p><strong>Chassis / VIN:</strong> {{ repairData?.chassis || 'CH-BRG-26-00441' }}</p>
+          <p><strong>Motor Serial:</strong> MOT-72V-3500W-8812</p>
+          <p><strong>Odometer (KM):</strong> {{ repairData?.odometer || '1,420 KM' }}</p>
+        </div>
+      </div>
+
+      <!-- Complaint & Work Plan Details -->
+      <div class="border border-gray-300 p-4 mb-6 text-xs space-y-3">
+        <div>
+          <h4 class="font-bold uppercase text-gray-800 mb-1">Customer Reported Fault / Complaint:</h4>
+          <p class="bg-gray-50 p-2 border border-gray-200 font-medium">{{ repairData?.issue || repairData?.complaint || 'Battery dropping voltage under acceleration; regenerative braking cut-off intermittent.' }}</p>
+        </div>
+        <div>
+          <h4 class="font-bold uppercase text-gray-800 mb-1">Technician Diagnosis & Action Plan:</h4>
+          <p class="bg-gray-50 p-2 border border-gray-200">{{ repairData?.diagnosis || 'BMS firmware upgrade required. Cell #7 impedance check completed. Replaced primary wiring harness.' }}</p>
+        </div>
+      </div>
+
+      <!-- Parts & Labour Summary Table -->
+      <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+        <thead>
+          <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+            <th class="p-2 border-r border-black">#</th>
+            <th class="p-2 border-r border-black">Description (Parts & Service)</th>
+            <th class="p-2 border-r border-black text-center">Part / SKU</th>
+            <th class="p-2 border-r border-black text-center">Qty</th>
+            <th class="p-2 border-r border-black text-right">Coverage</th>
+            <th class="p-2 text-right">Cost (PKR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(part, idx) in (repairData?.parts || [{ name: 'BMS Controller Board 72V', sku: 'SKU-ELEC-091', qty: 1, cost: '8,500' }, { name: 'Diagnostic & Firmware Calibration Labour', sku: 'SRV-LABOUR', qty: 1, cost: '2,500' }])" :key="idx" class="border-b border-gray-300">
+            <td class="p-2 border-r border-gray-300">{{ idx + 1 }}</td>
+            <td class="p-2 border-r border-gray-300 font-bold">{{ part.name }}</td>
+            <td class="p-2 border-r border-gray-300 text-center font-mono">{{ part.sku || 'OEM' }}</td>
+            <td class="p-2 border-r border-gray-300 text-center">{{ part.qty || 1 }}</td>
+            <td class="p-2 border-r border-gray-300 text-right text-green-800 font-bold">Under Warranty (100%)</td>
+            <td class="p-2 text-right font-bold">{{ part.cost || '0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Quad Signature Blocks -->
+      <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Customer Authorization</p>
+          <p class="text-[9px] text-gray-500 mt-6">Work Approved by Owner</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Lead Technician</p>
+          <p class="text-[9px] text-gray-500 mt-6">{{ repairData?.technician || 'Technician Signature' }}</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Workshop Manager</p>
+          <p class="text-[9px] text-gray-500 mt-6">Final QC Passed & Tested</p>
+        </div>
+        <div class="border border-black p-2 h-20 flex items-center justify-center">
+          <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL SERVICE CENTRE SEAL</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

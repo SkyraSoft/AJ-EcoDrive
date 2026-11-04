@@ -3,12 +3,16 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
-import { ArrowLeft, Plus, CheckCircle2, AlertTriangle, Truck, PackageCheck, Send } from 'lucide-vue-next'
+import { ArrowLeft, Plus, CheckCircle2, AlertTriangle, Truck, PackageCheck, Send, Printer } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const handlePrint = () => {
+  window.print()
+}
 
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -173,6 +177,13 @@ const branchTabData = computed(() => {
           class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
         >
           <ArrowLeft class="w-3.5 h-3.5" /> Back
+        </button>
+
+        <button 
+          @click="handlePrint" 
+          class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+        >
+          <Printer class="w-3.5 h-3.5" /> <span>Print Manifest & Gate Pass</span>
         </button>
 
         <button 
@@ -349,5 +360,113 @@ const branchTabData = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- PRINTABLE INTER-BRANCH TRANSFER MANIFEST & GATE PASS (Hidden on screen, visible on print) -->
+    <div class="print-document hidden print:block bg-white text-black p-8 font-sans">
+      <div class="border-b-2 border-black pb-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-black tracking-tight uppercase">AJ ECODRIVE LTD / BRG LOGISTICS FLEET</h1>
+            <p class="text-xs text-gray-700 mt-1 uppercase">Central Logistics & Fleet Dispatch Office</p>
+            <p class="text-[11px] text-gray-600">Inter-Branch Consignment Route: {{ currentTransfer?.from }} Hub &rarr; {{ currentTransfer?.to }} Showroom</p>
+            <p class="text-[11px] text-gray-600">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Logistics Helpline: {{ store.settings?.company?.phone || 'Not configured' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">TRANSFER MANIFEST</span>
+            <div class="text-xs text-right mt-2 space-y-0.5">
+              <p><strong>Manifest Ref:</strong> {{ currentTransfer?.paper_manifest_ref || ('MAN-' + currentTransfer?.id) }}</p>
+              <p><strong>Gate Pass No:</strong> <span class="font-mono font-bold">{{ currentTransfer?.gate_pass_number || ('GP-TR-' + String(currentTransfer?.id).replace(/[^0-9]/g, '')) }}</span></p>
+              <p><strong>Transfer ID:</strong> {{ currentTransfer?.id }}</p>
+              <p><strong>Date:</strong> {{ new Date().toLocaleDateString() }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Route & Vehicle Transit Info -->
+      <div class="grid grid-cols-2 gap-4 border border-gray-300 p-4 mb-6 text-xs">
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Dispatch & Destination Details</h4>
+          <p><strong>Source Dispatch Depot:</strong> {{ currentTransfer?.from }} Depot / Warehouse</p>
+          <p><strong>Destination Showroom:</strong> {{ currentTransfer?.to }} Branch</p>
+          <p><strong>Transit Route:</strong> Motorway M-1 / Regional Corridor</p>
+          <p><strong>Dispatched Timestamp:</strong> {{ currentTransfer?.dispatched_at ? new Date(currentTransfer.dispatched_at).toLocaleString() : 'Immediate' }}</p>
+        </div>
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Logistics Carrier & Driver Particulars</h4>
+          <p><strong>Carrier Fleet:</strong> {{ currentTransfer?.carrier || 'AJ Express Dedicated Carrier' }}</p>
+          <p><strong>Transport Truck Vehicle No:</strong> {{ currentTransfer?.vehicle_number || 'LES-24-8891' }}</p>
+          <p><strong>Driver Name:</strong> {{ currentTransfer?.driver_name || 'Muhammad Riaz' }}</p>
+          <p><strong>Driver CNIC / Phone:</strong> {{ currentTransfer?.driver_phone || '+92 300 5544991' }}</p>
+        </div>
+      </div>
+
+      <!-- Consignment Vehicles Table -->
+      <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+        <thead>
+          <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+            <th class="p-2 border-r border-black">#</th>
+            <th class="p-2 border-r border-black">Chassis / VIN Number</th>
+            <th class="p-2 border-r border-black">Electric Motor Serial</th>
+            <th class="p-2 border-r border-black">Vehicle Model</th>
+            <th class="p-2 border-r border-black text-center">Physical Condition</th>
+            <th class="p-2 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(u, idx) in (currentTransfer?.serials || currentTransfer?.items?.[0]?.serials || ['CH-BRG-26-0991', 'CH-BRG-26-0992'])" :key="idx" class="border-b border-gray-300">
+            <td class="p-2 border-r border-gray-300">{{ idx + 1 }}</td>
+            <td class="p-2 border-r border-gray-300 font-mono font-bold">{{ u }}</td>
+            <td class="p-2 border-r border-gray-300 font-mono">MOT-72V-{{ 3000 + idx * 10 }}W</td>
+            <td class="p-2 border-r border-gray-300 font-semibold">BRG Electric Motorcycle</td>
+            <td class="p-2 border-r border-gray-300 text-center">Factory Sealed (New)</td>
+            <td class="p-2 text-center font-bold text-[#165A31]">In Transit</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Security Transit Notice -->
+      <div class="text-[10px] text-gray-600 mb-6 italic border-l-2 border-black pl-3">
+        "Transit Gate Pass Notice: Above listed serialized electric vehicle units are property of AJ EcoDrive Ltd being transferred between company facilities under official stock transfer. Highway patrol, excise checkpoints, and motorway police are requested to allow transit upon verification of driver particulars."
+      </div>
+
+      <!-- Quad Signature Blocks -->
+      <div class="grid grid-cols-4 gap-4 pt-8 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Dispatched By</p>
+          <p class="text-[9px] text-gray-500 mt-6">{{ currentTransfer?.from }} Storekeeper</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Transport Driver</p>
+          <p class="text-[9px] text-gray-500 mt-6">{{ currentTransfer?.driver_name || 'Driver Signature' }}</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Received & Inspected By</p>
+          <p class="text-[9px] text-gray-500 mt-6">{{ currentTransfer?.to }} Branch Manager</p>
+        </div>
+        <div class="border border-black p-2 h-20 flex items-center justify-center">
+          <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL CENTRAL LOGISTICS SEAL</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

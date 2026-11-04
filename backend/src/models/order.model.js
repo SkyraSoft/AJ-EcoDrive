@@ -472,9 +472,9 @@ export const OrderModel = {
   },
 
   /**
-   * Cancel an order safely
+   * Cancel an order safely with mandatory reason tracking
    */
-  async cancel(idOrOrderNo) {
+  async cancel(idOrOrderNo, reason = null) {
     const existing = await this.findById(idOrOrderNo)
     if (!existing) return null
 
@@ -485,10 +485,12 @@ export const OrderModel = {
       throw err
     }
 
+    const cancelReasonNote = reason ? (existing.notes ? `${existing.notes} | Cancellation Reason: ${reason}` : `Cancellation Reason: ${reason}`) : existing.notes
+
     return withTransaction(async (conn) => {
       await conn.execute(
-        `UPDATE \`orders\` SET \`status\` = 'Cancelled', \`status_class\` = 'bg-red-50 text-red-700' WHERE \`id\` = ?`,
-        [existing.id]
+        `UPDATE \`orders\` SET \`status\` = 'Cancelled', \`status_class\` = 'bg-red-50 text-red-700', \`notes\` = ? WHERE \`id\` = ?`,
+        [cancelReasonNote, existing.id]
       )
       await InventoryModel.releaseStockForOrder(conn, existing.id, existing.order, existing.branch_id, existing.branch, 'System')
       const [orderRows] = await conn.execute('SELECT * FROM `orders` WHERE `id` = ?', [existing.id])

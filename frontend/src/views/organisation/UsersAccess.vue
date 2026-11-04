@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Eye, Pencil, Plus, Trash2, Check, Search, ChevronDown } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { store } from '../../store.js'
@@ -7,6 +7,12 @@ import CreateUser from './CreateUser.vue'
 import EditUser from './EditUser.vue'
 
 const router = useRouter()
+
+onMounted(async () => {
+  if (typeof store.fetchRemoteUsers === 'function') await store.fetchRemoteUsers()
+  if (typeof store.fetchRemoteBranches === 'function') await store.fetchRemoteBranches()
+  if (typeof store.fetchRemoteRoles === 'function') await store.fetchRemoteRoles()
+})
 
 const searchQuery = ref('')
 const selectedRole = ref('All Roles')

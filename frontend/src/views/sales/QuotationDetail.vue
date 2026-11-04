@@ -3,13 +3,17 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { store } from '../../store.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
-import { CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-vue-next'
+import { CheckCircle2, AlertCircle, ArrowLeft, Printer } from 'lucide-vue-next'
 import CreateQuotationModal from './CreateQuotation.vue'
 
 const route = useRoute()
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const handlePrint = () => {
+  window.print()
+}
 const showEditModal = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -17,6 +21,10 @@ const toastType = ref('success')
 
 const quoteId = computed(() => route.params.id || route.query.id || 'QT-1882')
 const quoteRecord = computed(() => quoteId.value ? store.getQuotationById(quoteId.value) : null)
+const branchRecord = computed(() => {
+  const bName = quoteRecord.value?.branch || user.value?.branchName || 'Peshawar'
+  return store.branches?.find(b => b.name?.toLowerCase() === bName.toLowerCase() || b.id === bName || b.code === bName) || null
+})
 
 const branchCurrentTab = ref('Summary')
 const branchTabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Documents', 'Activity']
@@ -235,6 +243,12 @@ const tabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Docum
           Back to List
         </button>
         <button 
+          @click="handlePrint" 
+          class="bg-white border border-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+        >
+          <Printer class="w-4 h-4" /> Print Quotation
+        </button>
+        <button 
           v-if="quoteRecord.status !== 'Accepted'"
           @click="acceptQuotation" 
           class="bg-white border border-[#165A31] text-[#165A31] text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#165A31]/10 transition-colors shadow-sm cursor-pointer"
@@ -318,5 +332,124 @@ const tabs = ['Summary', 'Items', 'Customer', 'Pricing', 'Communication', 'Docum
       :quotation="quoteRecord" 
       @close="showEditModal = false" 
     />
+
+    <!-- PRINTABLE QUOTATION (Hidden on screen, visible on print) -->
+    <div class="print-document hidden print:block bg-white text-black p-8 font-sans">
+      <div class="border-b-2 border-black pb-4 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }} / {{ store.settings?.company?.brand || 'BRG ELECTRIC VEHICLES' }}</h1>
+            <p class="text-xs text-gray-700 mt-1 uppercase">{{ branchRecord?.name || quoteRecord?.branch || 'Peshawar' }} Showroom</p>
+            <p class="text-[11px] text-gray-600">{{ branchRecord?.address || `${quoteRecord?.branch || 'Peshawar'}, Pakistan` }}</p>
+            <p class="text-[11px] text-gray-600">Phone: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }} | NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-block border-2 border-black px-3 py-1 text-sm font-black uppercase">PRICE QUOTATION</span>
+            <div class="text-xs text-right mt-2 space-y-0.5">
+              <p><strong>Quote No:</strong> {{ quoteId }}</p>
+              <p><strong>Customer File:</strong> #FILE-{{ String(quoteId).replace(/[^0-9]/g, '').slice(-4) || '101' }}</p>
+              <p><strong>Date Issued:</strong> {{ new Date().toLocaleDateString() }}</p>
+              <p><strong>Validity:</strong> 7 Days (Price Lock Guarantee)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Summary -->
+      <div class="border border-gray-300 p-4 mb-6 text-xs grid grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Customer Information</h4>
+          <p><strong>Customer Name:</strong> {{ quoteRecord?.customer || quoteRecord?.customer_name || 'Valued Customer' }}</p>
+          <p><strong>Contact Phone:</strong> +92 312 5538198</p>
+          <p><strong>Showroom Location:</strong> {{ quoteRecord?.branch || 'Peshawar' }} Branch</p>
+        </div>
+        <div>
+          <h4 class="font-bold border-b pb-1 mb-2 uppercase text-gray-800">Commercial Terms</h4>
+          <p><strong>Payment Terms:</strong> {{ quoteRecord?.paymentTerms || '100% Advance / Bank Transfer' }}</p>
+          <p><strong>Registration & Taxes:</strong> Included in Quote</p>
+          <p><strong>Delivery Lead Time:</strong> Ready Showroom Stock (Immediate Handover)</p>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <table class="w-full text-left text-xs border border-collapse border-black mb-6">
+        <thead>
+          <tr class="bg-gray-100 border-b border-black text-[10px] uppercase font-bold">
+            <th class="p-2.5 border-r border-black">#</th>
+            <th class="p-2.5 border-r border-black">Product & Description</th>
+            <th class="p-2.5 border-r border-black">Warranty Package</th>
+            <th class="p-2.5 border-r border-black text-center">Qty</th>
+            <th class="p-2.5 border-r border-black text-right">Unit Price (PKR)</th>
+            <th class="p-2.5 text-right">Total (PKR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, idx) in (quoteRecord?.items || [{ product: quoteRecord?.product || 'BRG EV-5', quantity: 1, sellingPrice: quoteRecord?.subtotal || '210,000' }])" :key="idx" class="border-b border-gray-300">
+            <td class="p-2.5 border-r border-gray-300">{{ idx + 1 }}</td>
+            <td class="p-2.5 border-r border-gray-300 font-bold">{{ item.product }}</td>
+            <td class="p-2.5 border-r border-gray-300">{{ item.warranty || '2-Year Official OEM Warranty' }}</td>
+            <td class="p-2.5 border-r border-gray-300 text-center">{{ item.quantity || 1 }}</td>
+            <td class="p-2.5 border-r border-gray-300 text-right">{{ Number(item.sellingPrice || quoteRecord?.subtotal || 210000).toLocaleString() }}</td>
+            <td class="p-2.5 text-right font-bold">{{ (Number(item.sellingPrice || quoteRecord?.subtotal || 210000) * Number(item.quantity || 1)).toLocaleString() }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Financial Totals -->
+      <div class="flex justify-end mb-8 text-xs">
+        <div class="w-72 space-y-1.5 border border-black p-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Gross Subtotal:</span>
+            <span class="font-bold">{{ quoteRecord?.subtotal || 'PKR 210,000' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Authorized Discount:</span>
+            <span class="font-bold text-red-600">{{ quoteRecord?.discount || 'PKR 0' }}</span>
+          </div>
+          <div class="flex justify-between border-t border-black pt-1.5 text-sm font-black">
+            <span>Net Quoted Amount:</span>
+            <span class="text-[#165A31]">{{ quoteRecord?.total || quoteRecord?.subtotal || 'PKR 210,000' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Triple Signature Blocks & Official Seal -->
+      <div class="grid grid-cols-4 gap-4 pt-10 text-center text-xs">
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Prepared By</p>
+          <p class="text-[10px] text-gray-600 mt-6">Sales Executive</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Authorized By</p>
+          <p class="text-[10px] text-gray-600 mt-6">Showroom Manager</p>
+        </div>
+        <div class="border-t border-black pt-2">
+          <p class="font-bold">Customer Acceptance</p>
+          <p class="text-[10px] text-gray-600 mt-6">Signature & Date</p>
+        </div>
+        <div class="border border-black p-2 h-24 flex items-center justify-center">
+          <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">OFFICIAL SHOWROOM STAMP</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media print {
+  :deep(.no-print),
+  .no-print,
+  nav,
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+</style>

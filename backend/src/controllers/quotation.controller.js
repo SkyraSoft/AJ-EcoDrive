@@ -1,7 +1,8 @@
 import { QuotationModel } from '../models/quotation.model.js'
 import { CustomerModel } from '../models/customer.model.js'
 import { OrderModel } from '../models/order.model.js'
-import { getEffectiveBranch, assertBranchAccess, resolveBranchId } from '../utils/branchScope.js'
+import { PricingService } from '../services/pricing.service.js'
+import { getEffectiveBranch, assertBranchAccess, resolveBranchId, isUserSuperAdmin } from '../utils/branchScope.js'
 
 export const QuotationController = {
   /**
@@ -88,7 +89,7 @@ export const QuotationController = {
 
       // 2. Branch context validation
       const user = req.user
-      const isSuperAdmin = user?.isSuperAdmin || user?.role === 'Super Admin' || !user?.branch_id || user?.branch_id === 'ALL'
+      const isSuperAdmin = isUserSuperAdmin(user)
       const rawBranch = isSuperAdmin
         ? (body.branch_id || body.branchId || body.branch || '')
         : (user?.branch_id || 'BR-01')
@@ -118,12 +119,44 @@ export const QuotationController = {
         })
       }
 
-      // 4. Discount validation
-      if (body.discount !== undefined && body.discount !== null) {
-        const rawDisc = parseFloat(String(body.discount).replace(/[^0-9.]/g, ''))
-        if (isNaN(rawDisc) || rawDisc < 0) {
-          errors.push({ field: 'discount', message: 'Discount amount must be non-negative.' })
-        }
+      // 4. Server-side dynamic product/branch discount authorization
+      const discount = parseFloat(String(body.discount || 0).replace(/[^0-9.]/g, '')) || 0
+      if (discount < 0) {
+        errors.push({ field: 'discount', message: 'Discount amount must be non-negative.' })
+      }
+
+      const subtotal = items.reduce((sum, item) => {
+        const p = parseFloat(String(item.sellingPrice || item.price || 0).replace(/[^0-9.]/g, '')) || 0
+        const q = parseInt(item.quantity, 10) || 1
+        return sum + (p * q)
+      }, 0)
+
+      const targetBranchId = isSuperAdmin ? (resolveBranchId(rawBranch) || 'BR-01') : (resolveBranchId(user.branch_id) || 'BR-01')
+      const primaryItem = items.length > 0 ? items[0] : null
+      const productId = primaryItem?.product_id || body.product_id || null
+      const productName = primaryItem?.product || body.product || null
+
+      const effectiveRule = await PricingService.resolveEffectiveRule({
+        productId,
+        productName,
+        branchId: targetBranchId,
+        customerSegment: matchedCustomer?.type || body.customer_type || 'Standard',
+        date: new Date()
+      })
+
+      const validation = PricingService.validateDiscount({
+        rule: effectiveRule,
+        subtotal,
+        discount,
+        isSuperAdmin
+      })
+
+      if (!validation.allowed) {
+        errors.push({
+          field: 'discount',
+          message: validation.message,
+          rule: effectiveRule.ruleName
+        })
       }
 
       if (errors.length > 0) {
