@@ -115,18 +115,68 @@ const maxQuoteDiscountAllowed = computed(() => {
   return Math.max(allowedByPercent, maxPkr)
 })
 
-const isQuoteDiscountExceeded = computed(() => {
-  if (isSuperAdmin.value) return false
-  const disc = Number(form.value.discount || 0)
-  if (!isQuoteRuleApproved.value && disc > 0) return true
-  if (disc > maxQuoteDiscountAllowed.value) return true
-  const rule = activeQuotePriceRule.value
-  if (rule && (rule.minimumPrice || rule.minimum_price)) {
-    const minFloor = Number(rule.minimumPrice || rule.minimum_price) * (form.value.items[0]?.quantity || 1)
-    if ((quoteSubtotal.value - disc) < minFloor) return true
+const quoteDiscountValidationState = computed(() => {
+  if (isSuperAdmin.value) {
+    return { valid: true, code: null, message: '' }
   }
-  return false
+  const disc = Number(form.value.discount || 0)
+  if (disc <= 0) {
+    return { valid: true, code: null, message: '' }
+  }
+
+  const rule = activeQuotePriceRule.value
+  const isApproved = isQuoteRuleApproved.value
+
+  // 1. POLICY_UNCONFIRMED
+  if (!rule || !isApproved) {
+    return {
+      valid: false,
+      code: 'POLICY_UNCONFIRMED',
+      message: 'This pricing rule has not yet been approved by Super Admin.'
+    }
+  }
+
+  // 2. DISCOUNT_LIMIT_EXCEEDED
+  if (disc > maxQuoteDiscountAllowed.value) {
+    return {
+      valid: false,
+      code: 'DISCOUNT_LIMIT_EXCEEDED',
+      message: 'This discount exceeds the approved limit for this product and branch.'
+    }
+  }
+
+  // 3. BELOW_MINIMUM_PRICE
+  const subtotal = quoteSubtotal.value
+  const finalPrice = Math.max(0, subtotal - disc)
+  const minFloor = Number(rule.minimumPrice || rule.minimum_price || 0) * (form.value.items[0]?.quantity || 1)
+  if (minFloor > 0 && finalPrice < minFloor) {
+    return {
+      valid: false,
+      code: 'BELOW_MINIMUM_PRICE',
+      message: 'This selling price is below the permitted minimum price.'
+    }
+  }
+
+  // 4. BELOW_MINIMUM_MARGIN
+  const firstProd = store.products.find(p => p.name === form.value.items[0]?.product || p.id === form.value.items[0]?.product)
+  const unitCost = Number(firstProd?.cost || firstProd?.cost_price || 0)
+  const totalCost = unitCost * (form.value.items[0]?.quantity || 1)
+  const minMargin = Number(rule.minMarginPercent ?? rule.min_margin_percent ?? 15)
+  if (totalCost > 0 && finalPrice > 0) {
+    const margin = ((finalPrice - totalCost) / finalPrice) * 100
+    if (margin < minMargin) {
+      return {
+        valid: false,
+        code: 'BELOW_MINIMUM_MARGIN',
+        message: 'This sale falls below the required minimum margin.'
+      }
+    }
+  }
+
+  return { valid: true, code: null, message: '' }
 })
+
+const isQuoteDiscountExceeded = computed(() => !quoteDiscountValidationState.value.valid)
 
 const customerSearch = ref('')
 const showCustomerDropdown = ref(false)
@@ -260,9 +310,7 @@ const saveAndSend = () => {
 
   if (isQuoteDiscountExceeded.value) {
     showValidation.value = true
-    const rule = activeQuotePriceRule.value
-    const ruleDesc = rule ? `'${rule.ruleName || rule.name}' (Configured Limit: PKR ${maxQuoteDiscountAllowed.value.toLocaleString()})` : 'Zero discount authorized without configured rule'
-    alert(`Discount of PKR ${Number(form.value.discount).toLocaleString()} exceeds Branch Manager limit under ${ruleDesc}. Super Admin approval required.`)
+    alert(quoteDiscountValidationState.value.message)
     return
   }
 
@@ -536,12 +584,9 @@ const saveAndSend = () => {
                   </div>
                   <input v-model="form.discount" data-tour="quote-discount" type="number" min="0" class="w-28 px-2.5 py-1.5 bg-white dark:bg-[#0f172a] border rounded text-xs text-right focus:border-[#165A31] focus:ring-0 font-semibold" :class="isQuoteDiscountExceeded ? 'border-red-400 bg-red-50/20 text-red-900' : 'border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100'" />
                 </div>
-                <div v-if="isQuoteDiscountExceeded" class="text-right">
-                  <span v-if="!isQuoteRuleApproved && Number(form.discount || 0) > 0" class="text-[10px] font-bold text-amber-700">
-                    ⚠️ Discount policy for this product is an unconfirmed demo configuration. Any discount requires Super Admin authorization.
-                  </span>
-                  <span v-else class="text-[10px] font-bold text-red-600">
-                    ⚠️ Discount exceeds authorized limit (Max PKR {{ maxQuoteDiscountAllowed.toLocaleString() }}). Requires Super Admin approval.
+                <div v-if="!quoteDiscountValidationState.valid" class="text-right">
+                  <span class="text-[10px] font-bold" :class="quoteDiscountValidationState.code === 'POLICY_UNCONFIRMED' ? 'text-amber-700' : 'text-red-600'">
+                    ⚠️ {{ quoteDiscountValidationState.message }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">

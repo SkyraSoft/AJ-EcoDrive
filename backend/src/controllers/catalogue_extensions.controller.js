@@ -39,6 +39,60 @@ export const CatalogueExtensionsController = {
     }
   },
 
+  async validateDiscount(req, res, next) {
+    try {
+      const {
+        productId,
+        product_id,
+        product,
+        productName,
+        branchId,
+        branch_id,
+        customerSegment,
+        customer_segment,
+        subtotal,
+        discount,
+        costPrice
+      } = { ...req.query, ...req.body }
+
+      const effectiveBranch = getEffectiveBranch(req) || branchId || branch_id || 'BR-01'
+      const isSuperAdmin = Boolean(req.user?.role === 'Super Admin' || req.user?.isSuperAdmin)
+
+      const rule = await PricingService.resolveEffectiveRule({
+        productId: productId || product_id,
+        productName: productName || product,
+        branchId: effectiveBranch,
+        customerSegment: customerSegment || customer_segment || 'Standard'
+      })
+
+      const validation = PricingService.validateDiscount({
+        rule,
+        subtotal: parseFloat(subtotal || rule.basePrice || 0),
+        discount: parseFloat(discount || 0),
+        costPrice: parseFloat(costPrice || rule.costPrice || 0),
+        isSuperAdmin
+      })
+
+      if (!validation.allowed) {
+        return res.status(422).json({
+          ok: false,
+          error: validation.code,
+          code: validation.code,
+          message: validation.message,
+          details: validation.details
+        })
+      }
+
+      return res.status(200).json({
+        ok: true,
+        allowed: true,
+        details: validation.details
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+
   async getPriceRuleById(req, res, next) {
     try {
       const { id } = req.params

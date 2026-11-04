@@ -79,6 +79,7 @@ export const PricingService = {
       const minPrice = matchedRule.minimum_price ? parseFloat(matchedRule.minimum_price) : (matchedRule.minimum ? parseFloat(String(matchedRule.minimum).replace(/[^0-9.]/g, '') * (matchedRule.minimum.includes('K') ? 1000 : 1)) : Math.round(basePrice * 0.95))
       const maxDiscountPercent = parseFloat(matchedRule.max_discount_percent || matchedRule.discount_percent || 0)
       const maxDiscountPkr = parseFloat(matchedRule.max_discount_pkr || 0)
+      const minMarginPercent = parseFloat(matchedRule.min_margin_percent || matchedRule.margin || 15)
 
       return {
         ruleId: matchedRule.id,
@@ -94,6 +95,7 @@ export const PricingService = {
         costPrice,
         maxDiscountPercent,
         maxDiscountPkr,
+        minMarginPercent,
         requiresApproval: !isApprovedPolicy || Boolean(matchedRule.requires_approval ?? 1),
         isConfigured: true,
         isApprovedPolicy,
@@ -118,6 +120,7 @@ export const PricingService = {
       costPrice,
       maxDiscountPercent: 0.00,
       maxDiscountPkr: 0.00,
+      minMarginPercent: 15.0,
       requiresApproval: true,
       isConfigured: false,
       isApprovedPolicy: false,
@@ -128,67 +131,120 @@ export const PricingService = {
   },
 
   /**
-   * Validate a proposed sale or quotation discount against the resolved pricing rule
+   * Validate a proposed sale or quotation discount against the resolved pricing rule.
+   * Strict four-case taxonomy:
+   * 1. POLICY_UNCONFIRMED
+   * 2. DISCOUNT_LIMIT_EXCEEDED
+   * 3. BELOW_MINIMUM_PRICE
+   * 4. BELOW_MINIMUM_MARGIN
    */
-  validateDiscount({ rule, subtotal, discount, isSuperAdmin = false }) {
-    if (isSuperAdmin) {
-      return {
-        allowed: true,
-        reason: 'Super Admin executive pricing authority override'
-      }
-    }
-
+  validateDiscount({ rule, subtotal, discount, costPrice, isSuperAdmin = false }) {
     const numSubtotal = parseFloat(subtotal || 0)
     const numDiscount = parseFloat(discount || 0)
     const finalPrice = Math.max(0, numSubtotal - numDiscount)
+    const effectiveCost = parseFloat(costPrice || rule?.costPrice || 0)
+    const calculatedMargin = finalPrice > 0
+      ? Math.round(((finalPrice - effectiveCost) / finalPrice) * 1000) / 10
+      : 0
+    const minPrice = parseFloat(rule?.minimumPrice || rule?.minimum_price || 0)
+    const minMargin = parseFloat(rule?.minMarginPercent || rule?.min_margin_percent || 0)
+    const allowedPct = parseFloat(rule?.maxDiscountPercent || rule?.max_discount_percent || 0)
+    const allowedPkrCap = parseFloat(rule?.maxDiscountPkr || rule?.max_discount_pkr || 0)
+    const allowedByPercent = allowedPct > 0 ? (numSubtotal * (allowedPct / 100)) : 0
+    const maxAllowedDiscount = Math.max(allowedByPercent, allowedPkrCap)
 
-    if (numDiscount <= 0) {
-      return { allowed: true }
+    const baseDetails = {
+      product: rule?.product || 'Vehicle',
+      branch: rule?.branch || 'Branch Context',
+      appliedRule: rule?.ruleName || rule?.rule_name || rule?.id || 'Dealership Policy',
+      requestedDiscount: numDiscount,
+      allowedPercentage: allowedPct,
+      allowedPkrAmount: maxAllowedDiscount,
+      finalSellingPrice: finalPrice,
+      minimumSellingPrice: minPrice,
+      calculatedMargin,
+      minimumMargin: minMargin,
+      requiredApproval: false
     }
 
-    // 0. Unapproved Demo / Unconfirmed Rule Restriction
-    if (!rule.isApprovedPolicy) {
+    if (isSuperAdmin) {
+      return {
+        allowed: true,
+        reason: 'Super Admin executive pricing authority override',
+        details: { ...baseDetails, requiredApproval: false }
+      }
+    }
+
+    if (numDiscount <= 0) {
+      return {
+        allowed: true,
+        details: baseDetails
+      }
+    }
+
+    // 1. Unapproved Rule: Demo, Draft, Unconfirmed, or not ratified
+    if (!rule || !rule.isApprovedPolicy) {
       return {
         allowed: false,
         error: 'POLICY_UNCONFIRMED',
-        message: `Pricing and discount rule '${rule.ruleName}' is marked as '${rule.policyClassification || 'Unconfirmed configuration (Demo / Example Data)'}' and has not been approved by dealership leadership. Any discount requires Super Admin authorization.`,
-        ruleName: rule.ruleName,
-        policyClassification: rule.policyClassification,
-        requested: numDiscount
+        code: 'POLICY_UNCONFIRMED',
+        message: 'This pricing rule has not yet been approved by Super Admin.',
+        details: {
+          ...baseDetails,
+          allowedPercentage: 0,
+          allowedPkrAmount: 0,
+          requiredApproval: true,
+          policyClassification: rule?.policyClassification || 'Demo/example data'
+        }
       }
     }
 
-    // 1. Minimum Price Floor Verification
-    if (rule.minimumPrice && finalPrice < rule.minimumPrice) {
+    // 2. Requested discount exceeds configured discount authority
+    if (numDiscount > maxAllowedDiscount) {
+      return {
+        allowed: false,
+        error: 'DISCOUNT_LIMIT_EXCEEDED',
+        code: 'DISCOUNT_LIMIT_EXCEEDED',
+        message: 'This discount exceeds the approved limit for this product and branch.',
+        details: {
+          ...baseDetails,
+          requiredApproval: true
+        }
+      }
+    }
+
+    // 3. Resulting selling price falls below configured minimum selling price
+    if (minPrice > 0 && finalPrice < minPrice) {
       return {
         allowed: false,
         error: 'BELOW_MINIMUM_PRICE',
-        message: `Final selling price of PKR ${finalPrice.toLocaleString()} is below the minimum permitted price floor of PKR ${rule.minimumPrice.toLocaleString()} under rule '${rule.ruleName}'. Sale requires Super Admin approval.`
+        code: 'BELOW_MINIMUM_PRICE',
+        message: 'This selling price is below the permitted minimum price.',
+        details: {
+          ...baseDetails,
+          requiredApproval: true
+        }
       }
     }
 
-    // 2. Maximum Allowed Discount Calculation
-    const allowedByPercent = rule.maxDiscountPercent > 0 ? (numSubtotal * (rule.maxDiscountPercent / 100)) : 0
-    const allowedByPkr = rule.maxDiscountPkr > 0 ? rule.maxDiscountPkr : 0
-    const maxAllowedDiscount = Math.max(allowedByPercent, allowedByPkr)
-
-    if (numDiscount > maxAllowedDiscount) {
-      const allowedDesc = []
-      if (rule.maxDiscountPercent > 0) allowedDesc.push(`${rule.maxDiscountPercent}%`)
-      if (rule.maxDiscountPkr > 0) allowedDesc.push(`PKR ${rule.maxDiscountPkr.toLocaleString()}`)
-      const allowedStr = allowedDesc.join(' or ') || 'PKR 0 (Zero discount authorized)'
-
+    // 4. Resulting margin falls below configured minimum margin
+    if (minMargin > 0 && effectiveCost > 0 && calculatedMargin < minMargin) {
       return {
         allowed: false,
-        error: 'DISCOUNT_EXCEEDS_LIMIT',
-        message: `Discount of PKR ${numDiscount.toLocaleString()} exceeds Branch Manager authorization for ${rule.product || 'this product'} at ${rule.branch || 'this branch'} (Configured limit: ${allowedStr} under '${rule.ruleName}'). Super Admin approval required.`,
-        ruleName: rule.ruleName,
-        maxAllowed: maxAllowedDiscount,
-        requested: numDiscount
+        error: 'BELOW_MINIMUM_MARGIN',
+        code: 'BELOW_MINIMUM_MARGIN',
+        message: 'This sale falls below the required minimum margin.',
+        details: {
+          ...baseDetails,
+          requiredApproval: true
+        }
       }
     }
 
-    return { allowed: true }
+    return {
+      allowed: true,
+      details: baseDetails
+    }
   }
 }
 

@@ -294,16 +294,67 @@ const minimumFloorPrice = computed(() => {
   return Math.round(cat * 0.95)
 })
 
-const isDiscountExceeded = computed(() => {
-  if (isSuperAdmin.value) return false
+const discountValidationState = computed(() => {
+  if (isSuperAdmin.value) {
+    return { valid: true, code: null, message: '' }
+  }
   const cat = parseRupees(saleData.value.cataloguePrice)
   const disc = parseRupees(saleData.value.discount)
+  if (disc <= 0) {
+    return { valid: true, code: null, message: '' }
+  }
+
+  const rule = activePriceRule.value
+  const isApproved = isRuleApproved.value
+
+  // 1. POLICY_UNCONFIRMED
+  if (!rule || !isApproved) {
+    return {
+      valid: false,
+      code: 'POLICY_UNCONFIRMED',
+      message: 'This pricing rule has not yet been approved by Super Admin.'
+    }
+  }
+
+  // 2. DISCOUNT_LIMIT_EXCEEDED
+  if (disc > maxDiscountAllowed.value) {
+    return {
+      valid: false,
+      code: 'DISCOUNT_LIMIT_EXCEEDED',
+      message: 'This discount exceeds the approved limit for this product and branch.'
+    }
+  }
+
+  // 3. BELOW_MINIMUM_PRICE
   const finalPrice = Math.max(0, cat - disc)
-  if (!isRuleApproved.value && disc > 0) return true
-  if (disc > maxDiscountAllowed.value) return true
-  if (finalPrice < minimumFloorPrice.value) return true
-  return false
+  if (minimumFloorPrice.value > 0 && finalPrice < minimumFloorPrice.value) {
+    return {
+      valid: false,
+      code: 'BELOW_MINIMUM_PRICE',
+      message: 'This selling price is below the permitted minimum price.'
+    }
+  }
+
+  // 4. BELOW_MINIMUM_MARGIN
+  const cost = selectedUnitDetails.value?.landedCost 
+    ? parseRupees(selectedUnitDetails.value.landedCost) 
+    : (store.products.find(p => p.name === saleData.value.product || p.id === saleData.value.product_id)?.cost || 0)
+  const minMargin = Number(rule.minMarginPercent ?? rule.min_margin_percent ?? 15)
+  if (cost > 0 && finalPrice > 0) {
+    const margin = ((finalPrice - cost) / finalPrice) * 100
+    if (margin < minMargin) {
+      return {
+        valid: false,
+        code: 'BELOW_MINIMUM_MARGIN',
+        message: 'This sale falls below the required minimum margin.'
+      }
+    }
+  }
+
+  return { valid: true, code: null, message: '' }
 })
+
+const isDiscountExceeded = computed(() => !discountValidationState.value.valid)
 
 watch([() => saleData.value.cataloguePrice, () => saleData.value.discount], () => {
   const cat = parseRupees(saleData.value.cataloguePrice)
@@ -457,9 +508,7 @@ const createOrder = () => {
   // Validate discount authorization limit for Branch Managers
   if (isDiscountExceeded.value) {
     showValidation.value = true
-    const rule = activePriceRule.value
-    const ruleDesc = rule ? `'${rule.ruleName || rule.name}' (Configured Limit: PKR ${maxDiscountAllowed.value.toLocaleString()})` : 'Zero discount policy (No rule configured)'
-    validationError.value = `Discount of ${saleData.value.discount} exceeds Branch Manager authorization under ${ruleDesc}. Minimum floor price is PKR ${minimumFloorPrice.value.toLocaleString()}. Super Admin approval is required.`
+    validationError.value = discountValidationState.value.message
     return
   }
 
@@ -737,11 +786,8 @@ const createOrder = () => {
                     </span>
                   </div>
                   <input data-tour="sale-discount" v-model="saleData.discount" type="text" placeholder="e.g. PKR 5,000" class="w-full px-3 py-2 text-[12px] bg-white dark:bg-[#0f172a] border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#165A31] focus:border-[#165A31] transition-colors" :class="isDiscountExceeded ? 'border-red-400 bg-red-50/20 text-red-900' : 'border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100'" />
-                  <p v-if="isDiscountExceeded && !isRuleApproved && parseRupees(saleData.discount) > 0" class="text-[10px] font-bold text-amber-700 mt-1 flex items-center gap-1">
-                    ⚠️ Discount policy for this model is an unconfirmed demo configuration. Any discount requires Super Admin authorization.
-                  </p>
-                  <p v-else-if="isDiscountExceeded" class="text-[10px] font-bold text-red-600 mt-1 flex items-center gap-1">
-                    ⚠️ Discount exceeds authorized limit (Max PKR {{ maxDiscountAllowed.toLocaleString() }} · Floor PKR {{ minimumFloorPrice.toLocaleString() }}). Requires Super Admin approval.
+                  <p v-if="!discountValidationState.valid" class="text-[10px] font-bold mt-1 flex items-center gap-1" :class="discountValidationState.code === 'POLICY_UNCONFIRMED' ? 'text-amber-700' : 'text-red-600'">
+                    ⚠️ {{ discountValidationState.message }}
                   </p>
                   <p v-else class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                     {{ activePriceRule ? `Governed by rule '${activePriceRule.ruleName || activePriceRule.name}'. Minimum selling floor: PKR ${minimumFloorPrice.toLocaleString()}.` : 'Discounts require configured price rule authorization or Super Admin approval.' }}

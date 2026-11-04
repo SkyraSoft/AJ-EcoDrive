@@ -13,6 +13,8 @@ router.post('/categories', authorizeRoles('Super Admin', 'Director', 'Owner'), P
 router.get('/pricing-rules', CatalogueExtensionsController.listPriceRules)
 router.get('/pricing-rules/resolve', CatalogueExtensionsController.resolvePriceRule)
 router.post('/pricing-rules/resolve', CatalogueExtensionsController.resolvePriceRule)
+router.post('/pricing-rules/validate', CatalogueExtensionsController.validateDiscount)
+router.post('/pricing-rules/validate-discount', CatalogueExtensionsController.validateDiscount)
 router.get('/pricing-rules/:id', CatalogueExtensionsController.getPriceRuleById)
 router.post('/pricing-rules', authorizeRoles('Super Admin', 'Director', 'Owner'), CatalogueExtensionsController.createPriceRule)
 router.put('/pricing-rules/:id', authorizeRoles('Super Admin', 'Director', 'Owner'), CatalogueExtensionsController.updatePriceRule)

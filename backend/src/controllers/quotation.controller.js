@@ -154,16 +154,21 @@ export const QuotationController = {
       if (!validation.allowed) {
         errors.push({
           field: 'discount',
+          code: validation.code,
+          error: validation.error,
           message: validation.message,
-          rule: effectiveRule.ruleName
+          rule: effectiveRule.ruleName,
+          details: validation.details
         })
       }
 
       if (errors.length > 0) {
+        const primaryError = errors[0]
         return res.status(422).json({
           ok: false,
-          error: 'VALIDATION_FAILED',
-          message: 'Quotation validation failed.',
+          error: primaryError.code || primaryError.error || 'VALIDATION_FAILED',
+          message: primaryError.message || 'Quotation validation failed.',
+          details: primaryError.details || null,
           errors
         })
       }
