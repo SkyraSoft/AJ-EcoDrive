@@ -9,6 +9,10 @@ const router = useRouter()
 
 const activeTab = ref('Business Profile')
 
+const isSuperAdmin = computed(() => {
+  return Boolean(store.isSuperAdmin || store.currentUser?.role === 'Super Admin' || store.currentUser?.isSuperAdmin)
+})
+
 const tabs = [
   'Business Profile',
   'Branch Defaults',
@@ -297,6 +301,9 @@ watch(() => [route.query.tab, route.query.section], () => {
 
 const saveSettings = () => {
   try {
+    if (!isSuperAdmin.value) {
+      throw new Error('Only Super Admin / Head Office can modify system configuration and legal settings.')
+    }
     if (activeTab.value === 'Business Profile') {
       if (!businessProfile.value.name || !businessProfile.value.name.trim()) {
         throw new Error('Business legal name cannot be empty')
@@ -408,7 +415,7 @@ const restoreDefaults = () => {
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div v-if="isSuperAdmin" class="flex items-center gap-3">
         <button 
           @click="restoreDefaults"
           type="button"
@@ -425,6 +432,11 @@ const restoreDefaults = () => {
         >
           Save Changes
         </button>
+      </div>
+      <div v-else class="flex items-center">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span> Branch View (Read-Only)
+        </span>
       </div>
     </div>
 
@@ -898,6 +910,7 @@ const restoreDefaults = () => {
           <p class="text-xs text-gray-500 mt-0.5">Customize active document prefix patterns. New records will automatically inherit configured prefixes.</p>
         </div>
         <button 
+          v-if="isSuperAdmin"
           @click="saveSettings" 
           type="button"
           class="bg-[#165A31] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-lg hover:bg-[#124a28] transition-colors"

@@ -1,21 +1,22 @@
 import { Router } from 'express'
 import { ProductController } from '../controllers/product.controller.js'
 import { CatalogueExtensionsController } from '../controllers/catalogue_extensions.controller.js'
+import { authorizeRoles } from '../middleware/auth.js'
 
 const router = Router()
 
 // Category routes
 router.get('/categories', ProductController.listCategories)
-router.post('/categories', ProductController.createCategory)
+router.post('/categories', authorizeRoles('Super Admin', 'Director', 'Owner'), ProductController.createCategory)
 
-// Pricing rules routes
+// Pricing rules routes (Modifications strictly restricted to Super Admin)
 router.get('/pricing-rules', CatalogueExtensionsController.listPriceRules)
 router.get('/pricing-rules/resolve', CatalogueExtensionsController.resolvePriceRule)
 router.post('/pricing-rules/resolve', CatalogueExtensionsController.resolvePriceRule)
 router.get('/pricing-rules/:id', CatalogueExtensionsController.getPriceRuleById)
-router.post('/pricing-rules', CatalogueExtensionsController.createPriceRule)
-router.put('/pricing-rules/:id', CatalogueExtensionsController.updatePriceRule)
-router.delete('/pricing-rules/:id', CatalogueExtensionsController.deletePriceRule)
+router.post('/pricing-rules', authorizeRoles('Super Admin', 'Director', 'Owner'), CatalogueExtensionsController.createPriceRule)
+router.put('/pricing-rules/:id', authorizeRoles('Super Admin', 'Director', 'Owner'), CatalogueExtensionsController.updatePriceRule)
+router.delete('/pricing-rules/:id', authorizeRoles('Super Admin', 'Director', 'Owner'), CatalogueExtensionsController.deletePriceRule)
 
 // Product requests routes
 router.get('/product-requests', CatalogueExtensionsController.listProductRequests)

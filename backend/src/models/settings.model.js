@@ -59,7 +59,8 @@ export const SettingsModel = {
   },
 
   async saveSection(section, data, updatedBy = 'Super Admin') {
-    const jsonData = JSON.stringify(data)
+    const payload = (data && typeof data === 'object' && data[section]) ? data[section] : data
+    const jsonData = JSON.stringify(payload)
     await query(`
       INSERT INTO \`system_settings\` (\`id\`, \`section\`, \`settings_data\`, \`updated_by\`)
       VALUES (?, ?, ?, ?)
@@ -72,3 +73,4 @@ export const SettingsModel = {
     return this.getSection(section)
   }
 }
+

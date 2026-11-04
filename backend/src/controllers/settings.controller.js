@@ -63,3 +63,4 @@ export const SettingsController = {
     }
   }
 }
+

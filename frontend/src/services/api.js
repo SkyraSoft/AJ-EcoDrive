@@ -82,8 +82,8 @@ class ApiClient {
         (typeof sessionStorage !== 'undefined' && (sessionStorage.getItem('ecodrive_token') || sessionStorage.getItem('auth_token')))
 
       const sessionRaw = (typeof localStorage !== 'undefined' && localStorage.getItem('ecodrive_auth_session')) ||
-                         (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ecodrive_auth_session'))
-      
+        (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ecodrive_auth_session'))
+
       let session = null
       if (sessionRaw) {
         session = JSON.parse(sessionRaw)
@@ -215,8 +215,8 @@ class ApiClient {
       }
 
       const isNetworkOrAbort = err.name === 'AbortError' ||
-                               err.name === 'TypeError' ||
-                               (err.message && err.message.toLowerCase().includes('failed to fetch'))
+        err.name === 'TypeError' ||
+        (err.message && err.message.toLowerCase().includes('failed to fetch'))
 
       this.isOfflineMode = true
 

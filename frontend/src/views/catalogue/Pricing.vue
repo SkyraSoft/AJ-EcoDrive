@@ -12,6 +12,10 @@ const showEditModal = ref(false)
 const showHistory = ref(false)
 const selectedHistoryProduct = ref('')
 
+const isSuperAdmin = computed(() => {
+  return Boolean(store.isSuperAdmin || store.currentUser?.role === 'Super Admin' || store.currentUser?.isSuperAdmin)
+})
+
 const searchQuery = ref('')
 const selectedCategory = ref('All Categories')
 const selectedOverride = ref('All Overrides')
@@ -84,6 +88,10 @@ const filteredPricing = computed(() => {
 })
 
 const editRule = (rule) => {
+  if (!isSuperAdmin.value) {
+    alert('Pricing rules and discount limits are managed exclusively by Super Admin / Head Office.')
+    return
+  }
   store.originalEditPriceRule = rule
   showEditModal.value = true
 }
@@ -103,9 +111,14 @@ const openHistory = (productName) => {
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Pricing</h1>
         <p class="text-sm text-gray-500 mt-1">Control catalogue selling prices, margin rules and branch overrides.</p>
       </div>
-      <button data-tour-id="sa.catalogue.pricing.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
+      <button v-if="isSuperAdmin" data-tour-id="sa.catalogue.pricing.create-btn" @click="showCreateModal = true" class="bg-[#165A31] text-white text-[11px] font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#124a28] transition-colors shadow-sm cursor-pointer">
         <Plus class="w-4 h-4" /> <span>New Price Rule</span>
       </button>
+      <div v-else class="text-right">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span> Branch View (Read-Only)
+        </span>
+      </div>
     </div>
 
     <!-- Showroom Pricing Policy Status Banner -->
@@ -246,7 +259,8 @@ const openHistory = (productName) => {
                 <td class="px-5 py-4 text-gray-600 font-medium">{{ item.effective }}</td>
                 <td class="px-5 py-4 text-right">
                   <div class="flex items-center justify-end gap-3 text-gray-400">
-                    <span @click.stop="editRule(item)" title="Edit" class="cursor-pointer hover:text-gray-700 transition-colors"><Pencil class="w-4 h-4" /></span>
+                    <span v-if="isSuperAdmin" @click.stop="editRule(item)" title="Edit Rule" class="cursor-pointer hover:text-gray-700 transition-colors"><Pencil class="w-4 h-4" /></span>
+                    <span v-else title="Pricing configuration managed exclusively by Super Admin" class="text-gray-300 cursor-not-allowed"><Pencil class="w-4 h-4 opacity-40" /></span>
                     <span @click.stop="openHistory(item.product)" title="History" class="cursor-pointer hover:text-gray-700 transition-colors"><Clock class="w-4 h-4" /></span>
                   </div>
                 </td>
