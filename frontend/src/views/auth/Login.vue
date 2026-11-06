@@ -7,16 +7,15 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import { authenticateBranch } from '@/auth.js'
 import { api, ApiError } from '@/services/api.js'
 import { store } from '@/store.js'
-import { KeyRound, Sparkles, ArrowRight, Check, BookOpen, ExternalLink } from 'lucide-vue-next'
+import { BookOpen, ExternalLink } from 'lucide-vue-next'
 
 const router = useRouter()
 
-// Default active presentation & testing credentials
-const branchCode = ref('ADMIN')
-const password = ref('Skyrasoft@2233')
+// Never ship credentials or pre-filled privileged login values in the client.
+const branchCode = ref('')
+const password = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
-const selectedCode = ref('ADMIN')
 
 const hasError = computed(() => !!errorMessage.value)
 const title = computed(() => hasError.value ? 'Unable to sign in' : 'Welcome back')
@@ -29,57 +28,6 @@ onMounted(() => {
     console.warn('[EcoDrive] Initial background health probe notice:', err?.message || err)
   })
 })
-
-// Presentation & Testing Demo Credentials (Common Password: Skyrasoft@2233)
-const demoAccounts = [
-  {
-    role: 'Super Admin',
-    branch: 'Head Office (All Branches)',
-    code: 'ADMIN',
-    pass: 'Skyrasoft@2233',
-    scopeBadge: 'Enterprise HQ',
-    isHQ: true
-  },
-  {
-    role: 'Branch Manager',
-    branch: 'Peshawar Showroom',
-    code: 'PEW-01',
-    pass: 'Skyrasoft@2233',
-    scopeBadge: 'Showroom & Workshop',
-    isHQ: false
-  },
-  {
-    role: 'Branch Manager',
-    branch: 'Islamabad Showroom',
-    code: 'ISB-01',
-    pass: 'Skyrasoft@2233',
-    scopeBadge: 'Capital Flagship',
-    isHQ: false
-  },
-  {
-    role: 'Branch Manager',
-    branch: 'Lahore Showroom',
-    code: 'LHE-01',
-    pass: 'Skyrasoft@2233',
-    scopeBadge: 'Punjab Central',
-    isHQ: false
-  },
-  {
-    role: 'Branch Manager',
-    branch: 'Rawalpindi Showroom',
-    code: 'RWP-01',
-    pass: 'Skyrasoft@2233',
-    scopeBadge: 'Twin Cities',
-    isHQ: false
-  }
-]
-
-const selectAccount = (acc) => {
-  branchCode.value = acc.code
-  password.value = acc.pass
-  selectedCode.value = acc.code
-  errorMessage.value = ''
-}
 
 const handleLogin = async () => {
   errorMessage.value = ''
@@ -161,67 +109,7 @@ const handleLogin = async () => {
         {{ isLoading ? 'Authenticating...' : (hasError ? 'Try Again' : 'Login') }}
       </BaseButton>
 
-      <!-- Live Presentation & Tester Credentials Box -->
-      <div class="mt-6 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/40">
-        <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-emerald-200/80 dark:border-emerald-800/60">
-          <div class="flex items-center gap-1.5">
-            <Sparkles class="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
-              Presentation & Tester Credentials
-            </span>
-          </div>
-          <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-200/70 dark:bg-emerald-900/80 text-[11px] font-mono font-bold text-emerald-900 dark:text-emerald-200">
-            <KeyRound class="w-3 h-3" />
-            <span>Skyrasoft@2233</span>
-          </div>
-        </div>
-
-        <p class="text-[11px] text-emerald-800/90 dark:text-emerald-300/90 mb-2.5">
-          Select any role below for <strong>1-click auto-fill</strong> during testing and live presentation:
-        </p>
-
-        <!-- 1-Click Role Fill Buttons -->
-        <div class="space-y-1.5">
-          <button
-            v-for="acc in demoAccounts"
-            :key="acc.code"
-            type="button"
-            @click="selectAccount(acc)"
-            class="w-full flex items-center justify-between p-2 rounded-lg border text-left transition-all cursor-pointer text-xs"
-            :class="selectedCode === acc.code 
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-semibold' 
-              : 'bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-gray-200'"
-          >
-            <div class="flex items-center gap-2 truncate">
-              <span 
-                class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase shrink-0"
-                :class="selectedCode === acc.code ? 'bg-white/20 text-white' : (acc.isHQ ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300')"
-              >
-                {{ acc.code }}
-              </span>
-              <div class="truncate">
-                <span class="font-medium">{{ acc.role }}:</span>
-                <span class="ml-1 opacity-90 text-[11px]">{{ acc.branch }}</span>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-1 shrink-0 ml-2">
-              <span 
-                v-if="selectedCode === acc.code" 
-                class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-white/25 flex items-center gap-0.5"
-              >
-                <Check class="w-3 h-3" /> Selected
-              </span>
-              <ArrowRight v-else class="w-3.5 h-3.5 opacity-40 hover:opacity-100" />
-            </div>
-          </button>
-        </div>
-
-        <div class="mt-3 pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-between text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
-          <span>Common Password for all: <strong class="font-mono text-emerald-950 dark:text-emerald-200">Skyrasoft@2233</strong></span>
-          <span class="text-[10px] opacity-75 font-mono">(Case-sensitive)</span>
-        </div>
-      </div>
+      <!-- Production never displays or auto-fills credentials. -->
 
       <!-- Interactive Guide Direct Link -->
       <div class="mt-5 text-center">

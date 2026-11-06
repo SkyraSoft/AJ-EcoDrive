@@ -9462,8 +9462,8 @@ export const unifiedFrontendArchitectureRegistry = [
     "checkpointsCount": 5,
     "elementInventory": {
       "headers": [
-        "password123",
-        "(or ",
+        "Welcome back",
+        "Sign In",
         "View Interactive Client Operations Guide (400+ Q&As)"
       ],
       "tabs": [],

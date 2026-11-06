@@ -955,8 +955,8 @@ const fullHtml = `<!DOCTYPE html>
                                 <a href="https://aj-eco-drive.vercel.app" target="_blank" class="text-white text-decoration-none fw-semibold small">aj-eco-drive.vercel.app</a>
                             </div>
                             <div class="col-md-3 col-sm-6">
-                                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-key me-1"></i> Universal Demo Password</div>
-                                <span class="cred-pill">password123</span>
+                                <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-key me-1"></i> Access Security</div>
+                                <span class="cred-pill">Enterprise RBAC</span>
                             </div>
                             <div class="col-md-3 col-sm-6">
                                 <div class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;"><i class="fas fa-user-shield me-1"></i> Head Office (Super Admin)</div>

@@ -68,30 +68,15 @@ export const AuthController = {
         })
       }
 
-      // Verify bcrypt password or designated tester/demo password
-      const isDemoAccount = ['admin', 'pew-01', 'isb-01', 'lhe-01', 'rwp-01'].includes(user.username?.toLowerCase())
-      const isDemoPassword = password.trim() === 'password123' || password.trim() === 'password' || password.trim() === 'Skyrasoft@2233'
-      const allowDemo = process.env.ALLOW_DEMO_LOGIN === 'true' || process.env.ALLOW_DEMO_PASSWORDS === 'true'
-
-      let isMatch = await UserModel.verifyPassword(password.trim(), user.password_hash)
-      if (!isMatch && isDemoAccount && isDemoPassword && allowDemo) {
-        isMatch = true
-      }
+      // Production authentication must always verify the stored bcrypt hash.
+      // Never accept shared fallback/demo passwords for real accounts.
+      const isMatch = await UserModel.verifyPassword(password.trim(), user.password_hash)
 
       if (!isMatch) {
         return res.status(401).json({
           ok: false,
           error: 'INVALID_CREDENTIALS',
           message: 'Invalid username/email or password. Please verify your credentials and try again.'
-        })
-      }
-
-      // Production Security Policy: Default demo passwords prohibited unless explicitly enabled for testing
-      if (process.env.NODE_ENV === 'production' && !allowDemo && (password.trim() === 'password123' || password.trim() === 'admin')) {
-        return res.status(403).json({
-          ok: false,
-          error: 'DEFAULT_CREDENTIALS_REJECTED',
-          message: 'Default demonstration credentials are prohibited in production. Please set a secure password.'
         })
       }
 

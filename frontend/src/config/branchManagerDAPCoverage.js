@@ -216,7 +216,7 @@ export const branchManagerCoverageRegistry = [
         "route": "/login",
         "component": "src/views/auth/Login.vue",
         "elementCategory": "header",
-        "label": "password123",
+        "label": "Authentication Gateway",
         "mapped": true,
         "targetRequired": true,
         "targetSelector": "h1, h2, h3, header, [class*=\"title\"], [class*=\"heading\"]",

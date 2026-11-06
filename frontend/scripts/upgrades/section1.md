@@ -68,17 +68,17 @@
 > ### 🚀 LIVE PRESENTATION & CLIENT DEMONSTRATION ACCESS
 > **Live Production Deployment URL:** [https://aj-eco-drive.vercel.app](https://aj-eco-drive.vercel.app)  
 > **Source Code & Architecture Repository:** [https://github.com/SkyraSoft/AJ-EcoDrive](https://github.com/SkyraSoft/AJ-EcoDrive)  
-> **Universal Demo Password:** `password123` *(or `password`)*
+> **Authentication Standard:** Enterprise Role-Based Access Control (RBAC)
 >
-> | Presentation Role | Branch / Location Scope | Username / Code | Common Password | Operational Capabilities |
+> | Presentation Role | Branch / Location Scope | Username / Code | Access Credentials | Operational Capabilities |
 > | :--- | :--- | :--- | :--- | :--- |
-> | **Super Admin** | **Head Office (All Branches)** | `ADMIN` *(or `admin`)* | `password123` | Nationwide control across all 4 showrooms, procurement, global pricing, user management, and system-wide Action Centre approvals. |
-> | **Branch Manager** | **Peshawar Showroom & Workshop** | `PEW-01` *(or `peshawar`)* | `password123` | Scoped strictly to Peshawar showroom floor inventory, sales orders, walk-in leads, expenses, and workshop repair jobs. |
-> | **Branch Manager** | **Islamabad Showroom** | `ISB-01` *(or `islamabad`)* | `password123` | Scoped strictly to Islamabad showroom floor, local commercial sales, cash registers, and stock requisition. |
-> | **Branch Manager** | **Lahore Showroom** | `LHE-01` *(or `lahore`)* | `password123` | Scoped strictly to Lahore commercial sales, inventory management, customer payments, and local team dispatch. |
-> | **Branch Manager** | **Rawalpindi Showroom** | `RWP-01` *(or `rawalpindi`)* | `password123` | Scoped strictly to Rawalpindi twin-cities operations, local stock receipts, inter-branch transfers, and petty cash. |
+> | **Super Admin** | **Head Office (All Branches)** | `ADMIN` *(or `admin`)* | Provisioned Password | Nationwide control across all 4 showrooms, procurement, global pricing, user management, and system-wide Action Centre approvals. |
+> | **Branch Manager** | **Peshawar Showroom & Workshop** | `PEW-01` *(or `peshawar`)* | Provisioned Password | Scoped strictly to Peshawar showroom floor inventory, sales orders, walk-in leads, expenses, and workshop repair jobs. |
+> | **Branch Manager** | **Islamabad Showroom** | `ISB-01` *(or `islamabad`)* | Provisioned Password | Scoped strictly to Islamabad showroom floor, local commercial sales, cash registers, and stock requisition. |
+> | **Branch Manager** | **Lahore Showroom** | `LHE-01` *(or `lahore`)* | Provisioned Password | Scoped strictly to Lahore commercial sales, inventory management, customer payments, and local team dispatch. |
+> | **Branch Manager** | **Rawalpindi Showroom** | `RWP-01` *(or `rawalpindi`)* | Provisioned Password | Scoped strictly to Rawalpindi twin-cities operations, local stock receipts, inter-branch transfers, and petty cash. |
 >
-> *Tip: On the live login screen ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), click any role badge to **1-click auto-fill** credentials and log in instantly.*
+> *Note: On the live login screen ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), log in with your assigned branch credentials and secure password.*
 
 ---
 
@@ -310,12 +310,12 @@ If you are a dealership owner, board member, or business executive who does not 
 **Answer:** AJ EcoDrive operates with two specialized role environments:
 * 📍 **System Navigation Path:** `Login Screen` (`/login`)
 
-| User Category | Assigned Role Scope | Active Demo Credentials | Primary Screen Access |
+| User Category | Assigned Role Scope | Authentication Identity | Primary Screen Access |
 | :--- | :--- | :--- | :--- |
-| **Super Admin** | **Head Office Executive** (Nationwide Multi-Branch Scope) | `ADMIN` / `password123` | Master Action Centre, Procurement, Global Pricing, Branch Performance, System Audit Logs |
-| **Branch Manager** | **Dealership Commander** (Scoped to Peshawar, Islamabad, Lahore, or Rawalpindi) | `PEW-01`, `ISB-01`, `LHE-01`, `RWP-01` / `password123` | Branch Dashboard, Floor Stock VINs, Walk-In Leads, POS & Booking, Showroom Petty Cash, Workshop Job Cards |
+| **Super Admin** | **Head Office Executive** (Nationwide Multi-Branch Scope) | `ADMIN` / Provisioned Credentials | Master Action Centre, Procurement, Global Pricing, Branch Performance, System Audit Logs |
+| **Branch Manager** | **Dealership Commander** (Scoped to Peshawar, Islamabad, Lahore, or Rawalpindi) | `PEW-01`, `ISB-01`, `LHE-01`, `RWP-01` / Provisioned Credentials | Branch Dashboard, Floor Stock VINs, Walk-In Leads, POS & Booking, Showroom Petty Cash, Workshop Job Cards |
 
-*On the live demonstration login page ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), clicking any role badge auto-fills the credentials instantly for frictionless demonstration.*
+*On the live login page ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), log in with your assigned branch credentials to enter the designated operational workspace.*
 
 ---
 

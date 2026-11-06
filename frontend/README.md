@@ -87,19 +87,19 @@ npm run test:integration
 ## 5. Live Presentation & Demo Credentials
 
 > 🚀 **Live Production Deployment URL:** [https://aj-eco-drive.vercel.app](https://aj-eco-drive.vercel.app)  
-> 🔑 **Common Demo Password for All Accounts:** `password123` *(or `password`)*
+> 🔑 **Authentication:** Role-Based Access Control with Assigned Enterprise Passwords
 
 The interactive prototype includes ready-to-test role-based accounts:
 
-| Role | Username / Branch Code | Common Password | Workspace Scope |
+| Role | Username / Branch Code | Access Credentials | Workspace Scope |
 | :--- | :--- | :--- | :--- |
-| **Super Admin** | `ADMIN` (or `admin`) | `password123` | Nationwide oversight across all 4 showrooms, procurement, global settings, and audit logs. |
-| **Peshawar Branch Manager** | `PEW-01` (or `peshawar`) | `password123` | Scoped strictly to Peshawar showroom floor inventory, sales, leads, expenses, and workshop jobs. |
-| **Islamabad Branch Manager** | `ISB-01` (or `islamabad`) | `password123` | Scoped strictly to Islamabad showroom floor, local commercial sales, cash registers, and stock requisition. |
-| **Lahore Branch Manager** | `LHE-01` (or `lahore`) | `password123` | Scoped strictly to Lahore commercial sales, inventory management, customer payments, and local team dispatch. |
-| **Rawalpindi Branch Manager** | `RWP-01` (or `rawalpindi`) | `password123` | Scoped strictly to Rawalpindi twin-cities operations, local stock receipts, inter-branch transfers, and petty cash. |
+| **Super Admin** | `ADMIN` (or `admin`) | Provisioned Password | Nationwide oversight across all 4 showrooms, procurement, global settings, and audit logs. |
+| **Peshawar Branch Manager** | `PEW-01` (or `peshawar`) | Provisioned Password | Scoped strictly to Peshawar showroom floor inventory, sales, leads, expenses, and workshop jobs. |
+| **Islamabad Branch Manager** | `ISB-01` (or `islamabad`) | Provisioned Password | Scoped strictly to Islamabad showroom floor, local commercial sales, cash registers, and stock requisition. |
+| **Lahore Branch Manager** | `LHE-01` (or `lahore`) | Provisioned Password | Scoped strictly to Lahore commercial sales, inventory management, customer payments, and local team dispatch. |
+| **Rawalpindi Branch Manager** | `RWP-01` (or `rawalpindi`) | Provisioned Password | Scoped strictly to Rawalpindi twin-cities operations, local stock receipts, inter-branch transfers, and petty cash. |
 
-*Note: On the live login page ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), click any role badge to **1-click auto-fill** credentials and log in instantly.*
+*Note: On the live login page ([https://aj-eco-drive.vercel.app/login](https://aj-eco-drive.vercel.app/login)), log in with your assigned branch credentials.*
 
 ---
 

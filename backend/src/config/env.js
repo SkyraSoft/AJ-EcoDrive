@@ -43,6 +43,11 @@ export const config = {
  */
 export function assertProductionSecurity(customConfig = config) {
   if (customConfig.nodeEnv === 'production') {
+    // Prohibit demo/bypass environment variables
+    if (process.env.ALLOW_DEMO_LOGIN === 'true' || process.env.ALLOW_DEMO_PASSWORDS === 'true') {
+      throw new Error('[SECURITY FATAL] Production environment strictly prohibits ALLOW_DEMO_LOGIN or ALLOW_DEMO_PASSWORDS bypass flags.')
+    }
+
     const secret = customConfig.jwtSecret
     const weakSecrets = ['dev_secret_change_me', 'ecodrive_development_secret_key_change_in_production', 'password123']
     if (!secret || secret.length < 32 || weakSecrets.includes(secret)) {

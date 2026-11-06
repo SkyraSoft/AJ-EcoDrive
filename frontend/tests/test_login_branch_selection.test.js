@@ -1,12 +1,20 @@
 /**
- * AJ EcoDrive — Login Branch Selection & Demo Credentials Test Suite
+ * AJ EcoDrive — Login Security & Client Invariant Test Suite
+ *
+ * Verifies strict production security posture:
+ * 1. Login input fields are strictly empty on initial render.
+ * 2. No presentation demo credential box or 1-click buttons are rendered.
+ * 3. No default, demo, or real passwords appear anywhere in rendered HTML.
+ * 4. Invalid credentials show an explicit authentication error, never a network/unreachable error.
+ * 5. User-supplied credentials route to dashboard upon successful authentication.
  */
-import { mount } from '@vue/test-utils';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createRouter, createMemoryHistory } from 'vue-router';
-import Login from '../src/views/auth/Login.vue';
-import { store } from '../src/store.js';
-import * as authModule from '../src/auth.js';
+import { mount } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { createRouter, createMemoryHistory } from 'vue-router'
+import Login from '../src/views/auth/Login.vue'
+import { store } from '../src/store.js'
+import * as authModule from '../src/auth.js'
+import { ApiError } from '../src/services/api.js'
 
 const router = createRouter({
   history: createMemoryHistory(),
@@ -15,14 +23,15 @@ const router = createRouter({
     { path: '/dashboard', component: { template: '<div>Dashboard</div>' } },
     { path: '/forgot-password', component: { template: '<div>Forgot Password</div>' } }
   ]
-});
+})
 
-describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
-  let wrapper;
+describe('Login.vue — Production Security Posture & Authentication Error Handling', () => {
+  let wrapper
 
   beforeEach(async () => {
-    router.push('/login');
-    await router.isReady();
+    vi.restoreAllMocks()
+    router.push('/login')
+    await router.isReady()
 
     wrapper = mount(Login, {
       global: {
@@ -34,128 +43,86 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
           'RouterLink': true
         }
       }
-    });
-  });
+    })
+  })
 
-  it('renders all presentation demo branch accounts and guided-tour selectors', () => {
-    expect(wrapper.exists()).toBe(true);
+  it('1. Login fields are strictly empty on initial render', () => {
+    expect(wrapper.exists()).toBe(true)
 
-    // Tour selectors check
-    const emailInput = wrapper.find('[data-tour="auth-email"]');
-    const passwordInput = wrapper.find('[data-tour="auth-password"]');
-    const submitBtn = wrapper.find('[data-tour="auth-submit"]');
+    const emailInput = wrapper.find('[data-tour="auth-email"]')
+    const passwordInput = wrapper.find('[data-tour="auth-password"]')
+    const submitBtn = wrapper.find('[data-tour="auth-submit"]')
 
-    expect(emailInput.exists()).toBe(true);
-    expect(passwordInput.exists()).toBe(true);
-    expect(submitBtn.exists()).toBe(true);
+    expect(emailInput.exists()).toBe(true)
+    expect(passwordInput.exists()).toBe(true)
+    expect(submitBtn.exists()).toBe(true)
 
-    // Initial default values
-    expect(emailInput.element.value).toBe('ADMIN');
-    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
+    // Security check: Must NOT pre-fill any credentials
+    expect(emailInput.element.value).toBe('')
+    expect(passwordInput.element.value).toBe('')
+  })
 
-    // Demo account buttons count (5 accounts)
-    const text = wrapper.text();
-    expect(text).toContain('Presentation & Tester Credentials');
-    expect(text).toContain('Super Admin');
-    expect(text).toContain('Head Office');
-    expect(text).toContain('Peshawar Showroom');
-    expect(text).toContain('Islamabad Showroom');
-    expect(text).toContain('Lahore Showroom');
-    expect(text).toContain('Rawalpindi Showroom');
-  });
+  it('2. No presentation demo credential box, badge, or 1-click auto-fill buttons are rendered', () => {
+    const text = wrapper.text()
+    expect(text).not.toContain('Presentation & Tester Credentials')
+    expect(text).not.toContain('1-click auto-fill')
+    expect(text).not.toContain('Universal Demo Password')
+    expect(text).not.toContain('demoAccounts')
 
-  it('clicking Peshawar branch auto-fills PEW-01 and demo password', async () => {
-    const buttons = wrapper.findAll('button[type="button"]');
-    const pewButton = buttons.find(b => b.text().includes('PEW-01'));
-    expect(pewButton).toBeDefined();
+    // Confirm no pre-configured branch role quick-fill buttons exist
+    const buttons = wrapper.findAll('button[type="button"]')
+    const quickFillBtn = buttons.find(b => b.text().includes('Head Office') || b.text().includes('Peshawar Showroom'))
+    expect(quickFillBtn).toBeUndefined()
+  })
 
-    await pewButton.trigger('click');
+  it('3. No passwords appear in rendered HTML or client markup', () => {
+    const html = wrapper.html()
+    expect(html).not.toContain('password123')
+    expect(html).not.toContain('Skyrasoft@2233')
+    expect(html).not.toContain('Universal Demo Password')
+  })
 
-    const emailInput = wrapper.find('[data-tour="auth-email"]');
-    const passwordInput = wrapper.find('[data-tour="auth-password"]');
+  it('4. Invalid credentials show an explicit authentication error, NOT a network/backend unreachable error', async () => {
+    vi.spyOn(authModule, 'authenticateBranch').mockRejectedValueOnce(
+      new ApiError('Invalid username/email or password', 401, 'INVALID_CREDENTIALS')
+    )
 
-    expect(emailInput.element.value).toBe('PEW-01');
-    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
-    expect(pewButton.text()).toContain('Selected');
-  });
+    const emailInput = wrapper.find('[data-tour="auth-email"]')
+    const passwordInput = wrapper.find('[data-tour="auth-password"]')
 
-  it('clicking Islamabad branch auto-fills ISB-01 and demo password', async () => {
-    const buttons = wrapper.findAll('button[type="button"]');
-    const isbButton = buttons.find(b => b.text().includes('ISB-01'));
-    expect(isbButton).toBeDefined();
+    await emailInput.setValue('admin')
+    await passwordInput.setValue('wrongpassword')
+    await wrapper.find('form').trigger('submit.prevent')
 
-    await isbButton.trigger('click');
+    // Wait for async handler
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 50))
 
-    const emailInput = wrapper.find('[data-tour="auth-email"]');
-    const passwordInput = wrapper.find('[data-tour="auth-password"]');
+    const text = wrapper.text()
+    expect(text).toContain('Invalid username/branch code or password')
+    expect(text).not.toContain('Backend API server unreachable')
+  })
 
-    expect(emailInput.element.value).toBe('ISB-01');
-    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
-    expect(isbButton.text()).toContain('Selected');
-  });
-
-  it('clicking Lahore branch auto-fills LHE-01 and demo password', async () => {
-    const buttons = wrapper.findAll('button[type="button"]');
-    const lheButton = buttons.find(b => b.text().includes('LHE-01'));
-    expect(lheButton).toBeDefined();
-
-    await lheButton.trigger('click');
-
-    const emailInput = wrapper.find('[data-tour="auth-email"]');
-    const passwordInput = wrapper.find('[data-tour="auth-password"]');
-
-    expect(emailInput.element.value).toBe('LHE-01');
-    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
-    expect(lheButton.text()).toContain('Selected');
-  });
-
-  it('clicking Rawalpindi branch auto-fills RWP-01 and demo password', async () => {
-    const buttons = wrapper.findAll('button[type="button"]');
-    const rwpButton = buttons.find(b => b.text().includes('RWP-01'));
-    expect(rwpButton).toBeDefined();
-
-    await rwpButton.trigger('click');
-
-    const emailInput = wrapper.find('[data-tour="auth-email"]');
-    const passwordInput = wrapper.find('[data-tour="auth-password"]');
-
-    expect(emailInput.element.value).toBe('RWP-01');
-    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
-    expect(rwpButton.text()).toContain('Selected');
-  });
-
-  it('clicking Super Admin branch auto-fills ADMIN and demo password', async () => {
-    // Switch to another branch first
-    const buttons = wrapper.findAll('button[type="button"]');
-    const pewButton = buttons.find(b => b.text().includes('PEW-01'));
-    await pewButton.trigger('click');
-
-    // Switch back to ADMIN
-    const adminButton = buttons.find(b => b.text().includes('ADMIN'));
-    await adminButton.trigger('click');
-
-    const emailInput = wrapper.find('[data-tour="auth-email"]');
-    const passwordInput = wrapper.find('[data-tour="auth-password"]');
-
-    expect(emailInput.element.value).toBe('ADMIN');
-    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
-    expect(adminButton.text()).toContain('Selected');
-  });
-
-  it('form submission triggers authentication and routes to dashboard', async () => {
-    const pushSpy = vi.spyOn(router, 'push');
+  it('5. Successful authentication passes user-entered credentials and navigates to dashboard', async () => {
+    const pushSpy = vi.spyOn(router, 'push')
     const authSpy = vi.spyOn(authModule, 'authenticateBranch').mockResolvedValueOnce({
       isAuthenticated: true,
       role: 'Super Admin',
       branchCode: 'ADMIN',
       token: 'mock-jwt-token'
-    });
-    const setSessionSpy = vi.spyOn(store, 'setSession').mockImplementation(() => {});
+    })
+    vi.spyOn(store, 'setSession').mockImplementation(() => {})
 
-    await wrapper.find('form').trigger('submit.prevent');
+    const emailInput = wrapper.find('[data-tour="auth-email"]')
+    const passwordInput = wrapper.find('[data-tour="auth-password"]')
 
-    expect(authSpy).toHaveBeenCalledWith('ADMIN', 'Skyrasoft@2233');
-    expect(setSessionSpy).toHaveBeenCalled();
-    expect(pushSpy).toHaveBeenCalledWith('/dashboard');
-  });
-});
+    await emailInput.setValue('my-admin-user')
+    await passwordInput.setValue('MySecureP@ssw0rd2026!')
+
+    await wrapper.find('form').trigger('submit.prevent')
+    await wrapper.vm.$nextTick()
+
+    expect(authSpy).toHaveBeenCalledWith('my-admin-user', 'MySecureP@ssw0rd2026!')
+    expect(pushSpy).toHaveBeenCalledWith('/dashboard')
+  })
+})

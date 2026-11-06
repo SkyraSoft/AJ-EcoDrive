@@ -1,5 +1,6 @@
 import { query, withTransaction } from '../config/db.js'
 import bcrypt from 'bcryptjs'
+import { validatePasswordComplexity } from '../utils/security.js'
 
 function formatBranchRow(row) {
   if (!row) return null
@@ -128,7 +129,14 @@ export const OrganisationModel = {
     const username = (data.username || (data.email ? data.email.split('@')[0] : '')).trim().toLowerCase()
     const email = (data.email || `${username}@ajecodrive.com`).trim().toLowerCase()
     const name = (data.name || username).trim()
-    const password = data.password || 'password123'
+    const password = typeof data.password === 'string' ? data.password.trim() : ''
+    if (!password) {
+      throw new Error('A password is required when creating a user; default passwords are not permitted.')
+    }
+    const complexity = validatePasswordComplexity(password)
+    if (!complexity.valid) {
+      throw new Error('Password complexity validation failed: ' + complexity.errors.join(' '))
+    }
     const password_hash = await bcrypt.hash(password, 10)
     const id = data.id || `USER-${Math.floor(100 + Math.random() * 900)}`
     
@@ -191,8 +199,13 @@ export const OrganisationModel = {
 
     let passwordHashUpdate = ''
     const params = [name, email, phone, status, roleId, branchId]
-    if (data.password && String(data.password).length >= 6) {
-      const hash = await bcrypt.hash(data.password, 10)
+    if (data.password !== undefined && data.password !== null && String(data.password).trim() !== '') {
+      const pwd = String(data.password).trim()
+      const complexity = validatePasswordComplexity(pwd)
+      if (!complexity.valid) {
+        throw new Error('Password complexity validation failed: ' + complexity.errors.join(' '))
+      }
+      const hash = await bcrypt.hash(pwd, 10)
       passwordHashUpdate = ', `password_hash` = ?'
       params.push(hash)
     }

@@ -1,5 +1,6 @@
 import { OrganisationModel } from '../models/organisation.model.js'
 import { getEffectiveBranch, isUserSuperAdmin, assertSuperAdminRole, assertBranchAccess } from '../utils/branchScope.js'
+import { validatePasswordComplexity } from '../utils/security.js'
 
 export const OrganisationController = {
   // Branches
@@ -85,12 +86,24 @@ export const OrganisationController = {
 
   async createUser(req, res, next) {
     try {
-      const { name, email, username } = req.body || {}
+      const { name, email, username, password } = req.body || {}
       if (!name || !String(name).trim()) {
         return res.status(422).json({ ok: false, error: 'VALIDATION_ERROR', message: 'User name is required.' })
       }
       if (!email && !username) {
         return res.status(422).json({ ok: false, error: 'VALIDATION_ERROR', message: 'Email or username is required.' })
+      }
+      if (!password || !String(password).trim()) {
+        return res.status(422).json({ ok: false, error: 'VALIDATION_ERROR', message: 'Password is required when creating a user; default passwords are not permitted.' })
+      }
+
+      const complexity = validatePasswordComplexity(password)
+      if (!complexity.valid) {
+        return res.status(422).json({
+          ok: false,
+          error: 'PASSWORD_COMPLEXITY_FAILED',
+          message: `Password complexity validation failed: ${complexity.errors.join(' ')}`
+        })
       }
 
       const user = await OrganisationModel.createUser(req.body)
@@ -99,15 +112,32 @@ export const OrganisationController = {
       if (err.message && err.message.includes('Duplicate entry')) {
         return res.status(409).json({ ok: false, error: 'DUPLICATE_USER', message: 'User with this username or email already exists.' })
       }
+      if (err.message && err.message.includes('Password complexity validation failed')) {
+        return res.status(422).json({ ok: false, error: 'PASSWORD_COMPLEXITY_FAILED', message: err.message })
+      }
       next(err)
     }
   },
 
   async updateUser(req, res, next) {
     try {
+      const { password } = req.body || {}
+      if (password !== undefined && password !== null && String(password).trim() !== '') {
+        const complexity = validatePasswordComplexity(String(password).trim())
+        if (!complexity.valid) {
+          return res.status(422).json({
+            ok: false,
+            error: 'PASSWORD_COMPLEXITY_FAILED',
+            message: `Password complexity validation failed: ${complexity.errors.join(' ')}`
+          })
+        }
+      }
       const user = await OrganisationModel.updateUser(req.params.id, req.body)
       res.status(200).json({ ok: true, data: user, message: 'User updated successfully.' })
     } catch (err) {
+      if (err.message && err.message.includes('Password complexity validation failed')) {
+        return res.status(422).json({ ok: false, error: 'PASSWORD_COMPLEXITY_FAILED', message: err.message })
+      }
       next(err)
     }
   },
