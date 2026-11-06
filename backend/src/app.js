@@ -17,6 +17,12 @@ const corsOptions = {
       return callback(null, true)
     }
     
+    // Allow official Vercel preview and production deployments for AJ EcoDrive
+    if (/^https:\/\/aj-eco-drive[a-z0-9-]*\.vercel\.app$/.test(origin) ||
+        /^https:\/\/aj-eco-drive[a-z0-9-]*\.skyrasofts-projects\.vercel\.app$/.test(origin)) {
+      return callback(null, true)
+    }
+    
     // In development mode, allow localhost on any port
     if (config.nodeEnv === 'development' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
       return callback(null, true)
