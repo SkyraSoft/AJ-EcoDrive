@@ -19,6 +19,7 @@ import communicationRoutes from './communication.routes.js'
 import analyticsRoutes from './analytics.routes.js'
 import auditRoutes from './audit.routes.js'
 import settingsRoutes from './settings.routes.js'
+import syncRoutes from './sync.routes.js'
 import { customOrdersRouter, deliveriesRouter, salesReturnsRouter } from './sales_extensions.routes.js'
 import { authenticateJWT } from '../middleware/auth.js'
 
@@ -101,6 +102,9 @@ apiRouter.use('/audit-logs', authenticateJWT, auditRoutes)
 apiRouter.use('/system/settings', authenticateJWT, settingsRoutes)
 apiRouter.use('/settings', authenticateJWT, settingsRoutes)
 
+// Offline-First Synchronization Protocol -> /api/v1/sync
+apiRouter.use('/sync', authenticateJWT, syncRoutes)
+
 // API root metadata
 apiRouter.get('/', (req, res) => {
   res.json({
@@ -111,6 +115,7 @@ apiRouter.get('/', (req, res) => {
     endpoints: {
       health: '/api/v1/health',
       auth: '/api/v1/auth',
+      sync: '/api/v1/sync',
       customers: '/api/v1/customers',
       leads: '/api/v1/leads',
       followUps: '/api/v1/follow-ups',

@@ -1463,6 +1463,46 @@ CREATE TABLE IF NOT EXISTS \`audit_logs\` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 `
 
+export const CREATE_SYNC_MUTATIONS_TABLE_SQL = `
+CREATE TABLE IF NOT EXISTS \`sync_mutations\` (
+  \`id\` VARCHAR(64) NOT NULL,
+  \`idempotency_key\` VARCHAR(191) NOT NULL,
+  \`entity_type\` VARCHAR(64) NOT NULL,
+  \`entity_id\` VARCHAR(64) NOT NULL,
+  \`operation\` VARCHAR(32) NOT NULL,
+  \`client_version\` INT NOT NULL DEFAULT 1,
+  \`server_version\` INT NOT NULL DEFAULT 1,
+  \`branch_id\` VARCHAR(64) NULL,
+  \`user_id\` VARCHAR(64) NULL,
+  \`status\` VARCHAR(32) NOT NULL DEFAULT 'synced',
+  \`payload\` JSON NULL,
+  \`response_data\` JSON NULL,
+  \`error_message\` TEXT NULL,
+  \`created_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  \`updated_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (\`id\`),
+  UNIQUE KEY \`uniq_sync_idempotency\` (\`idempotency_key\`),
+  KEY \`idx_sync_entity\` (\`entity_type\`, \`entity_id\`),
+  KEY \`idx_sync_branch\` (\`branch_id\`),
+  KEY \`idx_sync_created\` (\`created_at\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`
+
+export const CREATE_SYNC_TOMBSTONES_TABLE_SQL = `
+CREATE TABLE IF NOT EXISTS \`sync_tombstones\` (
+  \`id\` VARCHAR(64) NOT NULL,
+  \`entity_type\` VARCHAR(64) NOT NULL,
+  \`entity_id\` VARCHAR(64) NOT NULL,
+  \`branch_id\` VARCHAR(64) NULL,
+  \`deleted_by\` VARCHAR(64) NULL,
+  \`deleted_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (\`id\`),
+  KEY \`idx_tombstone_entity\` (\`entity_type\`, \`entity_id\`),
+  KEY \`idx_tombstone_branch\` (\`branch_id\`),
+  KEY \`idx_tombstone_deleted\` (\`deleted_at\`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`
+
 export async function runMigrations() {
   const dbStatus = getDbStatus()
   if (!dbStatus.isConnected) {
@@ -1631,6 +1671,12 @@ export async function runMigrations() {
     await query(CREATE_AUDIT_LOGS_TABLE_SQL)
     console.log('[Migrations] Schema verification: table "audit_logs" is ready.')
 
+    await query(CREATE_SYNC_MUTATIONS_TABLE_SQL)
+    console.log('[Migrations] Schema verification: table "sync_mutations" is ready.')
+
+    await query(CREATE_SYNC_TOMBSTONES_TABLE_SQL)
+    console.log('[Migrations] Schema verification: table "sync_tombstones" is ready.')
+
     // Safe helper function to ensure columns exist in existing tables
     const ensureColumn = async (tableName, columnName, columnDefinition) => {
       const colCheck = await query(`
@@ -1644,6 +1690,12 @@ export async function runMigrations() {
         await query(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${columnName}\` ${columnDefinition}`)
         console.log(`[Migrations] Altered table "${tableName}": added column "${columnName}".`)
       }
+    }
+
+    // Ensure version column for optimistic locking across core transactional entities
+    const versionedTables = ['customers', 'quotations', 'orders', 'invoices', 'payments', 'leads', 'serialized_units', 'expenses', 'stock_transfers']
+    for (const t of versionedTables) {
+      await ensureColumn(t, 'version', 'INT NOT NULL DEFAULT 1')
     }
 
     // Upgrade price_rules table schema with enterprise pricing and discount controls

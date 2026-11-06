@@ -653,6 +653,15 @@ class ApiClient {
     getRoles: () => this.get('/organisation/roles'),
     createRole: (payload) => this.post('/organisation/roles', payload)
   }
+
+  // ==========================================
+  // Domain 12: Offline-First Synchronization
+  // ==========================================
+  sync = {
+    push: (mutations) => this.post('/sync/push', { mutations }),
+    pull: (params) => this.get('/sync/pull', params),
+    getStatus: () => this.get('/sync/status')
+  }
 }
 
 // Singleton API Client instance

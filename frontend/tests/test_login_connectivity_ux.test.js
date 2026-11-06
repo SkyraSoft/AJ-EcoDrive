@@ -148,14 +148,20 @@ describe('Login Error Handling & API Connectivity Suite', () => {
   })
 
   describe('4. Login.vue Error Display Separation', () => {
-    const mountLogin = () => {
-      return mount(Login, {
+    const mountLogin = async () => {
+      const wrapper = mount(Login, {
         global: {
           plugins: [router],
           provide: { store },
           stubs: { RouterLink: true }
         }
       })
+      const inputs = wrapper.findAll('input')
+      if (inputs.length >= 2) {
+        await inputs[0].setValue('ADMIN')
+        await inputs[1].setValue('MockValidPassword123!')
+      }
+      return wrapper
     }
 
     it('displays 401 error message and NEVER "Backend API server unreachable"', async () => {
@@ -163,7 +169,7 @@ describe('Login Error Handling & API Connectivity Suite', () => {
         new ApiError('Invalid username/email or password', 401)
       )
 
-      const wrapper = mountLogin()
+      const wrapper = await mountLogin()
       await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 
@@ -178,7 +184,7 @@ describe('Login Error Handling & API Connectivity Suite', () => {
         new ApiError('Account suspended', 403, { message: 'Your account is currently inactive or suspended.' })
       )
 
-      const wrapper = mountLogin()
+      const wrapper = await mountLogin()
       await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 
@@ -192,7 +198,7 @@ describe('Login Error Handling & API Connectivity Suite', () => {
         new ApiError('Too many requests', 429)
       )
 
-      const wrapper = mountLogin()
+      const wrapper = await mountLogin()
       await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 
@@ -205,7 +211,7 @@ describe('Login Error Handling & API Connectivity Suite', () => {
         new ApiError('Internal Error', 500)
       )
 
-      const wrapper = mountLogin()
+      const wrapper = await mountLogin()
       await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 
@@ -218,7 +224,7 @@ describe('Login Error Handling & API Connectivity Suite', () => {
         new ApiError('Failed to fetch', 0, null, true)
       )
 
-      const wrapper = mountLogin()
+      const wrapper = await mountLogin()
       await wrapper.find('form').trigger('submit.prevent')
       await flushPromises()
 

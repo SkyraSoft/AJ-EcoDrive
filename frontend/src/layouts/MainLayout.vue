@@ -1,5 +1,7 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import SyncStatusBar from '@/components/common/SyncStatusBar.vue'
+import { syncCoordinator } from '@/offline/queue/SyncCoordinator.js'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { 
   Home, Building2, LayoutGrid, FileText, Package, Users, 
@@ -52,7 +54,22 @@ const selectBranchScope = (branchName) => {
   openDropdown.value = null
 }
 
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', (e) => {
+      if (syncCoordinator.state.pendingCount > 0) {
+        e.preventDefault()
+        e.returnValue = 'You have unsaved changes in outbox.'
+      }
+    })
+  }
+})
+
 const handleLogout = () => {
+  if (syncCoordinator.state.pendingCount > 0 && typeof window !== 'undefined') {
+    const proceed = window.confirm(`You have ${syncCoordinator.state.pendingCount} unsynchronized changes. Are you sure you want to log out?`)
+    if (!proceed) return
+  }
   store.logout()
   router.push('/login')
 }
@@ -766,6 +783,9 @@ const handleQuickActionCreated = (type, payload) => {
           </div>
         </div>
       </header>
+
+      <!-- Offline & Sync Status Notification Bar -->
+      <SyncStatusBar />
       
       <!-- Mobile Sub-header for Search & Filters -->
       <div class="sm:hidden bg-white border-b border-gray-100 px-4 py-2 flex flex-col gap-2 z-20">

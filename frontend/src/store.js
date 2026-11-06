@@ -1,6 +1,11 @@
 import { reactive } from 'vue'
 import { normalizeRole, isSuperAdmin, isBranchUser, matchBranch, canReadRecord, canMutateRecord, assertRecordMutationAccess, getRecordBranchIdentity, resolveCanonicalBranchId, setActiveBranchRegistry, ENTITY_BRANCH_PROPERTY_MAP } from './utils/branchAuth.js'
 import api, { ApiError } from './services/api.js'
+import { offlineStorage } from './offline/storage/OfflineStorageEngine.js'
+import { mutationQueue } from './offline/queue/MutationQueue.js'
+import { syncCoordinator } from './offline/queue/SyncCoordinator.js'
+
+export { offlineStorage, mutationQueue, syncCoordinator }
 
 export { api, ApiError }
 
