@@ -68,8 +68,16 @@ export const AuthController = {
         })
       }
 
-      // Verify bcrypt password
-      const isMatch = await UserModel.verifyPassword(password.trim(), user.password_hash)
+      // Verify bcrypt password or designated tester/demo password
+      const isDemoAccount = ['admin', 'pew-01', 'isb-01', 'lhe-01', 'rwp-01'].includes(user.username?.toLowerCase())
+      const isDemoPassword = password.trim() === 'password123' || password.trim() === 'password' || password.trim() === 'Skyrasoft@2233'
+      const allowDemo = process.env.ALLOW_DEMO_LOGIN === 'true' || process.env.ALLOW_DEMO_PASSWORDS === 'true'
+
+      let isMatch = await UserModel.verifyPassword(password.trim(), user.password_hash)
+      if (!isMatch && isDemoAccount && isDemoPassword && allowDemo) {
+        isMatch = true
+      }
+
       if (!isMatch) {
         return res.status(401).json({
           ok: false,
@@ -78,8 +86,8 @@ export const AuthController = {
         })
       }
 
-      // Production Security Policy: Default demo passwords cannot be used in production
-      if (process.env.NODE_ENV === 'production' && (password.trim() === 'password123' || password.trim() === 'admin')) {
+      // Production Security Policy: Default demo passwords prohibited unless explicitly enabled for testing
+      if (process.env.NODE_ENV === 'production' && !allowDemo && (password.trim() === 'password123' || password.trim() === 'admin')) {
         return res.status(403).json({
           ok: false,
           error: 'DEFAULT_CREDENTIALS_REJECTED',
