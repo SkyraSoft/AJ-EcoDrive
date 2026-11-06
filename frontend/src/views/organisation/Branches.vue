@@ -117,7 +117,7 @@ const executeArchive = () => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Organisation / <span class="font-bold text-gray-800">Branches</span></div>
+        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Head Office / <span class="font-bold text-gray-800">Branches</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Branches</h1>
         <p class="text-sm text-gray-500 mt-1">Manage physical locations, their managers and branch-specific performance.</p>
       </div>

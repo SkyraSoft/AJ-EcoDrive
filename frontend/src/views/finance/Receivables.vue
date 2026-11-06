@@ -105,7 +105,7 @@ const onRowAction = (item) => {
     <!-- Header -->
     <div>
       <div class="text-[10px] text-gray-500 mb-1">
-        Super Admin / Finance / <span class="font-bold text-gray-800">Receivables</span>
+        Super Admin / Head Office /  <span class="font-bold text-gray-800">Receivables</span>
       </div>
       <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Receivables</h1>
       <p class="text-sm text-gray-500 mt-1">Track customer balances and overdue collections.</p>

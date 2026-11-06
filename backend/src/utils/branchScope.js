@@ -12,7 +12,7 @@ export const CANONICAL_BRANCH_MAP = {
 
 export function isUserSuperAdmin(user) {
   if (!user) return false
-  return Boolean(user.role === 'Super Admin' || user.isSuperAdmin === true)
+  return Boolean(user.role === 'Super Admin' || user.isSuperAdmin === true || user.role === 'Director' || user.role === 'Owner')
 }
 
 export function getBranchName(branchId) {

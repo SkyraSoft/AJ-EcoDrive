@@ -48,18 +48,46 @@ export const AuditController = {
   },
 
   /**
-   * Create an audit log record
+   * Create an audit log record — strictly restricted to Super Admin.
+   * Client-supplied identity fields are stripped and ignored;
+   * all acting identity is derived authoritatively from the verified JWT.
    */
   async createLog(req, res, next) {
     try {
+      if (!isUserSuperAdmin(req.user)) {
+        return res.status(403).json({
+          ok: false,
+          error: 'FORBIDDEN',
+          message: 'Access denied: Creating audit logs requires Super Admin authorization.'
+        })
+      }
+
       const user = req.user || {}
+      const {
+        user_id,
+        user_name,
+        user: clientUser,
+        role,
+        branch_id,
+        branch,
+        acting_user_branch_id,
+        ip_address,
+        ip,
+        timestamp,
+        created_at,
+        updated_at,
+        ...safeBody
+      } = req.body || {}
+
       const logData = {
-        ...req.body,
-        user_id: req.body.user_id || user.id,
-        user_name: req.body.user_name || user.name || 'System',
-        role: req.body.role || user.role || 'Staff',
-        branch_id: req.body.branch_id || user.branch_id || 'BR-01',
-        branch: req.body.branch || user.branch || 'Peshawar',
+        ...safeBody,
+        user_id: user.id || 'USR-ADMIN',
+        user_name: user.name || 'Super Admin',
+        user: user.name || 'Super Admin',
+        role: user.role || 'Super Admin',
+        branch_id: user.branch_id || 'BR-HQ',
+        branch: user.branch_name || (user.branch_id ? user.branch_id : 'Head Office'),
+        acting_user_branch_id: user.branch_id || 'BR-HQ',
         ip_address: req.ip || req.connection?.remoteAddress || '127.0.0.1'
       }
 

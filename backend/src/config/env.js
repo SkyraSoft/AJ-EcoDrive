@@ -10,6 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 export const config = {
   port: parseInt(process.env.PORT, 10) || 3000,
+  socketPath: process.env.SOCKET_PATH || null,
   nodeEnv: process.env.NODE_ENV || 'development',
   corsOrigins: process.env.CORS_ORIGIN 
     ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())

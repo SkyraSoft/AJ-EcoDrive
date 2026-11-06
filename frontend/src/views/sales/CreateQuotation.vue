@@ -24,6 +24,7 @@ const emit = defineEmits(['close', 'created', 'updated'])
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+const isSuperAdmin = computed(() => Boolean(user.value?.isSuperAdmin || user.value?.role === 'Super Admin'))
 
 const isEditMode = ref(false)
 const showValidation = ref(false)

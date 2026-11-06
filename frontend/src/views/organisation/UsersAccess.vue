@@ -102,7 +102,7 @@ const handleUserUpdated = (updatedUser) => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Organisation / <span class="font-bold text-gray-800">Users & Access</span></div>
+        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Head Office / <span class="font-bold text-gray-800">Users & Access</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Users & Access</h1>
         <p class="text-[13px] text-gray-500 mt-1">Manage users, branch assignments, account state and access controls.</p>
       </div>

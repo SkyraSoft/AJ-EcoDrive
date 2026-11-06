@@ -110,7 +110,7 @@ const filteredRoles = computed(() => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Organisation / Users & Access / <span class="font-bold text-gray-800">Roles & Permissions</span></div>
+        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Head Office / <span class="font-bold text-gray-800">Roles & Permissions</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Roles & Permissions</h1>
         <p class="text-[13px] text-gray-500 mt-1">Configure role capabilities, branch scope and sensitive-data access.</p>
       </div>

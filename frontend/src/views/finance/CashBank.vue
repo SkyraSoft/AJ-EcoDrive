@@ -129,7 +129,7 @@ const filteredReconciliations = computed(() => {
     <!-- Header -->
     <div>
       <div class="text-[10px] text-gray-500 mb-1">
-        Super Admin / Finance / <span class="font-bold text-gray-800">Cash / Bank</span>
+        Super Admin / Head Office /  <span class="font-bold text-gray-800">Cash / Bank</span>
       </div>
       <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Cash / Bank</h1>
       <p class="text-sm text-gray-500 mt-1">Reconcile operating cash and bank movements with recorded transactions.</p>

@@ -5,6 +5,7 @@ export const OrganisationController = {
   // Branches
   async listBranches(req, res, next) {
     try {
+      if (!assertSuperAdminRole(req, res, 'Listing all branches')) return
       const branches = await OrganisationModel.findAllBranches()
       res.status(200).json(branches)
     } catch (err) {
@@ -14,6 +15,7 @@ export const OrganisationController = {
 
   async getBranchById(req, res, next) {
     try {
+      if (!assertSuperAdminRole(req, res, 'Viewing branch details')) return
       const branch = await OrganisationModel.findBranchById(req.params.id)
       if (!branch) {
         return res.status(404).json({ ok: false, error: 'NOT_FOUND', message: `Branch '${req.params.id}' not found.` })
@@ -26,6 +28,7 @@ export const OrganisationController = {
 
   async createBranch(req, res, next) {
     try {
+      if (!assertSuperAdminRole(req, res, 'Creating a branch')) return
       const { name, code } = req.body || {}
       if (!name || !String(name).trim()) {
         return res.status(422).json({ ok: false, error: 'VALIDATION_ERROR', message: 'Branch name is required.' })
@@ -46,6 +49,7 @@ export const OrganisationController = {
 
   async updateBranch(req, res, next) {
     try {
+      if (!assertSuperAdminRole(req, res, 'Updating branch details')) return
       const branch = await OrganisationModel.updateBranch(req.params.id, req.body)
       res.status(200).json({ ok: true, data: branch, message: 'Branch updated successfully.' })
     } catch (err) {

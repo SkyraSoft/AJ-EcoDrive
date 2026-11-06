@@ -1,5 +1,8 @@
 import { SettingsModel } from '../models/settings.model.js'
 import { AuditModel } from '../models/audit.model.js'
+import { isUserSuperAdmin } from '../utils/branchScope.js'
+
+const ADMIN_ROLES = ['Super Admin', 'Director', 'Owner']
 
 export const SettingsController = {
   /**
@@ -8,6 +11,13 @@ export const SettingsController = {
    */
   async getSettings(req, res, next) {
     try {
+      if (!isUserSuperAdmin(req.user) && !ADMIN_ROLES.includes(req.user?.role)) {
+        return res.status(403).json({
+          ok: false,
+          error: 'FORBIDDEN',
+          message: 'Access denied: Viewing company settings requires Super Admin authorization.'
+        })
+      }
       const { section } = req.params
       if (section) {
         const data = await SettingsModel.getSection(section)
@@ -25,6 +35,13 @@ export const SettingsController = {
    */
   async updateSettings(req, res, next) {
     try {
+      if (!isUserSuperAdmin(req.user) && !ADMIN_ROLES.includes(req.user?.role)) {
+        return res.status(403).json({
+          ok: false,
+          error: 'FORBIDDEN',
+          message: 'Access denied: Updating company settings requires Super Admin authorization.'
+        })
+      }
       const { section } = req.params
       const updateData = req.body
 
@@ -63,4 +80,3 @@ export const SettingsController = {
     }
   }
 }
-

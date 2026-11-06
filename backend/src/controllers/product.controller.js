@@ -1,5 +1,19 @@
 import { ProductModel } from '../models/product.model.js'
-import { getEffectiveBranch } from '../utils/branchScope.js'
+import { getEffectiveBranch, isUserSuperAdmin } from '../utils/branchScope.js'
+
+const CATALOGUE_ADMIN_ROLES = ['Super Admin', 'Director', 'Owner']
+
+function checkCatalogueAdmin(req, res) {
+  if (!isUserSuperAdmin(req.user) && !CATALOGUE_ADMIN_ROLES.includes(req.user?.role)) {
+    res.status(403).json({
+      ok: false,
+      error: 'FORBIDDEN',
+      message: 'Access denied: Modifying master catalogue data requires Super Admin authorization.'
+    })
+    return false
+  }
+  return true
+}
 
 export const ProductController = {
   /**
@@ -55,6 +69,8 @@ export const ProductController = {
    */
   async createProduct(req, res, next) {
     try {
+      if (!checkCatalogueAdmin(req, res)) return
+
       const { name, sku, category_id, category, selling_price, sellingPrice, cost_price, costPrice, dealer_price, dealerPrice, reorder_level, reorderLevel } = req.body
 
       if (!name || !String(name).trim()) {
@@ -103,6 +119,8 @@ export const ProductController = {
    */
   async updateProduct(req, res, next) {
     try {
+      if (!checkCatalogueAdmin(req, res)) return
+
       const { id } = req.params
       const product = await ProductModel.update(id, req.body)
 
@@ -143,6 +161,8 @@ export const ProductController = {
    */
   async createCategory(req, res, next) {
     try {
+      if (!checkCatalogueAdmin(req, res)) return
+
       const { name, code, description, status } = req.body
 
       if (!name || !String(name).trim()) {

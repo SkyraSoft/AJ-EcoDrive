@@ -1,4 +1,5 @@
 import { query } from '../config/db.js'
+import { getBranchName } from '../utils/branchScope.js'
 
 export function formatCustomReportRow(row) {
   if (!row) return null
@@ -15,6 +16,7 @@ export function formatCustomReportRow(row) {
     report: row.report || row.name,
     category: row.category,
     scope: row.scope,
+    branch_id: row.branch_id || null,
     dateRange: row.date_range,
     date_range: row.date_range,
     comparison: row.comparison,
@@ -32,7 +34,7 @@ export function formatCustomReportRow(row) {
 }
 
 export const CustomReportModel = {
-  async findAll({ category, search, limit = 100, offset = 0 } = {}) {
+  async findAll({ category, search, limit = 100, offset = 0, branch_id } = {}) {
     let sql = 'SELECT * FROM `custom_reports` WHERE 1=1'
     const params = []
 
@@ -45,6 +47,13 @@ export const CustomReportModel = {
       sql += ' AND (`name` LIKE ? OR `report` LIKE ? OR `category` LIKE ?)'
       const term = `%${search.trim()}%`
       params.push(term, term, term)
+    }
+
+    // Branch-scope filter: non-admins are restricted to their branch reports only
+    if (branch_id) {
+      const branchName = getBranchName(branch_id)
+      sql += ' AND (`scope` = ? OR `scope` LIKE ? OR `scope` LIKE ?)'
+      params.push(branch_id, `%${branch_id}%`, `%${branchName}%`)
     }
 
     sql += ' ORDER BY `created_at` DESC LIMIT ? OFFSET ?'

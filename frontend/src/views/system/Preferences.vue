@@ -66,8 +66,8 @@ const savePreferences = () => {
     <div data-tour-id="bm.system.preferences.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
-          <span v-if="isBranchUser">Branch Manager / Preferences / <span class="font-medium text-gray-600">Preferences</span></span>
-          <span v-else>Super Admin / System / <span class="font-medium text-gray-600">Preferences</span></span>
+          <span v-if="isBranchUser">Branch Manager / {{ user?.branchName || 'Peshawar' }} Branch / <span class="font-medium text-gray-600">Preferences</span></span>
+          <span v-else>Super Admin / Head Office / <span class="font-medium text-gray-600">Preferences</span></span>
         </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Preferences</h1>
         <p class="text-xs text-gray-500 mt-1">Personalise display, language, date formats, notifications and table density.</p>

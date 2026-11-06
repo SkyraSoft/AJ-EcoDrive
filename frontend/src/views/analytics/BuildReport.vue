@@ -74,7 +74,7 @@ const submitForm = () => {
           <!-- Header -->
           <div>
             <div class="text-[10px] text-gray-500 mb-1">
-              Super Admin / Analytics / Reports Hub / <span class="font-bold text-gray-800">Build Custom Report</span>
+              Super Admin / Head Office / Reports Hub / <span class="font-bold text-gray-800">Build Custom Report</span>
             </div>
             <h1 class="text-[28px] sm:text-[32px] tracking-tight font-bold text-gray-900">Build Report</h1>
             <p class="text-xs sm:text-sm text-gray-500 mt-1">Configure custom operational parameters, filters, metrics and schedule.</p>

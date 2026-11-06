@@ -175,7 +175,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     <div id="dap-expenses-header" data-tour-id="bm.expenses.roster.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
-          Branch Manager / Expenses / <span class="font-medium text-gray-600">Expenses</span>
+          Branch Manager / {{ user?.branchName || 'Peshawar' }} Branch / <span class="font-medium text-gray-600">Expenses</span>
         </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Expenses</h1>
         <p class="text-xs text-gray-500 mt-1">Capture and track {{ user?.branchName || 'Peshawar' }} Branch operating expenses and approval outcomes.</p>
@@ -379,7 +379,7 @@ const handleExpenseUpdated = (updatedExpense) => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Finance / <span class="font-bold text-gray-800">Expenses</span></div>
+        <div class="text-[10px] text-gray-500 mb-1">Super Admin / Head Office / <span class="font-bold text-gray-800">Expenses</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Expenses</h1>
         <p class="text-sm text-gray-500 mt-1">Manage branch and company operating expenses with policy approval.</p>
       </div>

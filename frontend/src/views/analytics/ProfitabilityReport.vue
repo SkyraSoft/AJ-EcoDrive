@@ -59,7 +59,7 @@ const filteredDetails = computed(() => {
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">
-          Super Admin / Analytics / Reports / <span class="font-bold text-gray-800">Profitability Report</span>
+          Super Admin / Head Office /  <span class="font-bold text-gray-800">Profitability Report</span>
         </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Profitability Report</h1>
         <p class="text-sm text-gray-500 mt-1">Operational profitability report with branch and date filters.</p>

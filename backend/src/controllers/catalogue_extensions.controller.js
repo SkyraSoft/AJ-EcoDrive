@@ -189,7 +189,7 @@ export const CatalogueExtensionsController = {
     try {
       const productName = req.body.productName || req.body.product || req.body.product_name
       const category = req.body.category
-      const reason = req.body.reason
+      const reason = req.body.reason || req.body.notes || req.body.justification
 
       if (!productName || !String(productName).trim()) {
         return res.status(400).json({ ok: false, error: 'VALIDATION_ERROR', message: 'Product name is required' })

@@ -90,7 +90,7 @@ const handleReportCreated = (newReport) => {
     <div data-tour-id="bm.analytics.hub.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[11px] text-gray-400 mb-1">
-          Branch Manager / My Branch Reports / <span class="font-medium text-gray-600">Reports Hub</span>
+          Branch Manager / {{ user?.branchName || 'Peshawar' }} Branch / <span class="font-medium text-gray-600">Reports Hub</span>
         </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Reports Hub</h1>
         <p class="text-xs text-gray-500 mt-1">Branch-only report library with date filters, saved views and exports.</p>
@@ -235,7 +235,7 @@ const handleReportCreated = (newReport) => {
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
         <div class="text-[10px] text-gray-500 mb-1">
-          Super Admin / Analytics / <span class="font-bold text-gray-800">Reports Hub</span>
+          Super Admin / Head Office / <span class="font-bold text-gray-800">Reports Hub</span>
         </div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Reports Hub</h1>
         <p class="text-sm text-gray-500 mt-1">Run, save, export and schedule operational reports.</p>

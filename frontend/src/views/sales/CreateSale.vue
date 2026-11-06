@@ -29,6 +29,7 @@ const emit = defineEmits(['close', 'created', 'updated'])
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+const isSuperAdmin = computed(() => Boolean(user.value?.isSuperAdmin || user.value?.role === 'Super Admin'))
 
 const isOrderMode = computed(() => props.mode === 'order' || props.mode === 'booking')
 const modalTitle = computed(() => {
@@ -235,6 +236,7 @@ const loadData = (data) => {
   }
 }
 
+const activeBranch = computed(() => saleData.value.branch || user.value?.branchName || store.getActiveBranch() || 'Peshawar')
 const parseRupees = (val) => parseFloat(String(val || '0').replace(/[^0-9.]/g, '')) || 0
 const formatRupees = (num) => `PKR ${Math.round(num).toLocaleString()}`
 

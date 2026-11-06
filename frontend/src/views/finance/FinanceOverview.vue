@@ -1,6 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { api } from '../../services/api.js'
+import { store } from '@/store.js'
+
+const isBranchUser = computed(() => store.isBranchUser())
+const branchName = computed(() => store.getActiveBranchName() || 'Peshawar')
 
 const kpis = ref([
   { label: 'Net Sales', value: 'PKR 28.4M' },
@@ -42,7 +46,8 @@ onMounted(async () => {
     <!-- Header -->
     <div data-tour-id="bm.finance.overview.header">
       <div class="text-[10px] text-gray-500 mb-1">
-        Super Admin / Finance / <span class="font-bold text-gray-800">Finance Overview</span>
+        <span v-if="isBranchUser">Branch Manager / {{ branchName }} Branch / <span class="font-bold text-gray-800">Finance Overview</span></span>
+        <span v-else>Super Admin / Head Office / <span class="font-bold text-gray-800">Finance Overview</span></span>
       </div>
       <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Finance Overview</h1>
       <p class="text-sm text-gray-500 mt-1">Operational view of collections, receivables, payables, expenses and profitability.</p>

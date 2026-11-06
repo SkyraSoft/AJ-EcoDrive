@@ -87,7 +87,7 @@ const router = createRouter({
           path: 'organisation/branches',
           name: 'organisation-branches',
           component: () => import('@/views/organisation/Branches.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'organisation/branches/create',
@@ -111,13 +111,13 @@ const router = createRouter({
           path: 'organisation/branches/detail',
           name: 'organisation-branch-detail-legacy',
           component: () => import('@/views/organisation/BranchDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'organisation/branches/:id',
           name: 'organisation-branch-detail',
           component: () => import('@/views/organisation/BranchDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'organisation/users',
@@ -325,61 +325,61 @@ const router = createRouter({
           path: 'procurement/purchase-orders',
           name: 'procurement-purchase-orders',
           component: () => import('@/views/procurement/PurchaseOrders.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-orders/create',
           name: 'procurement-create-purchase-order',
           component: () => import('@/views/procurement/CreatePurchaseOrder.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/create-po',
           name: 'procurement-create-po-alias',
           component: () => import('@/views/procurement/CreatePurchaseOrder.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-orders/detail',
           name: 'procurement-purchase-order-detail-legacy',
           component: () => import('@/views/procurement/PurchaseOrderDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-orders/:id',
           name: 'procurement-purchase-order-detail',
           component: () => import('@/views/procurement/PurchaseOrderDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-orders/:id/receive',
           name: 'procurement-receive-purchase-order',
           component: () => import('@/views/procurement/ReceivePurchase.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/receipts',
           name: 'procurement-receipts',
           component: () => import('@/views/procurement/ReceivePurchase.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/receive-purchase',
           name: 'procurement-receive-purchase-alias',
           component: () => import('@/views/procurement/ReceivePurchase.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/receipts/detail',
           name: 'procurement-receipt-detail-legacy',
           component: () => import('@/views/procurement/ReceiptDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/receipts/:id',
           name: 'procurement-receipt-detail',
           component: () => import('@/views/procurement/ReceiptDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/landed-costs',
@@ -397,25 +397,25 @@ const router = createRouter({
           path: 'procurement/purchase-returns',
           name: 'procurement-purchase-returns',
           component: () => import('@/views/procurement/PurchaseReturns.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-returns/create',
           name: 'procurement-create-purchase-return',
           component: () => import('@/views/procurement/CreatePurchaseReturn.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-returns/detail',
           name: 'procurement-purchase-return-detail-legacy',
           component: () => import('@/views/procurement/PurchaseReturnDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'procurement/purchase-returns/:id',
           name: 'procurement-purchase-return-detail',
           component: () => import('@/views/procurement/PurchaseReturnDetail.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
 
         // --- INVENTORY ---
@@ -1069,19 +1069,19 @@ const router = createRouter({
           path: 'analytics/reports/build',
           name: 'analytics-build-report',
           component: () => import('@/views/analytics/BuildReport.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'analytics/reports/sales',
           name: 'analytics-sales-report',
           component: () => import('@/views/analytics/SalesReport.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'analytics/reports/inventory',
           name: 'analytics-inventory-report',
           component: () => import('@/views/analytics/InventoryReport.vue'),
-          meta: { requiresAuth: true, roles: ['Super Admin', 'Branch Manager'] }
+          meta: { requiresAuth: true, roles: ['Super Admin'] }
         },
         {
           path: 'analytics/reports/procurement',

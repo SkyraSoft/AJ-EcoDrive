@@ -1,8 +1,11 @@
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '@/store.js'
 
 const router = useRouter()
+const isBranchUser = computed(() => store.isBranchUser())
+const branchName = computed(() => store.getActiveBranchName() || 'Peshawar')
 
 const handleCancel = () => {
   if (window.history.length > 1) {
@@ -24,10 +27,11 @@ const handleSignOut = () => {
     <!-- Header & Breadcrumbs -->
     <div>
       <div class="text-[10px] text-gray-500 mb-1">
-        Super Admin / System / <span class="font-bold text-gray-800">Logout</span>
+        <span v-if="isBranchUser">Branch Manager / {{ branchName }} Branch / <span class="font-bold text-gray-800">Logout</span></span>
+        <span v-else>Super Admin / Head Office / <span class="font-bold text-gray-800">Logout</span></span>
       </div>
       <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Logout</h1>
-      <p class="text-sm text-gray-500 mt-1">End the current authenticated Super Admin session.</p>
+      <p class="text-sm text-gray-500 mt-1">End the current authenticated session.</p>
     </div>
 
     <!-- Centered Sign Out Confirmation Card -->
