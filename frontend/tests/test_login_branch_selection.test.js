@@ -51,11 +51,11 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
 
     // Initial default values
     expect(emailInput.element.value).toBe('ADMIN');
-    expect(passwordInput.element.value).toBe('password123');
+    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
 
     // Demo account buttons count (5 accounts)
     const text = wrapper.text();
-    expect(text).toContain('Presentation Demo Credentials');
+    expect(text).toContain('Presentation & Tester Credentials');
     expect(text).toContain('Super Admin');
     expect(text).toContain('Head Office');
     expect(text).toContain('Peshawar Showroom');
@@ -75,7 +75,7 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
     const passwordInput = wrapper.find('[data-tour="auth-password"]');
 
     expect(emailInput.element.value).toBe('PEW-01');
-    expect(passwordInput.element.value).toBe('password123');
+    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
     expect(pewButton.text()).toContain('Selected');
   });
 
@@ -90,7 +90,7 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
     const passwordInput = wrapper.find('[data-tour="auth-password"]');
 
     expect(emailInput.element.value).toBe('ISB-01');
-    expect(passwordInput.element.value).toBe('password123');
+    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
     expect(isbButton.text()).toContain('Selected');
   });
 
@@ -105,7 +105,7 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
     const passwordInput = wrapper.find('[data-tour="auth-password"]');
 
     expect(emailInput.element.value).toBe('LHE-01');
-    expect(passwordInput.element.value).toBe('password123');
+    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
     expect(lheButton.text()).toContain('Selected');
   });
 
@@ -120,7 +120,7 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
     const passwordInput = wrapper.find('[data-tour="auth-password"]');
 
     expect(emailInput.element.value).toBe('RWP-01');
-    expect(passwordInput.element.value).toBe('password123');
+    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
     expect(rwpButton.text()).toContain('Selected');
   });
 
@@ -138,7 +138,7 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
     const passwordInput = wrapper.find('[data-tour="auth-password"]');
 
     expect(emailInput.element.value).toBe('ADMIN');
-    expect(passwordInput.element.value).toBe('password123');
+    expect(passwordInput.element.value).toBe('Skyrasoft@2233');
     expect(adminButton.text()).toContain('Selected');
   });
 
@@ -150,11 +150,11 @@ describe('Login.vue — Branch Selection & Credentials Auto-Fill', () => {
       branchCode: 'ADMIN',
       token: 'mock-jwt-token'
     });
-    const setSessionSpy = vi.spyOn(store, 'setSession');
+    const setSessionSpy = vi.spyOn(store, 'setSession').mockImplementation(() => {});
 
     await wrapper.find('form').trigger('submit.prevent');
 
-    expect(authSpy).toHaveBeenCalledWith('ADMIN', 'password123');
+    expect(authSpy).toHaveBeenCalledWith('ADMIN', 'Skyrasoft@2233');
     expect(setSessionSpy).toHaveBeenCalled();
     expect(pushSpy).toHaveBeenCalledWith('/dashboard');
   });

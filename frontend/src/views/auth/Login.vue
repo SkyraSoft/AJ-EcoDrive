@@ -11,15 +11,12 @@ import { KeyRound, Sparkles, ArrowRight, Check, BookOpen, ExternalLink } from 'l
 
 const router = useRouter()
 
-// Detect production build vs dev/test environments
-const isProd = Boolean(import.meta.env?.PROD || import.meta.env?.MODE === 'production')
-
-// In production, credentials start empty. In dev/test, keep defaults for test runners & tours
-const branchCode = ref(isProd ? '' : 'ADMIN')
-const password = ref(isProd ? '' : 'password123')
+// Default active presentation & testing credentials
+const branchCode = ref('ADMIN')
+const password = ref('Skyrasoft@2233')
 const errorMessage = ref('')
 const isLoading = ref(false)
-const selectedCode = ref(isProd ? '' : 'ADMIN')
+const selectedCode = ref('ADMIN')
 
 const hasError = computed(() => !!errorMessage.value)
 const title = computed(() => hasError.value ? 'Unable to sign in' : 'Welcome back')
@@ -33,13 +30,13 @@ onMounted(() => {
   })
 })
 
-// Presentation Demo Credentials (Common Password: password123)
-const demoAccounts = isProd ? [] : [
+// Presentation & Testing Demo Credentials (Common Password: Skyrasoft@2233)
+const demoAccounts = [
   {
     role: 'Super Admin',
     branch: 'Head Office (All Branches)',
     code: 'ADMIN',
-    pass: 'password123',
+    pass: 'Skyrasoft@2233',
     scopeBadge: 'Enterprise HQ',
     isHQ: true
   },
@@ -47,7 +44,7 @@ const demoAccounts = isProd ? [] : [
     role: 'Branch Manager',
     branch: 'Peshawar Showroom',
     code: 'PEW-01',
-    pass: 'password123',
+    pass: 'Skyrasoft@2233',
     scopeBadge: 'Showroom & Workshop',
     isHQ: false
   },
@@ -55,7 +52,7 @@ const demoAccounts = isProd ? [] : [
     role: 'Branch Manager',
     branch: 'Islamabad Showroom',
     code: 'ISB-01',
-    pass: 'password123',
+    pass: 'Skyrasoft@2233',
     scopeBadge: 'Capital Flagship',
     isHQ: false
   },
@@ -63,7 +60,7 @@ const demoAccounts = isProd ? [] : [
     role: 'Branch Manager',
     branch: 'Lahore Showroom',
     code: 'LHE-01',
-    pass: 'password123',
+    pass: 'Skyrasoft@2233',
     scopeBadge: 'Punjab Central',
     isHQ: false
   },
@@ -71,7 +68,7 @@ const demoAccounts = isProd ? [] : [
     role: 'Branch Manager',
     branch: 'Rawalpindi Showroom',
     code: 'RWP-01',
-    pass: 'password123',
+    pass: 'Skyrasoft@2233',
     scopeBadge: 'Twin Cities',
     isHQ: false
   }
@@ -102,7 +99,7 @@ const handleLogin = async () => {
     store.setSession(session, true)
     router.push('/dashboard')
   } catch (err) {
-    // Categorize errors explicitly per requirement:
+    // Categorize errors explicitly:
     // - Network/CORS/timeout: backend cannot be reached.
     // - 401: invalid username or password.
     // - 403: account is not authorized.
@@ -164,23 +161,23 @@ const handleLogin = async () => {
         {{ isLoading ? 'Authenticating...' : (hasError ? 'Try Again' : 'Login') }}
       </BaseButton>
 
-      <!-- Presentation Demo Credentials Box: hidden in production build -->
-      <div v-if="!isProd" class="mt-6 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/40">
+      <!-- Live Presentation & Tester Credentials Box -->
+      <div class="mt-6 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/40">
         <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-emerald-200/80 dark:border-emerald-800/60">
           <div class="flex items-center gap-1.5">
             <Sparkles class="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
             <span class="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
-              Presentation Demo Credentials
+              Presentation & Tester Credentials
             </span>
           </div>
           <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-200/70 dark:bg-emerald-900/80 text-[11px] font-mono font-bold text-emerald-900 dark:text-emerald-200">
             <KeyRound class="w-3 h-3" />
-            <span>password123</span>
+            <span>Skyrasoft@2233</span>
           </div>
         </div>
 
         <p class="text-[11px] text-emerald-800/90 dark:text-emerald-300/90 mb-2.5">
-          Select any role below for <strong>1-click auto-fill</strong> during the live presentation:
+          Select any role below for <strong>1-click auto-fill</strong> during testing and live presentation:
         </p>
 
         <!-- 1-Click Role Fill Buttons -->
@@ -221,8 +218,8 @@ const handleLogin = async () => {
         </div>
 
         <div class="mt-3 pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-between text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
-          <span>Common Password for all: <strong class="font-mono text-emerald-950 dark:text-emerald-200">password123</strong></span>
-          <span class="text-[10px] opacity-75 font-mono">(or "password")</span>
+          <span>Common Password for all: <strong class="font-mono text-emerald-950 dark:text-emerald-200">Skyrasoft@2233</strong></span>
+          <span class="text-[10px] opacity-75 font-mono">(Case-sensitive)</span>
         </div>
       </div>
 
