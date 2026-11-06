@@ -20,12 +20,37 @@ export class ApiError extends Error {
   constructor(message, status = 500, data = null, isOffline = false) {
     super(message)
     this.name = 'ApiError'
-    this.status = status
+    this.status = typeof status === 'number' ? status : (Number(status) || (isOffline ? 0 : 500))
     this.data = data
-    this.isOffline = isOffline
+    this.isOffline = Boolean(isOffline || this.status === 0)
     this.validationErrors = data?.errors || data?.details || null
-    this.isServerError = status >= 500
+    this.isAuthError = this.status === 401
+    this.isForbidden = this.status === 403
+    this.isRateLimited = this.status === 429
+    this.isServerError = this.status >= 500
     this.timestamp = new Date().toISOString()
+  }
+
+  /**
+   * User-friendly error message categorized by HTTP status / network state
+   */
+  getUserFriendlyMessage() {
+    if (this.status === 401) {
+      return this.data?.message || 'Invalid username/branch code or password. Please verify your credentials and try again.'
+    }
+    if (this.status === 403) {
+      return this.data?.message || 'Your account is not authorized to access this resource or is currently inactive.'
+    }
+    if (this.status === 429) {
+      return this.data?.message || 'Too many attempts. Please wait a few moments and try again.'
+    }
+    if (this.isServerError || this.status >= 500) {
+      return `Backend service problem (HTTP ${this.status}). Please try again later.`
+    }
+    if (this.isOffline || this.status === 0) {
+      return 'Backend cannot be reached. Please check your internet connection or server status.'
+    }
+    return this.data?.message || this.message || 'An unexpected error occurred. Please try again.'
   }
 }
 
@@ -173,8 +198,8 @@ class ApiClient {
       const response = await fetch(url, reqConfig)
       clearTimeout(timer)
 
-      // Handle 401 Unauthorized globally
-      if (response.status === 401) {
+            // Handle 401 Unauthorized globally (exclude /auth/login so invalid credentials do not trigger auto-logout)
+      if (response.status === 401 && !endpoint.includes('/auth/login')) {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('ecodrive:unauthorized', { detail: { endpoint, status: 401 } }))
         }
@@ -203,7 +228,8 @@ class ApiClient {
         }
       }
 
-      if (!response.ok) {
+            if (!response.ok) {
+        this.isOfflineMode = false
         const errorMsg = (data && (data.message || data.error)) || `HTTP ${response.status} ${response.statusText}`
         throw new ApiError(errorMsg, response.status, data, false)
       }
@@ -256,6 +282,64 @@ class ApiClient {
 
   delete(endpoint, options = {}) {
     return this.request(endpoint, { method: 'DELETE', ...options })
+  }
+
+    /**
+   * Performs an initial connectivity & health check with AbortController timeout (>=15s)
+   * and up to 2 retries (total 3 attempts).
+   * Does NOT throw; returns { ok: boolean, status?: number, data?: any, error?: string, attempts: number }.
+   */
+  async checkHealthWithRetry({ timeoutMs = 15000, maxRetries = 2, retryDelayMs = 1000 } = {}) {
+    let lastError = null
+    const url = `${this.baseUrl}/health`
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          signal: controller.signal
+        })
+        clearTimeout(timer)
+
+        let data = null
+        try {
+          data = await response.json()
+        } catch {
+          data = null
+        }
+
+        if (response.ok && data?.ok) {
+          this.isOfflineMode = false
+          return { ok: true, status: response.status, data, attempts: attempt + 1 }
+        }
+
+        lastError = new Error((data && (data.message || data.error)) || `Health check returned HTTP ${response.status}`)
+      } catch (err) {
+        clearTimeout(timer)
+        lastError = err
+      }
+
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, retryDelayMs * (attempt + 1)))
+      }
+    }
+
+    return {
+      ok: false,
+      error: lastError?.name === 'AbortError'
+        ? 'Health check request timed out after 15 seconds'
+        : (lastError?.message || 'Backend cannot be reached'),
+      attempts: maxRetries + 1
+    }
+  }
+
+  health = {
+    check: (options) => this.checkHealthWithRetry(options),
+    get: () => this.get('/health')
   }
 
   // ==========================================

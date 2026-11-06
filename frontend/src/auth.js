@@ -1,5 +1,5 @@
 // Authentication and Cryptographic Security Module for AJ ECODRIVE Multi-Branch System
-import api from './services/api.js'
+import api, { ApiError } from './services/api.js'
 
 /**
  * Computes SHA-256 hash of a string using Web Crypto API.
@@ -67,10 +67,13 @@ export const BRANCH_ACCOUNTS = [
  */
 export async function authenticateBranch(branchCodeOrIdentifier, plainPassword) {
   if (!branchCodeOrIdentifier || !plainPassword) {
-    throw new Error('Please enter both Branch Code / Username and Password.')
+    const err = new Error('Please enter both Branch Code / Username and Password.')
+    err.status = 400
+    throw err
   }
 
-  const cleanIdentifier = String(branchCodeOrIdentifier).trim()
+  // Consistent normalization of usernames (e.g. admin, pew-01, isb-01, lhe-01, rwp-01)
+  const cleanIdentifier = String(branchCodeOrIdentifier).trim().toLowerCase()
   const cleanPassword = String(plainPassword).trim()
 
   try {
@@ -81,7 +84,9 @@ export async function authenticateBranch(branchCodeOrIdentifier, plainPassword) 
 
     const payload = res?.data || res
     if (!payload || !payload.token) {
-      throw new Error(payload?.message || 'Login failed: Authentication token was not returned by the server.')
+      const err = new Error(payload?.message || 'Login failed: Authentication token was not returned by the server.')
+      err.status = 500
+      throw err
     }
 
     const token = payload.token
@@ -94,7 +99,7 @@ export async function authenticateBranch(branchCodeOrIdentifier, plainPassword) 
       jwt: token,
       id: user.id,
       username: user.username,
-      branchCode: user.branchCode || (user.branch_id === 'BR-01' ? 'PEW-01' : user.branch_id === 'BR-02' ? 'ISB-01' : user.branch_id === 'BR-03' ? 'LHE-01' : user.branch_id === 'BR-04' ? 'RWP-01' : 'ADMIN'),
+      branchCode: user.branchCode || (user.branch_id === 'BR-01' ? 'pew-01' : user.branch_id === 'BR-02' ? 'isb-01' : user.branch_id === 'BR-03' ? 'lhe-01' : user.branch_id === 'BR-04' ? 'rwp-01' : 'admin'),
       branchId: user.branch_id || user.branchId || null,
       branchName: user.branchName || user.branch_name || (user.branch_id ? user.branch_id : 'All Branches'),
       role: user.role,
@@ -107,8 +112,15 @@ export async function authenticateBranch(branchCodeOrIdentifier, plainPassword) 
 
     return session
   } catch (err) {
+    if (err instanceof ApiError) {
+      throw err
+    }
     const errMsg = err?.data?.message || err?.message || 'Invalid username or password. Please verify your credentials and try again.'
-    throw new Error(errMsg)
+    const wrapped = new Error(errMsg)
+    wrapped.status = err?.status || 0
+    wrapped.data = err?.data || null
+    wrapped.isOffline = Boolean(err?.isOffline)
+    throw wrapped
   }
 }
 

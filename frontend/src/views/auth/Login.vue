@@ -1,26 +1,40 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthCard from '@/components/ui/AuthCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { authenticateBranch } from '@/auth.js'
+import { api, ApiError } from '@/services/api.js'
 import { store } from '@/store.js'
 import { KeyRound, Sparkles, ArrowRight, Check, BookOpen, ExternalLink } from 'lucide-vue-next'
 
 const router = useRouter()
-const branchCode = ref('ADMIN')
-const password = ref('password123')
+
+// Detect production build vs dev/test environments
+const isProd = Boolean(import.meta.env?.PROD || import.meta.env?.MODE === 'production')
+
+// In production, credentials start empty. In dev/test, keep defaults for test runners & tours
+const branchCode = ref(isProd ? '' : 'ADMIN')
+const password = ref(isProd ? '' : 'password123')
 const errorMessage = ref('')
 const isLoading = ref(false)
-const selectedCode = ref('ADMIN')
+const selectedCode = ref(isProd ? '' : 'ADMIN')
 
 const hasError = computed(() => !!errorMessage.value)
 const title = computed(() => hasError.value ? 'Unable to sign in' : 'Welcome back')
 const subtitle = computed(() => hasError.value ? 'Check the highlighted information and try again.' : 'Sign in to access your branch dashboard.')
 
+// Initial background health check: 15s AbortController timeout, up to 2 retries
+// Crucially: never blocks the login page or submit button
+onMounted(() => {
+  api.checkHealthWithRetry({ timeoutMs: 15000, maxRetries: 2 }).catch(err => {
+    console.warn('[EcoDrive] Initial background health probe notice:', err?.message || err)
+  })
+})
+
 // Presentation Demo Credentials (Common Password: password123)
-const demoAccounts = [
+const demoAccounts = isProd ? [] : [
   {
     role: 'Super Admin',
     branch: 'Head Office (All Branches)',
@@ -72,14 +86,44 @@ const selectAccount = (acc) => {
 
 const handleLogin = async () => {
   errorMessage.value = ''
+
+  const rawCode = (branchCode.value || '').trim()
+  const rawPass = (password.value || '').trim()
+
+  if (!rawCode || !rawPass) {
+    errorMessage.value = 'Please enter both Branch Code / Username and Password.'
+    return
+  }
+
   isLoading.value = true
 
   try {
-    const session = await authenticateBranch(branchCode.value, password.value)
+    const session = await authenticateBranch(rawCode, rawPass)
     store.setSession(session, true)
     router.push('/dashboard')
   } catch (err) {
-    errorMessage.value = err.message || 'Email/username or password is incorrect. Review your details and try again.'
+    // Categorize errors explicitly per requirement:
+    // - Network/CORS/timeout: backend cannot be reached.
+    // - 401: invalid username or password.
+    // - 403: account is not authorized.
+    // - 429: too many attempts.
+    // - 500/502/503: backend service problem.
+    const status = Number(err?.status) || 0
+    const serverMessage = err?.data?.message || err?.message || ''
+
+    if (status === 401) {
+      errorMessage.value = 'Invalid username/branch code or password. Please verify your credentials and try again.'
+    } else if (status === 403) {
+      errorMessage.value = serverMessage || 'Your account is not authorized or has been disabled. Please contact the administrator.'
+    } else if (status === 429) {
+      errorMessage.value = 'Too many login attempts. Please wait a few moments and try again.'
+    } else if (status >= 500) {
+      errorMessage.value = `Backend service problem (HTTP ${status}). Please try again later.`
+    } else if (status === 0 || err?.isOffline || err?.name === 'AbortError' || (serverMessage && serverMessage.toLowerCase().includes('failed to fetch'))) {
+      errorMessage.value = 'Backend cannot be reached. Please check your internet connection or server status.'
+    } else {
+      errorMessage.value = serverMessage || 'Unable to sign in. Please verify your details and try again.'
+    }
   } finally {
     isLoading.value = false
   }
@@ -120,8 +164,8 @@ const handleLogin = async () => {
         {{ isLoading ? 'Authenticating...' : (hasError ? 'Try Again' : 'Login') }}
       </BaseButton>
 
-      <!-- Live Presentation Demo Credentials Box (replaces static note) -->
-      <div class="mt-6 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/40">
+      <!-- Presentation Demo Credentials Box: hidden in production build -->
+      <div v-if="!isProd" class="mt-6 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/40">
         <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-emerald-200/80 dark:border-emerald-800/60">
           <div class="flex items-center gap-1.5">
             <Sparkles class="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
