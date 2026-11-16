@@ -10,84 +10,85 @@
 
 ---
 
-## 1. Executive Summary & Release Verdict
+## 1. Official Release Status
 
-| Decision Question | Verdict | Rationale & Status |
+### **STATUS: INTERNAL PILOT APPROVED**
+
+> **Formal Release Determination:**  
+> The application is officially designated as **INTERNAL PILOT APPROVED**.  
+>  
+> **Rationale:**  
+> 1. Real physical showroom computers in Peshawar, Islamabad, Lahore, and Rawalpindi were not physically connected to this environment (evaluated via simulated controlled profiles on physical host `DESKTOP-7QIR1M5`).  
+> 2. The Windows MSI installer is currently **unsigned** (no commercial Authenticode certificate is installed in the environment).  
+> 3. Under the strict Phase 8 governance framework, **PUBLIC WINDOWS RELEASE APPROVED** is barred until a valid Authenticode signature and physical on-site branch hardware validation pass.
+
+---
+
+## 2. Platform & Distribution Status Matrix
+
+| Component / Platform | Current Status | Notes & Operational Detail |
 | :--- | :---: | :--- |
-| **Is Controlled Internal Pilot Approved?** | **YES (APPROVED)** | All 5 simulated pilot branch profiles passed 100% of business workflows, offline transactions, and reconciliation checks. |
-| **Is Real Branch Operation Ready?** | **YES (APPROVED)** | Core retail dealership operations (quotes, sales orders, invoices, payments, inventory, repairs, expenses) operate reliably both online and offline. |
-| **Is Public Distribution Approved?** | **NO (BLOCKED)** | The current MSI is unsigned. Public release requires an official Authenticode Code Signing Certificate (EV or Standard) to eliminate Windows SmartScreen warnings. |
-| **Should Android Packaging (Phase 9) Begin?** | **YES (READY TO PROCEED)** | With Windows desktop acceptance finalized and offline synchronization proven, the project is officially ready to advance to Android Capacitor packaging. |
+| **Windows Desktop MSI** | **INTERNAL PILOT APPROVED** | Compiled via Tauri v2 + WiX v3.14.1 (8.81 MiB). Functional across all 20 offline steps and business workflows. Unsigned. Suitable for controlled internal pilot deployment. |
+| **Live Web Application** | **PRODUCTION LIVE (HEALTHY)** | Live at `https://aj-eco-drive.vercel.app` (HTTP 200). Healthy and operational. |
+| **Backend API & Database** | **PRODUCTION LIVE (HEALTHY)** | Live at `https://ecodrive.skyrasoft.com/api/v1/health` (HTTP 200, MySQL connected, uptime > 856,000s). |
+| **Android Packaging (APK/AAB)** | **NOT STARTED** | Android packaging is scheduled for the subsequent mobile phase using Capacitor + SQLite. Zero mobile code has been built or misidentified as MSI. |
 
 ---
 
-## 2. Comprehensive Acceptance Summary
+## 3. Operational Acceptance & Test Results
 
-### 2.1 Pilot Devices & Profiles Tested
-1. **DEV-HO-01 (Head Office):** Super Admin profile; global enterprise oversight, approvals, catalog and user management. Status: **PASSED**.
-2. **DEV-PEW-01 (Peshawar):** Branch Manager profile; showroom sales, serialized units, service cases, local expense vouchers. Status: **PASSED**.
-3. **DEV-ISB-01 (Islamabad):** Branch Manager profile; inventory transfers, warranty claims, customer payments. Status: **PASSED**.
-4. **DEV-LHE-01 (Lahore):** Branch Manager profile; high-volume vehicle handovers, discount ceiling enforcement. Status: **PASSED**.
-5. **DEV-RWP-01 (Rawalpindi):** Branch Manager profile; quotations, crash recovery, safe close lifecycle. Status: **PASSED**.
+### 3.1 Pilot Devices Tested
+- **Host Workstation:** `DESKTOP-7QIR1M5` (Windows 10 Pro 22H2 x64, physical machine) — **PASSED**.
+- **Peshawar Branch Manager (`SIM-BR-PEW-01`):** Simulated showroom profile — **PASSED**.
+- **Islamabad Branch Manager (`SIM-BR-ISB-01`):** Simulated showroom profile — **PASSED**.
+- **Lahore Branch Manager (`SIM-BR-LHE-01`):** Simulated showroom profile — **PASSED**.
+- **Rawalpindi Branch Manager (`SIM-BR-RWP-01`):** Simulated showroom profile — **PASSED**.
 
-### 2.2 Workflows & Scenarios Evaluated
-- **Super Admin Workflows:** Dashboard, Branch Overview, Catalogue, User Management, Price Rules, Procurement POs, Action Centre Approvals, Custom Reports, Audit Logs, Sync Status Oversight. (10/10 Passed)
-- **Branch Manager Workflows:** Dashboard, Customers, Leads, Quotations, Orders, Invoices, Payments, Inventory Stock, Serialized Units, Stock Requests, Inter-Branch Transfers, Warranty Claims, Workshop Repairs, Expense Vouchers, Branch Reports. (15/15 Passed)
-- **Offline Operations:** Offline creation across all 7 primary entities, queue persistence, application crash survival, restart recovery, reconnect auto-drain. (20/20 Passed)
-- **Branch Isolation:** Cross-branch querying and mutation attempts blocked with HTTP 403 Forbidden; zero cross-tenant leakage. (100% Enforced)
-- **Data Reconciliation:** Local SQLite vs remote production MySQL audit confirmed 0 missing records, 0 duplicate invoices/payments, 0 inventory discrepancies. (100% Match)
-- **Backup & Disaster Recovery:** Empirical restoration test recovered 56 tables and 100% of rows into test database with zero errors. (Empirically Verified)
+### 3.2 Automated & Empirical Test Suites
+- **Backend MySQL Integration Suite:** 405 / 405 tests passed (**100% GREEN**).
+- **Frontend Universal Vitest Suite:** 537 / 537 tests passed (**100% GREEN**).
+- **Real Workflows Offline Suite:** 15 / 15 tests passed (**100% GREEN**).
+- **SQLite Storage Adapter Suite:** 7 / 7 tests passed (**100% GREEN**).
+- **DAP Exhaustive Coverage Suite:** 23 / 23 tests passed (**100% GREEN**).
+- **Frontend Master Readiness Audit:** 19 / 19 tests passed (**100% GREEN**).
+- **Total Automated Tests:** **1,006 / 1,006 passed (100% GREEN)**.
 
----
+### 3.3 Offline Lifecycle & Synchronization Guarantees
+- **20/20 Offline Steps Verified:** Customer, quote, order, inventory, expense, and repair mutations created offline survived forced process termination and system reboots via SQLite WAL.
+- **Durable Queue Drain:** Reconnection cleanly transmitted batch mutations to `/api/v1/sync/push`.
+- **Zero Duplicate Financial / Inventory Rows:** Unique UUID idempotency keys prevented double-charging or duplicate stock decrements.
+- **Optimistic Concurrency & Conflict Quarantine:** Conflicting mutations quarantined to `conflicts` table without silent overwrite or queue termination.
+- **Multi-Tenant Branch Isolation:** Branch Managers strictly restricted to their assigned branch (HTTP 403 on foreign branch requests).
+- **Database Backup & Restoration:** Real `mysqldump` export and full restore tested against MySQL; all 56 tables and 100% of rows restored cleanly.
 
-## 3. Defect Classification & Resolution Status
-
-In accordance with Phase 8.11 standards, defects were monitored and categorized:
-
-| Severity Tier | Definition | Total Encountered | Resolved | Open Defects |
-| :--- | :--- | :---: | :---: | :---: |
-| **Blocker** | Data loss, security breach, branch leakage, duplicate financial record, failed installation | 0 | 0 | **0** |
-| **Critical** | Major workflow unusable, sync unreliable, crash on startup | 0 | 0 | **0** |
-| **Major** | Important feature impaired with workaround available | 0 | 0 | **0** |
-| **Minor** | Cosmetic formatting, non-blocking telemetry note | 0 | 0 | **0** |
-
-**Zero Blocker or Critical issues remain open.**
-
----
-
-## 4. Code Signing & Release Roadmap
-
-The current MSI installer (`AJ EcoDrive ERP_1.0.0_x64_en-US.msi`) was compiled without an Authenticode certificate and is designated strictly for **internal pilot evaluation**.
-
-### Requirements for Public Release:
-1. **Procure Authenticode Certificate:** Obtain an Extended Validation (EV) or Standard OV Code Signing Certificate from a trusted Certificate Authority (DigiCert, Sectigo).
-2. **Sign MSI Artifact:**
-   ```cmd
-   signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "AJ EcoDrive ERP_1.0.0_x64_en-US.msi"
-   ```
-3. **SmartScreen Reputation:** Submit signed binary to Microsoft Partner Center for instant Windows Defender SmartScreen trust.
-4. **Publish Verified Checksums:** Host signed installer and SHA-256 hash on corporate download portal (`https://ecodrive.skyrasoft.com/download`).
+### 3.4 Security & Asset Hygiene Audit
+- **Passwords:** 0 found in packaged code or installed binary.
+- **JWT Secrets / Private Keys:** 0 found.
+- **Database Credentials (`DB_PASSWORD`):** 0 found.
+- **Localhost URLs:** 0 found in production assets (`dist/`, `src-tauri`, installed directory).
+- **Tooling Notes:** Intermittent Cloud Code API connection alerts are acknowledged as external tooling/network phenomena and are NOT defects in the AJ EcoDrive ERP codebase.
 
 ---
 
-## 5. Formal Deliverables Index
+## 4. Open Release Blockers for Public Release
 
-All 11 Phase 8 deliverables have been authored, verified, and placed in the project repository:
+Before general commercial release or public download distribution:
 
-1. [phase_8_pilot_preparation_report.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_pilot_preparation_report.md): Pre-flight verification checklist, production health checks, rollback safeguards.
-2. [phase_8_device_matrix.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_device_matrix.md): Operational device profiles for Head Office and all showroom branches.
-3. [phase_8_business_acceptance_report.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_business_acceptance_report.md): 10 Super Admin workflows and 15 Branch Manager workflows accepted.
-4. [phase_8_offline_acceptance_report.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_offline_acceptance_report.md): 20-step offline operational lifecycle and crash recovery verification.
-5. [phase_8_branch_isolation_acceptance.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_branch_isolation_acceptance.md): Multi-tenant isolation audit, local database scoping, session wipe.
-6. [phase_8_data_reconciliation_report.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_data_reconciliation_report.md): Mathematical reconciliation proving zero duplicates or lost mutations.
-7. [phase_8_backup_recovery_plan.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_backup_recovery_plan.md): RPO/RTO objectives, retention rules, incident escalation procedure.
-8. [phase_8_backup_restore_test.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_backup_restore_test.md): Real mysqldump restoration test recovering 56 tables and all records.
-9. [phase_8_monitoring_and_operations.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_monitoring_and_operations.md): PM2, health check telemetry, alerting thresholds, zero-secret logging.
-10. [phase_8_user_training_guide.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_user_training_guide.md): Practical user guide for Super Admins, Branch Managers, and IT staff.
-11. [phase_8_final_release_decision.md](file:///c:/Users/USER/Downloads/EV%20Showroom%20Management%20system/phase_8_final_release_decision.md): Master sign-off document and release verdict.
+| Blocker ID | Description | Impact | Required Remediation |
+| :--- | :--- | :--- | :--- |
+| **BLK-PUB-01** | **Unsigned Windows MSI Package** | Windows Defender SmartScreen warning on download | Procure Standard or EV Authenticode Code Signing Certificate (DigiCert/Sectigo) and sign MSI with `signtool.exe`. |
+| **BLK-PUB-02** | **Physical On-Site Fleet Acceptance** | Validation currently verified on host workstation with simulated branch profiles | Deploy MSI to physical PCs at Peshawar, Islamabad, Lahore, and Rawalpindi showrooms during pilot launch. |
 
 ---
 
-## Final Sign-Off
+## 5. Required Next Action
 
-Phase 8 is hereby marked **COMPLETE & ACCEPTED**. The system is fully operational for controlled branch pilot deployment.
+1. **Deploy Internal Pilot:** Distribute `AJ EcoDrive ERP_1.0.0_x64_en-US.msi` to the internal pilot evaluation committee and designated branch managers for on-site pilot operation.
+2. **Procure Commercial Code-Signing Certificate:** IT / Executive leadership to acquire an Authenticode certificate for production signing.
+3. **Initiate Mobile Packaging:** Proceed to Android packaging (Phase 9: Capacitor + SQLite APK/AAB).
+
+---
+
+## Master Sign-Off
+
+All technical blockers within the engineering scope of Phase 8 are resolved. The system is certified **INTERNAL PILOT APPROVED** and ready for controlled branch pilot deployment.
