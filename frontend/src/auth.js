@@ -73,8 +73,18 @@ export async function authenticateBranch(branchCodeOrIdentifier, plainPassword) 
   }
 
   // Consistent normalization of usernames (e.g. admin, pew-01, isb-01, lhe-01, rwp-01)
-  const cleanIdentifier = String(branchCodeOrIdentifier).trim().toLowerCase()
+  let cleanIdentifier = String(branchCodeOrIdentifier).trim().toLowerCase()
   const cleanPassword = String(plainPassword).trim()
+
+  // Resolve branch aliases (e.g. 'peshawar' -> 'pew-01', 'superadmin' -> 'admin') against BRANCH_ACCOUNTS
+  const matched = BRANCH_ACCOUNTS.find(acc =>
+    acc.branchCode.toLowerCase() === cleanIdentifier ||
+    acc.email.toLowerCase() === cleanIdentifier ||
+    (acc.aliases && acc.aliases.some(a => a.toLowerCase() === cleanIdentifier))
+  )
+  if (matched) {
+    cleanIdentifier = matched.branchCode.toLowerCase()
+  }
 
   try {
     const res = await api.auth.login({

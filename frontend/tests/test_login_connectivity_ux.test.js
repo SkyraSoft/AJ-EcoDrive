@@ -134,6 +134,25 @@ describe('Login Error Handling & API Connectivity Suite', () => {
       })
     })
 
+    it('resolves branch name aliases (e.g. peshawar -> pew-01, superadmin -> admin)', async () => {
+      const loginSpy = vi.spyOn(api.auth, 'login').mockResolvedValue({
+        token: 'test-token',
+        user: { id: 'usr-2', username: 'pew-01', role: 'Branch Manager', branch_id: 'BR-01' }
+      })
+
+      await authModule.authenticateBranch('peshawar', 'Secret123')
+      expect(loginSpy).toHaveBeenCalledWith({
+        username: 'pew-01',
+        password: 'Secret123'
+      })
+
+      await authModule.authenticateBranch('SUPERADMIN', 'Secret123')
+      expect(loginSpy).toHaveBeenCalledWith({
+        username: 'admin',
+        password: 'Secret123'
+      })
+    })
+
     it('re-throws ApiError preserving HTTP status code', async () => {
       vi.spyOn(api.auth, 'login').mockRejectedValueOnce(new ApiError('Invalid credentials', 401))
 
