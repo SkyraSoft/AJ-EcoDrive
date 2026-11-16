@@ -236,8 +236,12 @@ export function resolveCanonicalBranchId(branchInput, branchesRegistry = null) {
     const byName = registry.find(b => b.name && String(b.name).toLowerCase() === lower)
     if (byName) return byName.id || byName.branch_id
 
-    // 3. Short code match (e.g. PEW, ISB)
-    const byCode = registry.find(b => b.code && String(b.code).toLowerCase() === lower)
+    // 3. Short code match (e.g. PEW, ISB, PEW-01)
+    const baseCode = lower.split('-')[0].trim()
+    const byCode = registry.find(b => b.code && (
+      String(b.code).toLowerCase() === lower ||
+      String(b.code).toLowerCase() === baseCode
+    ))
     if (byCode) return byCode.id || byCode.branch_id
 
     // If registry is active and branch is not found: FAIL CLOSED!
@@ -341,7 +345,7 @@ export function canReadRecord(user, entityType, record, branchesRegistry = null)
   }
 
   // Branchless Branch Manager: FAIL CLOSED!
-  const userBranch = user.branchId || user.branchCode || user.branchName || user.branch
+  const userBranch = user.branch_id || user.branchId || user.branchCode || user.branchName || user.branch
   if (!userBranch) return false
 
   // Inter-branch transfers are accessible to source branch, destination branch, or Super Admin
@@ -375,7 +379,7 @@ export function canMutateRecord(user, entityType, record, operation = 'update', 
   }
 
   // Branchless Branch Manager: FAIL CLOSED!
-  const userBranch = user.branchId || user.branchCode || user.branchName || user.branch
+  const userBranch = user.branch_id || user.branchId || user.branchCode || user.branchName || user.branch
   if (!userBranch) return false
 
   // Transfer mutations are state and role aware
@@ -405,7 +409,8 @@ export function canMutateRecord(user, entityType, record, operation = 'update', 
  */
 export function assertRecordMutationAccess(user, entityType, record, operation = 'update', auditLogger = null, branchesRegistry = null) {
   if (!canMutateRecord(user, entityType, record, operation, branchesRegistry)) {
-    const errorMsg = `UNAUTHORIZED_CROSS_BRANCH_MUTATION: Role ${user?.role || 'Unknown'} at branch ${user?.branchName || user?.branch || 'None'} is not authorized to perform ${operation} on ${entityType} record.`
+    const branchDesc = user?.branchName || user?.branch || user?.branch_id || user?.branchCode || 'None'
+    const errorMsg = `UNAUTHORIZED_CROSS_BRANCH_MUTATION: Role ${user?.role || 'Unknown'} at branch ${branchDesc} is not authorized to perform ${operation} on ${entityType} record.`
     if (auditLogger && typeof auditLogger === 'function') {
       auditLogger({
         action: 'SECURITY_VIOLATION',

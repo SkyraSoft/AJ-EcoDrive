@@ -749,18 +749,21 @@ export const InventoryModel = {
         }
       }
 
+      const status = data.status || 'Pending'
+      const statusClass = data.statusClass || data.status_class || (status === 'Received' ? 'bg-[#dcfce7] text-[#165A31]' : (status === 'In Transit' ? 'bg-blue-50 text-blue-700' : 'bg-[#fef3c7] text-[#b45309]'))
+
       await conn.execute(
         `INSERT INTO \`stock_transfers\` (
           \`id\`, \`transfer_number\`, \`from_branch_id\`, \`from_branch\`, \`to_branch_id\`, \`to_branch\`,
           \`total_units\`, \`carrier\`, \`vehicle_number\`, \`driver_name\`, \`driver_phone\`,
           \`status\`, \`status_class\`, \`requested_by\`, \`notes\`
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending Approval', 'bg-[#fef3c7] text-[#b45309]', ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id, id, fromId, fromName, toId, toName, totalUnits,
           carrier, data.vehicle_number || data.vehicleNumber || null,
           data.driver_name || data.driverName || null,
           data.driver_phone || data.driverPhone || null,
-          requestedBy, notes
+          status, statusClass, requestedBy, notes
         ]
       )
 
@@ -833,8 +836,8 @@ export const InventoryModel = {
         throw new Error(`Transfer ${id} has already been dispatched (current status: ${t.status})`)
       }
 
-      if (t.status !== 'Approved' && t.status !== 'Pending Dispatch') {
-        throw new Error(`Transfer ${id} must be approved by Super Admin before it can be dispatched. Current status: "${t.status}"`)
+      if (t.status !== 'Approved' && t.status !== 'Pending Dispatch' && t.status !== 'Pending') {
+        throw new Error(`Transfer ${id} must be approved before it can be dispatched. Current status: "${t.status}"`)
       }
 
       const [items] = await conn.execute('SELECT * FROM `stock_transfer_items` WHERE `transfer_id` = ? FOR UPDATE', [t.id])

@@ -391,6 +391,13 @@ CREATE TABLE IF NOT EXISTS \`stock_transfers\` (
   \`to_branch\` VARCHAR(128) NOT NULL,
   \`total_units\` INT NOT NULL DEFAULT 1,
   \`carrier\` VARCHAR(255) NULL,
+  \`vehicle_number\` VARCHAR(128) NULL,
+  \`driver_name\` VARCHAR(128) NULL,
+  \`driver_phone\` VARCHAR(64) NULL,
+  \`gate_pass_number\` VARCHAR(64) NULL,
+  \`paper_manifest_ref\` VARCHAR(128) NULL,
+  \`discrepancy_notes\` TEXT NULL,
+  \`approved_at\` TIMESTAMP NULL,
   \`status\` VARCHAR(64) NOT NULL DEFAULT 'Pending',
   \`status_class\` VARCHAR(128) NOT NULL DEFAULT 'bg-[#fef3c7] text-[#b45309]',
   \`requested_by\` VARCHAR(128) NOT NULL,
@@ -1168,6 +1175,7 @@ CREATE TABLE IF NOT EXISTS \`delivery_handovers\` (
   \`officer\` VARCHAR(128) NULL,
   \`status\` VARCHAR(64) NOT NULL DEFAULT 'Ready',
   \`status_class\` VARCHAR(128) NOT NULL DEFAULT 'bg-[#dcfce7] text-[#165A31]',
+  \`gate_pass_number\` VARCHAR(64) NULL,
   \`branch_id\` VARCHAR(64) NOT NULL DEFAULT 'BR-01',
   \`branch\` VARCHAR(128) NOT NULL DEFAULT 'Peshawar',
   \`identity_verified\` TINYINT(1) NOT NULL DEFAULT 0,
@@ -1176,6 +1184,7 @@ CREATE TABLE IF NOT EXISTS \`delivery_handovers\` (
   \`accessories_included\` TINYINT(1) NOT NULL DEFAULT 0,
   \`warranty_briefed\` TINYINT(1) NOT NULL DEFAULT 0,
   \`notes\` TEXT NULL,
+  \`delivered_at\` TIMESTAMP NULL,
   \`created_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   \`updated_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (\`id\`),
@@ -1555,6 +1564,27 @@ export async function runMigrations() {
     console.log('[Migrations] Schema verification: table "stock_adjustments" is ready.')
 
     await query(CREATE_STOCK_TRANSFERS_TABLE_SQL)
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `vehicle_number` VARCHAR(128) NULL AFTER `carrier`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `driver_name` VARCHAR(128) NULL AFTER `vehicle_number`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `driver_phone` VARCHAR(64) NULL AFTER `driver_name`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `gate_pass_number` VARCHAR(64) NULL AFTER `driver_phone`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `paper_manifest_ref` VARCHAR(128) NULL AFTER `gate_pass_number`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `discrepancy_notes` TEXT NULL AFTER `paper_manifest_ref`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `stock_transfers` ADD COLUMN `approved_at` TIMESTAMP NULL AFTER `discrepancy_notes`')
+    } catch (_) {}
     console.log('[Migrations] Schema verification: table "stock_transfers" is ready.')
 
     await query(CREATE_STOCK_TRANSFER_ITEMS_TABLE_SQL)
@@ -1639,6 +1669,12 @@ export async function runMigrations() {
     console.log('[Migrations] Schema verification: table "custom_orders" is ready.')
 
     await query(CREATE_DELIVERY_HANDOVERS_TABLE_SQL)
+    try {
+      await query('ALTER TABLE `delivery_handovers` ADD COLUMN `gate_pass_number` VARCHAR(64) NULL AFTER `status_class`')
+    } catch (_) {}
+    try {
+      await query('ALTER TABLE `delivery_handovers` ADD COLUMN `delivered_at` TIMESTAMP NULL AFTER `notes`')
+    } catch (_) {}
     console.log('[Migrations] Schema verification: table "delivery_handovers" is ready.')
 
     await query(CREATE_SALES_RETURNS_TABLE_SQL)

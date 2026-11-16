@@ -6,6 +6,7 @@
  */
 
 import { IndexedDBStorageAdapter } from './IndexedDBStorageAdapter.js'
+import { resolveCanonicalBranchId } from '../../utils/branchAuth.js'
 
 export class OfflineStorageEngine {
   constructor(adapter = null) {
@@ -18,15 +19,23 @@ export class OfflineStorageEngine {
 
   // --- ENTITY OPERATIONS ---
 
-  async saveEntity(entityType, record) {
+  async saveEntity(entityType, record, context = {}) {
     if (!record || !record.id) {
       throw new Error(`Cannot save entity of type '${entityType}' without an id.`)
     }
 
+    const branchId = record.branch_id || record.branchId || context.branchId || null
+    const userId = record.userId || context.userId || null
+    const userRole = record.userRole || context.userRole || null
+
     const item = {
       ...record,
       entityType,
-      branchId: record.branch_id || record.branchId || null,
+      branchId,
+      branch_id: branchId,
+      userId,
+      userRole,
+      deviceScope: context.deviceScope || 'browser_client',
       updatedAt: record.updated_at || record.updatedAt || new Date().toISOString()
     }
 
@@ -41,13 +50,37 @@ export class OfflineStorageEngine {
     return item
   }
 
-  async queryEntities(entityType, { branchId = null, filter = null } = {}) {
+  /**
+   * Branch-Safe Querying
+   * If user is a Branch Manager, strict isolation is enforced:
+   * they NEVER receive other branches' cached records.
+   */
+  async queryEntities(entityType, { branchId = null, userRole = null, filter = null } = {}) {
     return this.adapter.list('entities', (item) => {
       if (item.entityType !== entityType) return false
-      if (branchId) {
-        const itemBranch = item.branch_id || item.branchId
-        if (itemBranch && itemBranch !== branchId) return false
+
+      // Universal catalog entities are visible across all branches
+      const isUniversal = ['product', 'category', 'pricing_rule', 'setting'].includes(entityType)
+
+      if (!isUniversal) {
+        // If user is not Super Admin, strict branch scoping applies
+        if (userRole && userRole !== 'Super Admin') {
+          const itemBranch = item.branch_id || item.branchId
+          if (branchId && itemBranch) {
+            const canonItem = resolveCanonicalBranchId(itemBranch) || itemBranch
+            const canonReq = resolveCanonicalBranchId(branchId) || branchId
+            if (canonItem !== canonReq) return false
+          }
+        } else if (branchId) {
+          const itemBranch = item.branch_id || item.branchId
+          if (itemBranch) {
+            const canonItem = resolveCanonicalBranchId(itemBranch) || itemBranch
+            const canonReq = resolveCanonicalBranchId(branchId) || branchId
+            if (canonItem !== canonReq) return false
+          }
+        }
       }
+
       if (typeof filter === 'function') {
         return filter(item)
       }
@@ -55,13 +88,18 @@ export class OfflineStorageEngine {
     })
   }
 
-  async deleteEntity(entityType, id) {
+  async deleteEntity(entityType, id, context = {}) {
     const cleanId = String(id)
+    const existing = await this.adapter.get('entities', cleanId)
+    const branchId = existing?.branch_id || existing?.branchId || context.branchId || null
+
     await this.adapter.remove('entities', cleanId)
+
     // Record tombstone so sync can inform server
     await this.adapter.set('tombstones', cleanId, {
       id: cleanId,
       entityType,
+      branchId,
       deletedAt: new Date().toISOString()
     })
     return true
@@ -74,6 +112,7 @@ export class OfflineStorageEngine {
       ...r,
       entityType,
       branchId: r.branch_id || r.branchId || branchId || null,
+      branch_id: r.branch_id || r.branchId || branchId || null,
       updatedAt: r.updated_at || r.updatedAt || new Date().toISOString()
     }))
 

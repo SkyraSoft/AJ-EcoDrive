@@ -15,6 +15,17 @@ function generateUUID() {
   return 'mut_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10)
 }
 
+function sanitizePayload(obj) {
+  if (!obj || typeof obj !== 'object') return {}
+  const clean = {}
+  for (const [k, v] of Object.entries(obj)) {
+    // Exclude transient properties, closures, and internal store flags
+    if (k.startsWith('_') || typeof v === 'function' || typeof v === 'symbol') continue
+    clean[k] = v
+  }
+  return JSON.parse(JSON.stringify(clean))
+}
+
 export class MutationQueue {
   constructor(storage = offlineStorage) {
     this.storage = storage
@@ -28,6 +39,7 @@ export class MutationQueue {
     clientVersion = 1,
     branchId = null,
     userId = null,
+    userRole = null,
     idempotencyKey = null
   }) {
     if (!entityType || !operation || !entityId) {
@@ -43,10 +55,11 @@ export class MutationQueue {
       entityType,
       entityId: String(entityId),
       operation: operation.toUpperCase(),
-      payload: { ...payload },
+      payload: sanitizePayload(payload),
       clientVersion: Number(clientVersion) || 1,
       branchId: branchId || null,
       userId: userId || null,
+      userRole: userRole || null,
       status: 'pending', // 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict' | 'rejected'
       retryCount: 0,
       lastError: null,
@@ -58,8 +71,14 @@ export class MutationQueue {
     return mutation
   }
 
-  async getPending() {
-    const list = await this.storage.adapter.list('outbox', (m) => m.status === 'pending')
+  async getPending({ branchId = null, userRole = null } = {}) {
+    const list = await this.storage.adapter.list('outbox', (m) => {
+      if (m.status !== 'pending') return false
+      if (userRole && userRole !== 'Super Admin' && branchId) {
+        if (m.branchId && m.branchId !== branchId) return false
+      }
+      return true
+    })
     // Return in strict FIFO chronological order
     return list.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   }
@@ -140,10 +159,18 @@ export class MutationQueue {
     return item
   }
 
+  async removeMutation(mutationId) {
+    return this.storage.adapter.remove('outbox', mutationId)
+  }
+
   async clearSynced() {
     const synced = await this.storage.adapter.list('outbox', m => m.status === 'synced')
     const keys = synced.map(s => s.mutationId)
     return this.storage.adapter.batchRemove('outbox', keys)
+  }
+
+  async clearAll() {
+    return this.storage.adapter.clear('outbox')
   }
 
   async getQueueStats() {

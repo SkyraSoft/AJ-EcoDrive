@@ -6,12 +6,13 @@
  * - Reactive network listener (online/offline)
  * - Safe batched push of durable mutations
  * - Incremental delta pull by timestamp and branch
+ * - Reconciles pulled changes into Vue store collections
  * - Conflict detection and quarantine
  * - Periodic background sync cadence
  */
 
 import { reactive } from 'vue'
-import { api } from '@/services/api.js'
+import { api } from '../../services/api.js'
 import { offlineStorage } from '../storage/OfflineStorageEngine.js'
 import { mutationQueue } from './MutationQueue.js'
 
@@ -33,6 +34,7 @@ export class SyncCoordinator {
     this.timer = null
     this.isSyncing = false
     this.onSyncCompleteCallbacks = new Set()
+    this.pullReconciler = null
   }
 
   async init() {
@@ -47,6 +49,10 @@ export class SyncCoordinator {
       window.addEventListener('online', () => this.handleNetworkChange(true))
       window.addEventListener('offline', () => this.handleNetworkChange(false))
     }
+  }
+
+  setPullReconciler(fn) {
+    this.pullReconciler = fn
   }
 
   handleNetworkChange(isOnline, { autoSync = true } = {}) {
@@ -108,7 +114,11 @@ export class SyncCoordinator {
       await this._pushMutations()
 
       // 2. PULL remote changes from server
-      await this._pullChanges()
+      try {
+        await this._pullChanges()
+      } catch (pullErr) {
+        console.warn('[SyncCoordinator] Pull changes error:', pullErr?.message || pullErr)
+      }
 
       // 3. Mark success
       this.state.syncStatus = 'idle'
@@ -148,8 +158,29 @@ export class SyncCoordinator {
 
       for (const res of results) {
         const { mutationId, status, serverState, resolutionRule, error } = res
+        const m = batch.find(item => item.mutationId === mutationId)
         if (status === 'synced') {
           await this.queue.markSynced(mutationId)
+          if (m && m.entityType && m.entityId) {
+            // Update entity in storage
+            const entity = await this.storage.getEntity(m.entityType, m.entityId)
+            if (entity) {
+              entity._syncStatus = 'synced'
+              entity._isLocalOnly = false
+              if (serverState?.version) entity.version = serverState.version
+              await this.storage.saveEntity(m.entityType, entity)
+            }
+            // Update entity in store if available
+            const s = (typeof globalThis !== 'undefined' && globalThis.store) ? globalThis.store : null
+            if (s && typeof s.findRecord === 'function') {
+              const rec = s.findRecord(m.entityType, m.entityId)
+              if (rec) {
+                rec._syncStatus = 'synced'
+                rec._isLocalOnly = false
+                if (serverState?.version) rec.version = serverState.version
+              }
+            }
+          }
         } else if (status === 'conflict') {
           await this.queue.markConflict(mutationId, serverState, resolutionRule)
         } else if (status === 'rejected') {
@@ -178,7 +209,7 @@ export class SyncCoordinator {
     const payload = response?.data || response || {}
     const { entities = {}, tombstones = [] } = payload
 
-    // 1. Process received entity collections
+    // 1. Process received entity collections into IndexedDB
     for (const [entityType, items] of Object.entries(entities)) {
       if (Array.isArray(items) && items.length > 0) {
         await this.storage.cacheRemoteEntities(entityType, items)
@@ -189,6 +220,15 @@ export class SyncCoordinator {
     for (const tombstone of tombstones) {
       if (tombstone.entityType && tombstone.id) {
         await this.storage.deleteEntity(tombstone.entityType, tombstone.id)
+      }
+    }
+
+    // 3. Reconcile pulled changes into in-memory Vue store arrays
+    if (typeof this.pullReconciler === 'function') {
+      try {
+        await this.pullReconciler(entities, tombstones)
+      } catch (recErr) {
+        console.warn('[SyncCoordinator] Pull reconciler error:', recErr)
       }
     }
   }

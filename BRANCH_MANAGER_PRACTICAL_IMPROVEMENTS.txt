@@ -1,0 +1,206 @@
+AJ ECODRIVE BRANCH MANAGER WORKSPACE
+PRACTICAL IMPROVEMENTS ONLY
+
+Purpose
+-------
+The Branch Manager workspace already contains the required modules for daily EV showroom operations. The following points are only small refinements identified during the Branch Manager review. They are not new modules and should not make the system complicated.
+
+1. DELIVERY / HANDOVER CHECKLIST
+--------------------------------
+Ensure the existing Delivery / Handover form includes a printable checklist for:
+
+- Bike
+- Chassis number
+- Keys
+- Charger
+- Warranty card
+- Invoice
+- User manual
+- Registration documents
+- Customer confirmation/signature
+- Delivery staff signature
+
+2. PAPER FILE / REFERENCE NUMBER
+--------------------------------
+Confirm that the existing Customer, Order, Invoice, and Delivery / Handover forms include a Paper File Number or Customer File Reference field.
+
+This should connect the digital record with the physical showroom file used by staff.
+
+3. CLEAR LABELS FOR ICON-ONLY ACTIONS
+-------------------------------------
+Some table rows, especially Products, show action buttons without visible text.
+
+Every icon-only action should have a tooltip or accessible label such as:
+
+- View Product
+- View Stock
+- Request Stock
+- Edit Record
+- Open Details
+
+4. CONSISTENT BREADCRUMBS AND WORKSPACE LABELS
+----------------------------------------------
+The Branch Manager workspace should always show the correct branch context.
+
+For example, a Branch Manager page should not display a breadcrumb such as:
+
+Super Admin / Finance / Finance Overview
+
+It should display something similar to:
+
+Branch Manager / Peshawar Branch / Expense Summary
+
+This is mainly a clarity and presentation improvement.
+
+5. OPEN ACTIONS MUST OPEN THE EXACT RECORD
+------------------------------------------
+When a table row contains an Open button, it should open the exact related record rather than only opening the general module.
+
+Examples:
+
+- Open a specific order
+- Open a specific customer
+- Open a specific serialized unit
+- Open a specific transfer
+- Open a specific warranty case
+- Open a specific expense
+- Open a specific notification
+
+6. SIMPLE FORM STRUCTURE
+------------------------
+Every existing form should follow a simple and consistent structure:
+
+- Clear title
+- Required fields marked clearly
+- Optional fields kept optional
+- Notes field
+- Save or Submit button
+- Cancel button
+- Confirmation message after saving
+
+Forms should not expose advanced fields to ordinary showroom staff unless required by their role.
+
+7. NOTES FIELD ON IMPORTANT RECORDS
+-----------------------------------
+Ensure a Notes field exists on important records, including:
+
+- Customers
+- Quotations
+- Orders
+- Payments
+- Delivery / Handover
+- Stock Requests
+- Transfers
+- Inbound Deliveries
+- Returns
+- Warranty Cases
+- Repair Jobs
+- Expenses
+- Management Inbox conversations
+
+This is important because Pakistani showroom operations often require practical handwritten-style remarks and explanations.
+
+8. KEEP BRANCH CONTEXT VISIBLE
+------------------------------
+The Branch Manager should always be able to see:
+
+- Working in: Peshawar Branch
+- User role: Branch Manager
+- Current date period
+
+Branch restrictions should remain visible so staff know they are viewing and changing only their own branch records.
+
+9. EXPORT PERMISSIONS AND AVAILABILITY
+--------------------------------------
+Keep Export available where it is useful, such as:
+
+- Inventory
+- Serialized Units
+- Stock Requests
+- Sales
+- Customers
+- Payments
+- Expenses
+- Reports
+- Management Inbox
+
+Export should respect branch permissions and should not expose company-wide information to Branch Managers.
+
+10. ACTION CENTRE AND NOTIFICATIONS SHOULD REMAIN SEPARATE
+----------------------------------------------------------
+Keep the current separation:
+
+- Action Centre: tasks requiring action or treatment
+- Notifications: informational events
+- Management Inbox: conversations and discussions
+
+Do not duplicate the same item unnecessarily across all three areas.
+
+11. QUICK SALE AND QUICK ACTIONS
+-------------------------------
+Keep the existing header actions focused on daily showroom work.
+
+Useful Quick Sale or Quick Action options are:
+
+- New customer
+- New quotation
+- New sale/order
+- Record payment
+- Schedule handover
+- Add expense
+- Create stock request
+- Create service case
+
+Avoid adding complicated or rarely used actions to the header.
+
+12. PRINT-FRIENDLY EXISTING DOCUMENTS
+-------------------------------------
+Where applicable, the existing system should provide print or PDF options for:
+
+- Quotations
+- Invoices
+- Payment receipts
+- Purchase/receiving records
+- Stock requests
+- Transfer forms
+- Cycle-count sheets
+- Delivery/handover forms
+- Service job cards
+- Expense records
+- Branch reports
+- Cash/expense summaries
+
+This supports the paper-based working style of Pakistani showrooms.
+
+13. DO NOT ADD NEW COMPLEX MODULES NOW
+-------------------------------------
+Do not add the following unless the business later requests them:
+
+- Complex battery state-of-health calculations
+- Automatic Excise integration
+- Full bank API integrations
+- Advanced tax automation
+- IoT vehicle tracking
+- Customer mobile application
+- Complicated workshop scheduling
+- Automated subsidy verification
+- Large technical dashboards
+- Mandatory barcode scanning everywhere
+
+Final Direction
+---------------
+The Branch Manager workspace is already functionally complete for daily showroom operations. The correct next step is not to expand the system with more modules.
+
+The focus should be on:
+
+- Clear labels
+- Correct branch context
+- Simple forms
+- Printable documents
+- Paper-file references
+- Exact record-opening actions
+- Useful notes fields
+- Permission-aware exports
+- Consistent breadcrumbs
+
+These improvements will make the existing system easier for Pakistani EV showroom staff to understand and use without making it unnecessarily deep or complicated.

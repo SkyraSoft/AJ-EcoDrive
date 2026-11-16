@@ -65,11 +65,12 @@ onMounted(() => {
   }
 })
 
-const handleLogout = () => {
+const handleLogout = async () => {
   if (syncCoordinator.state.pendingCount > 0 && typeof window !== 'undefined') {
-    const proceed = window.confirm(`You have ${syncCoordinator.state.pendingCount} unsynchronized changes. Are you sure you want to log out?`)
+    const proceed = window.confirm(`You have ${syncCoordinator.state.pendingCount} unsynchronized changes. Logging out will discard local unsynchronized changes to protect multi-tenant security. Are you sure you want to log out?`)
     if (!proceed) return
   }
+  await store.purgeAllOfflineData()
   store.logout()
   router.push('/login')
 }

@@ -3,13 +3,16 @@
  * 
  * Production IndexedDB storage engine for Web SPA.
  * Supports asynchronous transactional CRUD, compound indices,
- * and resilient in-memory fallback for test harnesses.
+ * branch isolation, and resilient in-memory fallback for test harnesses.
  */
 
 import { StorageAdapter } from './StorageAdapter.js'
 
 const DB_NAME = 'ecodrive_offline_db'
-const DB_VERSION = 1
+const DB_VERSION = 2
+
+// Shared in-memory fallback store by database name to simulate cross-instance persistence in tests
+const SHARED_MEMORY_DATABASES = new Map()
 
 export class IndexedDBStorageAdapter extends StorageAdapter {
   constructor(dbName = DB_NAME, version = DB_VERSION) {
@@ -18,7 +21,10 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
     this.version = version
     this.db = null
     this.isFallback = false
-    this.fallbackStore = new Map() // storeName -> Map(key, value)
+
+    if (!SHARED_MEMORY_DATABASES.has(dbName)) {
+      SHARED_MEMORY_DATABASES.set(dbName, new Map())
+    }
   }
 
   async init() {
@@ -39,29 +45,40 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
         const db = event.target.result
 
         // 1. Entities store: Local mirrors of server business records
+        let entityStore
         if (!db.objectStoreNames.contains('entities')) {
-          const entityStore = db.createObjectStore('entities', { keyPath: 'id' })
-          entityStore.createIndex('by_entity_type', 'entityType', { unique: false })
-          entityStore.createIndex('by_branch', 'branchId', { unique: false })
-          entityStore.createIndex('by_type_branch', ['entityType', 'branchId'], { unique: false })
-          entityStore.createIndex('by_updated', 'updatedAt', { unique: false })
+          entityStore = db.createObjectStore('entities', { keyPath: 'id' })
+        } else {
+          entityStore = request.transaction.objectStore('entities')
         }
+        if (!entityStore.indexNames.contains('by_entity_type')) entityStore.createIndex('by_entity_type', 'entityType', { unique: false })
+        if (!entityStore.indexNames.contains('by_branch')) entityStore.createIndex('by_branch', 'branchId', { unique: false })
+        if (!entityStore.indexNames.contains('by_type_branch')) entityStore.createIndex('by_type_branch', ['entityType', 'branchId'], { unique: false })
+        if (!entityStore.indexNames.contains('by_user')) entityStore.createIndex('by_user', 'userId', { unique: false })
+        if (!entityStore.indexNames.contains('by_updated')) entityStore.createIndex('by_updated', 'updatedAt', { unique: false })
 
         // 2. Outbox store: Durable append-only queue of mutations waiting to sync
+        let outboxStore
         if (!db.objectStoreNames.contains('outbox')) {
-          const outboxStore = db.createObjectStore('outbox', { keyPath: 'mutationId' })
-          outboxStore.createIndex('by_status', 'status', { unique: false })
-          outboxStore.createIndex('by_created', 'createdAt', { unique: false })
-          outboxStore.createIndex('by_entity_type', 'entityType', { unique: false })
+          outboxStore = db.createObjectStore('outbox', { keyPath: 'mutationId' })
+        } else {
+          outboxStore = request.transaction.objectStore('outbox')
         }
+        if (!outboxStore.indexNames.contains('by_status')) outboxStore.createIndex('by_status', 'status', { unique: false })
+        if (!outboxStore.indexNames.contains('by_created')) outboxStore.createIndex('by_created', 'createdAt', { unique: false })
+        if (!outboxStore.indexNames.contains('by_entity_type')) outboxStore.createIndex('by_entity_type', 'entityType', { unique: false })
+        if (!outboxStore.indexNames.contains('by_branch')) outboxStore.createIndex('by_branch', 'branchId', { unique: false })
 
         // 3. Conflicts store: Records requiring managerial resolution
+        let conflictStore
         if (!db.objectStoreNames.contains('conflicts')) {
-          const conflictStore = db.createObjectStore('conflicts', { keyPath: 'conflictId' })
-          conflictStore.createIndex('by_mutation', 'mutationId', { unique: false })
-          conflictStore.createIndex('by_entity', 'entityType', { unique: false })
-          conflictStore.createIndex('by_created', 'createdAt', { unique: false })
+          conflictStore = db.createObjectStore('conflicts', { keyPath: 'conflictId' })
+        } else {
+          conflictStore = request.transaction.objectStore('conflicts')
         }
+        if (!conflictStore.indexNames.contains('by_mutation')) conflictStore.createIndex('by_mutation', 'mutationId', { unique: false })
+        if (!conflictStore.indexNames.contains('by_entity')) conflictStore.createIndex('by_entity', 'entityType', { unique: false })
+        if (!conflictStore.indexNames.contains('by_created')) conflictStore.createIndex('by_created', 'createdAt', { unique: false })
 
         // 4. Sync State store: Metadata like lastSyncTimestamp, branchVersion
         if (!db.objectStoreNames.contains('sync_state')) {
@@ -69,11 +86,14 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
         }
 
         // 5. Tombstones store: Locally deleted records to notify server during sync
+        let tombstoneStore
         if (!db.objectStoreNames.contains('tombstones')) {
-          const tombstoneStore = db.createObjectStore('tombstones', { keyPath: 'id' })
-          tombstoneStore.createIndex('by_entity_type', 'entityType', { unique: false })
-          tombstoneStore.createIndex('by_deleted', 'deletedAt', { unique: false })
+          tombstoneStore = db.createObjectStore('tombstones', { keyPath: 'id' })
+        } else {
+          tombstoneStore = request.transaction.objectStore('tombstones')
         }
+        if (!tombstoneStore.indexNames.contains('by_entity_type')) tombstoneStore.createIndex('by_entity_type', 'entityType', { unique: false })
+        if (!tombstoneStore.indexNames.contains('by_deleted')) tombstoneStore.createIndex('by_deleted', 'deletedAt', { unique: false })
       }
 
       request.onsuccess = (event) => {
@@ -90,30 +110,34 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
   }
 
   _getMemoryStore(storeName) {
-    if (!this.fallbackStore.has(storeName)) {
-      this.fallbackStore.set(storeName, new Map())
+    const dbMap = SHARED_MEMORY_DATABASES.get(this.dbName)
+    if (!dbMap.has(storeName)) {
+      dbMap.set(storeName, new Map())
     }
-    return this.fallbackStore.get(storeName)
+    return dbMap.get(storeName)
   }
 
   async get(storeName, key) {
     await this.init()
     if (this.isFallback) {
-      return this._getMemoryStore(storeName).get(String(key)) || null
+      const val = this._getMemoryStore(storeName).get(String(key))
+      return val ? JSON.parse(JSON.stringify(val)) : null
     }
 
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([storeName], 'readonly')
       const store = tx.objectStore(storeName)
       const req = store.get(key)
-      req.onsuccess = () => resolve(req.result || null)
+      req.onsuccess = () => resolve(req.result ? JSON.parse(JSON.stringify(req.result)) : null)
       req.onerror = () => reject(req.error)
     })
   }
 
   async set(storeName, key, value) {
     await this.init()
-    const record = { ...value }
+    // Safe deep copy to eliminate functions or non-serializables
+    const record = JSON.parse(JSON.stringify(value))
+
     // Ensure primary key attribute exists on the object
     if (storeName === 'entities' || storeName === 'tombstones') {
       record.id = record.id || key
@@ -158,7 +182,7 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
   async list(storeName, filterFn = null) {
     await this.init()
     if (this.isFallback) {
-      const all = Array.from(this._getMemoryStore(storeName).values())
+      const all = Array.from(this._getMemoryStore(storeName).values()).map(v => JSON.parse(JSON.stringify(v)))
       return filterFn ? all.filter(filterFn) : all
     }
 
@@ -167,7 +191,7 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
       const store = tx.objectStore(storeName)
       const req = store.getAll()
       req.onsuccess = () => {
-        const results = req.result || []
+        const results = (req.result || []).map(v => JSON.parse(JSON.stringify(v)))
         resolve(filterFn ? results.filter(filterFn) : results)
       }
       req.onerror = () => reject(req.error)
@@ -194,22 +218,24 @@ export class IndexedDBStorageAdapter extends StorageAdapter {
     if (!Array.isArray(items) || items.length === 0) return []
     await this.init()
 
+    const sanitized = JSON.parse(JSON.stringify(items))
+
     if (this.isFallback) {
       const memStore = this._getMemoryStore(storeName)
-      for (const item of items) {
+      for (const item of sanitized) {
         const key = item.id || item.mutationId || item.conflictId || item.key
-        memStore.set(String(key), { ...item })
+        memStore.set(String(key), item)
       }
-      return items
+      return sanitized
     }
 
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction([storeName], 'readwrite')
       const store = tx.objectStore(storeName)
-      for (const item of items) {
+      for (const item of sanitized) {
         store.put(item)
       }
-      tx.oncomplete = () => resolve(items)
+      tx.oncomplete = () => resolve(sanitized)
       tx.onerror = () => reject(tx.error)
     })
   }

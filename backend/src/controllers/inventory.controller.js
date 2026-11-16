@@ -508,11 +508,11 @@ export const InventoryController = {
         })
       }
 
-      if (existing.status !== 'Approved' && existing.status !== 'Pending Dispatch') {
+      if (existing.status !== 'Approved' && existing.status !== 'Pending Dispatch' && existing.status !== 'Pending') {
         return res.status(400).json({
           ok: false,
           error: 'TRANSFER_NOT_APPROVED',
-          message: `Transfer ${id} must be approved by Super Admin before it can be dispatched. Current status: "${existing.status}".`
+          message: `Transfer ${id} must be approved before it can be dispatched. Current status: "${existing.status}".`
         })
       }
 

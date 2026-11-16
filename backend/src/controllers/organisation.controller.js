@@ -1,4 +1,5 @@
 import { OrganisationModel } from '../models/organisation.model.js'
+import { UserModel } from '../models/user.model.js'
 import { getEffectiveBranch, isUserSuperAdmin, assertSuperAdminRole, assertBranchAccess } from '../utils/branchScope.js'
 import { validatePasswordComplexity } from '../utils/security.js'
 
@@ -95,6 +96,19 @@ export const OrganisationController = {
       }
       if (!password || !String(password).trim()) {
         return res.status(422).json({ ok: false, error: 'VALIDATION_ERROR', message: 'Password is required when creating a user; default passwords are not permitted.' })
+      }
+
+      if (username) {
+        const existingByUsername = await UserModel.findByUsernameOrEmail(String(username).trim())
+        if (existingByUsername) {
+          return res.status(409).json({ ok: false, error: 'DUPLICATE_USER', message: 'User with this username already exists.' })
+        }
+      }
+      if (email) {
+        const existingByEmail = await UserModel.findByUsernameOrEmail(String(email).trim())
+        if (existingByEmail) {
+          return res.status(409).json({ ok: false, error: 'DUPLICATE_USER', message: 'User with this email already exists.' })
+        }
       }
 
       const complexity = validatePasswordComplexity(password)

@@ -382,7 +382,7 @@ const activities = computed(() => {
   <CreatePurchaseReturn v-if="showEditModal" @close="showEditModal = false" />
 
   <!-- PRINTABLE PURCHASE RETURN / VENDOR DEBIT NOTE -->
-  <div class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black">
+  <div v-if="returnRecord" class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black">
     <!-- Header -->
     <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
       <div>

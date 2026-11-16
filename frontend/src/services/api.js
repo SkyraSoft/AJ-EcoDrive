@@ -89,8 +89,11 @@ class ApiClient {
     if (typeof import.meta !== 'undefined' && import.meta.env) {
       if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '')
       if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/+$/, '')
+      if (import.meta.env.PROD || import.meta.env.MODE === 'production') {
+        return 'https://ecodrive.skyrasoft.com/api/v1'
+      }
     }
-    if (import.meta.env.PROD || import.meta.env.MODE === 'production') {
+    if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
       return 'https://ecodrive.skyrasoft.com/api/v1'
     }
     return 'http://localhost:3000/api/v1'

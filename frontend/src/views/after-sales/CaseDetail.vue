@@ -467,7 +467,7 @@ const commLogs = ref([
   </div>
 
   <!-- PRINTABLE OFFICIAL 2-YEAR OEM WARRANTY CERTIFICATE -->
-  <div class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black border-[3px] border-[#165A31] rounded-sm relative">
+  <div v-if="caseData" class="print-document hidden font-sans p-8 max-w-4xl mx-auto bg-white text-black border-[3px] border-[#165A31] rounded-sm relative">
     <!-- Double border inner box -->
     <div class="border border-[#165A31] p-6">
       <!-- Certificate Header -->

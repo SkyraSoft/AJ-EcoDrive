@@ -9,6 +9,20 @@ export { offlineStorage, mutationQueue, syncCoordinator }
 
 export { api, ApiError }
 
+function sanitizeForStorage(obj) {
+  if (!obj || typeof obj !== 'object') return {}
+  const clean = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (k.startsWith('_') || typeof v === 'function' || typeof v === 'symbol') continue
+    clean[k] = v
+  }
+  try {
+    return JSON.parse(JSON.stringify(clean))
+  } catch (e) {
+    return { ...clean }
+  }
+}
+
 // Load initial session from storage if available
 const savedSession = (() => {
   try {
@@ -151,6 +165,10 @@ export const store = reactive({
       cases: 'cases',
       repair_job: 'repairs',
       repairs: 'repairs',
+      serialized_unit: 'serializedUnits',
+      serializedUnits: 'serializedUnits',
+      unit: 'serializedUnits',
+      units: 'serializedUnits',
       product: 'products',
       products: 'products',
       stock_adjustment: 'stockAdjustments',
@@ -173,17 +191,27 @@ export const store = reactive({
       item.id === entityId ||
       item[entityType + '_id'] === entityId ||
       item[entityType] === entityId ||
-      item.code === entityId
+      item.code === entityId ||
+      item.serial === entityId ||
+      item.unit_id === entityId ||
+      item.vin === entityId
     ) || null
   },
 
-  // Asynchronous API Persistence Dispatcher with Outbox & Rollback Support
+  // Asynchronous API Persistence Dispatcher with IndexedDB & Durable MutationQueue
   _dispatchApiSync(operation, apiCallFn, metadata = {}) {
-    if (!apiCallFn || typeof apiCallFn !== 'function') return Promise.resolve(null)
-    
     const entityType = metadata.entityType
     const entityId = metadata.entityId
-    const record = metadata.record || (entityType && entityId ? this.findRecord(entityType, entityId) : null)
+    const isDelete = metadata.isDelete || operation.toUpperCase().includes('DELETE') || operation.toUpperCase().includes('REMOVE')
+    const operationType = metadata.operation || (isDelete ? 'DELETE' : (operation.toUpperCase().includes('UPDATE') || operation.toUpperCase().includes('EDIT')) ? 'UPDATE' : 'CREATE')
+    const branchId = metadata.branchId || this.currentBranchId || (this.currentUser?.branch_id) || null
+    const userId = metadata.userId || this.currentUser?.id || null
+    const userRole = metadata.userRole || this.currentUser?.role || null
+    const clientVersion = metadata.clientVersion || 1
+
+    const record = metadata.record || (entityType && entityId && !isDelete ? this.findRecord(entityType, entityId) : null)
+    const payload = metadata.payload || (record ? sanitizeForStorage(record) : { id: entityId })
+    const moduleLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : ''
 
     if (record) {
       record._syncStatus = 'pending'
@@ -192,9 +220,101 @@ export const store = reactive({
       record._lastSyncAttempt = new Date().toISOString()
     }
 
+    // Determine Online / Offline Network Condition
+    const isOffline = (typeof navigator !== 'undefined' && !navigator.onLine) || !syncCoordinator.state.isOnline
+
+    // Call apiCallFn synchronously if online so callers/spies register invocation immediately
+    const apiCallPromise = (!isOffline && typeof apiCallFn === 'function') ? apiCallFn() : null
+
     const syncPromise = (async () => {
+      // 1. Durably Persist Entity State to IndexedDB (or Record Tombstone on Delete)
+      if (entityType && entityId) {
+        try {
+          if (isDelete) {
+            await offlineStorage.deleteEntity(entityType, entityId, { branchId, userId, userRole })
+          } else if (record) {
+            await offlineStorage.saveEntity(entityType, record, { branchId, userId, userRole })
+          }
+        } catch (storageErr) {
+          console.warn(`[OfflineStorage] Failed to save entity ${entityType}:${entityId}:`, storageErr)
+        }
+      }
+
+      // 2. Enqueue Durable Mutation into MutationQueue (IndexedDB outbox)
+      let mutation = null
+      if (entityType && entityId) {
+        try {
+          mutation = await mutationQueue.enqueue({
+            entityType,
+            entityId,
+            operation: operationType,
+            payload,
+            clientVersion,
+            branchId,
+            userId,
+            userRole,
+            idempotencyKey: metadata.idempotencyKey || `${entityType}:${operationType}:${entityId}:${Date.now()}`
+          })
+        } catch (queueErr) {
+          console.warn(`[MutationQueue] Failed to enqueue mutation ${entityType}:${entityId}:`, queueErr)
+        }
+        await syncCoordinator.updateStats()
+      }
+
+      // Mirror into reactive in-memory syncOutbox for component reactivity and backwards compatibility
+      if (entityType && entityId) {
+        this.addToSyncOutbox({
+          mutationId: mutation?.mutationId,
+          operation,
+          entityType,
+          entityId,
+          record,
+          branchId,
+          userId,
+          error: null,
+          status: 'pending',
+          timestamp: new Date().toISOString(),
+          retryFn: apiCallFn
+        })
+      }
+
+      // 3. Determine Online / Offline Network Condition
+      const isOffline = (typeof navigator !== 'undefined' && !navigator.onLine) || !syncCoordinator.state.isOnline
+
+      if (isOffline) {
+        if (record) {
+          record._syncStatus = 'offline_local'
+          record._isLocalOnly = true
+          record._syncError = null
+          try {
+            await offlineStorage.saveEntity(entityType, record, { branchId, userId, userRole })
+          } catch (_) {}
+        }
+        if (entityType && entityId) {
+          const outboxEntry = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
+          if (outboxEntry) {
+            outboxEntry.status = 'offline'
+            outboxEntry.isOffline = true
+          }
+        }
+        this.showToast({
+          message: 'Saved locally — waiting for synchronization.',
+          type: 'info',
+          title: moduleLabel
+        })
+        await syncCoordinator.updateStats()
+        return { ok: true, isOffline: true, status: 0, record, mutationId: mutation?.mutationId }
+      }
+
+      // 4. Online Execution Path
+      if (mutation) {
+        await mutationQueue.markSyncing(mutation.mutationId)
+      }
+
       try {
-        const response = await apiCallFn()
+        const response = await apiCallPromise
+
+        // Confirmed Server Acknowledgement
         if (record) {
           record._syncStatus = 'synced'
           record._isLocalOnly = false
@@ -202,20 +322,32 @@ export const store = reactive({
           if (response?.data?.id && response.data.id !== entityId) {
             record.serverId = response.data.id
           }
+          if (response?.data?.version) {
+            record.version = response.data.version
+          }
+          await offlineStorage.saveEntity(entityType, record, { branchId, userId, userRole })
         }
 
-        // Remove resolved item from outbox if it existed
+        // Clean outbox and tombstones on confirmed acknowledgement
+        if (mutation) {
+          await mutationQueue.markSynced(mutation.mutationId)
+          await mutationQueue.removeMutation(mutation.mutationId)
+        }
+
+        if (isDelete && entityType && entityId) {
+          await offlineStorage.clearTombstones([entityId])
+        }
+
         if (entityType && entityId) {
           this.removeFromSyncOutbox(entityType, entityId)
         }
 
-        // Trigger consistent success toast on confirmed backend response
-        const isUpdate = operation.includes('update') || operation.includes('edit')
-        const isDelete = operation.includes('delete') || operation.includes('remove')
-        const moduleLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : ''
+        await syncCoordinator.updateStats()
+
+        // Confirmed server success toast
         if (isDelete) {
           this.toastDelete('Data deleted successfully.', moduleLabel)
-        } else if (isUpdate) {
+        } else if (operationType === 'UPDATE') {
           this.toastUpdate('Data updated successfully.', moduleLabel)
         } else {
           this.toastSuccess('Data saved successfully.', moduleLabel)
@@ -223,56 +355,108 @@ export const store = reactive({
 
         return { ok: true, status: response?.status || 200, data: response?.data, record }
       } catch (err) {
-        const isOffline = !!err?.isOffline
+        const isNetError = !!err?.isOffline || err?.name === 'AbortError' || (err?.message && err.message.toLowerCase().includes('failed to fetch')) || err?.status === 0
+
+        if (isNetError) {
+          if (record) {
+            record._syncStatus = 'offline_local'
+            record._isLocalOnly = true
+            record._syncError = null
+            await offlineStorage.saveEntity(entityType, record, { branchId, userId, userRole })
+          }
+          if (mutation) {
+            await mutationQueue.markFailed(mutation.mutationId, err)
+          }
+          if (entityType && entityId) {
+            const outboxEntry = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
+            if (outboxEntry) {
+              outboxEntry.status = 'offline'
+              outboxEntry.isOffline = true
+              outboxEntry.error = err?.message || 'Network failure'
+            }
+          }
+          this.showToast({
+            message: 'Saved locally — waiting for synchronization.',
+            type: 'info',
+            title: moduleLabel
+          })
+          await syncCoordinator.updateStats()
+          return { ok: true, isOffline: true, status: 0, record, mutationId: mutation?.mutationId }
+        }
+
+        // HTTP 409 Conflict Response
+        if (err?.status === 409) {
+          if (record) {
+            record._syncStatus = 'conflict'
+            record._syncError = err?.message || 'Conflict detected'
+          }
+          if (mutation) {
+            await mutationQueue.markConflict(mutation.mutationId, err?.data?.serverState, err?.data?.resolutionRule)
+          }
+          if (entityType && entityId) {
+            const outboxEntry = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
+            if (outboxEntry) {
+              outboxEntry.status = 'conflict'
+              outboxEntry.error = err?.message
+            }
+          }
+          this.toastError(err, 'Version conflict detected on server. Quarantined for review.', moduleLabel)
+          await syncCoordinator.updateStats()
+          return { ok: false, error: err?.message, status: 409, record }
+        }
+
+        // HTTP 4xx Rejection (Validation / Forbidden)
+        if (err?.status >= 400 && err?.status < 500) {
+          if (record) {
+            record._syncStatus = 'failed'
+            record._syncError = err?.message
+          }
+          if (mutation) {
+            await mutationQueue.markRejected(mutation.mutationId, err?.message || 'Rejected by server')
+          }
+          if (entityType && entityId) {
+            const outboxEntry = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
+            if (outboxEntry) {
+              outboxEntry.status = 'failed'
+              outboxEntry.error = err?.message
+              outboxEntry.httpStatus = err?.status
+            }
+          }
+          if (err?.status === 422 || err?.status === 400) {
+            this.toastValidation(err?.data?.errors || err?.message || 'Validation failed. Please check form fields.', moduleLabel)
+          } else {
+            this.toastError(err, err?.message || 'Operation unauthorized or rejected.', moduleLabel)
+          }
+          await syncCoordinator.updateStats()
+          return { ok: false, error: err?.message, status: err?.status, record }
+        }
+
+        // HTTP 5xx Server Error
         if (record) {
-          record._syncStatus = isOffline ? 'offline_local' : 'failed'
-          record._syncError = err?.message || 'Sync failed'
-          record._isLocalOnly = true
+          record._syncStatus = 'failed'
+          record._syncError = err?.message || 'Server error'
         }
-
-        // Add or update outbox item
+        if (mutation) {
+          await mutationQueue.markFailed(mutation.mutationId, err)
+        }
         if (entityType && entityId) {
-          this.addToSyncOutbox({
-            operation,
-            entityType,
-            entityId,
-            record,
-            error: err?.message || 'Sync failed',
-            isOffline,
-            status: isOffline ? 'offline' : 'failed',
-            httpStatus: err?.status || 0,
-            timestamp: new Date().toISOString(),
-            retryFn: apiCallFn
-          })
+          const outboxEntry = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
+          if (outboxEntry) {
+            outboxEntry.status = 'failed'
+            outboxEntry.error = err?.message || 'Server error'
+            outboxEntry.httpStatus = err?.status || 500
+          }
         }
-
-        const moduleLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : ''
-        if (isOffline) {
-          this.toastError(err, 'Network connection failure. Please check your connection and try again.', moduleLabel)
-        } else if (err?.status === 422 || err?.status === 400 || err?.code === 'VALIDATION_ERROR') {
-          this.toastValidation(err?.data?.errors || err?.message || 'Validation failed. Please check form fields.', moduleLabel)
-        } else {
-          this.toastError(err, 'Operation failed. Please try again.', moduleLabel)
-        }
-
-        if (!isOffline) {
-          console.warn(`[API Sync: ${operation}] Failed (Status ${err?.status || 0}):`, err?.message || err)
-          this.addNotification({
-            title: `Sync Failed: ${operation}`,
-            message: err?.message || 'Server rejected the request',
-            type: 'danger',
-            priority: 'High',
-            category: 'System'
-          })
-        }
-
-        return { ok: false, error: err?.message, isOffline, status: err?.status || 0, record }
+        this.toastError(err, 'Backend service problem. Request queued for retry.', moduleLabel)
+        await syncCoordinator.updateStats()
+        return { ok: false, error: err?.message, status: err?.status || 500, record }
       }
     })()
 
     if (record) {
       record._syncPromise = syncPromise
     }
+    this._lastSyncPromise = syncPromise
 
     return syncPromise
   },
@@ -304,7 +488,13 @@ export const store = reactive({
     if (idx !== -1) {
       this[colName].splice(idx, 1)
       this.removeFromSyncOutbox(entityType, entityId)
+      offlineStorage.deleteEntity(entityType, entityId).catch(() => {})
+      mutationQueue.getPending().then(pending => {
+        const matching = pending.find(m => m.entityType === entityType && m.entityId === String(entityId))
+        if (matching) mutationQueue.removeMutation(matching.mutationId).catch(() => {})
+      }).catch(() => {})
       this.reconcileInventoryTotals()
+      syncCoordinator.updateStats().catch(() => {})
       return true
     }
     return false
@@ -313,20 +503,179 @@ export const store = reactive({
   // Retry a failed or offline outbox item
   async retrySync(entityType, entityId) {
     const item = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
-    if (!item || !item.retryFn) return null
-    return this._dispatchApiSync(item.operation, item.retryFn, {
-      entityType: item.entityType,
-      entityId: item.entityId,
-      record: item.record
-    })
+    if (item && item.retryFn) {
+      return this._dispatchApiSync(item.operation, item.retryFn, {
+        entityType: item.entityType,
+        entityId: item.entityId,
+        record: item.record
+      })
+    }
+    return syncCoordinator.syncNow()
   },
 
   async retryAllFailedSyncs() {
-    const toRetry = [...this.syncOutbox]
-    const results = await Promise.allSettled(
-      toRetry.map(item => this.retrySync(item.entityType, item.entityId))
-    )
-    return results
+    return syncCoordinator.syncNow()
+  },
+
+  // Hydrate in-memory store arrays from IndexedDB cached entities
+  async hydrateFromOfflineStorage() {
+    try {
+      const branchId = this.currentBranchId || (this.currentUser?.branch_id) || null
+      const userRole = this.currentUser?.role || null
+
+      const entityTypes = [
+        'customer', 'lead', 'quotation', 'order', 'invoice', 'payment',
+        'serialized_unit', 'transfer', 'stock_adjustment', 'expense',
+        'service_case', 'repair_job', 'product', 'category', 'pricing_rule',
+        'follow_up', 'delivery', 'receipt', 'purchase_order', 'supplier'
+      ]
+
+      for (const eType of entityTypes) {
+        const cached = await offlineStorage.queryEntities(eType, { branchId, userRole })
+        if (Array.isArray(cached) && cached.length > 0) {
+          const colName = this.getCollectionNameForEntity(eType)
+          if (colName && Array.isArray(this[colName])) {
+            this._mergeRemoteCollection(colName, cached, ['id', 'customer_id', 'unit_id', 'serial', 'order_id', 'invoice_id', 'quote', 'expense_id'])
+          }
+        }
+      }
+
+      await syncCoordinator.updateStats()
+    } catch (err) {
+      console.warn('[store] Hydration from offline storage notice:', err?.message || err)
+    }
+  },
+
+  // Reconcile changes received from backend delta pull into in-memory store arrays
+  async reconcileFromPull(entities = {}, tombstones = []) {
+    for (const [entityType, items] of Object.entries(entities)) {
+      if (Array.isArray(items) && items.length > 0) {
+        const colName = this.getCollectionNameForEntity(entityType)
+        if (colName && Array.isArray(this[colName])) {
+          this._mergeRemoteCollection(colName, items, ['id', 'customer_id', 'unit_id', 'serial', 'order_id', 'invoice_id'])
+        }
+      }
+    }
+
+    if (Array.isArray(tombstones)) {
+      for (const tomb of tombstones) {
+        const entityType = tomb.entityType
+        const id = tomb.id
+        if (entityType && id) {
+          const colName = this.getCollectionNameForEntity(entityType)
+          if (colName && Array.isArray(this[colName])) {
+            const idx = this[colName].findIndex(item => 
+              item.id === id || item[entityType + '_id'] === id || item.code === id || item.serial === id
+            )
+            if (idx !== -1) {
+              const item = this[colName][idx]
+              if (!item._isLocalOnly && item._syncStatus !== 'offline_local') {
+                this[colName].splice(idx, 1)
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (entities.serialized_unit || entities.serializedUnits || entities.unit) {
+      this.reconcileInventoryTotals()
+    }
+  },
+
+  // Clear all offline storage data and durable outbox queue on secure logout
+  async purgeAllOfflineData() {
+    this.syncOutbox = []
+    await offlineStorage.clearAllData()
+    await mutationQueue.clearAll()
+    await syncCoordinator.updateStats()
+  },
+
+  // Direct Business Mutation Aliases for Universal Workflow Compatibility
+  createCustomer(data) { return this.addCustomer(data) },
+  createQuotation(data) { return this.addQuotation(data) },
+  createOrder(data) { return this.addOrder(data) },
+  createInvoice(data) { return this.addInvoice(data) },
+  createPayment(data) { return this.addPayment(data) },
+  createExpense(data) { return this.addExpense(data) },
+  createRepairJob(data) { return this.addRepairJob(data) },
+  createCase(data) { return this.addCase(data) },
+  createLead(data) { return this.addLead(data) },
+  createStockAdjustment(data) { return this.addAdjustment(data) },
+
+  deleteLead(id) {
+    const idx = this.leads.findIndex(l => l.id === id || l.lead_id === id)
+    if (idx !== -1) {
+      const removed = this.leads.splice(idx, 1)[0]
+      this._dispatchApiSync('leads.delete', () => api.leads.delete(id), {
+        entityType: 'lead',
+        entityId: id,
+        isDelete: true,
+        branchId: removed?.branch_id || removed?.branchId
+      })
+      return true
+    }
+    return false
+  },
+
+  deleteQuotation(id) {
+    const idx = this.quotations.findIndex(q => q.id === id || q.quote_id === id)
+    if (idx !== -1) {
+      const removed = this.quotations.splice(idx, 1)[0]
+      this._dispatchApiSync('quotations.delete', () => api.quotations.delete(id), {
+        entityType: 'quotation',
+        entityId: id,
+        isDelete: true,
+        branchId: removed?.branch_id || removed?.branchId
+      })
+      return true
+    }
+    return false
+  },
+
+  deleteOrder(id) {
+    const idx = this.orders.findIndex(o => o.id === id || o.order_id === id)
+    if (idx !== -1) {
+      const removed = this.orders.splice(idx, 1)[0]
+      this._dispatchApiSync('orders.delete', () => api.orders.delete(id), {
+        entityType: 'order',
+        entityId: id,
+        isDelete: true,
+        branchId: removed?.branch_id || removed?.branchId
+      })
+      return true
+    }
+    return false
+  },
+
+  deleteInvoice(id) {
+    const idx = this.invoices.findIndex(i => i.id === id || i.invoice_id === id)
+    if (idx !== -1) {
+      const removed = this.invoices.splice(idx, 1)[0]
+      this._dispatchApiSync('invoices.delete', () => api.delete(`/invoices/${id}`), {
+        entityType: 'invoice',
+        entityId: id,
+        isDelete: true,
+        branchId: removed?.branch_id || removed?.branchId
+      })
+      return true
+    }
+    return false
+  },
+
+  deleteExpense(id) {
+    const idx = this.expenses.findIndex(e => e.id === id || e.expense_id === id)
+    if (idx !== -1) {
+      const removed = this.expenses.splice(idx, 1)[0]
+      this._dispatchApiSync('finance.deleteExpense', () => api.delete(`/finance/expenses/${id}`), {
+        entityType: 'expense',
+        entityId: id,
+        isDelete: true,
+        branchId: removed?.branch_id || removed?.branchId
+      })
+      return true
+    }
+    return false
   },
 
   // Intelligent non-destructive reconciliation for remote collections
@@ -972,6 +1321,9 @@ export const store = reactive({
 
     // Trigger non-blocking background hydration from remote backend
     try {
+      this.hydrateFromOfflineStorage().catch(err => {
+        console.warn('[EcoDrive] Offline storage hydration notice:', err.message)
+      })
       this.syncAllWithBackend().catch(err => {
         console.warn('[EcoDrive] Session remote sync note:', err.message)
       })
@@ -979,7 +1331,7 @@ export const store = reactive({
   },
 
   // Logout and clear active branch session
-  logout() {
+  async logout() {
     this.currentUser = {
       isAuthenticated: false,
       branchCode: '',
@@ -998,6 +1350,10 @@ export const store = reactive({
         localStorage.removeItem('auth_user')
         localStorage.removeItem('ecodrive_token')
         localStorage.removeItem('auth_token')
+      }
+      try {
+        await this.purgeAllOfflineData()
+      } catch (_) {
       }
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem('ecodrive_auth_session')
@@ -1037,7 +1393,7 @@ export const store = reactive({
           branchCode: branchObj?.code || canonicalId || explicitBranch
         }
       }
-      const saBranch = user.branchId || user.branchCode || user.branchName || user.branch
+      const saBranch = user.branch_id || user.branchId || user.branchCode || user.branchName || user.branch
       if (saBranch && saBranch !== 'ALL' && saBranch !== 'All') {
         const canonicalId = this.resolveCanonicalBranchId(saBranch)
         const branchObj = this.branches.find(b => b.id === canonicalId || b.branch_id === canonicalId)
@@ -1060,7 +1416,7 @@ export const store = reactive({
 
     // 2. For Branch Manager / operational branch users:
     // Session context MUST control ownership. Payload cannot forge another branch!
-    const userBranch = user.branchId || user.branchCode || user.branchName || user.branch
+    const userBranch = user.branch_id || user.branchId || user.branchCode || user.branchName || user.branch
     const canonicalId = this.resolveCanonicalBranchId(userBranch)
     const branchObj = this.branches.find(b => b.id === canonicalId || b.branch_id === canonicalId)
 
@@ -2694,7 +3050,15 @@ export const store = reactive({
     }
     const idx = this.customers.findIndex(c => c.id === customerId || c.customer_id === customerId || c.code === customerId)
     if (idx !== -1) {
-      this.customers.splice(idx, 1)
+      const removed = this.customers.splice(idx, 1)[0]
+      const branchId = removed?.branch_id || removed?.branchId
+      offlineStorage.deleteEntity('customer', customerId, { branchId }).catch(() => {})
+      this._lastSyncPromise = this._dispatchApiSync('customers.delete', () => api.customers.delete(customerId), {
+        entityType: 'customer',
+        entityId: customerId,
+        isDelete: true,
+        branchId
+      })
       return true
     }
     return false
@@ -3878,10 +4242,14 @@ export const store = reactive({
       metadata: { orderId: unit.order_id, customerId: unit.customer_id, customerName: unit.customer, reason }
     })
 
-    this._dispatchApiSync('inventory.reserveUnit', () => api.inventory.reserveUnit(unit.serial || unit.unit_id || unitId, orderId || unit.order_id), {
+    const syncPromise = this._dispatchApiSync('inventory.reserveUnit', () => api.inventory.reserveUnit(unit.serial || unit.unit_id || unitId, orderId || unit.order_id), {
       entityType: 'serialized_unit',
-      entityId: unit.serial || unit.unit_id || unitId
+      entityId: unit.serial || unit.unit_id || unitId,
+      branchId: unit.branch_id || unit.branchId,
+      record: unit,
+      payload: unit
     })
+    unit._syncPromise = syncPromise
 
     return unit
   },
@@ -12711,30 +13079,6 @@ export const store = reactive({
     return this.updatePurchaseOrderStatus(id, newStatus)
   },
 
-  // Serialized Unit state methods
-  reserveUnit(unitId, orderIdOrOptions = {}, custId = null) {
-    const unit = this.getUnitById(unitId)
-    if (!unit) throw new Error(`Unit ${unitId} not found.`)
-    let orderId = orderIdOrOptions
-    let customerId = custId
-    let customerName = ''
-    if (typeof orderIdOrOptions === 'object' && orderIdOrOptions !== null) {
-      orderId = orderIdOrOptions.orderId || orderIdOrOptions.order_id || orderIdOrOptions.id
-      customerId = orderIdOrOptions.customerId || orderIdOrOptions.customer_id || custId
-      customerName = orderIdOrOptions.customerName || orderIdOrOptions.customer || ''
-    }
-    if (unit.status !== 'Available' && unit.status !== 'Reserved') {
-      throw new Error(`Cannot reserve unit ${unitId} with status '${unit.status}'. Unit must be Available.`)
-    }
-    unit.status = 'Reserved'
-    unit.reserved_for_order = orderId || unit.reserved_for_order || orderIdOrOptions
-    unit.order_id = orderId || unit.order_id
-    if (customerId) unit.customer_id = customerId
-    if (customerName) unit.customer = customerName
-    unit.statusClass = 'bg-[#e0e7ff] text-[#3730a3]'
-    return unit
-  },
-
   releaseUnit(unitId) {
     const unit = this.getUnitById(unitId)
     if (!unit) throw new Error(`Unit ${unitId} not found.`)
@@ -12928,6 +13272,16 @@ if (typeof window !== 'undefined' && window.matchMedia) {
 
 
 // Initialize dynamic branch registry
+// Connect sync coordinator reconciler to store
+syncCoordinator.setPullReconciler((entities, tombstones) => store.reconcileFromPull(entities, tombstones))
+
+// If a saved session exists, hydrate from offline storage immediately
+if (savedSession) {
+  store.hydrateFromOfflineStorage().catch(err => {
+    console.warn('[store] Initial offline storage hydration notice:', err?.message || err)
+  })
+}
+
 setActiveBranchRegistry(store.branches)
 if (typeof globalThis !== 'undefined') {
   globalThis.store = store

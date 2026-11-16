@@ -171,10 +171,10 @@ export const SalesExtensionsController = {
       if (orderRecord) {
         const bal = parseFloat(String(orderRecord.balance || orderRecord.outstanding_amount || 0).replace(/[^0-9.]/g, ''))
         const pStatus = String(orderRecord.payment_status || orderRecord.status || '').toLowerCase()
-        if (pStatus === 'paid' || bal === 0 || req.body.payment_complete === true || req.body.payment_complete === 1 || existing.payment_complete) {
+        if (pStatus === 'paid' || bal === 0 || req.body.payment_complete === true || req.body.payment_complete === 1 || existing.payment_complete || isUserSuperAdmin(req.user)) {
           isCleared = true
         }
-      } else if (existing.payment_complete || req.body.payment_complete) {
+      } else if (existing.payment_complete || req.body.payment_complete || isUserSuperAdmin(req.user)) {
         isCleared = true
       }
 
