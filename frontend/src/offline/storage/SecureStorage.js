@@ -15,7 +15,7 @@
  * 5. Complete branch isolation across Windows user accounts.
  */
 
-import { isTauriEnvironment } from './OfflineStorageEngine.js'
+import { isTauriEnvironment, isCapacitorEnvironment } from './OfflineStorageEngine.js'
 
 // Ephemeral in-memory fallback for testing / non-persistent environments
 const IN_MEMORY_VAULT = new Map()
@@ -28,23 +28,35 @@ export class SecureStorage {
    */
   static async getItem(key) {
     if (!key) return null
+    const cleanKey = String(key)
 
     if (isTauriEnvironment()) {
       try {
         const { invoke } = await import('@tauri-apps/api/core')
-        const val = await invoke('secure_store_get', { key: String(key) })
+        const val = await invoke('secure_store_get', { key: cleanKey })
         return val || null
       } catch (err) {
         console.warn('[SecureStorage] Native DPAPI read failed, falling back to memory:', err?.message || err)
-        return IN_MEMORY_VAULT.get(String(key)) || null
+        return IN_MEMORY_VAULT.get(cleanKey) || null
+      }
+    }
+
+    if (isCapacitorEnvironment()) {
+      try {
+        const { Preferences } = await import('@capacitor/preferences')
+        const res = await Preferences.get({ key: `sec_${cleanKey}` })
+        return res?.value || IN_MEMORY_VAULT.get(cleanKey) || null
+      } catch (err) {
+        console.warn('[SecureStorage] Capacitor preferences read failed, falling back to memory:', err?.message || err)
+        return IN_MEMORY_VAULT.get(cleanKey) || null
       }
     }
 
     if (typeof sessionStorage !== 'undefined') {
-      return sessionStorage.getItem(`ecodrive_sec_${key}`) || IN_MEMORY_VAULT.get(String(key)) || null
+      return sessionStorage.getItem(`ecodrive_sec_${cleanKey}`) || IN_MEMORY_VAULT.get(cleanKey) || null
     }
 
-    return IN_MEMORY_VAULT.get(String(key)) || null
+    return IN_MEMORY_VAULT.get(cleanKey) || null
   }
 
   /**
@@ -64,6 +76,18 @@ export class SecureStorage {
         return
       } catch (err) {
         console.warn('[SecureStorage] Native DPAPI write failed, falling back to memory:', err?.message || err)
+        IN_MEMORY_VAULT.set(cleanKey, cleanVal)
+        return
+      }
+    }
+
+    if (isCapacitorEnvironment()) {
+      try {
+        const { Preferences } = await import('@capacitor/preferences')
+        await Preferences.set({ key: `sec_${cleanKey}`, value: cleanVal })
+        return
+      } catch (err) {
+        console.warn('[SecureStorage] Capacitor preferences write failed, falling back to memory:', err?.message || err)
         IN_MEMORY_VAULT.set(cleanKey, cleanVal)
         return
       }
@@ -96,6 +120,15 @@ export class SecureStorage {
       }
     }
 
+    if (isCapacitorEnvironment()) {
+      try {
+        const { Preferences } = await import('@capacitor/preferences')
+        await Preferences.remove({ key: `sec_${cleanKey}` })
+      } catch (err) {
+        // Ignore fallback
+      }
+    }
+
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(`ecodrive_sec_${cleanKey}`)
     }
@@ -110,6 +143,15 @@ export class SecureStorage {
       try {
         const { invoke } = await import('@tauri-apps/api/core')
         await invoke('secure_store_clear')
+      } catch (err) {
+        // Ignore fallback
+      }
+    }
+
+    if (isCapacitorEnvironment()) {
+      try {
+        const { Preferences } = await import('@capacitor/preferences')
+        await Preferences.clear()
       } catch (err) {
         // Ignore fallback
       }

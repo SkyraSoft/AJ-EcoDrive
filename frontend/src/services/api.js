@@ -86,7 +86,11 @@ class ApiClient {
   }
 
   resolveBaseUrl() {
-    if (typeof window !== 'undefined' && (window.__TAURI_INTERNALS__ || window.__TAURI__)) {
+    if (typeof window !== 'undefined' && (
+      window.__TAURI_INTERNALS__ ||
+      window.__TAURI__ ||
+      (window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : false))
+    )) {
       return 'https://ecodrive.skyrasoft.com/api/v1'
     }
     if (typeof import.meta !== 'undefined' && import.meta.env) {

@@ -13,6 +13,11 @@
     "test:integration": "node tests/test_cross_entity_validation.js && node tests/test_prompt7_audit.js && node tests/test_dap_exhaustive_coverage.cjs && node tests/test_master_readiness.js && vitest run"
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^8.1.1",
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/preferences": "^8.0.1",
     "@lucide/vue": "^1.41.0",
     "@tauri-apps/api": "^2.12.4",
     "@tauri-apps/plugin-sql": "^2.6.0",

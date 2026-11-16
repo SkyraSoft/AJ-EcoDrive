@@ -7,6 +7,7 @@
 
 import { IndexedDBStorageAdapter } from './IndexedDBStorageAdapter.js'
 import { SQLiteStorageAdapter } from './SQLiteStorageAdapter.js'
+import { CapacitorSQLiteStorageAdapter } from './CapacitorSQLiteStorageAdapter.js'
 import { resolveCanonicalBranchId } from '../../utils/branchAuth.js'
 
 export function isTauriEnvironment() {
@@ -14,9 +15,20 @@ export function isTauriEnvironment() {
   return Boolean(window.__TAURI_INTERNALS__ || window.__TAURI__)
 }
 
+export function isCapacitorEnvironment() {
+  if (typeof window === 'undefined') return false
+  return Boolean(
+    window.Capacitor &&
+    (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : false)
+  )
+}
+
 export function createDefaultStorageAdapter() {
   if (isTauriEnvironment()) {
     return new SQLiteStorageAdapter()
+  }
+  if (isCapacitorEnvironment()) {
+    return new CapacitorSQLiteStorageAdapter()
   }
   return new IndexedDBStorageAdapter()
 }
