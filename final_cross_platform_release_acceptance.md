@@ -1,27 +1,29 @@
 # AJ EcoDrive ERP — Final Cross-Platform Release Acceptance & Governance Report
 
 **Document ID:** `FINAL-RELEASE-ACCEPTANCE-019`  
-**Execution Timestamp:** 2026-11-16T15:26:00+05:00  
+**Execution Timestamp:** 2026-11-16T15:35:00+05:00  
 **Project:** AJ EcoDrive Electric Vehicle Dealership ERP  
 **Organization:** SkyraSoft Technologies  
+**Baseline Repository Commit:** `2fd14e01eec0c9a5eaddc697f2f46eb975d25b01`  
 **Target Release Version:** 1.0.0 (Build 1)  
 **Production API Base URL:** `https://ecodrive.skyrasoft.com/api/v1`  
 **Production Web Portal:** `https://aj-eco-drive.vercel.app`  
 
 ---
 
-## 1. Executive Summary & Authoritative Release Determinations
+## 1. Executive Summary & Authoritative Release Determination
 
-The development, offline synchronization, native packaging, and security hardening lifecycle for **AJ EcoDrive ERP** across Phases 1 through 9 is functionally complete. The software has been tested through automated unit suites, integration tests, static security scans, and build pipelines.
+The development, offline synchronization, native packaging, and security hardening lifecycle for **AJ EcoDrive ERP** across Phases 1 through 9 is complete. The software has been tested through automated unit suites, integration tests, static security scans, and build pipelines.
 
-In strict compliance with release governance criteria:
+### Official Cross-Platform Final Decision:
+> ### **`INTERNAL PILOT APPROVED — PUBLIC RELEASE WITHHELD`**
 
-| Platform Target | Authorized Governance Status | Public Release Decision | Key Blocker to Public Release |
+| Platform Target | Authorized Governance Status | Public Release Decision | Key Unresolved Blockers |
 | :--- | :--- | :---: | :--- |
-| **Web Portal** | **PRODUCTION READY** | **APPROVED** | None (Live on Vercel Global CDN) |
-| **Backend API** | **PRODUCTION READY** | **APPROVED** | None (Live on Managed Cloud VPS, MySQL Connected) |
-| **Windows Desktop** | **INTERNAL PILOT APPROVED** | **WITHHELD** | Physical On-Site Workstation Pilot & Commercial EV Code Signing |
-| **Android Mobile** | **INTERNAL PILOT APPROVED** | **WITHHELD** | Physical Dealership Tablet Pilot & Corporate Google Play Upload Key |
+| **Web Portal** | **PRODUCTION READY** | **APPROVED** | None (Live on Vercel Global CDN: `https://aj-eco-drive.vercel.app`) |
+| **Backend API** | **PRODUCTION READY** | **APPROVED** | None (Live on Cloud VPS, MySQL Connected: `https://ecodrive.skyrasoft.com/api/v1`) |
+| **Windows Desktop** | **INTERNAL PILOT APPROVED** | **WITHHELD** | Physical On-Site Workstation Pilot (BLK-01) & Commercial EV Code Signing (BLK-03) |
+| **Android Mobile** | **INTERNAL PILOT APPROVED** | **WITHHELD** | Physical Dealership Tablet Pilot (BLK-02) & Corporate Google Play Upload Key (BLK-04) |
 
 ---
 
@@ -39,12 +41,13 @@ In strict compliance with release governance criteria:
   - Service: `AJ EcoDrive ERP Backend API v1.0.0`
   - Database: `mysql2` connected to `u856400307_ecodrive`
   - System: `node v20.20.2` on Linux x64
+  - Uptime: `> 865,000s`
 
 ### 2.2 Physical vs. Simulated vs. Pending Testing Scope
 - **What Was Physically Tested:**
   - Local build workstation toolchain execution (Node 26, OpenJDK 21 LTS, Android SDK API 34, WiX Toolset, Gradle 8.14.3).
   - Diagnostic execution of `adb devices -l` (0 attached devices).
-  - Certificate store inspection (`Cert:\CurrentUser\My`, `Cert:\LocalMachine\My`).
+  - Certificate store inspection (`Cert:\CurrentUser\My`, `Cert:\LocalMachine\My`: 0 code signing certificates found).
 - **What Was Simulated in Lab Environment:**
   - Offline transactional workflows (customer creation, quotations, sales orders, stock adjustments, repair updates, petty cash expenses).
   - Restart persistence and mutation queue survival across application termination.
