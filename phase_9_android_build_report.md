@@ -1,6 +1,6 @@
 # Phase 9: Android Mobile Package Build & Checksum Report
 **Document ID:** `PHASE-9-BUILD-008`  
-**Execution Timestamp:** 2026-11-16T14:55:00+05:00  
+**Execution Timestamp:** 2026-11-16T15:12:00+05:00  
 **Build Toolchain:** Gradle 8.14.3 / OpenJDK 21 LTS / Android SDK API 34  
 **Application ID:** `com.skyrasoft.ecodrive`  
 **Application Name:** AJ EcoDrive ERP  
@@ -11,8 +11,8 @@
 
 ## 1. Executive Summary
 
-This report documents the compilation and packaging of the three standard Android distribution artifacts:
-1. **Debug APK** (`assembleDebug`): Signed automatically with standard Android debug keystore for internal QA testing and device debugging.
+This report documents the compilation and packaging of the three standard Android distribution artifacts updated with the **native Android KeyStore secure storage bridge** and **hardened backup policy**:
+1. **Debug APK** (`assembleDebug`): Signed automatically with standard Android debug keystore for internal showroom pilot testing and QA debugging.
 2. **Release APK (Unsigned)** (`assembleRelease`): Optimized production APK ready for internal sideloading or corporate enterprise mobile device management (MDM) signing.
 3. **Release Android App Bundle (AAB)** (`bundleRelease`): Google Play-compliant bundle optimized with dynamic resource splitting, ready for Google Play App Signing upload.
 
@@ -22,47 +22,35 @@ This report documents the compilation and packaging of the three standard Androi
 
 | Artifact File | Build Type | Output Location | Size (Bytes) | Size (MB) | SHA-256 Checksum |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **`app-debug.apk`** | Debug APK (Self-signed debug) | `frontend/android/app/build/outputs/apk/debug/app-debug.apk` | 14,499,001 | 13.83 MB | `F3295AC7DFAD8B5AD7CB1366F42EE306FF189814238AFAB0785AA06694EFE712` |
-| **`app-release-unsigned.apk`** | Production APK (Unsigned) | `frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk` | 13,069,403 | 12.46 MB | `39A5BD4CBD973200BD2177F9B967B8FBF6432E19271DB3068EB588AD80644A7D` |
-| **`app-release.aab`** | Google Play Bundle (AAB) | `frontend/android/app/build/outputs/bundle/release/app-release.aab` | 9,085,877 | 8.66 MB | `301A584700C3580279B4529DB9739E16BF5811CDF7C1B6464E1BE6DCC1D50022` |
+| **`app-debug.apk`** | Debug APK (Self-signed debug) | `frontend/android/app/build/outputs/apk/debug/app-debug.apk` | 14,881,009 | 14.19 MB | `FFF6F90ABB0EB78559109679D6C900DD648F92B69AB6C29FA5DC1A38BF29DF02` |
+| **`app-release-unsigned.apk`** | Production APK (Unsigned) | `frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk` | 13,070,335 | 12.46 MB | `DD8426AC000C14642251094C4659648121570E90AFAB704F38BDD60F1E5A62CC` |
+| **`app-release.aab`** | Google Play Bundle (AAB) | `frontend/android/app/build/outputs/bundle/release/app-release.aab` | 9,087,818 | 8.67 MB | `F7C7C8DC680CB53223F6AEBBCF2222A69A67782A8A88A7FAF58E4DCA15F40DAC` |
 
 ---
 
 ## 3. Build Log & Step Execution Summary
 
-### 3.1 Debug APK Compilation (`gradlew assembleDebug`)
-- **Execution Command:** `.\gradlew.bat assembleDebug`
-- **Duration:** 3 minutes 42 seconds
-- **Actionable Tasks:** 156 tasks (99 executed, 57 up-to-date)
-- **Key Modules Compiled:**
-  - `:app`
-  - `:capacitor-android`
-  - `:capacitor-community-sqlite`
-  - `:capacitor-preferences`
-  - `:capacitor-cordova-android-plugins`
-- **Result:** `BUILD SUCCESSFUL`
-
-### 3.2 Release APK & AAB Compilation (`gradlew assembleRelease bundleRelease`)
-- **Execution Command:** `.\gradlew.bat assembleRelease bundleRelease`
-- **Duration:** 3 minutes 4 seconds
-- **Actionable Tasks:** 216 tasks (212 executed, 4 up-to-date)
-- **Key Optimizations Applied:**
-  - `lintVitalRelease` completed with 0 errors.
-  - Resource optimization and dead-strip applied.
-  - Native libraries (`libsqlcipher.so`) packaged for all major Android ABIs (arm64-v8a, armeabi-v7a, x86, x86_64).
+### 3.1 Rebuild Execution
+- **Command:** `.\gradlew.bat assembleDebug assembleRelease bundleRelease`
+- **Duration:** 41 seconds
+- **Actionable Tasks:** 368 tasks (26 executed, 342 up-to-date)
+- **Key Modules Re-compiled:**
+  - `:app:compileDebugJavaWithJavac` (compiled `SecureKeyStorePlugin.java`)
+  - `:app:compileReleaseJavaWithJavac`
+  - `:app:lintVitalRelease` (passed with 0 fatal errors after validating `data_extraction_rules.xml`)
+  - `:app:packageDebug`
+  - `:app:packageRelease`
+  - `:app:packageReleaseBundle`
 - **Result:** `BUILD SUCCESSFUL`
 
 ---
 
-## 4. Signing & Distribution Guidance
+## 4. Signing & Release Status
 
-1. **Internal Pilot & QA:**
-   - Use `app-debug.apk` directly on pilot Android tablets/smartphones via `adb install -r app-debug.apk` or direct sideload.
-2. **Google Play Console Release:**
-   - Upload `app-release.aab` to Google Play Console under Internal Testing or Production tracks.
-   - Configure Google Play App Signing with corporate Google Play account.
-3. **Enterprise MDM Distribution:**
-   - Sign `app-release-unsigned.apk` with the corporate upload key using `apksigner`:
-     ```powershell
-     apksigner sign --ks corporate_release.keystore --out app-release-signed.apk app-release-unsigned.apk
-     ```
+1. **Current Signing Status:**
+   - `app-debug.apk` is signed using the Android SDK debug keystore.
+   - `app-release-unsigned.apk` is unsigned.
+   - `app-release.aab` is unsigned.
+2. **Release Authorization:**
+   - **Internal Pilot Approved:** Yes (`app-debug.apk` authorized for internal pilot).
+   - **Commercial / Public Release:** **WITHHELD** pending corporate release keystore signing and physical showroom device verification.

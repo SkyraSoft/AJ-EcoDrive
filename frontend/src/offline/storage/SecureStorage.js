@@ -1,9 +1,13 @@
 /**
  * AJ ECODRIVE ERP — SECURE CREDENTIAL & SESSION STORAGE
  * 
- * Provides hardware/OS-backed encrypted credential and session token storage.
+ * Provides hardware/OS-backed authenticated encrypted credential and session token storage.
  * On Windows Desktop (Tauri):
  *   Uses Windows Data Protection API (DPAPI) via native Rust bridge with user-scoped master key.
+ * On Android Mobile (Capacitor):
+ *   Uses AndroidKeyStore with non-exportable 256-bit AES key in GCM mode (AES/GCM/NoPadding)
+ *   via native Java plugin bridge (SecureKeyStorePlugin). Values are authenticated and encrypted
+ *   before persistence, with zero plaintext tokens written to disk or logged.
  * On Web / Headless:
  *   Uses strictly scoped, non-persistent session memory/storage.
  * 
@@ -12,13 +16,29 @@
  * 2. Zero passwords, DB credentials, or JWT secrets stored anywhere.
  * 3. Zero token logging.
  * 4. Automatic purge on explicit logout or user switching.
- * 5. Complete branch isolation across Windows user accounts.
+ * 5. Complete branch isolation across OS user boundaries.
  */
 
 import { isTauriEnvironment, isCapacitorEnvironment } from './OfflineStorageEngine.js'
 
 // Ephemeral in-memory fallback for testing / non-persistent environments
 const IN_MEMORY_VAULT = new Map()
+
+// Lazy reference for Capacitor SecureKeyStore native plugin
+let nativeSecureKeyStore = null
+async function getSecureKeyStore() {
+  if (nativeSecureKeyStore) return nativeSecureKeyStore
+  if (typeof window !== 'undefined' && window.Capacitor) {
+    try {
+      const { registerPlugin } = await import('@capacitor/core')
+      nativeSecureKeyStore = registerPlugin('SecureKeyStore')
+      return nativeSecureKeyStore
+    } catch (e) {
+      console.warn('[SecureStorage] Could not register SecureKeyStore plugin:', e)
+    }
+  }
+  return null
+}
 
 export class SecureStorage {
   /**
@@ -43,11 +63,13 @@ export class SecureStorage {
 
     if (isCapacitorEnvironment()) {
       try {
-        const { Preferences } = await import('@capacitor/preferences')
-        const res = await Preferences.get({ key: `sec_${cleanKey}` })
-        return res?.value || IN_MEMORY_VAULT.get(cleanKey) || null
+        const plugin = await getSecureKeyStore()
+        if (plugin && typeof plugin.get === 'function') {
+          const res = await plugin.get({ key: cleanKey })
+          return res?.value || IN_MEMORY_VAULT.get(cleanKey) || null
+        }
       } catch (err) {
-        console.warn('[SecureStorage] Capacitor preferences read failed, falling back to memory:', err?.message || err)
+        console.warn('[SecureStorage] Native Android Keystore read failed, falling back to memory:', err?.message || err)
         return IN_MEMORY_VAULT.get(cleanKey) || null
       }
     }
@@ -83,11 +105,13 @@ export class SecureStorage {
 
     if (isCapacitorEnvironment()) {
       try {
-        const { Preferences } = await import('@capacitor/preferences')
-        await Preferences.set({ key: `sec_${cleanKey}`, value: cleanVal })
-        return
+        const plugin = await getSecureKeyStore()
+        if (plugin && typeof plugin.set === 'function') {
+          await plugin.set({ key: cleanKey, value: cleanVal })
+          return
+        }
       } catch (err) {
-        console.warn('[SecureStorage] Capacitor preferences write failed, falling back to memory:', err?.message || err)
+        console.warn('[SecureStorage] Native Android Keystore write failed, falling back to memory:', err?.message || err)
         IN_MEMORY_VAULT.set(cleanKey, cleanVal)
         return
       }
@@ -122,8 +146,10 @@ export class SecureStorage {
 
     if (isCapacitorEnvironment()) {
       try {
-        const { Preferences } = await import('@capacitor/preferences')
-        await Preferences.remove({ key: `sec_${cleanKey}` })
+        const plugin = await getSecureKeyStore()
+        if (plugin && typeof plugin.remove === 'function') {
+          await plugin.remove({ key: cleanKey })
+        }
       } catch (err) {
         // Ignore fallback
       }
@@ -150,8 +176,10 @@ export class SecureStorage {
 
     if (isCapacitorEnvironment()) {
       try {
-        const { Preferences } = await import('@capacitor/preferences')
-        await Preferences.clear()
+        const plugin = await getSecureKeyStore()
+        if (plugin && typeof plugin.clear === 'function') {
+          await plugin.clear()
+        }
       } catch (err) {
         // Ignore fallback
       }
@@ -169,5 +197,25 @@ export class SecureStorage {
     }
 
     IN_MEMORY_VAULT.clear()
+  }
+
+  /**
+   * Diagnostic method reporting secure storage status and hardware backing
+   */
+  static async getStatus() {
+    if (isCapacitorEnvironment()) {
+      try {
+        const plugin = await getSecureKeyStore()
+        if (plugin && typeof plugin.getStatus === 'function') {
+          return await plugin.getStatus()
+        }
+      } catch (err) {
+        return { isKeyStoreAvailable: false, error: err?.message || String(err) }
+      }
+    }
+    return {
+      isKeyStoreAvailable: false,
+      provider: isTauriEnvironment() ? 'Windows DPAPI' : 'Web Session Memory'
+    }
   }
 }
