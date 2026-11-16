@@ -4,8 +4,9 @@ import api, { ApiError } from './services/api.js'
 import { offlineStorage } from './offline/storage/OfflineStorageEngine.js'
 import { mutationQueue } from './offline/queue/MutationQueue.js'
 import { syncCoordinator } from './offline/queue/SyncCoordinator.js'
+import { SecureStorage } from './offline/storage/SecureStorage.js'
 
-export { offlineStorage, mutationQueue, syncCoordinator }
+export { offlineStorage, mutationQueue, syncCoordinator, SecureStorage }
 
 export { api, ApiError }
 
@@ -187,7 +188,7 @@ export const store = reactive({
   findRecord(entityType, entityId) {
     const colName = this.getCollectionNameForEntity(entityType)
     if (!colName || !Array.isArray(this[colName])) return null
-    return this[colName].find(item => 
+    return this[colName].find(item =>
       item.id === entityId ||
       item[entityType + '_id'] === entityId ||
       item[entityType] === entityId ||
@@ -288,7 +289,7 @@ export const store = reactive({
           record._syncError = null
           try {
             await offlineStorage.saveEntity(entityType, record, { branchId, userId, userRole })
-          } catch (_) {}
+          } catch (_) { }
         }
         if (entityType && entityId) {
           const outboxEntry = this.syncOutbox.find(o => o.entityType === entityType && o.entityId === entityId)
@@ -481,20 +482,20 @@ export const store = reactive({
   rollbackMutation(entityType, entityId) {
     const colName = this.getCollectionNameForEntity(entityType)
     if (!colName || !Array.isArray(this[colName])) return false
-    
-    const idx = this[colName].findIndex(item => 
+
+    const idx = this[colName].findIndex(item =>
       item.id === entityId || item[entityType + '_id'] === entityId || item.code === entityId
     )
     if (idx !== -1) {
       this[colName].splice(idx, 1)
       this.removeFromSyncOutbox(entityType, entityId)
-      offlineStorage.deleteEntity(entityType, entityId).catch(() => {})
+      offlineStorage.deleteEntity(entityType, entityId).catch(() => { })
       mutationQueue.getPending().then(pending => {
         const matching = pending.find(m => m.entityType === entityType && m.entityId === String(entityId))
-        if (matching) mutationQueue.removeMutation(matching.mutationId).catch(() => {})
-      }).catch(() => {})
+        if (matching) mutationQueue.removeMutation(matching.mutationId).catch(() => { })
+      }).catch(() => { })
       this.reconcileInventoryTotals()
-      syncCoordinator.updateStats().catch(() => {})
+      syncCoordinator.updateStats().catch(() => { })
       return true
     }
     return false
@@ -564,7 +565,7 @@ export const store = reactive({
         if (entityType && id) {
           const colName = this.getCollectionNameForEntity(entityType)
           if (colName && Array.isArray(this[colName])) {
-            const idx = this[colName].findIndex(item => 
+            const idx = this[colName].findIndex(item =>
               item.id === id || item[entityType + '_id'] === id || item.code === id || item.serial === id
             )
             if (idx !== -1) {
@@ -687,7 +688,7 @@ export const store = reactive({
     }
 
     // 1. Preserve local pending/offline records
-    const localPendingRecords = this[collectionName].filter(item => 
+    const localPendingRecords = this[collectionName].filter(item =>
       item._isLocalOnly === true || item._syncStatus === 'offline_local' || item._syncStatus === 'pending'
     )
 
@@ -981,7 +982,7 @@ export const store = reactive({
           const branch = item.branch || item.branch_name || 'Peshawar'
           const owner = item.owner || item.assigned_to_name || item.created_by_name || 'Hamza'
           const linked = item.linkedRecord || (item.lead_id ? `LD-${item.lead_id}` : (item.customer_id ? `CUS-${item.customer_id}` : 'General'))
-          
+
           let dueStr = item.due
           if (!dueStr && item.due_date) {
             try {
@@ -1327,7 +1328,7 @@ export const store = reactive({
       this.syncAllWithBackend().catch(err => {
         console.warn('[EcoDrive] Session remote sync note:', err.message)
       })
-    } catch (_) {}
+    } catch (_) { }
   },
 
   // Logout and clear active branch session
@@ -1353,6 +1354,10 @@ export const store = reactive({
       }
       try {
         await this.purgeAllOfflineData()
+      } catch (_) {
+      }
+      try {
+        await SecureStorage.clear()
       } catch (_) {
       }
       if (typeof sessionStorage !== 'undefined') {
@@ -1921,9 +1926,9 @@ export const store = reactive({
 
     // Sync with canonical users list
     if (Array.isArray(this.users)) {
-      const idx = this.users.findIndex(u => 
-        u.id === this.currentUser.id || 
-        u.user_id === this.currentUser.id || 
+      const idx = this.users.findIndex(u =>
+        u.id === this.currentUser.id ||
+        u.user_id === this.currentUser.id ||
         u.email === safeData.email
       )
       if (idx !== -1) {
@@ -2420,8 +2425,8 @@ export const store = reactive({
   getActionById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.actionQueue.find(a => 
-      (a.id && a.id.toLowerCase() === target) || 
+    return this.actionQueue.find(a =>
+      (a.id && a.id.toLowerCase() === target) ||
       (a.recordRef && a.recordRef.toLowerCase() === target) ||
       (a.sourceRecordId && a.sourceRecordId.toLowerCase() === target)
     ) || null
@@ -2434,7 +2439,7 @@ export const store = reactive({
     }
 
     // Idempotency: Prevent duplicate active pending tasks for the exact same source record and workflow
-    const existingPending = this.actionQueue.find(t => 
+    const existingPending = this.actionQueue.find(t =>
       t.workflowType === workflowType &&
       t.sourceEntity === sourceEntity &&
       String(t.sourceRecordId).toLowerCase() === String(sourceRecordId).toLowerCase() &&
@@ -2458,7 +2463,7 @@ export const store = reactive({
       inventory_governance: 'ACT-GOV-'
     }
     const prefix = typePrefixMap[workflowType] || typePrefixMap[taskData.flowType] || 'ACT-WF-'
-    
+
     // Deterministic collision-safe task ID based on prefix and source ID
     let newId = `${prefix}${sourceRecordId}`
     if (this.actionQueue.some(t => t.id === newId)) {
@@ -2471,7 +2476,7 @@ export const store = reactive({
     const originObj = originCanon ? this.branches.find(b => b.id === originCanon || b.branch_id === originCanon) : null
     const destCanon = taskData.destinationBranchId || taskData.destinationBranch_id || (taskData.destinationBranch ? this.resolveCanonicalBranchId(taskData.destinationBranch) : branchCanon)
     const destObj = destCanon ? this.branches.find(b => b.id === destCanon || b.branch_id === destCanon) : branchObj
-    
+
     const recipientRole = taskData.recipientRole || (workflowType === 'inter_branch_transfer' ? 'Branch Manager' : 'Super Admin')
     const recipientBranchId = taskData.recipientBranchId || taskData.recipientBranch_id || (recipientRole === 'Branch Manager' ? (destCanon || branchCanon) : 'ALL')
 
@@ -2479,21 +2484,21 @@ export const store = reactive({
       id: newId,
       workflowType,
       flowType: taskData.flowType || (workflowType === 'inter_branch_transfer' ? 'stock_reallocation' :
-                                     workflowType === 'stock_request_approval' ? 'stock_reallocation' :
-                                     workflowType === 'product_request_approval' ? 'commercial_pricing' :
-                                     workflowType === 'expense_approval' ? 'operational_expense' :
-                                     workflowType === 'stock_adjustment_approval' ? 'inventory_governance' : 'commercial_pricing'),
+        workflowType === 'stock_request_approval' ? 'stock_reallocation' :
+          workflowType === 'product_request_approval' ? 'commercial_pricing' :
+            workflowType === 'expense_approval' ? 'operational_expense' :
+              workflowType === 'stock_adjustment_approval' ? 'inventory_governance' : 'commercial_pricing'),
       typeLabel: taskData.typeLabel || (workflowType === 'inter_branch_transfer' ? 'Inter-Branch Stock Transfer' :
-                                        workflowType === 'stock_request_approval' ? 'Stock Request Approval' :
-                                        workflowType === 'product_request_approval' ? 'Product Request Approval' :
-                                        workflowType === 'purchase_order_approval' ? 'Purchase Order Approval' :
-                                        workflowType === 'expense_approval' ? 'Emergency Operational Expenditure' :
-                                        workflowType === 'stock_adjustment_approval' ? 'Inventory Governance & Stock Adjustment' : 'Enterprise Action Item'),
+        workflowType === 'stock_request_approval' ? 'Stock Request Approval' :
+          workflowType === 'product_request_approval' ? 'Product Request Approval' :
+            workflowType === 'purchase_order_approval' ? 'Purchase Order Approval' :
+              workflowType === 'expense_approval' ? 'Emergency Operational Expenditure' :
+                workflowType === 'stock_adjustment_approval' ? 'Inventory Governance & Stock Adjustment' : 'Enterprise Action Item'),
       title: taskData.title || `Workflow Action for ${sourceRecordId}`,
       priority: taskData.priority || 'High',
-      priorityClass: taskData.priority === 'Critical' ? 'bg-[#fee2e2] text-[#dc2626]' : 
-                     taskData.priority === 'High' ? 'bg-[#fee2e2] text-[#dc2626]' : 
-                     taskData.priority === 'Medium' ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-gray-100 text-gray-700',
+      priorityClass: taskData.priority === 'Critical' ? 'bg-[#fee2e2] text-[#dc2626]' :
+        taskData.priority === 'High' ? 'bg-[#fee2e2] text-[#dc2626]' :
+          taskData.priority === 'Medium' ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-gray-100 text-gray-700',
       status: 'Pending',
       statusClass: 'bg-[#fef3c7] text-[#b45309]',
       sourceEntity,
@@ -2547,9 +2552,9 @@ export const store = reactive({
     return this.createWorkflowTask({
       workflowType: itemData.flowType || 'commercial_pricing',
       sourceEntity: itemData.sourceEntity || (itemData.recordRef?.startsWith('SO') ? 'orders' :
-                                              itemData.recordRef?.startsWith('TR') ? 'transfers' :
-                                              itemData.recordRef?.startsWith('EXP') ? 'expenses' :
-                                              itemData.recordRef?.startsWith('SR') ? 'stockRequests' : 'orders'),
+        itemData.recordRef?.startsWith('TR') ? 'transfers' :
+          itemData.recordRef?.startsWith('EXP') ? 'expenses' :
+            itemData.recordRef?.startsWith('SR') ? 'stockRequests' : 'orders'),
       sourceRecordId: itemData.recordRef || this.generateDocumentId('order'),
       ...itemData
     })
@@ -2934,7 +2939,7 @@ export const store = reactive({
 
   addCustomer(newCustomer) {
     if (newCustomer.id || newCustomer.customer_id || newCustomer.code) {
-      const existing = this.customers.find(c => 
+      const existing = this.customers.find(c =>
         (newCustomer.id && (c.id === newCustomer.id || c.customer_id === newCustomer.id)) ||
         (newCustomer.customer_id && (c.id === newCustomer.customer_id || c.customer_id === newCustomer.customer_id)) ||
         (newCustomer.code && c.code === newCustomer.code)
@@ -2998,7 +3003,7 @@ export const store = reactive({
   getCustomerById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.customers.find(c => 
+    const found = this.customers.find(c =>
       (c.id && c.id.toLowerCase() === target) ||
       (c.customer_id && c.customer_id.toLowerCase() === target) ||
       (c.code && c.code.toLowerCase() === target) ||
@@ -3052,7 +3057,7 @@ export const store = reactive({
     if (idx !== -1) {
       const removed = this.customers.splice(idx, 1)[0]
       const branchId = removed?.branch_id || removed?.branchId
-      offlineStorage.deleteEntity('customer', customerId, { branchId }).catch(() => {})
+      offlineStorage.deleteEntity('customer', customerId, { branchId }).catch(() => { })
       this._lastSyncPromise = this._dispatchApiSync('customers.delete', () => api.customers.delete(customerId), {
         entityType: 'customer',
         entityId: customerId,
@@ -3444,7 +3449,7 @@ export const store = reactive({
   getProductById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.products.find(p => 
+    return this.products.find(p =>
       (p.id && p.id.toLowerCase() === target) ||
       (p.product_id && p.product_id.toLowerCase() === target) ||
       (p.name && p.name.toLowerCase() === target) ||
@@ -3469,7 +3474,7 @@ export const store = reactive({
   getCategoryById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.categories.find(c => 
+    return this.categories.find(c =>
       (c.id && c.id.toLowerCase() === target) ||
       (c.categoryId && c.categoryId.toLowerCase() === target) ||
       (c.name && c.name.toLowerCase() === target)
@@ -4088,7 +4093,7 @@ export const store = reactive({
     if (!identifier) return false
     const target = String(identifier).trim().toLowerCase()
     if (!target || target === '—') return false
-    
+
     return this.serializedUnits.some(u => {
       if (excludeUnitId && (u.id === excludeUnitId || u.unit_id === excludeUnitId || u.serial === excludeUnitId)) {
         return false
@@ -4136,11 +4141,11 @@ export const store = reactive({
   transitionUnitStatus(id, newStatus, reason = '', user = '') {
     const unit = this.getUnitById(id)
     if (!unit) throw new Error(`Unit ${id} not found.`)
-    
+
     if (newStatus === 'Sold') {
       throw new Error('Direct status change to "Sold" is not permitted outside of the Sales module. Use completeUnitSale instead.')
     }
-    
+
     if (!this.canTransitionUnitStatus(unit.status, newStatus)) {
       throw new Error(`Invalid status transition from "${unit.status}" to "${newStatus}".`)
     }
@@ -4148,7 +4153,7 @@ export const store = reactive({
     const oldStatus = unit.status
     unit.status = newStatus
     unit.updated_at = new Date().toISOString()
-    
+
     // Update status class
     const statusClasses = {
       'Available': 'bg-[#dcfce7] text-[#165A31]',
@@ -4258,7 +4263,7 @@ export const store = reactive({
     const unit = this.getUnitById(unitId)
     if (!unit) return null
     if (unit.status !== 'Reserved') return unit
-    
+
     unit.status = 'Available'
     unit.statusClass = 'bg-[#dcfce7] text-[#165A31]'
     unit.ownership_status = 'Inventory'
@@ -4416,7 +4421,7 @@ export const store = reactive({
   },
 
   updateSerializedUnit(id, updatedData) {
-    const index = this.serializedUnits.findIndex(u => 
+    const index = this.serializedUnits.findIndex(u =>
       u.id === id || u.unit_id === id || u.serial === id || u.chassisNumber === id || u.chassis === id || u.chassisNo === id
     )
     if (index !== -1) {
@@ -4436,7 +4441,7 @@ export const store = reactive({
   getUnitById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.serializedUnits.find(u => 
+    const found = this.serializedUnits.find(u =>
       (u.id && u.id.toLowerCase() === target) ||
       (u.unit_id && u.unit_id.toLowerCase() === target) ||
       (u.serial && u.serial.toLowerCase() === target) ||
@@ -4455,24 +4460,24 @@ export const store = reactive({
       // Check if product is serialized vehicle
       const isVehicle = prod.isSerialized !== false && prod.categoryId !== 'CAT-04' && prod.categoryId !== 'CAT-05'
       if (isVehicle) {
-        const matchingUnits = this.serializedUnits.filter(u => 
+        const matchingUnits = this.serializedUnits.filter(u =>
           (u.product_id && u.product_id === prod.id) ||
           (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase()) ||
           (u.modelName && u.modelName.toLowerCase() === (prod.modelName || '').toLowerCase())
         )
         const nonSoldUnits = matchingUnits.filter(u => u.status !== 'Sold' && u.status !== 'Scrapped')
-        
+
         prod.total = nonSoldUnits.length
         prod.available = nonSoldUnits.filter(u => u.status === 'Available').length
         prod.reserved = nonSoldUnits.filter(u => u.status === 'Reserved').length
         prod.inTransit = nonSoldUnits.filter(u => u.status === 'In Transit').length
         prod.qcHold = nonSoldUnits.filter(u => u.status === 'QC Hold').length
-        
+
         prod.peshawar = nonSoldUnits.filter(u => (u.branch || '').toLowerCase() === 'peshawar').length
         prod.islamabad = nonSoldUnits.filter(u => (u.branch || '').toLowerCase() === 'islamabad').length
         prod.lahore = nonSoldUnits.filter(u => (u.branch || '').toLowerCase() === 'lahore').length
         prod.rawalpindi = nonSoldUnits.filter(u => (u.branch || '').toLowerCase() === 'rawalpindi').length
-        
+
         prod.stock = `${prod.total} units`
         if (prod.total === 0) {
           prod.status = 'Out of Stock'
@@ -4492,7 +4497,7 @@ export const store = reactive({
         const bRawalpindi = prod.rawalpindi ?? 4
         const inTransit = prod.inTransit ?? 0
         const total = bPeshawar + bIslamabad + bLahore + bRawalpindi + inTransit
-        
+
         prod.total = total
         prod.available = Math.max(0, total - (prod.reserved || 0) - (prod.qcHold || 0))
         prod.stock = `${total} units`
@@ -4504,7 +4509,7 @@ export const store = reactive({
   getInventoryStats(branchInput = null) {
     const isGlobal = !branchInput || branchInput === 'All Branches' || branchInput === 'ALL' || branchInput === 'All' || branchInput === 'global'
     const targetBranchId = !isGlobal ? this.resolveCanonicalBranchId(branchInput) : null
-    
+
     if (!isGlobal && !targetBranchId) {
       return {
         available: 0,
@@ -4523,7 +4528,7 @@ export const store = reactive({
         totalUnits: 0
       }
     }
-    
+
     const units = this.serializedUnits.filter(u => {
       if (isGlobal) return true
       const unitBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(u, 'serializedUnits') || u.branch_id || u.branchId || u.branch)
@@ -4744,7 +4749,7 @@ export const store = reactive({
         branch: this.branches[index].name,
         branch_id: this.branches[index].id,
         description,
-        metadata: { 
+        metadata: {
           updatedFields: Object.keys(updatedData),
           previous_status: oldStatus,
           new_status: updatedData.status || oldStatus
@@ -4759,7 +4764,7 @@ export const store = reactive({
   getBranchById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.branches.find(b => 
+    return this.branches.find(b =>
       (b.id && b.id.toLowerCase() === target) ||
       (b.branch_id && b.branch_id.toLowerCase() === target) ||
       (b.name && b.name.toLowerCase() === target) ||
@@ -4916,7 +4921,7 @@ export const store = reactive({
   addUser(newUser) {
     const id = newUser.id || newUser.user_id || `USR-${String(this.users.length + 1).padStart(2, '0')}`
     const isTech = newUser.isTechnician || (newUser.role && (
-      newUser.role.toLowerCase().includes('technician') || 
+      newUser.role.toLowerCase().includes('technician') ||
       newUser.role.toLowerCase().includes('supervisor') ||
       newUser.role.toLowerCase().includes('service')
     ))
@@ -5000,7 +5005,7 @@ export const store = reactive({
         actor_user_id: this.currentUser?.id || 'USR-01',
         target_user_id: this.users[index].id,
         description,
-        metadata: { 
+        metadata: {
           updatedFields: Object.keys(safeData),
           old_role: oldRole,
           new_role: updatedData.role || oldRole,
@@ -5019,7 +5024,7 @@ export const store = reactive({
   getUserById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.users.find(u => 
+    return this.users.find(u =>
       (u.id && u.id.toLowerCase() === target) ||
       (u.user_id && u.user_id.toLowerCase() === target) ||
       (u.name && u.name.toLowerCase() === target) ||
@@ -5030,8 +5035,8 @@ export const store = reactive({
   getTechnicians(branch = null) {
     return this.users.filter(u => {
       const matchRole = u.isTechnician || (u.role && (
-        u.role.toLowerCase().includes('technician') || 
-        u.role.toLowerCase().includes('supervisor') || 
+        u.role.toLowerCase().includes('technician') ||
+        u.role.toLowerCase().includes('supervisor') ||
         u.role.toLowerCase().includes('service')
       ))
       if (!matchRole) return false
@@ -5067,10 +5072,10 @@ export const store = reactive({
       entity_id: roleName,
       module: 'Organisation',
       description: `Role permissions updated for "${roleName}".`,
-      metadata: { 
-        role: roleName, 
-        modulesConfigured: permissions ? permissions.map(p => p.module) : [], 
-        notes 
+      metadata: {
+        role: roleName,
+        modulesConfigured: permissions ? permissions.map(p => p.module) : [],
+        notes
       }
     })
   },
@@ -5184,7 +5189,7 @@ export const store = reactive({
   getSupplierById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.suppliers.find(s => 
+    return this.suppliers.find(s =>
       (s.id && s.id.toLowerCase() === target) ||
       (s.supplier_id && s.supplier_id.toLowerCase() === target) ||
       (s.code && s.code.toLowerCase() === target) ||
@@ -5420,7 +5425,7 @@ export const store = reactive({
   getOrderById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.orders.find(o => 
+    const found = this.orders.find(o =>
       (o.id && o.id.toLowerCase() === target) ||
       (o.order && o.order.toLowerCase() === target) ||
       (o.order_id && o.order_id.toLowerCase() === target) ||
@@ -5439,7 +5444,7 @@ export const store = reactive({
     order.balance = 'PKR 0'
     order.paymentMethod = paymentData.method || paymentData.paymentMethod || 'Bank Transfer'
     order.paidAt = new Date().toISOString()
-    
+
     // Reserve unit if allocated
     const unitId = order.unit_id || order.unit
     if (unitId) {
@@ -5458,7 +5463,7 @@ export const store = reactive({
     order.status = 'Delivered'
     order.statusClass = 'bg-gray-100 text-gray-700'
     order.deliveredAt = deliveryData.deliveredAt || new Date().toISOString()
-    
+
     const unitId = order.unit_id || order.unit
     if (unitId) {
       this.sellUnit(unitId, order.id)
@@ -5602,7 +5607,7 @@ export const store = reactive({
   getQuotationById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.quotations.find(q => 
+    const found = this.quotations.find(q =>
       (q.id && q.id.toLowerCase() === target) ||
       (q.quote_id && q.quote_id.toLowerCase() === target) ||
       (q.quote && q.quote.toLowerCase() === target)
@@ -5614,10 +5619,10 @@ export const store = reactive({
   convertQuotationToOrder(quotationId, { unitId = null, assignedSalesperson = 'Hamza Ali' } = {}) {
     const quote = this.getQuotationById(quotationId)
     if (!quote) throw new Error(`Quotation ${quotationId} not found.`)
-    
+
     const rawTotal = parseFloat(String(quote.total || quote.sellingPrice || quote.value || '0').replace(/[^0-9.]/g, '')) || 0
     const orderId = this.generateDocumentId('order')
-    
+
     if (unitId) {
       this.reserveUnit(unitId, { orderId, customerId: quote.customer_id, customerName: quote.customer })
     }
@@ -5777,7 +5782,7 @@ export const store = reactive({
   getLeadById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.leads.find(l => 
+    const found = this.leads.find(l =>
       (l.id && String(l.id).toLowerCase() === target) ||
       (l.lead_id && String(l.lead_id).toLowerCase() === target) ||
       (l.leadNo && String(l.leadNo).toLowerCase() === target)
@@ -5793,7 +5798,7 @@ export const store = reactive({
       const existing = lead.customer_id ? this.getCustomerById(lead.customer_id) : null
       return { success: true, customer: existing, lead, alreadyConverted: true }
     }
-    
+
     // Check if customer with this ID or phone already exists
     let existingCust = lead.customer_id ? this.getCustomerById(lead.customer_id) : null
     if (!existingCust && lead.phone) {
@@ -6016,7 +6021,7 @@ export const store = reactive({
   getInvoiceById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.invoices.find(i => 
+    const found = this.invoices.find(i =>
       (i.id && i.id.toLowerCase() === target) ||
       (i.invoice_id && i.invoice_id.toLowerCase() === target) ||
       (i.invoice && i.invoice.toLowerCase() === target) ||
@@ -6131,7 +6136,7 @@ export const store = reactive({
   getPaymentById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.payments.find(p => 
+    const found = this.payments.find(p =>
       (p.id && p.id.toLowerCase() === target) ||
       (p.payment_id && p.payment_id.toLowerCase() === target) ||
       (p.payment && p.payment.toLowerCase() === target) ||
@@ -6325,7 +6330,7 @@ export const store = reactive({
   getDeliveryById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.deliveries.find(d => 
+    const found = this.deliveries.find(d =>
       (d.id && d.id.toLowerCase() === target) ||
       (d.delivery_id && d.delivery_id.toLowerCase() === target) ||
       (d.order && d.order.toLowerCase() === target) ||
@@ -6574,7 +6579,7 @@ export const store = reactive({
   getOwnershipsByCustomerId(customerId) {
     if (!customerId) return []
     const target = String(customerId).toLowerCase().trim()
-    return this.ownerships.filter(o => 
+    return this.ownerships.filter(o =>
       (o.customer_id && o.customer_id.toLowerCase() === target) ||
       (o.customer && o.customer.toLowerCase() === target)
     )
@@ -6640,7 +6645,7 @@ export const store = reactive({
   getWarrantyById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.warranties.find(w => 
+    return this.warranties.find(w =>
       (w.id && w.id.toLowerCase() === target) ||
       (w.warranty_id && w.warranty_id.toLowerCase() === target)
     ) || null
@@ -6655,7 +6660,7 @@ export const store = reactive({
   getWarrantiesByCustomerId(customerId) {
     if (!customerId) return []
     const target = String(customerId).toLowerCase().trim()
-    return this.warranties.filter(w => 
+    return this.warranties.filter(w =>
       (w.customer_id && w.customer_id.toLowerCase() === target) ||
       (w.customer && w.customer.toLowerCase() === target)
     )
@@ -6843,7 +6848,7 @@ export const store = reactive({
   getCustomOrderById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.customOrders.find(c => 
+    const found = this.customOrders.find(c =>
       (c.id && c.id.toLowerCase() === target) ||
       (c.orderNo && c.orderNo.toLowerCase() === target)
     ) || null
@@ -7192,7 +7197,7 @@ export const store = reactive({
       }
     }
     const id = newSR.id || newSR.requestId || this.generateDocumentId('stock_request')
-    
+
     // Prevent duplicate lines
     const rawItems = newSR.items || (newSR.product ? [{
       product_id: newSR.product_id || (this.getProductById(newSR.product)?.id) || 'PROD-001',
@@ -7314,7 +7319,7 @@ export const store = reactive({
   getStockRequestById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.stockRequests.find(s => 
+    const found = this.stockRequests.find(s =>
       (s.id && s.id.toLowerCase() === target) ||
       (s.requestId && s.requestId.toLowerCase() === target) ||
       (s.requestNo && s.requestNo.toLowerCase() === target)
@@ -7330,12 +7335,12 @@ export const store = reactive({
     if (req.status === 'Approved' || req.status === 'Fulfilled' || req.status === 'Closed') {
       throw new Error(`Stock request ${req.id} is already approved or in invalid state '${req.status}'.`)
     }
-    
+
     req.status = 'Approved'
     req.statusClass = 'bg-[#dcfce7] text-[#165A31]'
     req.approvedBy = approvalData.approvedBy || this.currentUser?.name || 'Central Inventory Lead'
     req.approvedDate = new Date().toISOString().split('T')[0]
-    
+
     if (req.items && req.items.length > 0) {
       req.items.forEach(it => {
         it.approvedQty = it.requestedQty
@@ -7382,12 +7387,12 @@ export const store = reactive({
     const req = this.getStockRequestById(id)
     if (!req) throw new Error(`Stock Request ${id} not found.`)
     this.assertRecordMutationAccess('stockRequests', req, 'reject')
-    
+
     req.status = 'Rejected'
     req.statusClass = 'bg-red-50 text-red-700'
     req.rejectedBy = this.currentUser?.name || 'Central Logistics Lead'
     req.rejectionReason = rejectionReason || 'Request rejected based on regional stock balance review.'
-    
+
     if (!req.timeline) req.timeline = []
     req.timeline.unshift({
       date: new Date().toISOString().replace('T', ' ').slice(0, 16),
@@ -7508,8 +7513,8 @@ export const store = reactive({
       requestedBy: newPR.requestedBy || this.currentUser?.name || 'Branch Manager',
       status: newPR.status || 'Draft',
       statusClass: newPR.status === 'Submitted' ? 'bg-[#e0e7ff] text-[#3730a3]' :
-                   newPR.status === 'Approved' ? 'bg-[#dcfce7] text-[#165A31]' :
-                   newPR.status === 'Rejected' ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-700',
+        newPR.status === 'Approved' ? 'bg-[#dcfce7] text-[#165A31]' :
+          newPR.status === 'Rejected' ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-700',
       createdDate: new Date().toISOString().split('T')[0]
     }
     this.productRequests.unshift(prObj)
@@ -7807,7 +7812,7 @@ export const store = reactive({
     if (!status) return 'Available'
     const s = String(status).trim()
     if (this.CANONICAL_UNIT_STATUSES.includes(s)) return s
-    
+
     // Compatibility aliases
     const lower = s.toLowerCase()
     if (lower === 'in production' || lower === 'in_production' || lower === 'production' || lower === 'expected') return 'Expected'
@@ -7828,7 +7833,7 @@ export const store = reactive({
     if (!productId) return []
     const prod = this.getProductById(productId)
     if (!prod) return []
-    
+
     if (Array.isArray(prod.variantList) && prod.variantList.length > 0) {
       return prod.variantList
     }
@@ -7888,7 +7893,7 @@ export const store = reactive({
       if (isInactive) {
         throw new Error(`Line ${lineNum}: Product '${prod.name}' (${prodId}) is not active in catalogue.`)
       }
-      
+
       const variantId = item.variant_id || item.variantId || 'NOT_APPLICABLE'
       const lineKey = `${prodId}::${variantId}`
       if (seenLineKeys.has(lineKey)) {
@@ -7918,7 +7923,7 @@ export const store = reactive({
       }
     }
     const id = newPO.id || newPO.po_id || newPO.po || this.generateDocumentId('po')
-    
+
     // Validate PO lines if provided
     if (newPO.items && Array.isArray(newPO.items) && newPO.items.length > 0) {
       this.validatePurchaseOrderLines(newPO.items)
@@ -8173,7 +8178,7 @@ export const store = reactive({
   getPurchaseOrderById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.purchaseOrders.find(p => 
+    const found = this.purchaseOrders.find(p =>
       (p.id && String(p.id).toLowerCase() === target) ||
       (p.po && String(p.po).toLowerCase() === target) ||
       (p.po_id && String(p.po_id).toLowerCase() === target) ||
@@ -8229,7 +8234,7 @@ export const store = reactive({
   getReceiptById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.receipts.find(r => 
+    return this.receipts.find(r =>
       (r.id && String(r.id).toLowerCase() === target) ||
       (r.receipt_id && String(r.receipt_id).toLowerCase() === target) ||
       (r.receiptNumber && String(r.receiptNumber).toLowerCase() === target) ||
@@ -8240,7 +8245,7 @@ export const store = reactive({
   getReceiptsByPoId(poId) {
     if (!poId) return []
     const target = String(poId).toLowerCase().trim()
-    return this.receipts.filter(r => 
+    return this.receipts.filter(r =>
       (r.po_id && r.po_id.toLowerCase() === target) ||
       (r.po && r.po.toLowerCase() === target)
     )
@@ -8368,7 +8373,7 @@ export const store = reactive({
     // 8. Update PO Line Quantities and Total Received / Remaining
     let poTotalReceived = 0
     let poTotalOrdered = 0
-    
+
     if (po.items && po.items.length > 0) {
       po.items.forEach(item => {
         const matchingLine = receiptObj.lines.find(l => l.product_id === item.product_id || l.product === item.product || l.sku === item.sku)
@@ -8432,7 +8437,7 @@ export const store = reactive({
       serializedUnitsPayload.forEach(unit => {
         let canonicalStatus = 'Available'
         let loc = unit.location || 'Showroom Floor'
-        
+
         if (unit.condition === 'Damaged' || unit.qc === 'Fail' || unit.condition === 'Defect') {
           canonicalStatus = 'Damaged / Quarantine'
           loc = unit.location || 'Damaged & Quarantine Bay'
@@ -8444,17 +8449,17 @@ export const store = reactive({
         }
 
         const unitId = unit.chassis || unit.serial || unit.vin || `UNIT-${Math.floor(100 + Math.random() * 900)}`
-        
+
         // Exact unit cost basis derivation for historical COGS integrity
         const prodObj = this.getProductById(unit.product_id) || this.getProductById(unit.product)
-        const matchingPoItem = (po.items || []).find(i => 
+        const matchingPoItem = (po.items || []).find(i =>
           (unit.variant_id && unit.variant_id !== 'NOT_APPLICABLE' && i.variant_id === unit.variant_id) ||
-          i.product_id === unit.product_id || 
-          i.product === unit.product || 
+          i.product_id === unit.product_id ||
+          i.product === unit.product ||
           i.sku === unit.sku
         )
-        const lineCost = matchingPoItem?.expectedUnitCost !== undefined 
-          ? matchingPoItem.expectedUnitCost 
+        const lineCost = matchingPoItem?.expectedUnitCost !== undefined
+          ? matchingPoItem.expectedUnitCost
           : (this.parseMoney(matchingPoItem?.cost || matchingPoItem?.unitCost) || prodObj?.costPrice || 0)
         const unitCostNum = typeof lineCost === 'number' ? lineCost : (this.parseMoney(lineCost) || 0)
 
@@ -8477,8 +8482,8 @@ export const store = reactive({
           branch: po.destination || po.branch || 'Peshawar',
           location: loc,
           status: canonicalStatus,
-          statusClass: canonicalStatus === 'Available' 
-            ? 'bg-[#dcfce7] text-[#165A31]' 
+          statusClass: canonicalStatus === 'Available'
+            ? 'bg-[#dcfce7] text-[#165A31]'
             : (canonicalStatus === 'Damaged / Quarantine' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'),
           ownership_status: 'Company Owned',
           source: `PO ${po.po}`,
@@ -8581,20 +8586,20 @@ export const store = reactive({
     }
 
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     const FINALIZED_SALES_STATUSES = ['Completed', 'Delivered', 'Paid', 'Ready for Handover', 'Ready', 'Partially Paid']
     const PIPELINE_EXCLUDED_STATUSES = ['Draft', 'Confirmed', 'Payment Pending', 'Pending Approval', 'Reserved', 'Cancelled', 'Sourcing', 'Inspection', 'Rejected']
 
-    const validOrders = (ordersList || []).filter(o => 
+    const validOrders = (ordersList || []).filter(o =>
       FINALIZED_SALES_STATUSES.includes(o.status) || (!PIPELINE_EXCLUDED_STATUSES.includes(o.status) && (o.status === 'Completed' || o.delivery === 'Delivered'))
     )
 
@@ -8607,7 +8612,7 @@ export const store = reactive({
       const g = typeof ord.grossAmount === 'number' ? ord.grossAmount : (this.parseMoney(ord.grossAmount || ord.total || ord.amount) || 0)
       const d = typeof ord.discount === 'number' ? ord.discount : (this.parseMoney(ord.discount) || 0)
       const r = typeof ord.returnsAmount === 'number' ? ord.returnsAmount : (this.parseMoney(ord.returnsAmount || ord.refundAmount) || 0)
-      
+
       grossSales += g
       discounts += d
       salesReturns += r
@@ -8628,9 +8633,9 @@ export const store = reactive({
 
     const returnsList = targetBranchId
       ? this.salesReturns.filter(r => {
-          const rBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(r, 'salesReturns') || r.branch_id || r.branchId || r.branch)
-          return rBranchId === targetBranchId
-        })
+        const rBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(r, 'salesReturns') || r.branch_id || r.branchId || r.branch)
+        return rBranchId === targetBranchId
+      })
       : this.salesReturns
 
     returnsList.forEach(ret => {
@@ -8652,20 +8657,20 @@ export const store = reactive({
       filter.expense_ids
         ? this.expenses.filter(e => filter.expense_ids.includes(e.id || e.expense_id))
         : (targetBranchId
-            ? this.expenses.filter(e => {
-                const eBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(e, 'expenses') || e.branch_id || e.branchId || e.branch)
-                return eBranchId === targetBranchId
-              })
-            : this.expenses)
+          ? this.expenses.filter(e => {
+            const eBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(e, 'expenses') || e.branch_id || e.branchId || e.branch)
+            return eBranchId === targetBranchId
+          })
+          : this.expenses)
     )
 
     let operatingExpenses = 0
-    ;(expList || []).forEach(exp => {
-      const isApproved = exp.status === 'Approved' || exp.status === 'Paid' || exp.approval === 'Approved'
-      if (isApproved && exp.status !== 'Rejected' && exp.status !== 'Void' && exp.status !== 'Draft' && exp.status !== 'Pending Approval') {
-        operatingExpenses += typeof exp.amount === 'number' ? exp.amount : (this.parseMoney(exp.amount) || 0)
-      }
-    })
+      ; (expList || []).forEach(exp => {
+        const isApproved = exp.status === 'Approved' || exp.status === 'Paid' || exp.approval === 'Approved'
+        if (isApproved && exp.status !== 'Rejected' && exp.status !== 'Void' && exp.status !== 'Draft' && exp.status !== 'Pending Approval') {
+          operatingExpenses += typeof exp.amount === 'number' ? exp.amount : (this.parseMoney(exp.amount) || 0)
+        }
+      })
 
     const netOperatingProfit = grossProfit - operatingExpenses
 
@@ -8689,8 +8694,8 @@ export const store = reactive({
       filter.unit_ids
         ? this.serializedUnits.filter(u => filter.unit_ids.includes(u.id || u.unit_id || u.serial || u.chassis))
         : (filter.branch_id && filter.branch_id !== 'ALL'
-            ? this.serializedUnits.filter(u => u.branch_id === filter.branch_id || u.branch === filter.branch_id)
-            : this.serializedUnits)
+          ? this.serializedUnits.filter(u => u.branch_id === filter.branch_id || u.branch === filter.branch_id)
+          : this.serializedUnits)
     )
 
     let onHandValue = 0
@@ -8698,22 +8703,22 @@ export const store = reactive({
     let customerOwnedValue = 0
     let totalUnits = 0
 
-    ;(units || []).forEach(unit => {
-      totalUnits++
-      const isCustomerOwned = unit.ownership_status === 'Customer Owned' || unit.status === 'Customer Unit' || unit.isCustomerOwned === true
-      const cost = typeof unit.landedCost === 'number' ? unit.landedCost : (typeof unit.costPrice === 'number' ? unit.costPrice : (this.parseMoney(unit.landedCost || unit.costPrice || unit.cost) || 0))
+      ; (units || []).forEach(unit => {
+        totalUnits++
+        const isCustomerOwned = unit.ownership_status === 'Customer Owned' || unit.status === 'Customer Unit' || unit.isCustomerOwned === true
+        const cost = typeof unit.landedCost === 'number' ? unit.landedCost : (typeof unit.costPrice === 'number' ? unit.costPrice : (this.parseMoney(unit.landedCost || unit.costPrice || unit.cost) || 0))
 
-      if (isCustomerOwned) {
-        customerOwnedValue += cost
-      } else {
-        const canonical = this.normalizeUnitStatus(unit.status)
-        if (canonical === 'Transfer In Transit' || canonical === 'Supplier In Transit') {
-          inTransitValue += cost
-        } else if (canonical !== 'Sold' && canonical !== 'Scrapped') {
-          onHandValue += cost
+        if (isCustomerOwned) {
+          customerOwnedValue += cost
+        } else {
+          const canonical = this.normalizeUnitStatus(unit.status)
+          if (canonical === 'Transfer In Transit' || canonical === 'Supplier In Transit') {
+            inTransitValue += cost
+          } else if (canonical !== 'Sold' && canonical !== 'Scrapped') {
+            onHandValue += cost
+          }
         }
-      }
-    })
+      })
 
     const totalOwnedValue = onHandValue + inTransitValue
 
@@ -8728,9 +8733,9 @@ export const store = reactive({
 
   allocateLandedCosts(receiptId, addonItems = [], method = 'By Quantity') {
     const receipt = this.getReceiptById(receiptId)
-    const units = this.serializedUnits.filter(u => 
-      u.receipt_id === receiptId || 
-      u.receiptId === receiptId || 
+    const units = this.serializedUnits.filter(u =>
+      u.receipt_id === receiptId ||
+      u.receiptId === receiptId ||
       (receipt && (u.sourcePo === receipt.po || u.sourcePo === receipt.po_id))
     )
 
@@ -8968,7 +8973,7 @@ export const store = reactive({
   getTransferById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.transfers.find(t => 
+    const found = this.transfers.find(t =>
       (t.id && t.id.toLowerCase() === target) ||
       (t.transfer_id && t.transfer_id.toLowerCase() === target) ||
       (t.transferNumber && t.transferNumber.toLowerCase() === target)
@@ -9057,7 +9062,7 @@ export const store = reactive({
           }
         } else {
           // Auto-pick available units from source branch if not manually specified
-          const availUnits = this.serializedUnits.filter(u => 
+          const availUnits = this.serializedUnits.filter(u =>
             ((u.product_id && u.product_id === item.product_id) || (u.product && u.product.toLowerCase() === (item.product || '').toLowerCase())) &&
             (u.branch || '').toLowerCase() === fromBranch.toLowerCase() &&
             u.status === 'Available'
@@ -9081,7 +9086,7 @@ export const store = reactive({
     const id = transferData.id || transferData.transfer_id || this.generateDocumentId('transfer')
     const fromBranchObj = this.branches.find(b => b.name.toLowerCase() === fromBranch.toLowerCase())
     const toBranchObj = this.branches.find(b => b.name.toLowerCase() === toBranch.toLowerCase())
-    
+
     const totalUnits = rawItems.reduce((s, it) => s + (it.requestedQty || parseInt(it.count) || 1), 0)
     const initialStatus = transferData.status || (transferData.isApproved ? 'Approved' : 'Requested')
     const isApprovedInitially = initialStatus === 'Approved'
@@ -9357,7 +9362,7 @@ export const store = reactive({
       receiverName = options.receiverName || ''
       receiverLocation = options.receiverLocation || options.location || ''
     } else {
-      ({ transferId, receivedItems = [], receiverNotes = '', receiverName = '', receiverLocation = '' } = (transferIdOrPayload || {}))
+      ({ transferId, receivedItems =[], receiverNotes = '', receiverName = '', receiverLocation = '' } = (transferIdOrPayload || {}))
     }
     const t = this.getTransferById(transferId)
     if (!t) throw new Error(`Transfer ${transferId} not found.`)
@@ -9582,7 +9587,7 @@ export const store = reactive({
   getAdjustmentById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.stockAdjustments.find(a => 
+    const found = this.stockAdjustments.find(a =>
       (a.id && a.id.toLowerCase() === target) ||
       (a.adjustment_id && a.adjustment_id.toLowerCase() === target) ||
       (a.adjustmentNo && a.adjustmentNo.toLowerCase() === target)
@@ -9616,7 +9621,7 @@ export const store = reactive({
 
     const id = data.id || data.adjustment_id || `ADJ-${Math.floor(222 + Math.random() * 100)}`
     const type = data.type || (data.unit_id ? 'Status' : 'Quantity')
-    
+
     let difference = 0
     if (data.difference !== undefined) {
       difference = Number(data.difference)
@@ -9739,7 +9744,7 @@ export const store = reactive({
     const adj = this.getAdjustmentById(id)
     if (!adj) throw new Error(`Stock Adjustment ${id} not found.`)
     this.assertRecordMutationAccess('stockAdjustments', adj, 'reject')
-    
+
     adj.status = 'Rejected'
     adj.statusClass = 'bg-red-50 text-red-700'
     adj.rejectionReason = reason || 'Physical recount requested.'
@@ -9759,7 +9764,7 @@ export const store = reactive({
     if (adj.status !== 'Approved') {
       throw new Error(`Cannot post adjustment ${adj.id} with status '${adj.status}'. Must be Approved first.`)
     }
-    
+
     // Apply physical inventory / unit mutation
     if ((adj.product_id || adj.productId) && (adj.difference !== undefined || adj.adjustedQty !== undefined)) {
       const prod = this.getProductById(adj.product_id || adj.productId)
@@ -9768,13 +9773,13 @@ export const store = reactive({
         const isVehicle = prod.isSerialized !== false && prod.categoryId !== 'CAT-04' && prod.categoryId !== 'CAT-05'
         if (isVehicle && diff < 0) {
           const countToAdjust = Math.abs(diff)
-          let candidateUnits = this.serializedUnits.filter(u => 
+          let candidateUnits = this.serializedUnits.filter(u =>
             ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
             u.status !== 'Sold' && u.status !== 'Scrapped' &&
             (adj.branch && u.branch && u.branch.toLowerCase() === adj.branch.toLowerCase())
           )
           if (candidateUnits.length < countToAdjust) {
-            const others = this.serializedUnits.filter(u => 
+            const others = this.serializedUnits.filter(u =>
               ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
               u.status !== 'Sold' && u.status !== 'Scrapped' &&
               !candidateUnits.includes(u)
@@ -9975,7 +9980,7 @@ export const store = reactive({
   getSalesReturnById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.salesReturns.find(r => 
+    const found = this.salesReturns.find(r =>
       (r.id && r.id.toLowerCase() === target) ||
       (r.returnNo && r.returnNo.toLowerCase() === target)
     ) || null
@@ -10066,7 +10071,7 @@ export const store = reactive({
   getPurchaseReturnById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.purchaseReturns.find(r => 
+    const found = this.purchaseReturns.find(r =>
       (r.id && r.id.toLowerCase() === target) ||
       (r.returnNo && r.returnNo.toLowerCase() === target)
     ) || null
@@ -10078,20 +10083,20 @@ export const store = reactive({
   // 10. EXPENSES DATA & MUTATORS
   // ==========================================
   expenses: [
-    { 
-      id: 'EXP-402', 
+    {
+      id: 'EXP-402',
       branch_id: 'BR-01',
-      branch: 'Peshawar', 
-      category: 'Utilities', 
+      branch: 'Peshawar',
+      category: 'Utilities',
       vendor_id: 'PESCO',
-      vendor: 'PESCO', 
-      amount: 'PKR 48,500', 
+      vendor: 'PESCO',
+      amount: 'PKR 48,500',
       rawAmount: '48,500',
-      date: '27 Aug', 
+      date: '27 Aug',
       fullDate: '27 Aug 2026',
-      approval: 'Pending', 
-      approvalClass: 'bg-[#fef3c7] text-[#92400e]', 
-      payment: 'Unpaid', 
+      approval: 'Pending',
+      approvalClass: 'bg-[#fef3c7] text-[#92400e]',
+      payment: 'Unpaid',
       paymentClass: 'text-gray-900 font-medium',
       branchLimit: 'PKR 100K',
       decision: 'Awaiting management',
@@ -10103,20 +10108,20 @@ export const store = reactive({
       lastUpdate: 'Today 08:20',
       notes: 'Submit for approval'
     },
-    { 
-      id: 'EXP-398', 
+    {
+      id: 'EXP-398',
       branch_id: 'BR-01',
-      branch: 'Peshawar', 
-      category: 'Transport', 
+      branch: 'Peshawar',
+      category: 'Transport',
       vendor_id: 'SUP-02',
-      vendor: 'Pak Logistics', 
-      amount: 'PKR 18,000', 
+      vendor: 'Pak Logistics',
+      amount: 'PKR 18,000',
       rawAmount: '18,000',
-      date: '25 Aug', 
+      date: '25 Aug',
       fullDate: '25 Aug 2026',
-      approval: 'Approved', 
-      approvalClass: 'bg-[#dcfce7] text-[#15803d]', 
-      payment: 'Paid', 
+      approval: 'Approved',
+      approvalClass: 'bg-[#dcfce7] text-[#15803d]',
+      payment: 'Paid',
       paymentClass: 'text-[#165A31] font-bold',
       branchLimit: 'PKR 100K',
       decision: 'Approved by Branch Policy',
@@ -10128,19 +10133,19 @@ export const store = reactive({
       lastUpdate: '25 Aug 16:40',
       notes: 'Standard transport expense'
     },
-    { 
-      id: 'EXP-8831', 
+    {
+      id: 'EXP-8831',
       branch_id: 'BR-02',
-      branch: 'Islamabad', 
-      category: 'Logistics', 
+      branch: 'Islamabad',
+      category: 'Logistics',
       vendor_id: 'SUP-02',
-      vendor: 'Pak Logistics', 
-      amount: 'PKR 95K', 
+      vendor: 'Pak Logistics',
+      amount: 'PKR 95K',
       rawAmount: '95,000',
-      date: 'Aug 27', 
-      approval: 'Pending', 
-      approvalClass: 'bg-[#fff7ed] text-[#ea580c]', 
-      payment: 'Unpaid', 
+      date: 'Aug 27',
+      approval: 'Pending',
+      approvalClass: 'bg-[#fff7ed] text-[#ea580c]',
+      payment: 'Unpaid',
       paymentClass: 'text-gray-900 font-medium',
       branchLimit: 'PKR 75K',
       decision: 'Super Admin approval required',
@@ -10149,19 +10154,19 @@ export const store = reactive({
       receiptFile: 'logistics_invoice.pdf',
       receiptType: 'Receipt'
     },
-    { 
-      id: 'EXP-8821', 
+    {
+      id: 'EXP-8821',
       branch_id: 'BR-01',
-      branch: 'Peshawar', 
-      category: 'Maintenance', 
+      branch: 'Peshawar',
+      category: 'Maintenance',
       vendor_id: 'City Workshop',
-      vendor: 'City Workshop', 
-      amount: 'PKR 42K', 
+      vendor: 'City Workshop',
+      amount: 'PKR 42K',
       rawAmount: '42,000',
-      date: 'Aug 28', 
-      approval: 'Approved', 
-      approvalClass: 'bg-[#eefcf2] text-[#165A31]', 
-      payment: 'Paid', 
+      date: 'Aug 28',
+      approval: 'Approved',
+      approvalClass: 'bg-[#eefcf2] text-[#165A31]',
+      payment: 'Paid',
       paymentClass: 'text-[#165A31] font-bold',
       branchLimit: 'PKR 100K',
       decision: 'Within manager policy',
@@ -10397,22 +10402,22 @@ export const store = reactive({
   // 11. COMMUNICATIONS & NOTIFICATIONS
   // ==========================================
   conversations: [
-    { 
-      id: 'SR-122', 
-      title: 'Inter-Branch Stock Transfer Coordination', 
-      subtitle: 'Conversation — Stock Request SR-122 (Peshawar & Lahore)', 
-      thread: 'Inter-Branch Stock Transfer Coordination', 
+    {
+      id: 'SR-122',
+      title: 'Inter-Branch Stock Transfer Coordination',
+      subtitle: 'Conversation — Stock Request SR-122 (Peshawar & Lahore)',
+      thread: 'Inter-Branch Stock Transfer Coordination',
       branch_id: 'BR-01',
-      branch: 'Peshawar', 
+      branch: 'Peshawar',
       customer_id: null,
       customer: null,
-      linked: 'SR-122', 
+      linked: 'SR-122',
       linkedType: 'Stock Request',
-      from: 'Super Admin', 
-      lastMsg: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401.', 
-      priority: 'High', 
-      priorityClass: 'bg-[#fff7ed] text-[#ea580c]', 
-      unread: 1, 
+      from: 'Super Admin',
+      lastMsg: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401.',
+      priority: 'High',
+      priorityClass: 'bg-[#fff7ed] text-[#ea580c]',
+      unread: 1,
       status: 'Open',
       statusClass: 'bg-emerald-50 text-emerald-700 font-bold',
       date: 'Today 11:42',
@@ -10469,76 +10474,76 @@ export const store = reactive({
         }
       ],
       messages: [
-        { 
-          id: 'msg-1', 
-          from: 'Ahsan Khan', 
-          sender: 'Ahsan Khan (Branch Manager — Peshawar)', 
-          role: 'Peshawar Branch', 
-          branch: 'Peshawar', 
-          time: 'Yesterday 09:30 AM', 
-          date: 'Yesterday 09:30', 
-          body: 'Stock request SR-122 submitted for 5 units of BRG E-125 to fulfill urgent customer booking deposits.', 
-          text: 'Stock request SR-122 submitted for 5 units of BRG E-125 to fulfill urgent customer booking deposits.', 
-          type: 'sent', 
-          read: true 
+        {
+          id: 'msg-1',
+          from: 'Ahsan Khan',
+          sender: 'Ahsan Khan (Branch Manager — Peshawar)',
+          role: 'Peshawar Branch',
+          branch: 'Peshawar',
+          time: 'Yesterday 09:30 AM',
+          date: 'Yesterday 09:30',
+          body: 'Stock request SR-122 submitted for 5 units of BRG E-125 to fulfill urgent customer booking deposits.',
+          text: 'Stock request SR-122 submitted for 5 units of BRG E-125 to fulfill urgent customer booking deposits.',
+          type: 'sent',
+          read: true
         },
-        { 
-          id: 'msg-2', 
-          from: 'Super Admin', 
-          sender: 'Super Admin (Head Office)', 
-          role: 'Head Office', 
-          branch: 'Head Office', 
-          time: 'Yesterday 02:15 PM', 
-          date: 'Yesterday 14:15', 
-          body: 'Peshawar request received. Central Warehouse is awaiting container import, but Lahore Showroom currently holds 8 surplus units. Looping in Lahore branch to arrange regional transfer.', 
-          text: 'Peshawar request received. Central Warehouse is awaiting container import, but Lahore Showroom currently holds 8 surplus units. Looping in Lahore branch to arrange regional transfer.', 
-          type: 'received', 
-          read: true 
+        {
+          id: 'msg-2',
+          from: 'Super Admin',
+          sender: 'Super Admin (Head Office)',
+          role: 'Head Office',
+          branch: 'Head Office',
+          time: 'Yesterday 02:15 PM',
+          date: 'Yesterday 14:15',
+          body: 'Peshawar request received. Central Warehouse is awaiting container import, but Lahore Showroom currently holds 8 surplus units. Looping in Lahore branch to arrange regional transfer.',
+          text: 'Peshawar request received. Central Warehouse is awaiting container import, but Lahore Showroom currently holds 8 surplus units. Looping in Lahore branch to arrange regional transfer.',
+          type: 'received',
+          read: true
         },
-        { 
-          id: 'msg-3', 
-          from: 'Sami Ullah', 
-          sender: 'Sami Ullah (Branch Manager — Lahore)', 
-          role: 'Lahore Branch', 
-          branch: 'Lahore', 
-          time: 'Today 10:45 AM', 
-          date: 'Today 10:45', 
-          body: 'Lahore showroom confirms availability of 8 units. We can immediately dispatch 5 units (Chassis VIN-PK-BRG-2026-00911 through 00915) via carrier truck TR-401 tomorrow morning.', 
-          text: 'Lahore showroom confirms availability of 8 units. We can immediately dispatch 5 units (Chassis VIN-PK-BRG-2026-00911 through 00915) via carrier truck TR-401 tomorrow morning.', 
-          type: 'received', 
-          read: true 
+        {
+          id: 'msg-3',
+          from: 'Sami Ullah',
+          sender: 'Sami Ullah (Branch Manager — Lahore)',
+          role: 'Lahore Branch',
+          branch: 'Lahore',
+          time: 'Today 10:45 AM',
+          date: 'Today 10:45',
+          body: 'Lahore showroom confirms availability of 8 units. We can immediately dispatch 5 units (Chassis VIN-PK-BRG-2026-00911 through 00915) via carrier truck TR-401 tomorrow morning.',
+          text: 'Lahore showroom confirms availability of 8 units. We can immediately dispatch 5 units (Chassis VIN-PK-BRG-2026-00911 through 00915) via carrier truck TR-401 tomorrow morning.',
+          type: 'received',
+          read: true
         },
-        { 
-          id: 'msg-4', 
-          from: 'Super Admin', 
-          sender: 'Super Admin (Head Office)', 
-          role: 'Head Office', 
-          branch: 'Head Office', 
-          time: 'Today 11:30 AM', 
-          date: 'Today 11:30', 
-          body: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401. Attached formal HQ approval memo.', 
-          text: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401. Attached formal HQ approval memo.', 
-          type: 'received', 
-          read: false 
+        {
+          id: 'msg-4',
+          from: 'Super Admin',
+          sender: 'Super Admin (Head Office)',
+          role: 'Head Office',
+          branch: 'Head Office',
+          time: 'Today 11:30 AM',
+          date: 'Today 11:30',
+          body: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401. Attached formal HQ approval memo.',
+          text: 'Lahore dispatch authorized for 5x BRG E-125 units via Carrier TR-401. Attached formal HQ approval memo.',
+          type: 'received',
+          read: false
         }
       ]
     },
-    { 
-      id: 'EXP-402', 
-      title: 'Utility bill approval note', 
-      subtitle: 'Conversation — Utility bill approval note', 
-      thread: 'Utility bill approval note', 
+    {
+      id: 'EXP-402',
+      title: 'Utility bill approval note',
+      subtitle: 'Conversation — Utility bill approval note',
+      thread: 'Utility bill approval note',
       branch_id: 'BR-01',
-      branch: 'Peshawar', 
+      branch: 'Peshawar',
       customer_id: null,
       customer: null,
-      linked: 'EXP-402', 
+      linked: 'EXP-402',
       linkedType: 'Expense',
-      from: 'Finance Lead', 
-      lastMsg: 'Receipt verified. Releasing payment.', 
-      priority: 'Low', 
-      priorityClass: 'bg-gray-100 text-gray-700', 
-      unread: 0, 
+      from: 'Finance Lead',
+      lastMsg: 'Receipt verified. Releasing payment.',
+      priority: 'Low',
+      priorityClass: 'bg-gray-100 text-gray-700',
+      unread: 0,
       status: 'Read',
       statusClass: 'text-gray-400',
       date: 'Yesterday 16:05',
@@ -10567,22 +10572,22 @@ export const store = reactive({
         { id: 'msg-2', from: 'Ahsan Khan', sender: 'Ahsan Khan (Branch Manager — Peshawar)', role: 'Peshawar Branch', branch: 'Peshawar', time: '04:05 PM', date: 'Yesterday 16:05', body: 'Attached verified PESCO electricity invoice. Clearance confirmed.', text: 'Attached verified PESCO electricity invoice. Clearance confirmed.', type: 'sent', read: true }
       ]
     },
-    { 
-      id: 'SC-229-CONV', 
-      title: 'Warranty throttle replacement inquiry', 
-      subtitle: 'Conversation — Warranty throttle replacement inquiry', 
-      thread: 'Warranty throttle replacement inquiry', 
+    {
+      id: 'SC-229-CONV',
+      title: 'Warranty throttle replacement inquiry',
+      subtitle: 'Conversation — Warranty throttle replacement inquiry',
+      thread: 'Warranty throttle replacement inquiry',
       branch_id: 'BR-01',
-      branch: 'Peshawar', 
+      branch: 'Peshawar',
       customer_id: 'CUST-101',
       customer: 'Ahsan Khan',
-      linked: 'SC-229', 
+      linked: 'SC-229',
       linkedType: 'Warranty Case',
-      from: 'Service Advisor', 
-      lastMsg: 'OEM replacement confirmed under warranty.', 
-      priority: 'High', 
-      priorityClass: 'bg-[#fff7ed] text-[#ea580c]', 
-      unread: 1, 
+      from: 'Service Advisor',
+      lastMsg: 'OEM replacement confirmed under warranty.',
+      priority: 'High',
+      priorityClass: 'bg-[#fff7ed] text-[#ea580c]',
+      unread: 1,
       status: 'Unread',
       statusClass: 'bg-blue-50 text-blue-700 font-bold',
       date: 'Today 14:10',
@@ -10723,10 +10728,10 @@ export const store = reactive({
       throw new Error(`Conversation ${convId} not found.`)
     }
     if (!conv.messages) conv.messages = []
-    
+
     const now = new Date()
     const timeStr = `${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`
-    
+
     const msgObj = {
       id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       from: message.from || message.sender || (this.isBranchUser() ? 'Branch Manager' : 'Super Admin'),
@@ -10778,8 +10783,8 @@ export const store = reactive({
   getConversationById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.conversations.find(c => 
-      (c.id && c.id.toLowerCase() === target) || 
+    return this.conversations.find(c =>
+      (c.id && c.id.toLowerCase() === target) ||
       (c.linked && c.linked.toLowerCase() === target) ||
       (c.id && c.id.toLowerCase().replace(/-conv$/, '') === target)
     ) || null
@@ -10897,7 +10902,7 @@ export const store = reactive({
 
   addNotification(newNotif) {
     if (!newNotif) return null
-    
+
     // Deduplication check
     const sourceType = newNotif.source_type || newNotif.sourceType || 'system'
     const sourceId = newNotif.source_id || newNotif.sourceId || newNotif.record || newNotif.id || 'GEN'
@@ -11220,7 +11225,7 @@ export const store = reactive({
   getFollowUpById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.followUps.find(f => 
+    const found = this.followUps.find(f =>
       (f.id && String(f.id).toLowerCase() === target) ||
       (f.follow_up_id && String(f.follow_up_id).toLowerCase() === target)
     ) || null
@@ -11468,7 +11473,7 @@ export const store = reactive({
   getCaseById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.cases.find(c => 
+    const found = this.cases.find(c =>
       (c.id && c.id.toLowerCase() === target) ||
       (c.caseId && c.caseId.toLowerCase() === target) ||
       (c.case_id && c.case_id.toLowerCase() === target)
@@ -11480,7 +11485,7 @@ export const store = reactive({
   getCasesByCustomerId(customerId) {
     if (!customerId) return []
     const target = String(customerId).toLowerCase().trim()
-    return this.cases.filter(c => 
+    return this.cases.filter(c =>
       c.customer_id && c.customer_id.toLowerCase() === target
     )
   },
@@ -11488,7 +11493,7 @@ export const store = reactive({
   getCasesByUnitId(unitId) {
     if (!unitId) return []
     const target = String(unitId).toLowerCase().trim()
-    return this.cases.filter(c => 
+    return this.cases.filter(c =>
       (c.unit_id && c.unit_id.toLowerCase() === target) ||
       (c.unitSerial && c.unitSerial.toLowerCase() === target) ||
       (c.chassisNo && c.chassisNo.toLowerCase() === target)
@@ -11815,7 +11820,7 @@ export const store = reactive({
   getRepairById(id, user = this.currentUser) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    const found = this.repairs.find(r => 
+    const found = this.repairs.find(r =>
       (r.id && r.id.toLowerCase() === target) ||
       (r.jobId && r.jobId.toLowerCase() === target) ||
       (r.repair_id && r.repair_id.toLowerCase() === target)
@@ -11827,7 +11832,7 @@ export const store = reactive({
   getRepairsByCaseId(caseId) {
     if (!caseId) return []
     const target = String(caseId).toLowerCase().trim()
-    return this.repairs.filter(r => 
+    return this.repairs.filter(r =>
       (r.case_id && r.case_id.toLowerCase() === target) ||
       (r.caseId && r.caseId.toLowerCase() === target)
     )
@@ -11836,7 +11841,7 @@ export const store = reactive({
   getRepairsByCustomerId(customerId) {
     if (!customerId) return []
     const target = String(customerId).toLowerCase().trim()
-    return this.repairs.filter(r => 
+    return this.repairs.filter(r =>
       r.customer_id && r.customer_id.toLowerCase() === target
     )
   },
@@ -11844,7 +11849,7 @@ export const store = reactive({
   getRepairsByUnitId(unitId) {
     if (!unitId) return []
     const target = String(unitId).toLowerCase().trim()
-    return this.repairs.filter(r => 
+    return this.repairs.filter(r =>
       (r.unit_id && r.unit_id.toLowerCase() === target) ||
       (r.unitSerial && r.unitSerial.toLowerCase() === target) ||
       (r.chassisNo && r.chassisNo.toLowerCase() === target)
@@ -12165,10 +12170,10 @@ export const store = reactive({
 
     const branchName = entry.branch || currentUser.branchName || this.getActiveBranch() || 'Peshawar'
     const branchId = entry.branch_id || (
-      branchName === 'Peshawar' ? 'BR-01' : 
-      branchName === 'Islamabad' ? 'BR-02' : 
-      branchName === 'Lahore' ? 'BR-03' : 
-      branchName === 'Rawalpindi' ? 'BR-04' : 'ALL'
+      branchName === 'Peshawar' ? 'BR-01' :
+        branchName === 'Islamabad' ? 'BR-02' :
+          branchName === 'Lahore' ? 'BR-03' :
+            branchName === 'Rawalpindi' ? 'BR-04' : 'ALL'
     )
 
     const entityType = String(entry.entity_type || entry.module || 'system').toLowerCase()
@@ -12244,11 +12249,11 @@ export const store = reactive({
     return this.auditLogs.filter(a => {
       const aType = String(a.entity_type || '').toLowerCase().replace(/[-_\s]/g, '')
       const aId = String(a.entity_id || a.record || '').toLowerCase().trim()
-      
+
       const typeMatch = !targetType || aType === targetType || aType.includes(targetType) || targetType.includes(aType)
-      const idMatch = aId === targetId || 
-                      aId.replace(/^(ord|po|sc|rj|inv|cust|ld|tr|sr)-/, '') === targetId.replace(/^(ord|po|sc|rj|inv|cust|ld|tr|sr)-/, '') ||
-                      targetId.includes(aId) || aId.includes(targetId)
+      const idMatch = aId === targetId ||
+        aId.replace(/^(ord|po|sc|rj|inv|cust|ld|tr|sr)-/, '') === targetId.replace(/^(ord|po|sc|rj|inv|cust|ld|tr|sr)-/, '') ||
+        targetId.includes(aId) || aId.includes(targetId)
 
       return typeMatch && idMatch
     })
@@ -12259,7 +12264,7 @@ export const store = reactive({
     const target = String(id).toLowerCase().trim()
     const exact = this.auditLogs.find(a => a.id && a.id.toLowerCase() === target)
     if (exact) return exact
-    return this.auditLogs.find(a => 
+    return this.auditLogs.find(a =>
       (a.entity_id && a.entity_id.toLowerCase() === target) ||
       (a.record && a.record.toLowerCase() === target)
     ) || null
@@ -12329,7 +12334,7 @@ export const store = reactive({
   getPriceRuleById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return this.pricingRules.find(r => 
+    return this.pricingRules.find(r =>
       (r.id && r.id.toLowerCase() === target) ||
       (r.rule_id && r.rule_id.toLowerCase() === target) ||
       (r.product && r.product.toLowerCase() === target)
@@ -12430,8 +12435,8 @@ export const store = reactive({
     ordersList.forEach(order => {
       const isFinalized = FINALIZED_SALES_STATUSES.includes(order.status) || (!PIPELINE_EXCLUDED_STATUSES.includes(order.status) && (order.status === 'Completed' || order.delivery === 'Delivered'))
       if (isFinalized) {
-        const amt = order.grossAmount !== undefined 
-          ? this.parseMoney(order.grossAmount) 
+        const amt = order.grossAmount !== undefined
+          ? this.parseMoney(order.grossAmount)
           : (order.rawTotal !== undefined ? order.rawTotal : this.parseMoney(order.total || order.grand_total || order.amount))
         grossSales += amt
         if (order.discount) {
@@ -12442,9 +12447,9 @@ export const store = reactive({
 
     const returnsList = targetBranchId
       ? this.salesReturns.filter(r => {
-          const rBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(r, 'salesReturns') || r.branch_id || r.branchId || r.branch)
-          return rBranchId === targetBranchId
-        })
+        const rBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(r, 'salesReturns') || r.branch_id || r.branchId || r.branch)
+        return rBranchId === targetBranchId
+      })
       : this.salesReturns
 
     returnsList.forEach(ret => {
@@ -12739,14 +12744,14 @@ export const store = reactive({
     if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
 
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     return (ordersList || []).filter(o => o.status === 'Completed').length
@@ -12759,14 +12764,14 @@ export const store = reactive({
     if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
 
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     return (ordersList || []).filter(o => o.status === 'Paid').length
@@ -12779,14 +12784,14 @@ export const store = reactive({
     if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
 
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     return (ordersList || []).filter(o => o.status === 'Partially Paid').length
@@ -12799,14 +12804,14 @@ export const store = reactive({
     if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
 
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     return (ordersList || []).filter(o => o.status === 'Ready for Handover' || o.status === 'Ready').length
@@ -12819,14 +12824,14 @@ export const store = reactive({
     if (!isGlobal && !targetBranchId && !filter.customOrders && !filter.order_ids) return 0
 
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     return (ordersList || []).filter(o => o.status === 'Reserved').length
@@ -12840,14 +12845,14 @@ export const store = reactive({
 
     const PIPELINE_STATUSES = ['Draft', 'Confirmed', 'Payment Pending', 'Pending Approval', 'Reserved', 'Sourcing', 'Processing']
     const ordersList = filter.customOrders || (
-      filter.order_ids 
+      filter.order_ids
         ? this.orders.filter(o => filter.order_ids.includes(o.id || o.order_id))
-        : (targetBranchId 
-            ? this.orders.filter(o => {
-                const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
-                return oBranchId === targetBranchId
-              })
-            : this.orders)
+        : (targetBranchId
+          ? this.orders.filter(o => {
+            const oBranchId = this.resolveCanonicalBranchId(getRecordBranchIdentity(o, 'orders') || o.branch_id || o.branchId || o.branch)
+            return oBranchId === targetBranchId
+          })
+          : this.orders)
     )
 
     return (ordersList || []).filter(o => PIPELINE_STATUSES.includes(o.status)).length
@@ -12905,9 +12910,9 @@ export const store = reactive({
     const receipt = this.getReceiptById ? this.getReceiptById(receiptId) : null
     const targetReceipt = receipt || (this.receipts || []).find(r => r.id === receiptId || r.receipt_id === receiptId)
     if (!targetReceipt) throw new Error(`Receipt ${receiptId} not found.`)
-    
+
     const totalAddon = comps.reduce((sum, c) => sum + this.parseMoney(c.amount), 0)
-    
+
     const totalBase = (targetReceipt.lines || []).reduce((sum, l) => {
       const prod = this.getProductById(l.product_id)
       const unitCost = this.parseMoney(l.unitCost || prod?.costPrice || 0)
@@ -12952,7 +12957,7 @@ export const store = reactive({
   getPurchaseOrderById(id) {
     if (!id) return null
     const target = String(id).toLowerCase().trim()
-    return (this.purchaseOrders || []).find(po => 
+    return (this.purchaseOrders || []).find(po =>
       (po.id && String(po.id).toLowerCase() === target) ||
       (po.po && String(po.po).toLowerCase() === target) ||
       (po.po_id && String(po.po_id).toLowerCase() === target) ||
@@ -13124,7 +13129,7 @@ export const store = reactive({
     if (adj.status !== 'Approved') {
       throw new Error(`Cannot post stock adjustment ${adj.id} with status '${adj.status}'. Must be Approved first.`)
     }
-    
+
     // Apply physical inventory / unit mutation
     if ((adj.product_id || adj.productId) && (adj.difference !== undefined || adj.adjustedQty !== undefined)) {
       const prod = this.getProductById(adj.product_id || adj.productId)
@@ -13133,13 +13138,13 @@ export const store = reactive({
         const isVehicle = prod.isSerialized !== false && prod.categoryId !== 'CAT-04' && prod.categoryId !== 'CAT-05'
         if (isVehicle && diff < 0) {
           const countToAdjust = Math.abs(diff)
-          let candidateUnits = this.serializedUnits.filter(u => 
+          let candidateUnits = this.serializedUnits.filter(u =>
             ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
             u.status !== 'Sold' && u.status !== 'Scrapped' &&
             (adj.branch && u.branch && u.branch.toLowerCase() === adj.branch.toLowerCase())
           )
           if (candidateUnits.length < countToAdjust) {
-            const others = this.serializedUnits.filter(u => 
+            const others = this.serializedUnits.filter(u =>
               ((u.product_id && u.product_id === prod.id) || (u.product && u.product.toLowerCase() === (prod.name || '').toLowerCase())) &&
               u.status !== 'Sold' && u.status !== 'Scrapped' &&
               !candidateUnits.includes(u)
@@ -13267,7 +13272,7 @@ if (typeof window !== 'undefined' && window.matchMedia) {
         store.applyTheme('System')
       }
     })
-  } catch (e) {}
+  } catch (e) { }
 }
 
 

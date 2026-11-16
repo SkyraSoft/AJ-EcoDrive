@@ -86,6 +86,9 @@ class ApiClient {
   }
 
   resolveBaseUrl() {
+    if (typeof window !== 'undefined' && (window.__TAURI_INTERNALS__ || window.__TAURI__)) {
+      return 'https://ecodrive.skyrasoft.com/api/v1'
+    }
     if (typeof import.meta !== 'undefined' && import.meta.env) {
       if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '')
       if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/+$/, '')
@@ -96,7 +99,10 @@ class ApiClient {
     if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') {
       return 'https://ecodrive.skyrasoft.com/api/v1'
     }
-    return 'http://localhost:3000/api/v1'
+    // Strict production default prevents local endpoints leaking into builds
+    return (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV)
+      ? 'http://127.0.0.1:3000/api/v1'
+      : 'https://ecodrive.skyrasoft.com/api/v1'
   }
 
   setBaseUrl(url) {
@@ -201,7 +207,7 @@ class ApiClient {
       const response = await fetch(url, reqConfig)
       clearTimeout(timer)
 
-            // Handle 401 Unauthorized globally (exclude /auth/login so invalid credentials do not trigger auto-logout)
+      // Handle 401 Unauthorized globally (exclude /auth/login so invalid credentials do not trigger auto-logout)
       if (response.status === 401 && !endpoint.includes('/auth/login')) {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('ecodrive:unauthorized', { detail: { endpoint, status: 401 } }))
@@ -231,7 +237,7 @@ class ApiClient {
         }
       }
 
-            if (!response.ok) {
+      if (!response.ok) {
         this.isOfflineMode = false
         const errorMsg = (data && (data.message || data.error)) || `HTTP ${response.status} ${response.statusText}`
         throw new ApiError(errorMsg, response.status, data, false)
@@ -287,11 +293,11 @@ class ApiClient {
     return this.request(endpoint, { method: 'DELETE', ...options })
   }
 
-    /**
-   * Performs an initial connectivity & health check with AbortController timeout (>=15s)
-   * and up to 2 retries (total 3 attempts).
-   * Does NOT throw; returns { ok: boolean, status?: number, data?: any, error?: string, attempts: number }.
-   */
+  /**
+ * Performs an initial connectivity & health check with AbortController timeout (>=15s)
+ * and up to 2 retries (total 3 attempts).
+ * Does NOT throw; returns { ok: boolean, status?: number, data?: any, error?: string, attempts: number }.
+ */
   async checkHealthWithRetry({ timeoutMs = 15000, maxRetries = 2, retryDelayMs = 1000 } = {}) {
     let lastError = null
     const url = `${this.baseUrl}/health`

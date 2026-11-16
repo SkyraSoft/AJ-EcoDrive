@@ -6,11 +6,24 @@
  */
 
 import { IndexedDBStorageAdapter } from './IndexedDBStorageAdapter.js'
+import { SQLiteStorageAdapter } from './SQLiteStorageAdapter.js'
 import { resolveCanonicalBranchId } from '../../utils/branchAuth.js'
+
+export function isTauriEnvironment() {
+  if (typeof window === 'undefined') return false
+  return Boolean(window.__TAURI_INTERNALS__ || window.__TAURI__)
+}
+
+export function createDefaultStorageAdapter() {
+  if (isTauriEnvironment()) {
+    return new SQLiteStorageAdapter()
+  }
+  return new IndexedDBStorageAdapter()
+}
 
 export class OfflineStorageEngine {
   constructor(adapter = null) {
-    this.adapter = adapter || new IndexedDBStorageAdapter()
+    this.adapter = adapter || createDefaultStorageAdapter()
   }
 
   async init() {
