@@ -103,7 +103,7 @@ const handlePrint = () => {
       <!-- Invoice Header -->
       <div class="flex items-start justify-between border-b border-gray-100 pb-8 mb-8">
         <div>
-          <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }}</h1>
+          <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">{{ store.settings?.company?.name || 'EVEE SHOWROOM LTD' }}</h1>
           <p class="text-sm text-gray-500 mt-1 uppercase">{{ store.settings?.company?.brand || 'BRG Electric Vehicles' }}</p>
           <p class="text-sm font-semibold text-gray-800 mt-2">{{ invoiceData.branch }}</p>
           <p class="text-[11px] text-gray-500">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Phone: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }}</p>

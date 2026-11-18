@@ -846,7 +846,7 @@ const getStatusBadgeClass = (status) => {
       <div class="border-b-2 border-black pb-4 mb-6">
         <div class="flex justify-between items-start">
           <div>
-            <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }} / {{ store.settings?.company?.brand || 'BRG EV WORKSHOP' }}</h1>
+            <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'EVEE SHOWROOM LTD' }} / {{ store.settings?.company?.brand || 'EVEE WORKSHOP' }}</h1>
             <p class="text-xs text-gray-700 mt-1 uppercase">{{ branchRecord?.name || repairData?.branch || 'Peshawar' }} Service Centre & Technical Workshop</p>
             <p class="text-[11px] text-gray-600">{{ branchRecord?.address || `Service Lane, ${repairData?.branch || 'Peshawar'}, Pakistan` }}</p>
             <p class="text-[11px] text-gray-600">Helpline: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }} | NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>

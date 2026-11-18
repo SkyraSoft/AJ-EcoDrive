@@ -261,7 +261,7 @@ const tabs = ['Summary', 'Allocation', 'Bank Details', 'Customer Account', 'Acti
     <div class="border-b-2 border-black pb-4 mb-6">
       <div class="flex justify-between items-start">
         <div>
-          <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE LTD' }} / {{ store.settings?.company?.brand || 'BRG ELECTRIC VEHICLES' }}</h1>
+          <h1 class="text-2xl font-black tracking-tight uppercase">{{ store.settings?.company?.name || 'EVEE SHOWROOM LTD' }} / {{ store.settings?.company?.brand || 'EVEE' }}</h1>
           <p class="text-xs text-gray-700 mt-1 uppercase">{{ branchRecord?.name || currentPayment?.branch || 'Peshawar' }} Showroom & Cash Office</p>
           <p class="text-[11px] text-gray-600">{{ branchRecord?.address || `${currentPayment?.branch || 'Peshawar'}, Pakistan` }}</p>
           <p class="text-[11px] text-gray-600">Phone: {{ branchRecord?.phone || store.settings?.company?.phone || 'Not configured' }} | NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>
