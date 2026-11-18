@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-  aj_ecodrive_erp_lib::run();
+    aj_ecodrive_erp_lib::run();
 }

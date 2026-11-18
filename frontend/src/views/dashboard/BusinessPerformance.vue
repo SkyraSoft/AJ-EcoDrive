@@ -1,4 +1,13 @@
 <script setup>
+import { ref, computed } from 'vue'
+import BaseBarTrendChart from '../../components/charts/BaseBarTrendChart.vue'
+import BaseBreakdownCard from '../../components/charts/BaseBreakdownCard.vue'
+import DateFilterBar from '../../components/charts/DateFilterBar.vue'
+
+const selectedRange = ref('30d')
+const customStart = ref('')
+const customEnd = ref('')
+
 const kpis = [
   { label: 'Revenue', value: 'PKR 28.4M', change: '+12.8%' },
   { label: 'Purchases', value: 'PKR 14.6M', change: '+4.1%' },
@@ -17,6 +26,82 @@ const branchContribution = [
   { name: 'Rawalpindi', value: 16, percentage: 45 }
 ]
 
+const branchContributionItems = branchContribution.map(b => ({
+  label: b.name,
+  value: `${b.value}% share`,
+  percentage: b.percentage
+}))
+
+const baseProfitabilityPoints = [
+  { period: 'Nov', value: 24200000, formatted: 'PKR 24.2M' },
+  { period: 'Dec', value: 25800000, formatted: 'PKR 25.8M' },
+  { period: 'Jan', value: 26100000, formatted: 'PKR 26.1M' },
+  { period: 'Feb', value: 27400000, formatted: 'PKR 27.4M' },
+  { period: 'Mar', value: 27900000, formatted: 'PKR 27.9M' },
+  { period: 'Apr', value: 28400000, formatted: 'PKR 28.4M' }
+]
+
+const baseNetProfitPoints = [
+  { period: 'Nov', value: 2800000, formatted: 'PKR 2.80M' },
+  { period: 'Dec', value: 3100000, formatted: 'PKR 3.10M' },
+  { period: 'Jan', value: 3200000, formatted: 'PKR 3.20M' },
+  { period: 'Feb', value: 3400000, formatted: 'PKR 3.40M' },
+  { period: 'Mar', value: 3550000, formatted: 'PKR 3.55M' },
+  { period: 'Apr', value: 3700000, formatted: 'PKR 3.70M' }
+]
+
+const profitabilityPoints = computed(() => {
+  if (selectedRange.value === '7d') {
+    return [
+      { period: 'Day 1', value: 3800000, formatted: 'PKR 3.8M' },
+      { period: 'Day 2', value: 4100000, formatted: 'PKR 4.1M' },
+      { period: 'Day 3', value: 3950000, formatted: 'PKR 3.9M' },
+      { period: 'Day 4', value: 4300000, formatted: 'PKR 4.3M' },
+      { period: 'Day 5', value: 4500000, formatted: 'PKR 4.5M' },
+      { period: 'Day 6', value: 4200000, formatted: 'PKR 4.2M' },
+      { period: 'Day 7', value: 4700000, formatted: 'PKR 4.7M' }
+    ]
+  }
+  if (selectedRange.value === '30d') {
+    return [
+      { period: 'Week 1', value: 6800000, formatted: 'PKR 6.8M' },
+      { period: 'Week 2', value: 7100000, formatted: 'PKR 7.1M' },
+      { period: 'Week 3', value: 7200000, formatted: 'PKR 7.2M' },
+      { period: 'Week 4', value: 7300000, formatted: 'PKR 7.3M' }
+    ]
+  }
+  if (selectedRange.value === '3m') {
+    return baseProfitabilityPoints.slice(-3)
+  }
+  return baseProfitabilityPoints
+})
+
+const netProfitPoints = computed(() => {
+  if (selectedRange.value === '7d') {
+    return [
+      { period: 'Day 1', value: 480000, formatted: 'PKR 0.48M' },
+      { period: 'Day 2', value: 520000, formatted: 'PKR 0.52M' },
+      { period: 'Day 3', value: 510000, formatted: 'PKR 0.51M' },
+      { period: 'Day 4', value: 550000, formatted: 'PKR 0.55M' },
+      { period: 'Day 5', value: 580000, formatted: 'PKR 0.58M' },
+      { period: 'Day 6', value: 540000, formatted: 'PKR 0.54M' },
+      { period: 'Day 7', value: 610000, formatted: 'PKR 0.61M' }
+    ]
+  }
+  if (selectedRange.value === '30d') {
+    return [
+      { period: 'Week 1', value: 880000, formatted: 'PKR 0.88M' },
+      { period: 'Week 2', value: 920000, formatted: 'PKR 0.92M' },
+      { period: 'Week 3', value: 940000, formatted: 'PKR 0.94M' },
+      { period: 'Week 4', value: 960000, formatted: 'PKR 0.96M' }
+    ]
+  }
+  if (selectedRange.value === '3m') {
+    return baseNetProfitPoints.slice(-3)
+  }
+  return baseNetProfitPoints
+})
+
 const topProducts = [
   { name: 'BRG DS11', revenue: '6.4M', units: '41', margin: '18.8%' },
   { name: 'BRG EV-5', revenue: '5.1M', units: '35', margin: '16.4%' },
@@ -33,12 +118,19 @@ const topCategories = [
 <template>
   <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / <span class="font-bold text-gray-800">Business Performance</span></div>
-        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Business Performance</h1>
-        <p class="text-sm text-gray-500 mt-1">Organisation-wide revenue, cost, profitability and collection analysis.</p>
+        <div class="text-[10px] text-slate-500 mb-1">Super Admin / <span class="font-bold text-slate-800">Business Performance</span></div>
+        <h1 class="text-[32px] tracking-tight font-bold text-slate-900">Business Performance</h1>
+        <p class="text-sm text-slate-500 mt-1">Organisation-wide revenue, cost, profitability and collection analysis.</p>
       </div>
+
+      <!-- Date Filter Bar (Design 3 5-Controls) -->
+      <DateFilterBar 
+        v-model="selectedRange" 
+        v-model:custom-start-date="customStart"
+        v-model:custom-end-date="customEnd"
+      />
     </div>
 
     <!-- 8 KPI Cards -->
@@ -55,32 +147,43 @@ const topCategories = [
     </div>
 
     <!-- Middle Grids -->
-    <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Profitability Trend (Line chart placeholder) -->
-      <div data-tour-id="sa.dashboard.biz-perf.trend" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-4">Profitability Trend</h3>
-        <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-lg flex items-center justify-center relative overflow-hidden">
-           <!-- Simple SVG Line placeholder -->
-           <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
-             <!-- Secondary line -->
-             <polyline points="0,22 30,20 60,18 100,16" fill="none" stroke="#d1d5db" stroke-width="0.5" vector-effect="non-scaling-stroke"/>
-             <!-- Primary line -->
-             <polyline points="0,20 30,18 60,16 100,13" fill="none" stroke="#209249" stroke-width="0.5" vector-effect="non-scaling-stroke"/>
-           </svg>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Profitability Trend (Grouped Bar Chart: Blue Revenue + Green Net Profit) -->
+      <div data-tour-id="sa.dashboard.biz-perf.trend" class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Profitability Performance</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Revenue & net operating profit bar comparison</p>
+          </div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+            Profit & Margin
+          </span>
+        </div>
+        <div class="flex-1 min-h-[220px]">
+          <BaseBarTrendChart
+            :data-points="profitabilityPoints"
+            series-name="Revenue"
+            primary-color="#2563EB"
+            :secondary-points="netProfitPoints"
+            secondary-series-name="Net Profit"
+            secondary-color="#10B981"
+            :format-value="(v) => 'PKR ' + (v / 1000000).toFixed(1) + 'M'"
+            height-class="h-60"
+            :show-values="true"
+          />
         </div>
       </div>
       
       <!-- Branch Contribution -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-5">Branch Contribution</h3>
-        <div class="space-y-4 flex-1 flex flex-col justify-center">
-          <div v-for="branch in branchContribution" :key="branch.name" class="flex flex-wrap items-center gap-4">
-            <div class="w-16 text-[11px] font-medium text-gray-800">{{ branch.name }}</div>
-            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-[#209249] rounded-full" :style="{ width: branch.percentage + '%' }"></div>
-            </div>
-            <div class="w-6 text-right text-[11px] font-bold text-gray-900">{{ branch.value }}</div>
+      <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Branch Contribution</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Revenue share percentage across showroom network</p>
           </div>
+        </div>
+        <div class="flex-1 flex flex-col justify-center">
+          <BaseBreakdownCard :items="branchContributionItems" primary-color="#2563EB" />
         </div>
       </div>
     </div>

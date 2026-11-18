@@ -2,9 +2,16 @@
 import { ref, computed, onMounted } from 'vue'
 import { api } from '../../services/api.js'
 import { store } from '@/store.js'
+import BaseBarTrendChart from '@/components/charts/BaseBarTrendChart.vue'
+import BaseBreakdownCard from '@/components/charts/BaseBreakdownCard.vue'
+import DateFilterBar from '@/components/charts/DateFilterBar.vue'
 
 const isBranchUser = computed(() => store.isBranchUser())
 const branchName = computed(() => store.getActiveBranchName() || 'Peshawar')
+
+const selectedRange = ref('30d')
+const customStart = ref('')
+const customEnd = ref('')
 
 const kpis = ref([
   { label: 'Net Sales', value: 'PKR 28.4M' },
@@ -22,6 +29,21 @@ const branchContributions = ref([
   { branch: 'Islamabad', percentage: 27 },
   { branch: 'Lahore', percentage: 22 },
   { branch: 'Rawalpindi', percentage: 16 }
+])
+
+const branchContributionItems = computed(() => {
+  return branchContributions.value.map(b => ({
+    label: b.branch,
+    value: `${b.percentage}% share`,
+    percentage: b.percentage
+  }))
+})
+
+const cashCollectionsTrend = computed(() => [
+  { period: 'Week 1', value: 5800000, formatted: 'PKR 5.80M' },
+  { period: 'Week 2', value: 6400000, formatted: 'PKR 6.40M' },
+  { period: 'Week 3', value: 6900000, formatted: 'PKR 6.90M' },
+  { period: 'Week 4', value: 6400000, formatted: 'PKR 6.40M' }
 ])
 
 onMounted(async () => {
@@ -44,13 +66,21 @@ onMounted(async () => {
 <template>
   <div class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div data-tour-id="bm.finance.overview.header">
-      <div class="text-[10px] text-gray-500 mb-1">
-        <span v-if="isBranchUser">Branch Manager / {{ branchName }} Branch / <span class="font-bold text-gray-800">Finance Overview</span></span>
-        <span v-else>Super Admin / Head Office / <span class="font-bold text-gray-800">Finance Overview</span></span>
+    <div data-tour-id="bm.finance.overview.header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <div class="text-[10px] text-slate-500 mb-1">
+          <span v-if="isBranchUser">Branch Manager / {{ branchName }} Branch / <span class="font-bold text-slate-800">Finance Overview</span></span>
+          <span v-else>Super Admin / Head Office / <span class="font-bold text-slate-800">Finance Overview</span></span>
+        </div>
+        <h1 class="text-[32px] tracking-tight font-bold text-slate-900">Finance Overview</h1>
+        <p class="text-sm text-slate-500 mt-1">Operational view of collections, receivables, payables, expenses and profitability.</p>
       </div>
-      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Finance Overview</h1>
-      <p class="text-sm text-gray-500 mt-1">Operational view of collections, receivables, payables, expenses and profitability.</p>
+
+      <DateFilterBar 
+        v-model="selectedRange" 
+        v-model:custom-start-date="customStart"
+        v-model:custom-end-date="customEnd"
+      />
     </div>
 
     <!-- 8 KPI Cards Grid -->
@@ -58,10 +88,10 @@ onMounted(async () => {
       <div 
         v-for="(kpi, index) in kpis" 
         :key="index" 
-        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between"
+        class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between"
       >
-        <div class="text-xs font-semibold text-gray-400 mb-2">{{ kpi.label }}</div>
-        <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
+        <div class="text-xs font-semibold text-slate-500 mb-2">{{ kpi.label }}</div>
+        <div class="text-[22px] font-bold text-slate-900 leading-none">{{ kpi.value }}</div>
       </div>
     </div>
 
@@ -69,48 +99,39 @@ onMounted(async () => {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
       <!-- Branch Contribution -->
-      <div data-tour-id="bm.finance.overview.contributions" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5">
-        <h3 class="text-[13px] font-bold text-gray-900">Branch Contribution</h3>
-        
-        <div class="space-y-4 pt-2">
-          <div v-for="item in branchContributions" :key="item.branch" class="space-y-1.5">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-medium text-gray-700">{{ item.branch }}</span>
-              <span class="font-bold text-gray-900">{{ item.percentage }}%</span>
-            </div>
-            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-              <div 
-                class="bg-[#165A31] h-full rounded-full transition-all duration-500" 
-                :style="{ width: `${item.percentage}%` }"
-              ></div>
-            </div>
+      <div data-tour-id="bm.finance.overview.contributions" class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Branch Contribution</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Revenue collection share across showroom network</p>
           </div>
+        </div>
+        
+        <div class="flex-1 flex flex-col justify-center">
+          <BaseBreakdownCard :items="branchContributionItems" primary-color="#2563EB" />
         </div>
       </div>
 
-      <!-- Cash Collections Trend -->
-      <div data-tour-id="bm.finance.overview.collections" class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] space-y-5 flex flex-col justify-between">
-        <h3 class="text-[13px] font-bold text-gray-900">Cash Collections</h3>
-        
-        <div class="h-48 flex items-center justify-center relative p-4">
-          <!-- Simplified SVG Trend Line -->
-          <svg class="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="none">
-            <polyline
-              fill="none"
-              stroke="#165A31"
-              stroke-width="3"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              points="10,95 70,88 140,82 210,75 280,68 350,55 390,48"
-            />
-          </svg>
+      <!-- Cash Collections Bar Graph -->
+      <div data-tour-id="bm.finance.overview.collections" class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Cash Collections</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Collections bar volume progression</p>
+          </div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+            Collections
+          </span>
         </div>
-
-        <div class="flex items-center justify-between text-[11px] text-gray-400 border-t border-gray-50 pt-3">
-          <span>Week 1</span>
-          <span>Week 2</span>
-          <span>Week 3</span>
-          <span>Week 4</span>
+        
+        <div class="flex-1 min-h-[220px]">
+          <BaseBarTrendChart
+            :data-points="cashCollectionsTrend"
+            series-name="Collections"
+            primary-color="#2563EB"
+            height-class="h-60"
+            :show-values="true"
+          />
         </div>
       </div>
 

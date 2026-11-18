@@ -1,9 +1,31 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { store } from '@/store.js'
+import BaseBarTrendChart from '@/components/charts/BaseBarTrendChart.vue'
+import BaseBreakdownCard from '@/components/charts/BaseBreakdownCard.vue'
+import DateFilterBar from '@/components/charts/DateFilterBar.vue'
 
 const isBranchUser = computed(() => store.isBranchUser())
 const user = computed(() => store.currentUser)
+
+const selectedRange = ref('30d')
+const customStart = ref('')
+const customEnd = ref('')
+
+// Target vs Actual Data for Branch Manager
+const actualSalesData = computed(() => [
+  { label: 'Jan', value: 2250000, fullValue: 'PKR 2.25M' },
+  { label: 'Feb', value: 2450000, fullValue: 'PKR 2.45M' },
+  { label: 'Mar', value: 2350000, fullValue: 'PKR 2.35M' },
+  { label: 'Apr', value: 2850000, fullValue: 'PKR 2.85M' }
+])
+
+const targetSalesData = computed(() => [
+  { label: 'Jan', value: 2000000, fullValue: 'PKR 2.00M' },
+  { label: 'Feb', value: 2200000, fullValue: 'PKR 2.20M' },
+  { label: 'Mar', value: 2500000, fullValue: 'PKR 2.50M' },
+  { label: 'Apr', value: 2600000, fullValue: 'PKR 2.60M' }
+])
 
 // Branch Manager KPIs
 const branchManagerKpis = computed(() => {
@@ -65,18 +87,55 @@ const branchRanking = computed(() => {
     }
   })
 })
+
+const branchRankingItems = computed(() => {
+  const list = detailedComparison.value
+  const max = Math.max(...list.map(b => store.parseMoney(b.sales)), 1)
+  return list.map(b => {
+    const val = store.parseMoney(b.sales)
+    return {
+      label: b.branch,
+      value: b.sales,
+      percentage: val > 0 ? Math.round((val / max) * 100) : 0
+    }
+  })
+})
+
+const branchSalesData = computed(() => {
+  return detailedComparison.value.map(b => ({
+    label: b.branch,
+    value: store.parseMoney(b.sales),
+    fullValue: b.sales
+  }))
+})
+
+const branchOpexData = computed(() => {
+  return detailedComparison.value.map(b => ({
+    label: b.branch,
+    value: store.parseMoney(b.opex),
+    fullValue: b.opex
+  }))
+})
 </script>
 
 <template>
   <!-- BRANCH MANAGER VIEW -->
   <div v-if="isBranchUser" class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div>
-      <div class="text-[11px] text-gray-400 mb-1">
-        Branch Manager / My Branch Performance / <span class="font-medium text-gray-600">My Branch Performance</span>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <div class="text-[11px] text-slate-500 mb-1">
+          Branch Manager / My Branch Performance / <span class="font-medium text-slate-700">My Branch Performance</span>
+        </div>
+        <h1 class="text-[32px] tracking-tight font-bold text-slate-900">My Branch Performance</h1>
+        <p class="text-xs text-slate-500 mt-1">Period performance for {{ user.branchName }} Branch only; no other-branch financial data.</p>
       </div>
-      <h1 class="text-[32px] tracking-tight font-bold text-gray-900">My Branch Performance</h1>
-      <p class="text-xs text-gray-500 mt-1">Period performance for {{ user.branchName }} Branch only; no other-branch financial data.</p>
+
+      <DateFilterBar 
+        v-model="selectedRange" 
+        v-model:custom-start-date="customStart"
+        v-model:custom-end-date="customEnd"
+      />
     </div>
 
     <!-- 4 KPI Cards -->
@@ -93,13 +152,25 @@ const branchRanking = computed(() => {
     <!-- Middle Grids: Target vs Actual & Performance Indicators -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       <!-- Target vs Actual -->
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-7 flex flex-col justify-between min-h-[260px]">
-        <h3 class="text-sm font-bold text-gray-900 mb-4">Target vs Actual</h3>
-        <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-xl flex items-end justify-center gap-6 pt-8 pb-4 px-6">
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 60%;"></div>
-          <div class="w-10 bg-[#34d399] rounded-t-md" style="height: 88%;"></div>
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md" style="height: 52%;"></div>
-          <div class="w-10 bg-[#6ee7b7] rounded-t-md" style="height: 80%;"></div>
+      <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] lg:col-span-7 flex flex-col justify-between min-h-[260px]">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Target vs Actual</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Monthly sales performance vs branch quota</p>
+          </div>
+        </div>
+        <div class="flex-1 mt-2">
+          <BaseBarTrendChart
+            :data="actualSalesData"
+            :secondary-data="targetSalesData"
+            series-name="Actual"
+            secondary-series-name="Target"
+            primary-color="#2563EB"
+            secondary-color="#94A3B8"
+            :format-value="(v) => 'PKR ' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'k')"
+            height-class="h-56"
+            :show-values="true"
+          />
         </div>
       </div>
 
@@ -131,21 +202,27 @@ const branchRanking = computed(() => {
   <!-- SUPER ADMIN VIEW -->
   <div v-else class="max-w-[1400px] mx-auto space-y-6 pb-12">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
-        <div class="text-[10px] text-gray-500 mb-1">Super Admin / <span class="font-bold text-gray-800">Branch Performance</span></div>
-        <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Branch Performance</h1>
-        <p class="text-sm text-gray-500 mt-1">Compare branch contribution, profitability and operating results.</p>
+        <div class="text-[10px] text-slate-500 mb-1">Super Admin / <span class="font-bold text-slate-800">Branch Performance</span></div>
+        <h1 class="text-[32px] tracking-tight font-bold text-slate-900">Branch Performance</h1>
+        <p class="text-sm text-slate-500 mt-1">Compare branch contribution, profitability and operating results.</p>
       </div>
+
+      <DateFilterBar 
+        v-model="selectedRange" 
+        v-model:custom-start-date="customStart"
+        v-model:custom-end-date="customEnd"
+      />
     </div>
 
     <!-- 4 KPI Cards -->
     <div data-tour-id="sa.dashboard.branch-perf.kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div v-for="(kpi, index) in superAdminKpis" :key="index" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-        <div class="text-xs font-semibold text-gray-400 mb-3">{{ kpi.label }}</div>
+      <div v-for="(kpi, index) in superAdminKpis" :key="index" class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+        <div class="text-xs font-semibold text-slate-500 mb-3">{{ kpi.label }}</div>
         <div class="flex items-end justify-between">
-          <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
-          <div class="text-[10px] font-bold flex items-center gap-0.5 pb-0.5 text-[#209249]">
+          <div class="text-[22px] font-bold text-slate-900 leading-none">{{ kpi.value }}</div>
+          <div class="text-[10px] font-bold flex items-center gap-0.5 pb-0.5 text-emerald-600">
             {{ kpi.change }}
           </div>
         </div>
@@ -155,27 +232,38 @@ const branchRanking = computed(() => {
     <!-- Middle Grids -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- Branch Ranking -->
-      <div data-tour-id="sa.dashboard.branch-perf.ranking" class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-5">Branch Ranking</h3>
-        <div class="space-y-4 flex-1 flex flex-col justify-center">
-          <div v-for="branch in branchRanking" :key="branch.name" class="flex flex-wrap items-center gap-4">
-            <div class="w-16 text-[11px] font-medium text-gray-800">{{ branch.name }}</div>
-            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-[#209249] rounded-full" :style="{ width: branch.percentage + '%' }"></div>
-            </div>
-            <div class="w-6 text-right text-[11px] font-bold text-gray-900">{{ branch.value }}</div>
+      <div data-tour-id="sa.dashboard.branch-perf.ranking" class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Branch Ranking</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Sales contribution percentage per showroom</p>
           </div>
+        </div>
+        <div class="flex-1 flex flex-col justify-center">
+          <BaseBreakdownCard :items="branchRankingItems" primary-color="#2563EB" />
         </div>
       </div>
 
-      <!-- Sales vs Expenses (Mockup Bar Chart) -->
-      <div class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-5">Sales vs Expenses</h3>
-        <div class="flex-1 min-h-[140px] bg-[#f8faf9] rounded-lg flex items-end justify-start px-6 pt-6 pb-4 gap-4 relative">
-          <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 100%;"></div>
-          <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 75%;"></div>
-          <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 85%;"></div>
-          <div class="w-8 bg-[#209249] rounded-t-sm" style="height: 60%;"></div>
+      <!-- Sales vs Expenses (Grouped Bar Chart) -->
+      <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-900">Sales vs Expenses</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Net sales comparison against branch operating costs</p>
+          </div>
+        </div>
+        <div class="flex-1 mt-2">
+          <BaseBarTrendChart
+            :data="branchSalesData"
+            :secondary-data="branchOpexData"
+            series-name="Net Sales"
+            secondary-series-name="OpEx"
+            primary-color="#2563EB"
+            secondary-color="#94A3B8"
+            :format-value="(v) => 'PKR ' + (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000).toFixed(0) + 'k')"
+            height-class="h-56"
+            :show-values="true"
+          />
         </div>
       </div>
     </div>

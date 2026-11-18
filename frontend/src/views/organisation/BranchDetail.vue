@@ -4,6 +4,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { store } from '../../store.js'
 import NotFoundState from '@/components/common/NotFoundState.vue'
 import { ChevronDown } from 'lucide-vue-next'
+import BaseBarTrendChart from '../../components/charts/BaseBarTrendChart.vue'
+import BaseBreakdownCard from '../../components/charts/BaseBreakdownCard.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -23,6 +25,38 @@ const editBranch = () => {
   store.originalEditBranch = { ...branchRecord.value }
   router.push('/organisation/branches/edit')
 }
+
+const branchRevenueTrend = computed(() => [
+  { period: 'Nov', value: 7800000, formatted: 'PKR 7.80M' },
+  { period: 'Dec', value: 8400000, formatted: 'PKR 8.40M' },
+  { period: 'Jan', value: 8600000, formatted: 'PKR 8.60M' },
+  { period: 'Feb', value: 9200000, formatted: 'PKR 9.20M' },
+  { period: 'Mar', value: 9500000, formatted: 'PKR 9.50M' },
+  { period: 'Apr', value: 9800000, formatted: 'PKR 9.80M' }
+])
+
+const branchSalesTrend = computed(() => [
+  { period: 'Nov', value: 1200000, formatted: 'PKR 1.20M' },
+  { period: 'Dec', value: 1450000, formatted: 'PKR 1.45M' },
+  { period: 'Jan', value: 1350000, formatted: 'PKR 1.35M' },
+  { period: 'Feb', value: 1650000, formatted: 'PKR 1.65M' },
+  { period: 'Mar', value: 1800000, formatted: 'PKR 1.80M' },
+  { period: 'Apr', value: 2150000, formatted: 'PKR 2.15M' }
+])
+
+const topProductsItems = [
+  { label: 'BRG DST1', value: '92 units', percentage: 92 },
+  { label: 'EV-5', value: '73 units', percentage: 73 },
+  { label: 'Cargo Pro', value: '58 units', percentage: 58 }
+]
+
+const expenseCategoryItems = [
+  { label: 'Salaries', value: '86% quota', percentage: 86 },
+  { label: 'Rent', value: '62% quota', percentage: 62 },
+  { label: 'Utilities', value: '44% quota', percentage: 44 },
+  { label: 'Logistics', value: '32% quota', percentage: 32 },
+  { label: 'Marketing', value: '25% quota', percentage: 25 }
+]
 </script>
 
 <template>
@@ -198,13 +232,25 @@ const editBranch = () => {
       <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Revenue Trend -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] min-h-[220px]">
-          <h3 class="text-[13px] font-bold text-gray-900 mb-6">Revenue Trend</h3>
-          <div class="h-32 bg-[#f4fcf6] rounded-lg relative overflow-hidden flex items-center justify-center border border-gray-50/50">
-            <!-- Mock Line Chart SVG -->
-            <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <path d="M 5,80 L 30,75 L 60,65 L 95,50" fill="none" stroke="#165A31" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-            </svg>
+        <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] min-h-[220px] flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Revenue Trend</h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Monthly revenue progression for this showroom</p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+              6-Month Trend
+            </span>
+          </div>
+          <div class="flex-1 min-h-[200px]">
+            <BaseBarTrendChart
+              :data-points="branchRevenueTrend"
+              series-name="Revenue"
+              primary-color="#2563EB"
+              :format-value="(v) => 'PKR ' + v + 'M'"
+              height-class="h-56"
+              :show-values="true"
+            />
           </div>
         </div>
 
@@ -350,48 +396,39 @@ const editBranch = () => {
       <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Sales Trend -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] min-h-[220px]">
-          <h3 class="text-[13px] font-bold text-gray-900 mb-6">Sales Trend</h3>
-          <div class="h-32 bg-[#f4fcf6] rounded-lg relative overflow-hidden flex items-center justify-center border border-gray-50/50">
-            <!-- Mock Line Chart SVG -->
-            <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <path d="M 5,80 L 30,75 L 60,65 L 95,50" fill="none" stroke="#165A31" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-            </svg>
+        <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] min-h-[220px] flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Sales Trend</h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Monthly sales trajectory for showroom</p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+              6-Month Trend
+            </span>
+          </div>
+          <div class="flex-1 min-h-[200px]">
+            <BaseBarTrendChart
+              :data-points="branchSalesTrend"
+              series-name="Sales"
+              primary-color="#2563EB"
+              height-class="h-56"
+              :show-values="true"
+            />
           </div>
         </div>
 
         <!-- Top Products -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] min-h-[220px]">
-          <h3 class="text-[13px] font-bold text-gray-900 mb-6">Top Products</h3>
-          <div class="space-y-4">
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">BRG DST1</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[92%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">92</div>
+        <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] min-h-[220px] flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Top Products</h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Top-performing vehicle models by volume</p>
             </div>
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">EV-5</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[73%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">73</div>
-            </div>
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">Cargo Pro</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[58%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">58</div>
-            </div>
-
+          </div>
+          <div class="flex-1 flex flex-col justify-center">
+            <BaseBreakdownCard :items="topProductsItems" primary-color="#2563EB" />
           </div>
         </div>
-
       </div>
     </template>
 
@@ -513,50 +550,15 @@ const editBranch = () => {
       <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Expense Categories -->
-        <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] min-h-[220px]">
-          <h3 class="text-[13px] font-bold text-gray-900 mb-6">Expense Categories</h3>
-          <div class="space-y-4">
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">Salaries</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[86%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">86</div>
+        <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] min-h-[220px] flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900">Expense Categories</h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Budget utilization per operational category</p>
             </div>
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">Rent</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[62%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">62</div>
-            </div>
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">Utilities</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[44%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">44</div>
-            </div>
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">Logistics</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[32%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">32</div>
-            </div>
-            
-            <div class="flex items-center text-[10px]">
-              <div class="w-20 text-gray-500 font-medium">Marketing</div>
-              <div class="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-[#165A31] w-[25%] rounded-full"></div>
-              </div>
-              <div class="w-6 text-right font-bold text-gray-900">25</div>
-            </div>
-
+          </div>
+          <div class="flex-1 flex flex-col justify-center">
+            <BaseBreakdownCard :items="expenseCategoryItems" primary-color="#2563EB" />
           </div>
         </div>
 

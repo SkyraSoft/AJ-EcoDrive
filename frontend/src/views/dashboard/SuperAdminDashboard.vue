@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   TrendingUp, 
@@ -10,6 +10,9 @@ import {
   ExternalLink
 } from 'lucide-vue-next'
 import { store } from '@/store.js'
+import BaseTrendChart from '@/components/charts/BaseTrendChart.vue'
+import BaseBarTrendChart from '@/components/charts/BaseBarTrendChart.vue'
+import BaseBreakdownCard from '@/components/charts/BaseBreakdownCard.vue'
 
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
@@ -166,6 +169,41 @@ const branchPerformance = computed(() => {
   }))
 })
 
+const branchPerformanceItems = computed(() => {
+  return branchPerformance.value.map(b => ({
+    label: b.name,
+    value: b.value,
+    percentage: b.value,
+    formatted: `${b.value}%`
+  }))
+})
+
+const bmSalesTrendData = computed(() => {
+  const branchName = user.value?.branchName || 'Peshawar'
+  const fin = store.calculateFinancialMetrics({ branch_id: branchName })
+  const base = fin.netSales > 0 ? (fin.netSales / 1000000) : 8.7
+  return [
+    { label: 'May', value: +(base * 0.65).toFixed(1), fullValue: `PKR ${(base * 0.65).toFixed(1)}M` },
+    { label: 'Jun', value: +(base * 0.78).toFixed(1), fullValue: `PKR ${(base * 0.78).toFixed(1)}M` },
+    { label: 'Jul', value: +(base * 0.85).toFixed(1), fullValue: `PKR ${(base * 0.85).toFixed(1)}M` },
+    { label: 'Aug', value: +(base * 0.92).toFixed(1), fullValue: `PKR ${(base * 0.92).toFixed(1)}M` },
+    { label: 'Sep', value: +(base * 1.0).toFixed(1), fullValue: `PKR ${(base * 1.0).toFixed(1)}M` }
+  ]
+})
+
+const saSalesPerformanceData = computed(() => {
+  const fin = store.calculateFinancialMetrics({ branch_id: 'ALL' })
+  const base = fin.netSales > 0 ? (fin.netSales / 1000000) : 28.4
+  return [
+    { label: 'Apr', value: +(base * 0.72).toFixed(1), fullValue: `PKR ${(base * 0.72).toFixed(1)}M` },
+    { label: 'May', value: +(base * 0.78).toFixed(1), fullValue: `PKR ${(base * 0.78).toFixed(1)}M` },
+    { label: 'Jun', value: +(base * 0.84).toFixed(1), fullValue: `PKR ${(base * 0.84).toFixed(1)}M` },
+    { label: 'Jul', value: +(base * 0.90).toFixed(1), fullValue: `PKR ${(base * 0.90).toFixed(1)}M` },
+    { label: 'Aug', value: +(base * 0.95).toFixed(1), fullValue: `PKR ${(base * 0.95).toFixed(1)}M` },
+    { label: 'Sep', value: +(base * 1.0).toFixed(1), fullValue: `PKR ${(base * 1.0).toFixed(1)}M` }
+  ]
+})
+
 const expenseSummary = computed(() => {
   const categories = ['Salaries', 'Rent', 'Utilities', 'Marketing', 'Logistics']
   return categories.map(cat => {
@@ -175,6 +213,8 @@ const expenseSummary = computed(() => {
     return { name: cat, value: total > 0 ? Math.min(100, Math.round(total / 1000)) : 0 }
   })
 })
+
+const saChartType = ref('bar')
 
 const navigateTo = (route) => {
   if (!route) return
@@ -230,21 +270,21 @@ const navigateTo = (route) => {
       <!-- Sales Trend -->
       <div 
         @click="navigateTo('/sales/dashboard')"
-        class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-7 flex flex-col justify-between min-h-[260px] cursor-pointer hover:border-gray-200 transition-all group"
+        class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] lg:col-span-7 flex flex-col justify-between min-h-[280px] cursor-pointer hover:border-slate-300 transition-all group"
       >
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-bold text-gray-900">Sales Trend</h3>
-          <span class="text-[11px] text-gray-400 font-medium group-hover:text-[#209249] flex items-center gap-1">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-slate-900">Branch Sales Trend</h3>
+          <span class="text-[11px] text-slate-500 font-medium group-hover:text-blue-600 flex items-center gap-1 transition-colors">
             View Sales Analytics <ArrowUpRight class="w-3 h-3" />
           </span>
         </div>
-        <div class="flex-1 min-h-[160px] bg-[#f8faf9] rounded-xl flex items-end justify-center gap-6 pt-8 pb-4 px-6">
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md group-hover:bg-[#86efac] transition-all" style="height: 45%;"></div>
-          <div class="w-10 bg-[#6ee7b7] rounded-t-md group-hover:bg-[#4ade80] transition-all" style="height: 70%;"></div>
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md group-hover:bg-[#86efac] transition-all" style="height: 55%;"></div>
-          <div class="w-10 bg-[#34d399] rounded-t-md group-hover:bg-[#22c55e] transition-all" style="height: 90%;"></div>
-          <div class="w-10 bg-[#a7f3d0] rounded-t-md group-hover:bg-[#86efac] transition-all" style="height: 75%;"></div>
-        </div>
+        <BaseBarTrendChart
+          :data="bmSalesTrendData"
+          series-name="Branch Sales"
+          :format-value="(v) => 'PKR ' + v + 'M'"
+          primary-color="#2563EB"
+          height-class="h-56"
+        />
       </div>
 
       <!-- Branch Snapshot (Clickable Interactive KPI Grid) -->
@@ -391,47 +431,78 @@ const navigateTo = (route) => {
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <!-- Sales Performance -->
+      <!-- Sales Performance (Default: Bar Chart) -->
       <div 
-        @click="navigateTo('/dashboard/business-performance')"
         data-tour-id="sa.dashboard.chart.sales-performance"
-        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] lg:col-span-2 flex flex-col cursor-pointer hover:border-gray-200 transition-all group"
+        class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] lg:col-span-2 flex flex-col justify-between group"
       >
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xs font-bold text-gray-900">Sales Performance</h3>
-          <span class="text-[10px] text-gray-400 group-hover:text-[#209249] flex items-center gap-1 font-medium">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-sm font-semibold text-slate-900">Sales Performance</h3>
+            <!-- Chart View Toggle (Default: Bar) -->
+            <div class="inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200/80" @click.stop>
+              <button 
+                type="button" 
+                @click="saChartType = 'bar'" 
+                class="px-2 py-0.5 text-[11px] font-semibold rounded-md transition-all cursor-pointer"
+                :class="saChartType === 'bar' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                Bar
+              </button>
+              <button 
+                type="button" 
+                @click="saChartType = 'line'" 
+                class="px-2 py-0.5 text-[11px] font-semibold rounded-md transition-all cursor-pointer"
+                :class="saChartType === 'line' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                Line
+              </button>
+            </div>
+          </div>
+          <button 
+            @click="navigateTo('/dashboard/business-performance')"
+            class="text-[11px] text-slate-500 hover:text-blue-600 flex items-center gap-1 font-medium transition-colors cursor-pointer"
+          >
             Business Performance <ArrowUpRight class="w-3 h-3" />
-          </span>
+          </button>
         </div>
-        <div class="flex-1 min-h-[160px] bg-[#f0f9f4] rounded-lg flex items-center justify-center relative">
-           <!-- Simple SVG Line placeholder -->
-           <svg class="w-full h-[120px] absolute bottom-6" viewBox="0 0 100 30" preserveAspectRatio="none">
-             <polyline points="5,25 25,23 45,21 65,18 85,14 100,10" fill="none" stroke="#209249" stroke-width="0.5" vector-effect="non-scaling-stroke"/>
-           </svg>
-           <div class="absolute bottom-3 left-4 text-[9px] text-gray-400 font-medium tracking-wide">Apr · May · Jun · Jul · Aug</div>
-        </div>
+
+        <BaseBarTrendChart
+          v-if="saChartType === 'bar'"
+          :data="saSalesPerformanceData"
+          series-name="Sales Revenue"
+          :format-value="(v) => 'PKR ' + v + 'M'"
+          primary-color="#2563EB"
+          height-class="h-56"
+          :show-values="true"
+        />
+        <BaseTrendChart
+          v-else
+          :data="saSalesPerformanceData"
+          series-name="Sales Revenue"
+          :format-value="(v) => 'PKR ' + v + 'M'"
+          stroke-color="#2563EB"
+          height-class="h-56"
+        />
       </div>
       
       <!-- Branch Performance -->
       <div 
-        @click="navigateTo('/dashboard/branch-performance')" data-tour-id="sa.dashboard.table.branch-performance"
-        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col cursor-pointer hover:border-gray-200 transition-all group"
+        @click="navigateTo('/dashboard/branch-performance')" 
+        data-tour-id="sa.dashboard.table.branch-performance"
+        class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col cursor-pointer hover:border-slate-300 transition-all group"
       >
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xs font-bold text-gray-900">Branch Performance</h3>
-          <span class="text-[10px] text-gray-400 group-hover:text-[#209249] flex items-center gap-1 font-medium">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-slate-900">Branch Performance</h3>
+          <span class="text-[11px] text-slate-500 group-hover:text-blue-600 flex items-center gap-1 font-medium transition-colors">
             Branch Reports <ArrowUpRight class="w-3 h-3" />
           </span>
         </div>
-        <div class="space-y-4 flex-1 flex flex-col justify-center">
-          <div v-for="branch in branchPerformance" :key="branch.name" class="flex flex-wrap items-center gap-3">
-            <div class="w-16 text-[10px] font-medium text-gray-800">{{ branch.name }}</div>
-            <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-[#165A31] rounded-full" :style="{ width: branch.value + '%' }"></div>
-            </div>
-            <div class="w-4 text-right text-[10px] font-bold text-gray-900">{{ branch.value }}</div>
-          </div>
-        </div>
+        <BaseBreakdownCard
+          :items="branchPerformanceItems"
+          value-suffix="%"
+          primary-color="#2563EB"
+        />
       </div>
     </div>
 

@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import { Plus, CheckCircle2, ChevronDown, Check, Download } from 'lucide-vue-next'
 import { store } from '@/store'
 import BuildReportModal from './BuildReport.vue'
+import BaseBarTrendChart from '@/components/charts/BaseBarTrendChart.vue'
+import DateFilterBar from '@/components/charts/DateFilterBar.vue'
 
 const router = useRouter()
 const isBranchUser = computed(() => store.isBranchUser())
@@ -34,14 +36,14 @@ const triggerExport = (type) => {
   setTimeout(() => { showToast.value = false }, 3000)
 }
 
-// Bars for Trend chart (matching screenshot 1)
-const trendBars = [
-  { height: '55%' },
-  { height: '75%' },
-  { height: '65%' },
-  { height: '90%' },
-  { height: '80%' },
-  { height: '100%' }
+// Bars for Trend chart
+const trendBarData = [
+  { label: 'Apr', value: 5.5, fullValue: 'PKR 5.5M' },
+  { label: 'May', value: 7.5, fullValue: 'PKR 7.5M' },
+  { label: 'Jun', value: 6.5, fullValue: 'PKR 6.5M' },
+  { label: 'Jul', value: 9.0, fullValue: 'PKR 9.0M' },
+  { label: 'Aug', value: 8.0, fullValue: 'PKR 8.0M' },
+  { label: 'Sep', value: 9.8, fullValue: 'PKR 9.8M' }
 ]
 
 // --- SUPER ADMIN VIEW DATA ---
@@ -113,31 +115,8 @@ const handleReportCreated = (newReport) => {
     <!-- Filters Row -->
     <div data-tour-id="bm.analytics.hub.filters" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Date Filter Dropdown -->
-        <div class="relative">
-          <button 
-            @click.stop="toggleDropdown('date')"
-            class="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
-          >
-            <span>{{ selectedDateRange }}</span>
-            <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
-          </button>
-          <div 
-            v-if="openDropdown === 'date'" 
-            class="absolute top-full left-0 mt-1 w-36 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
-          >
-            <button 
-              v-for="d in ['Today', 'This Week', 'This Month', 'Last 30 days', 'All Time']" 
-              :key="d"
-              @click="selectedDateRange = d; openDropdown = null"
-              class="w-full text-left px-3.5 py-1.5 text-xs flex items-center justify-between hover:bg-gray-50 transition-colors"
-              :class="selectedDateRange === d ? 'font-bold text-[#165A31] bg-[#eefcf2]/50' : 'text-gray-700'"
-            >
-              <span>{{ d }}</span>
-              <Check v-if="selectedDateRange === d" class="w-3.5 h-3.5 text-[#165A31]" />
-            </button>
-          </div>
-        </div>
+        <!-- Date Filter Bar (Design 3 5-Controls) -->
+        <DateFilterBar v-model="selectedDateRange" />
 
         <!-- Saved View Dropdown -->
         <div class="relative">
@@ -186,18 +165,22 @@ const handleReportCreated = (newReport) => {
     <!-- 2-Card Layout (Matching Screenshot 1) -->
     <div data-tour-id="bm.analytics.hub.trend" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Left Card: Trend (Span 7) -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6 lg:col-span-7 flex flex-col justify-between min-h-[280px]">
-        <h3 class="text-sm font-bold text-gray-900 mb-6">Trend</h3>
-        
-        <!-- Bar Chart (Matching Screenshot 1 light green columns) -->
-        <div class="flex-1 flex items-end justify-between px-4 sm:px-8 pb-4 h-48 gap-3 sm:gap-4">
-          <div 
-            v-for="(bar, idx) in trendBars" 
-            :key="idx" 
-            class="flex-1 max-w-[42px] bg-[#86efac] rounded-t-[4px] transition-all hover:bg-[#4ade80]"
-            :style="{ height: bar.height }"
-          ></div>
+      <div class="bg-white border border-slate-200/80 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.03)] p-6 lg:col-span-7 flex flex-col justify-between min-h-[300px]">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-slate-900">Branch Performance Trend</h3>
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100/60">
+            {{ user?.branchName || 'Peshawar' }} Branch
+          </span>
         </div>
+        
+        <BaseBarTrendChart
+          :data="trendBarData"
+          series-name="Sales Revenue"
+          :format-value="(v) => 'PKR ' + v + 'M'"
+          primary-color="#2563EB"
+          height-class="h-56"
+          :show-values="true"
+        />
       </div>
 
       <!-- Right Card: Key Breakdown (Span 5) -->

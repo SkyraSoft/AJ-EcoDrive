@@ -55,3 +55,6 @@ backups/
 *.sql.gz
 tmp_*/
 tmp_chrome_biz_audit/
+installers_backup/
+scripts/vswhere_info.json
+

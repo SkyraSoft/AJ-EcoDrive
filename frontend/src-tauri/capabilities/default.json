@@ -7,6 +7,9 @@
   ],
   "permissions": [
     "core:default",
+    "core:window:allow-destroy",
+    "core:window:allow-close",
+    "core:app:allow-exit",
     "sql:default",
     "sql:allow-execute",
     "sql:allow-select",

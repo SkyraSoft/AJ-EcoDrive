@@ -186,31 +186,51 @@ const stockHealth = computed(() => {
     </div>
 
     <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Stock by Branch -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
-        <h3 class="text-[14px] font-bold text-gray-900 mb-6">Stock by Branch</h3>
+      <div class="bg-white border border-slate-200/80 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.03)] p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-sm font-semibold text-slate-900">Stock by Branch</h3>
+          <span class="text-[11px] font-medium text-slate-400">Total Units</span>
+        </div>
         <div class="space-y-4">
-          <div v-for="branch in branchStock" :key="branch.name" class="flex flex-wrap items-center gap-4">
-            <div class="w-24 text-[11px] text-gray-600 font-medium truncate">{{ branch.name }}</div>
-            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-[#165A31] rounded-full" :style="{ width: branch.percentage }"></div>
+          <div v-for="branch in branchStock" :key="branch.name" class="group flex items-center justify-between text-xs py-1">
+            <div class="flex-1 min-w-0 pr-4">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-medium text-slate-700 truncate group-hover:text-slate-900 transition-colors">{{ branch.name }}</span>
+                <span class="font-mono text-slate-500 font-medium">{{ branch.count }} units</span>
+              </div>
+              <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-blue-600 rounded-full transition-all duration-500" :style="{ width: branch.percentage }"></div>
+              </div>
             </div>
-            <div class="w-8 text-right text-[11px] font-bold text-gray-900">{{ branch.count }}</div>
+            <div class="w-12 text-right font-mono font-semibold text-slate-900 shrink-0">{{ branch.percentage }}</div>
           </div>
         </div>
       </div>
 
       <!-- Stock Health -->
-      <div class="bg-white border border-gray-100 rounded-[12px] shadow-[0_2px_4px_rgba(0,0,0,0.02)] p-6">
-        <h3 class="text-[14px] font-bold text-gray-900 mb-6">Stock Health</h3>
+      <div class="bg-white border border-slate-200/80 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.03)] p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-sm font-semibold text-slate-900">Stock Health</h3>
+          <span class="text-[11px] font-medium text-slate-400">Inventory Status</span>
+        </div>
         <div class="space-y-4">
-          <div v-for="health in stockHealth" :key="health.name" class="flex flex-wrap items-center gap-4">
-            <div class="w-24 text-[11px] text-gray-600 font-medium truncate">{{ health.name }}</div>
-            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-[#165A31] rounded-full" :style="{ width: health.percentage }"></div>
+          <div v-for="health in stockHealth" :key="health.name" class="group flex items-center justify-between text-xs py-1">
+            <div class="flex-1 min-w-0 pr-4">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="font-medium text-slate-700 truncate group-hover:text-slate-900 transition-colors">{{ health.name }}</span>
+                <span class="font-mono text-slate-500 font-medium">{{ health.count }} SKUs</span>
+              </div>
+              <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  class="h-full rounded-full transition-all duration-500" 
+                  :class="health.name === 'Healthy' ? 'bg-emerald-500' : health.name === 'Low' ? 'bg-amber-500' : 'bg-red-500'"
+                  :style="{ width: health.percentage }"
+                ></div>
+              </div>
             </div>
-            <div class="w-8 text-right text-[11px] font-bold text-gray-900">{{ health.count }}</div>
+            <div class="w-12 text-right font-mono font-semibold text-slate-900 shrink-0">{{ health.percentage }}</div>
           </div>
         </div>
       </div>

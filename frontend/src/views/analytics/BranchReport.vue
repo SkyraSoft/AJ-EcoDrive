@@ -1,13 +1,19 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
+import BaseTrendChart from '@/components/charts/BaseTrendChart.vue'
+import BaseBarTrendChart from '@/components/charts/BaseBarTrendChart.vue'
+import BaseBreakdownCard from '@/components/charts/BaseBreakdownCard.vue'
+import DateFilterBar from '@/components/charts/DateFilterBar.vue'
 
 const selectedBranch = ref('Peshawar')
-const selectedPeriod = ref('This Month')
+const selectedPeriod = ref('30d')
+const customStart = ref('')
+const customEnd = ref('')
+const chartType = ref('bar')
 const openDropdown = ref(null)
 
 const branches = ['Peshawar', 'Islamabad', 'Lahore', 'Rawalpindi']
-const periods = ['This Month', 'Last Month', 'This Quarter', 'This Year']
 
 const toggleDropdown = (name) => {
   openDropdown.value = openDropdown.value === name ? null : name
@@ -21,7 +27,9 @@ const selectFilter = (type, val) => {
 
 const resetFilters = () => {
   selectedBranch.value = 'Peshawar'
-  selectedPeriod.value = 'This Month'
+  selectedPeriod.value = '30d'
+  customStart.value = ''
+  customEnd.value = ''
 }
 
 const kpis = [
@@ -32,11 +40,57 @@ const kpis = [
 ]
 
 const breakdown = [
-  { branch: 'Peshawar', value: 92 },
-  { branch: 'Islamabad', value: 74 },
-  { branch: 'Lahore', value: 59 },
-  { branch: 'Rawalpindi', value: 46 }
+  { branch: 'Peshawar', value: 92, formatted: 'PKR 9.8M (92%)' },
+  { branch: 'Islamabad', value: 74, formatted: 'PKR 7.9M (74%)' },
+  { branch: 'Lahore', value: 59, formatted: 'PKR 6.3M (59%)' },
+  { branch: 'Rawalpindi', value: 46, formatted: 'PKR 4.9M (46%)' }
 ]
+
+const trendData = computed(() => {
+  const p = selectedPeriod.value
+  if (p === '7d' || p === '7 Days') {
+    return [
+      { label: 'Day 1', value: 1.2, fullValue: 'PKR 1.2M' },
+      { label: 'Day 2', value: 1.3, fullValue: 'PKR 1.3M' },
+      { label: 'Day 3', value: 1.4, fullValue: 'PKR 1.4M' },
+      { label: 'Day 4', value: 1.35, fullValue: 'PKR 1.35M' },
+      { label: 'Day 5', value: 1.5, fullValue: 'PKR 1.5M' },
+      { label: 'Day 6', value: 1.45, fullValue: 'PKR 1.45M' },
+      { label: 'Day 7', value: 1.6, fullValue: 'PKR 1.6M' }
+    ]
+  }
+  if (p === '3m' || p === '3 Months' || p === 'This Quarter') {
+    return [
+      { label: 'Month 1', value: 8.9, fullValue: 'PKR 8.9M' },
+      { label: 'Month 2', value: 9.4, fullValue: 'PKR 9.4M' },
+      { label: 'Month 3', value: 9.8, fullValue: 'PKR 9.8M' }
+    ]
+  }
+  if (p === '1y' || p === '1 Year' || p === 'This Year') {
+    return [
+      { label: 'Apr', value: 7.2, fullValue: 'PKR 7.2M' },
+      { label: 'May', value: 7.8, fullValue: 'PKR 7.8M' },
+      { label: 'Jun', value: 8.3, fullValue: 'PKR 8.3M' },
+      { label: 'Jul', value: 8.9, fullValue: 'PKR 8.9M' },
+      { label: 'Aug', value: 9.4, fullValue: 'PKR 9.4M' },
+      { label: 'Sep', value: 9.8, fullValue: 'PKR 9.8M' }
+    ]
+  }
+  if (p === 'custom' || p === 'Custom Range') {
+    return [
+      { label: 'Period 1', value: 2.2, fullValue: 'PKR 2.2M' },
+      { label: 'Period 2', value: 2.4, fullValue: 'PKR 2.4M' },
+      { label: 'Period 3', value: 2.6, fullValue: 'PKR 2.6M' },
+      { label: 'Period 4', value: 2.8, fullValue: 'PKR 2.8M' }
+    ]
+  }
+  return [
+    { label: 'Week 1', value: 2.1, fullValue: 'PKR 2.1M' },
+    { label: 'Week 2', value: 2.3, fullValue: 'PKR 2.3M' },
+    { label: 'Week 3', value: 2.6, fullValue: 'PKR 2.6M' },
+    { label: 'Week 4', value: 2.8, fullValue: 'PKR 2.8M' }
+  ]
+})
 
 const details = ref([
   { metric: 'Sales', peshawar: '9.8M', previous: '8.6M', variance: '+14%', positive: true },
@@ -79,52 +133,36 @@ const details = ref([
       <div class="relative">
         <button 
           @click.stop="toggleDropdown('branch')"
-          class="flex items-center gap-2 text-xs font-medium text-gray-700 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-[0_2px_4px_rgba(0,0,0,0.01)] hover:bg-gray-50 cursor-pointer"
-          :class="{ 'border-[#165A31] text-[#165A31] bg-[#eefcf2]/30': selectedBranch !== 'Peshawar' }"
+          class="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs hover:bg-slate-50 cursor-pointer"
+          :class="{ 'border-blue-600 text-blue-600 bg-blue-50/40': selectedBranch !== 'Peshawar' }"
         >
           <span>{{ selectedBranch }} Branch</span>
-          <ChevronDown class="w-3 h-3 text-gray-400" />
+          <ChevronDown class="w-3 h-3 text-slate-400" />
         </button>
-        <div v-if="openDropdown === 'branch'" class="absolute left-0 mt-1 w-40 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-20 text-[11px]">
+        <div v-if="openDropdown === 'branch'" class="absolute left-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-20 text-xs">
           <button 
             v-for="b in branches" 
             :key="b" 
             @click.stop="selectFilter('branch', b)"
-            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700 cursor-pointer"
-            :class="{ 'text-[#165A31] font-bold bg-[#eefcf2]/50': selectedBranch === b }"
+            class="w-full text-left px-3 py-1.5 hover:bg-slate-50 font-medium text-slate-700 cursor-pointer"
+            :class="{ 'text-blue-600 font-bold bg-blue-50/50': selectedBranch === b }"
           >
             {{ b }}
           </button>
         </div>
       </div>
 
-      <!-- Period Dropdown -->
-      <div class="relative">
-        <button 
-          @click.stop="toggleDropdown('period')"
-          class="flex items-center gap-2 text-xs font-medium text-gray-700 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-[0_2px_4px_rgba(0,0,0,0.01)] hover:bg-gray-50 cursor-pointer"
-          :class="{ 'border-[#165A31] text-[#165A31] bg-[#eefcf2]/30': selectedPeriod !== 'This Month' }"
-        >
-          <span>{{ selectedPeriod }}</span>
-          <ChevronDown class="w-3 h-3 text-gray-400" />
-        </button>
-        <div v-if="openDropdown === 'period'" class="absolute left-0 mt-1 w-40 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-20 text-[11px]">
-          <button 
-            v-for="p in periods" 
-            :key="p" 
-            @click.stop="selectFilter('period', p)"
-            class="w-full text-left px-3 py-1.5 hover:bg-gray-50 font-medium text-gray-700 cursor-pointer"
-            :class="{ 'text-[#165A31] font-bold bg-[#eefcf2]/50': selectedPeriod === p }"
-          >
-            {{ p }}
-          </button>
-        </div>
-      </div>
+      <!-- Date Filter Bar (Design 3 5-Controls) -->
+      <DateFilterBar 
+        v-model="selectedPeriod" 
+        v-model:custom-start-date="customStart"
+        v-model:custom-end-date="customEnd"
+      />
 
       <button 
-        v-if="selectedBranch !== 'Peshawar' || selectedPeriod !== 'This Month'" 
+        v-if="selectedBranch !== 'Peshawar' || selectedPeriod !== '30d'" 
         @click="resetFilters" 
-        class="text-[11px] font-semibold text-gray-500 hover:text-red-600 px-2 py-1 transition-colors cursor-pointer"
+        class="text-xs font-semibold text-slate-500 hover:text-red-600 px-2 py-1 transition-colors cursor-pointer"
       >
         Clear Filters
       </button>
@@ -135,42 +173,73 @@ const details = ref([
       <div 
         v-for="(kpi, index) in kpis" 
         :key="index" 
-        class="bg-white p-5 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between"
+        class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between"
       >
-        <div class="text-xs font-semibold text-gray-400 mb-2">{{ kpi.label }}</div>
-        <div class="text-[22px] font-bold text-gray-900 leading-none">{{ kpi.value }}</div>
+        <div class="text-xs font-semibold text-slate-400 mb-2">{{ kpi.label }}</div>
+        <div class="text-[22px] font-bold text-slate-900 leading-none">{{ kpi.value }}</div>
       </div>
     </div>
 
     <!-- Charts Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-4">{{ selectedBranch }} Trend ({{ selectedPeriod }})</h3>
-        <div class="h-44 flex items-center justify-center p-2 bg-[#fcfdfd] rounded-lg">
-          <svg class="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="none">
-            <polyline
-              fill="none"
-              stroke="#165A31"
-              stroke-width="3"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              points="10,95 70,88 140,82 210,76 280,68 350,56 390,50"
-            />
-          </svg>
+      <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-sm font-semibold text-slate-900">{{ selectedBranch }} Performance Trend</h3>
+            <!-- Chart View Toggle (Default: Bar) -->
+            <div class="inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200/80">
+              <button 
+                type="button" 
+                @click="chartType = 'bar'" 
+                class="px-2 py-0.5 text-[11px] font-semibold rounded-md transition-all cursor-pointer"
+                :class="chartType === 'bar' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                Bar
+              </button>
+              <button 
+                type="button" 
+                @click="chartType = 'line'" 
+                class="px-2 py-0.5 text-[11px] font-semibold rounded-md transition-all cursor-pointer"
+                :class="chartType === 'line' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+              >
+                Line
+              </button>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100/60">
+            {{ selectedBranch }}
+          </span>
         </div>
+
+        <BaseBarTrendChart
+          v-if="chartType === 'bar'"
+          :data="trendData"
+          series-name="Sales Volume"
+          primary-color="#2563EB"
+          :format-value="(v) => 'PKR ' + v + 'M'"
+          height-class="h-60"
+          :show-values="true"
+        />
+        <BaseTrendChart
+          v-else
+          :data="trendData"
+          series-name="Sales Volume"
+          stroke-color="#2563EB"
+          :format-value="(v) => 'PKR ' + v + 'M'"
+          height-class="h-60"
+        />
       </div>
 
-      <div class="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col justify-between">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-4">Breakdown</h3>
-        <div class="space-y-3.5">
-          <div v-for="item in breakdown" :key="item.branch" class="flex items-center gap-3">
-            <span class="w-20 text-[11px] font-medium text-gray-600 truncate">{{ item.branch }}</span>
-            <div class="flex-1 bg-gray-100 h-2 rounded-full overflow-hidden">
-              <div class="bg-[#165A31] h-full rounded-full" :style="{ width: `${item.value}%` }"></div>
-            </div>
-            <span class="w-6 text-right text-[11px] font-bold text-gray-900">{{ item.value }}</span>
-          </div>
+      <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-slate-900">Branch Performance Comparison</h3>
+          <span class="text-xs text-slate-500 font-medium">Achievement Ratio</span>
         </div>
+        <BaseBreakdownCard
+          :items="breakdown"
+          primary-color="#2563EB"
+          value-suffix="%"
+        />
       </div>
     </div>
 
