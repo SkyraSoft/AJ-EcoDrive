@@ -10,6 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 const REQUIRED_CORS_ORIGINS = [
   'https://aj-eco-drive.vercel.app',
+  'https://evee-showroom-management-system.vercel.app',
   'https://ecodrive.skyrasoft.com',
   // Tauri v2 on Windows uses this origin for the production WebView.
   'http://tauri.localhost'
@@ -62,7 +63,7 @@ export const config = {
     secure: process.env.SMTP_SECURE === 'true',
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',
-    from: process.env.SMTP_FROM || 'ECodrive Security <security@ecodrive.pk>'
+    from: process.env.SMTP_FROM || 'EVEE Showroom Security <security@eveeshowroom.com>'
   }
 }
 
