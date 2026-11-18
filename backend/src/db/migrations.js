@@ -2189,18 +2189,30 @@ export async function runMigrations() {
     // Safe baseline users seeding with bcrypt password hashing
     // Production Safety: Default demo credentials ('password123') are strictly prohibited in production.
     const isProduction = process.env.NODE_ENV === 'production'
-    const adminInitialPassword = isProduction ? (process.env.INITIAL_ADMIN_PASSWORD || null) : 'password123'
+    const adminInitialPassword = isProduction ? (process.env.INITIAL_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || null) : 'password123'
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@ajecodrive.com'
 
     if (!isProduction || adminInitialPassword) {
       const defaultPasswordHash = bcrypt.hashSync(adminInitialPassword || 'password123', 10)
       if (isProduction) {
-        // In production, only seed the initial admin with secure credentials
-        await query(`
-          INSERT IGNORE INTO \`users\` (
-            \`id\`, \`username\`, \`email\`, \`password_hash\`, \`name\`, \`role_id\`, \`branch_id\`, \`status\`, \`phone\`
-          ) VALUES
-          ('USR-ADMIN', 'admin', 'admin@ajecodrive.com', ?, 'Super Admin', 'ROLE-ADMIN', NULL, 'Active', '+92 51 2999999')
-        `, [defaultPasswordHash])
+        if (adminInitialPassword) {
+          // If explicit administrative password is provided in environment, update password and email safely
+          await query(`
+            INSERT INTO \`users\` (
+              \`id\`, \`username\`, \`email\`, \`password_hash\`, \`name\`, \`role_id\`, \`branch_id\`, \`status\`, \`phone\`
+            ) VALUES
+            ('USR-ADMIN', 'admin', ?, ?, 'Super Admin', 'ROLE-ADMIN', NULL, 'Active', '+92 51 2999999')
+            ON DUPLICATE KEY UPDATE \`password_hash\` = VALUES(\`password_hash\`), \`email\` = VALUES(\`email\`), \`status\` = 'Active', \`updated_at\` = NOW()
+          `, [adminEmail, defaultPasswordHash])
+        } else {
+          // In production, only seed the initial admin with secure credentials
+          await query(`
+            INSERT IGNORE INTO \`users\` (
+              \`id\`, \`username\`, \`email\`, \`password_hash\`, \`name\`, \`role_id\`, \`branch_id\`, \`status\`, \`phone\`
+            ) VALUES
+            ('USR-ADMIN', 'admin', ?, ?, 'Super Admin', 'ROLE-ADMIN', NULL, 'Active', '+92 51 2999999')
+          `, [adminEmail, defaultPasswordHash])
+        }
       } else {
         // Development / Test demo accounts
         await query(`

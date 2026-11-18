@@ -33,6 +33,20 @@ export const UserModel = {
     if (!identifier) return null
     const clean = String(identifier).trim().toLowerCase()
 
+    // Canonical branch and role alias resolution
+    let canonicalUsername = clean
+    if (['admin', 'superadmin', 'head office', 'hq', 'br-hq'].includes(clean)) {
+      canonicalUsername = 'admin'
+    } else if (['pew-01', 'pew', 'peshawar', 'br-01'].includes(clean)) {
+      canonicalUsername = 'pew-01'
+    } else if (['isb-01', 'isb', 'islamabad', 'br-02'].includes(clean)) {
+      canonicalUsername = 'isb-01'
+    } else if (['lhe-01', 'lhe', 'lahore', 'br-03'].includes(clean)) {
+      canonicalUsername = 'lhe-01'
+    } else if (['rwp-01', 'rwp', 'rawalpindi', 'br-04'].includes(clean)) {
+      canonicalUsername = 'rwp-01'
+    }
+
     const sql = `
       SELECT 
         u.id, u.username, u.email, u.password_hash, u.name, u.role_id, u.branch_id, u.status, u.phone,
@@ -42,10 +56,14 @@ export const UserModel = {
       FROM \`users\` u
       LEFT JOIN \`roles\` r ON u.role_id = r.id
       LEFT JOIN \`branches\` b ON u.branch_id = b.id
-      WHERE LOWER(u.username) = ? OR LOWER(u.email) = ?
+      WHERE LOWER(u.username) = ? 
+         OR LOWER(u.username) = ?
+         OR LOWER(u.email) = ?
+         OR LOWER(b.code) = ?
+         OR LOWER(u.branch_id) = ?
       LIMIT 1
     `
-    const rows = await query(sql, [clean, clean])
+    const rows = await query(sql, [clean, canonicalUsername, clean, clean, clean])
     if (!rows || rows.length === 0) return null
 
     const user = rows[0]
