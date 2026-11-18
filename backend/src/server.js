@@ -45,7 +45,7 @@ async function startServer() {
     }
     console.log(`
 ==========================================================
-  AJ EcoDrive ERP — Backend Server Initialized
+  EVEE Showroom Management System — Backend Server Initialized
 ==========================================================
   Environment  : ${config.nodeEnv}
   Listen Target: ${listenTarget}

@@ -112,7 +112,7 @@ export const MailService = {
    */
   async sendMail({ to, subject, html, text }) {
     const mailConfig = config.mail || {}
-    const from = mailConfig.from || 'AJ EcoDrive Security <security@ecodrive.pk>'
+    const from = mailConfig.from || 'EVEE Showroom Security <security@eveeshowroom.com>'
 
     const emailRecord = {
       to,
@@ -181,14 +181,14 @@ export const MailService = {
   /**
    * Generates and dispatches a branded Password Reset OTP Email
    */
-  async sendPasswordResetOtp({ to, otp, recipientName = 'ECodrive User' }) {
-    const subject = `[ECodrive ERP] Your Password Reset Verification Code: ${otp}`
+  async sendPasswordResetOtp({ to, otp, recipientName = 'EVEE Showroom User' }) {
+    const subject = `[EVEE Showroom] Your Password Reset Verification Code: ${otp}`
     const html = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>ECodrive ERP Verification Code</title>
+  <title>EVEE Showroom Verification Code</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 24px; }
     .card { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; }
@@ -204,12 +204,12 @@ export const MailService = {
 <body>
   <div class="card">
     <div class="header">
-      <div class="logo">AJ ECODRIVE ERP</div>
+      <div class="logo">EVEE SHOWROOM</div>
     </div>
     <div class="content">
       <h2 style="margin-top:0; color:#0f172a;">Password Reset Request</h2>
       <p>Hello <strong>${recipientName}</strong>,</p>
-      <p>We received a request to reset your password for your ECodrive ERP account. Use the following 6-digit verification code to complete your request:</p>
+      <p>We received a request to reset your password for your EVEE Showroom account. Use the following 6-digit verification code to complete your request:</p>
       
       <div class="otp-box">
         <div class="otp-code">${otp}</div>
@@ -221,7 +221,7 @@ export const MailService = {
       </p>
     </div>
     <div class="footer">
-      This is an automated security notification from AJ EcoDrive ERP Platform. Please do not reply directly to this email.
+      This is an automated security notification from EVEE Showroom Management System. Please do not reply directly to this email.
     </div>
   </div>
 </body>

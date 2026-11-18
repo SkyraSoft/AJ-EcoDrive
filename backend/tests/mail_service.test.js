@@ -75,7 +75,7 @@ describe('AJ EcoDrive Backend — Mail Service & Transactional OTP Suite', () =>
       assert.ok(last.html.includes('849201'), 'HTML should contain OTP')
       assert.ok(last.html.includes('Ahsan Khan'), 'HTML should contain recipient name')
       assert.ok(last.html.includes('5 minutes'), 'HTML should specify 5 min expiration')
-      assert.ok(last.html.includes('AJ ECODRIVE ERP'), 'HTML should have brand header')
+      assert.ok(last.html.includes('EVEE SHOWROOM'), 'HTML should have brand header')
     })
 
     it('does not silently fall back to log mode when SMTP is configured but transport fails', async () => {

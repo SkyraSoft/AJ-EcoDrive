@@ -39,7 +39,7 @@ const handleSignOut = () => {
       <div class="bg-white p-8 sm:p-12 rounded-[16px] border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.02)] max-w-lg w-full text-center space-y-6 animate-in fade-in zoom-in-95 duration-200">
         <div class="space-y-2">
           <h2 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-            Sign out of AJ ECODRIVE?
+            Sign out of EVEE SHOWROOM?
           </h2>
           <p class="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
             Your current session will end. Unsaved draft changes should be saved before signing out.

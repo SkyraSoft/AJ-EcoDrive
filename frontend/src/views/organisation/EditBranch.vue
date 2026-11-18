@@ -54,7 +54,7 @@ const loadData = () => {
     address: '123 Main St',
     area: 'Hayatabad',
     phone: '+92 300 1234567',
-    email: 'pew@ajecodrive.com',
+    email: 'pew@eveeshowroom.com',
     defaultLocation: 'Main Warehouse',
     hours: '9 AM - 6 PM',
     expenseLimit: '100000',

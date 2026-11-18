@@ -36,7 +36,7 @@ const showValidation = ref(false)
 const loadData = () => {
   const source = props.user || store.originalEditUser || {
     name: 'Ahsan Khan',
-    email: 'ahsan@ajecodrive.com',
+    email: 'ahsan@eveeshowroom.com',
     mobile: '+92 300 555 0191',
     role: 'Branch Manager',
     branch: 'Peshawar',

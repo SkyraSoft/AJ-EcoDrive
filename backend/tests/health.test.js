@@ -9,7 +9,7 @@ describe('AJ EcoDrive Backend — Step 1 Architecture & Health Suite', () => {
     const res = await request(app).get('/')
     assert.strictEqual(res.status, 200)
     assert.strictEqual(res.body.ok, true)
-    assert.strictEqual(res.body.service, 'AJ EcoDrive ERP Backend Gateway')
+    assert.strictEqual(res.body.service, 'EVEE Showroom Management System Backend Gateway')
     assert.strictEqual(res.body.health, '/api/v1/health')
   })
 

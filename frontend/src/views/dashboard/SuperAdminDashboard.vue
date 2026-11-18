@@ -398,7 +398,7 @@ const navigateTo = (route) => {
         Super Admin / <span class="font-bold text-gray-800">Super Admin Dashboard</span>
       </div>
       <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Super Admin Dashboard</h1>
-      <p class="text-sm text-gray-500 mt-1">Company-wide command center across every AJ ECODRIVE branch.</p>
+      <p class="text-sm text-gray-500 mt-1">Company-wide command center across every EVEE Showroom branch.</p>
     </div>
 
     <!-- 8 KPI Cards -->

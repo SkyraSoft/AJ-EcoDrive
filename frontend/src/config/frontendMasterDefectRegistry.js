@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Master Defect Registry
+ * EVEE Showroom — Master Defect Registry
  * Machine-Readable Specification of All Discovered & Remediated Frontend Defects
  */
 

@@ -475,7 +475,7 @@ const commLogs = ref([
         <div class="inline-block bg-[#165A31] text-white px-4 py-1 text-xs font-bold tracking-[0.2em] uppercase rounded-full mb-2">
           OFFICIAL DEALERSHIP DOCUMENT
         </div>
-        <h1 class="text-3xl font-extrabold tracking-wider uppercase text-gray-900">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+        <h1 class="text-3xl font-extrabold tracking-wider uppercase text-gray-900">EVEE SHOWROOM LTD / ELECTRIC VEHICLES</h1>
         <p class="text-sm font-semibold text-gray-700 mt-1">CERTIFICATE OF OEM COMPREHENSIVE WARRANTY</p>
         <p class="text-[10px] text-gray-500 font-mono mt-0.5">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Policy Ref: BRG-WAR-2026-PK</p>
       </div>
@@ -530,7 +530,7 @@ const commLogs = ref([
           </div>
         </div>
         <p class="text-[10px] text-gray-500 italic pt-1">
-          * Conditions: Warranty remains valid subject to timely periodic service checkups at authorized AJ EcoDrive / BRG service centres (every 3,000 KM or 3 months). Unauthorized physical modifications void coverage.
+          * Conditions: Warranty remains valid subject to timely periodic service checkups at authorized EVEE Showroom service centres (every 3,000 KM or 3 months). Unauthorized physical modifications void coverage.
         </p>
       </div>
 

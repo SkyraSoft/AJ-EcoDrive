@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ EcoDrive — Client Operations Guide & Systems Architecture Manual (400+ Q&A)</title>
+    <title>EVEE Showroom Management System — Client Operations Guide & Systems Architecture Manual (400+ Q&A)</title>
     
     <!-- Google Fonts & Favicon -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -681,7 +681,7 @@
                 <a href="https://aj-eco-drive.vercel.app" target="_blank" class="btn btn-sm btn-warning fw-bold text-dark px-3 shadow-sm">
                     <i class="fas fa-desktop me-1"></i> Live Demo App
                 </a>
-                <a href="https://github.com/SkyraSoft/AJ-EcoDrive" target="_blank" class="btn btn-sm btn-outline-light px-3">
+                <a href="https://github.com/SkyraSoft/EVEE-Showroom-Management-System" target="_blank" class="btn btn-sm btn-outline-light px-3">
                     <i class="fab fa-github me-1"></i> GitHub
                 </a>
             </div>
@@ -751,7 +751,7 @@
                 <!-- Hero Header Banner -->
                 <div class="hero-guide-card">
                     <div class="badge bg-warning text-dark fw-bold mb-2">MASTER CLIENT SPECIFICATION — V3.0</div>
-                    <h1>AJ EcoDrive — Client Operations Guide &amp; Systems Architecture QA</h1>
+                    <h1>EVEE Showroom Management System — Client Operations Guide &amp; Systems Architecture QA</h1>
                     <p class="mb-0 text-white-50 small">
                         Comprehensive Operational Manual, Non-Technical Leadership Guide &amp; Master System Specification for Dealership Owners, Board Members, Head Office Executives, and Branch Managers.
                     </p>
@@ -925,21 +925,21 @@
 <hr class="doc-hr my-4">
 <div class="section-banner" id="section-i-foundations-getting-started"><div class="section-tag"><i class="fas fa-layer-group me-1"></i> SECTION ARCHITECTURE</div><h3 class="mb-0">SECTION I: FOUNDATIONS &amp; GETTING STARTED</h3></div>
 <hr class="doc-hr my-4">
-<div class="part-banner" id="part-1-understanding-aj-ecodrive-the-ev-dealership-model-q1-q12"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">PART 1: Understanding AJ EcoDrive &amp; The EV Dealership Model (Q1 – Q12)</h3></div>
+<div class="part-banner" id="part-1-understanding-evee-showroom-the-ev-dealership-model-q1-q12"><div class="part-pill"><i class="fas fa-folder-open me-1"></i> OPERATIONAL MODULE</div><h3 class="part-title mb-0">PART 1: Understanding EVEE Showroom &amp; The EV Dealership Model (Q1 – Q12)</h3></div>
 
             <div class="qa-card-anchor" id="q1"></div>
             <div class="qa-card" data-qid="Q1">
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q1</span>
-                        <h4 class="qa-title mb-0">In simple words, what is AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">In simple words, what is EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q1')" title="Copy direct link to Q1">
                         <i class="fas fa-link"></i>
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive is an enterprise-grade Dealership Management System (DMS) and Operating Platform engineered specifically for electric vehicle (EV) businesses. It acts as the central digital nervous system of the dealership, managing every stage of operations:</p>
+            <p><strong>Answer:</strong> EVEE Showroom is an enterprise-grade Dealership Management System (DMS) and Operating Platform engineered specifically for electric vehicle (EV) businesses. It acts as the central digital nervous system of the dealership, managing every stage of operations:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Main Application Shell</code> &rarr; <code>Role-Based Dashboard</code> (<code>/dashboard</code>)</li>
 <li><strong>Global Procurement:</strong> Importing CBU (Completely Built Up) and CKD (Completely Knocked Down) containers from international OEM factories with Bill of Lading and shipping container tracking.</li>
@@ -977,7 +977,7 @@
 <li>In Excel or basic accounting tools, a salesperson can accidentally sell the same chassis number twice to different customers on the same weekend.</li>
 <li>Mechanics can swap a customer&#39;s degraded or burned battery into a showroom display bike without any digital trace.</li>
 <li>Showroom cashiers can alter past sales records to conceal cash shortages.</li>
-<li>AJ EcoDrive makes these fraud vectors impossible by mathematically enforcing <strong>3-way serialized hardware binding</strong> and immutable, timestamped audit logs.</li>
+<li>EVEE Showroom makes these fraud vectors impossible by mathematically enforcing <strong>3-way serialized hardware binding</strong> and immutable, timestamped audit logs.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -987,7 +987,7 @@
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q3</span>
-                        <h4 class="qa-title mb-0">Who are the active users of AJ EcoDrive today?</h4>
+                        <h4 class="qa-title mb-0">Who are the active users of EVEE Showroom today?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q3')" title="Copy direct link to Q3">
                         <i class="fas fa-link"></i>
@@ -1075,7 +1075,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> In AJ EcoDrive, a &quot;Serialized Unit&quot; represents a specific, physical machine with permanent, unalterable hardware identities:</p>
+            <p><strong>Answer:</strong> In EVEE Showroom, a &quot;Serialized Unit&quot; represents a specific, physical machine with permanent, unalterable hardware identities:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Inventory</code> &rarr; <code>Serialized Units</code> (<code>/inventory/serialized-units</code>)</li>
 <li><strong>Catalog Model vs. Serialized Machine:</strong> While the catalog contains the generic product blueprint (e.g., <em>&quot;Model: BRG E-125 Commuter Scooter, 1500W Brushless Motor&quot;</em>), the serialized inventory ledger tracks the physical vehicle:<ul>
@@ -1163,7 +1163,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> Yes. AJ EcoDrive includes a specialized <strong>Spare Parts &amp; Workshop Inventory Engine</strong> operating alongside vehicle tracking:</p>
+            <p><strong>Answer:</strong> Yes. EVEE Showroom includes a specialized <strong>Spare Parts &amp; Workshop Inventory Engine</strong> operating alongside vehicle tracking:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Inventory</code> &rarr; <code>Spare Parts &amp; Accessories</code> (<code>/inventory/parts</code>)</li>
 <li><strong>Managed Item Types:</strong><ul>
@@ -1182,7 +1182,7 @@
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q10</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive handle manufacturer warranties?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom handle manufacturer warranties?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q10')" title="Copy direct link to Q10">
                         <i class="fas fa-link"></i>
@@ -1265,14 +1265,14 @@
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q13</span>
-                        <h4 class="qa-title mb-0">What hardware platforms does AJ EcoDrive support?</h4>
+                        <h4 class="qa-title mb-0">What hardware platforms does EVEE Showroom support?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q13')" title="Copy direct link to Q13">
                         <i class="fas fa-link"></i>
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive is engineered for resilient cross-platform operations across three specialized environments:</p>
+            <p><strong>Answer:</strong> EVEE Showroom is engineered for resilient cross-platform operations across three specialized environments:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> Cross-Device Browser &amp; Local Desktop Shell</li>
 </ul>
@@ -1361,7 +1361,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive operates with two specialized role environments:</p>
+            <p><strong>Answer:</strong> EVEE Showroom operates with two specialized role environments:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Login Screen</code> (<code>/login</code>)</li>
 </ul>
@@ -1680,7 +1680,7 @@
 </ul>
 <hr class="doc-hr my-4">
 <h4 class="doc-sub-heading mt-3 mb-2" id="2-critical-operational-difference-quick-sale-pos-vs-sales-order-booking-at-branch-manager-level">2. Critical Operational Difference: Quick Sale (POS) vs. Sales Order (Booking) at Branch Manager Level</h4>
-<p>Dealerships operate with two distinct sales motions. Conflating them creates inventory chaos and cash reconciliation errors. AJ EcoDrive enforces a strict architectural and operational boundary between them:</p>
+<p>Dealerships operate with two distinct sales motions. Conflating them creates inventory chaos and cash reconciliation errors. EVEE Showroom enforces a strict architectural and operational boundary between them:</p>
 <div class="table-responsive my-3 custom-table-wrapper"><table>
 <thead>
 <tr>
@@ -1806,7 +1806,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> In Pakistan, power cuts and internet outages are routine. AJ EcoDrive is architected with <strong>Local Offline Durability</strong>:</p>
+            <p><strong>Answer:</strong> In Pakistan, power cuts and internet outages are routine. EVEE Showroom is architected with <strong>Local Offline Durability</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Top Header Bar</code> &rarr; <code>System Status Indicator</code> (Switches from <code>GREEN (ONLINE)</code> to <code>AMBER (OFFLINE)</code>)</li>
 <li>If the internet cable is cut or the local Wi-Fi router loses power, the desktop application seamlessly transitions to <strong>AMBER (OFFLINE)</strong> mode. Staff can continue creating customer leads, generating quotations, making sales, and printing receipts using the local SQLite database. All transactions queue in an Outbox and sync automatically to Head Office once connectivity restores.</li>
@@ -1879,7 +1879,7 @@
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q34</span>
-                        <h4 class="qa-title mb-0">What is the morning team briefing routine supported by AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the morning team briefing routine supported by EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q34')" title="Copy direct link to Q34">
                         <i class="fas fa-link"></i>
@@ -2143,7 +2143,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:</p>
+            <p><strong>Answer:</strong> EVEE Showroom enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Finance &amp; Accounts</code> &rarr; <code>Financial Reports / General Ledger</code> (<code>/finance/general-ledger</code>)</li>
 </ul>
@@ -2265,7 +2265,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:</p>
+            <p><strong>Answer:</strong> EVEE Showroom establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Sales &amp; Revenue</code> &rarr; <code>Quotations</code> (<code>/sales/quotations</code>) &rarr; Select Quotation &rarr; Click <code>Convert to Order</code> button</li>
 <li><strong>Watermark &amp; Header Banners:</strong> Quotations print with a prominent watermark: <em>&quot;PRICE ESTIMATE — NOT AN INVOICE / NON-BINDING AFTER 7 DAYS&quot;</em>.</li>
@@ -2286,14 +2286,14 @@
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q37</span>
-                        <h4 class="qa-title mb-0">What is the Action Centre screen in AJ EcoDrive, and how do dealership staff navigate to it?</h4>
+                        <h4 class="qa-title mb-0">What is the Action Centre screen in EVEE Showroom, and how do dealership staff navigate to it?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q37')" title="Copy direct link to Q37">
                         <i class="fas fa-link"></i>
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> The <strong>Action Centre</strong> is the central operational command desk and decision engine of AJ EcoDrive. Unlike standard email or phone escalations, every managerial decision across all dealership branches is tracked, timed, and audited in a single high-visibility workspace:</p>
+            <p><strong>Answer:</strong> The <strong>Action Centre</strong> is the central operational command desk and decision engine of EVEE Showroom. Unlike standard email or phone escalations, every managerial decision across all dealership branches is tracked, timed, and audited in a single high-visibility workspace:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong><ul>
 <li><strong>Desktop / Web:</strong> <code>Left Sidebar</code> &rarr; <code>Dashboard</code> &rarr; <code>Action Centre</code> (<code>/dashboard/action-centre</code>) OR Click the <strong>Action Centre Banner</strong> / <strong>Action Required</strong> table on the Main Dashboard.</li>
@@ -2678,7 +2678,7 @@
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> Offline submissions are safeguarded by AJ EcoDrive&#39;s <strong>Local Queue Engine</strong>:</p>
+            <p><strong>Answer:</strong> Offline submissions are safeguarded by EVEE Showroom&#39;s <strong>Local Queue Engine</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Top Header</code> &rarr; <code>Offline Outbox Indicator</code> (<code>/system/outbox</code>)</li>
 <li>When submitted without internet connectivity, the task is saved to the local SQLite database with a cryptographic local timestamp.</li>
@@ -2696,14 +2696,14 @@
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q53</span>
-                        <h4 class="qa-title mb-0">What are the 5 Standard Enterprise Action Flows in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What are the 5 Standard Enterprise Action Flows in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q53')" title="Copy direct link to Q53">
                         <i class="fas fa-link"></i>
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive standardizes all dealership operational escalations into <strong>5 Universal Action Flows</strong>:</p>
+            <p><strong>Answer:</strong> EVEE Showroom standardizes all dealership operational escalations into <strong>5 Universal Action Flows</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Action Centre</code> (<code>/dashboard/action-centre</code>) &rarr; Click <code>+ New Action Request</code> (<code>CreateActionWizard</code>)</li>
 </ul>
@@ -3048,7 +3048,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Settings</code> &rarr; <code>Notification Channels</code></li>
 <li><strong>On Submission:</strong> Super Admin receives instant email + mobile push with summary metrics.</li>
 <li><strong>On Approval:</strong> Branch Manager receives real-time desktop pop-up and WhatsApp alert.</li>
-<li><strong>On Customer Impact (Flow 1 &amp; 4):</strong> Customer receives an automated SMS: <em>&quot;Your custom discount / warranty claim has been approved by AJ EcoDrive Head Office&quot;</em>.</li>
+<li><strong>On Customer Impact (Flow 1 &amp; 4):</strong> Customer receives an automated SMS: <em>&quot;Your custom discount / warranty claim has been approved by EVEE Showroom Head Office&quot;</em>.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -3085,7 +3085,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q69</span>
-                        <h4 class="qa-title mb-0">What is the Action Creation Wizard in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the Action Creation Wizard in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q69')" title="Copy direct link to Q69">
                         <i class="fas fa-link"></i>
@@ -3412,7 +3412,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive includes <strong>Concurrent Review Locking</strong>:</p>
+            <p><strong>Answer:</strong> EVEE Showroom includes <strong>Concurrent Review Locking</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Action Centre</code> &rarr; <code>Task Card Header</code></li>
 <li>When Administrator A opens a task drawer, a blue banner appears on Administrator B&#39;s screen: <em>&quot;Currently being reviewed by [Admin Name]&quot;</em>.</li>
@@ -3452,7 +3452,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q86</span>
-                        <h4 class="qa-title mb-0">Why is capturing every walk-in lead mandatory in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">Why is capturing every walk-in lead mandatory in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q86')" title="Copy direct link to Q86">
                         <i class="fas fa-link"></i>
@@ -3600,7 +3600,7 @@ Commercial    Stock         High-Value    Technical     Inventory
             <p><strong>Answer:</strong> The system connects to official WhatsApp Business API:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Settings</code> &rarr; <code>Automated Messaging Templates</code></li>
-<li><strong>Automated Welcome Message:</strong> <em>&quot;Dear [Customer Name], thank you for visiting AJ EcoDrive Peshawar! Here is the digital brochure for the [Model Name] you explored today: [Brochure Link]&quot;</em>.</li>
+<li><strong>Automated Welcome Message:</strong> <em>&quot;Dear [Customer Name], thank you for visiting EVEE Showroom Peshawar! Here is the digital brochure for the [Model Name] you explored today: [Brochure Link]&quot;</em>.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -3759,7 +3759,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q100</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive validate Pakistani CNIC numbers?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom validate Pakistani CNIC numbers?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q100')" title="Copy direct link to Q100">
                         <i class="fas fa-link"></i>
@@ -3971,7 +3971,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q110</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive support GDPR / Data Privacy compliance?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom support GDPR / Data Privacy compliance?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q110')" title="Copy direct link to Q110">
                         <i class="fas fa-link"></i>
@@ -4034,7 +4034,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q113</span>
-                        <h4 class="qa-title mb-0">What is the purpose of a formal Sales Quotation in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the purpose of a formal Sales Quotation in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q113')" title="Copy direct link to Q113">
                         <i class="fas fa-link"></i>
@@ -4381,7 +4381,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q129</span>
-                        <h4 class="qa-title mb-0">What is the Point of Sale (POS) workbench in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the Point of Sale (POS) workbench in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q129')" title="Copy direct link to Q129">
                         <i class="fas fa-link"></i>
@@ -4415,7 +4415,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive enforces an absolute operational and financial boundary between them:</p>
+            <p><strong>Answer:</strong> EVEE Showroom enforces an absolute operational and financial boundary between them:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>CreateSaleModal</code> (<code>mode=&quot;pos&quot;</code> vs <code>mode=&quot;order&quot;</code>)</li>
 </ul>
@@ -4767,7 +4767,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q145</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive handle customer money collections and receipts?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom handle customer money collections and receipts?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q145')" title="Copy direct link to Q145">
                         <i class="fas fa-link"></i>
@@ -4845,7 +4845,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q148</span>
-                        <h4 class="qa-title mb-0">What is an official FBR-Compliant Tax Invoice in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is an official FBR-Compliant Tax Invoice in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q148')" title="Copy direct link to Q148">
                         <i class="fas fa-link"></i>
@@ -5069,7 +5069,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q159</span>
-                        <h4 class="qa-title mb-0">What is Pre-Delivery Inspection (PDI) in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is Pre-Delivery Inspection (PDI) in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q159')" title="Copy direct link to Q159">
                         <i class="fas fa-link"></i>
@@ -5354,7 +5354,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> The <strong>AJ EcoDrive Official Ownership Welcome Pack</strong>:</p>
+            <p><strong>Answer:</strong> The <strong>EVEE Showroom Official Ownership Welcome Pack</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sales Order Detail Page</code> &rarr; Click <strong>&quot;Print Complete Delivery Pack&quot;</strong></li>
 <li>Contains: Original Tax Invoice, Payment Receipts, Official Stamped Warranty Certificate, Pre-Delivery Inspection (PDI) Report, Excise Registration Application, and Owner&#39;s Manual.</li>
@@ -5377,7 +5377,7 @@ Commercial    Stock         High-Value    Technical     Inventory
             <p><strong>Answer:</strong> Automated Post-Delivery Feedback SMS:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Settings</code> &rarr; <code>Customer Experience (CSAT)</code></li>
-<li>2 hours after gate exit, customer receives an automated SMS/WhatsApp: <em>&quot;How was your delivery experience at AJ EcoDrive? Rate us 1 to 5 stars: [Feedback Link]&quot;</em>.</li>
+<li>2 hours after gate exit, customer receives an automated SMS/WhatsApp: <em>&quot;How was your delivery experience at EVEE Showroom? Rate us 1 to 5 stars: [Feedback Link]&quot;</em>.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -5432,7 +5432,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q175</span>
-                        <h4 class="qa-title mb-0">What is the Workshop Service Intake process in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the Workshop Service Intake process in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q175')" title="Copy direct link to Q175">
                         <i class="fas fa-link"></i>
@@ -5465,7 +5465,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive establishes a clear 2-tier service architecture:</p>
+            <p><strong>Answer:</strong> EVEE Showroom establishes a clear 2-tier service architecture:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: After-Sales &amp; Workshop</code> &rarr; <code>Service Cases</code> vs <code>Job Cards</code></li>
 <li><strong>Service Case (<code>SC-PEW-XXXX</code>):</strong> The master customer ticket representing the customer&#39;s visit, symptom intake, warranty claim validation, customer communication, and final invoicing.</li>
@@ -6063,7 +6063,7 @@ Commercial    Stock         High-Value    Technical     Inventory
             <p><strong>Answer:</strong> The Lithium-Ion Battery Pack represents <strong>40% to 50% of the entire monetary value of an electric vehicle</strong> (e.g., PKR 95,000 to PKR 125,000 on a PKR 245,000 scooter):</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: After-Sales &amp; Workshop</code> &rarr; <code>Battery Diagnostics &amp; Warranty</code> (<code>/after-sales/battery-lab</code>)</li>
-<li>Uncontrolled or fraudulent warranty claims can destroy dealership profitability. AJ EcoDrive enforces rigorous scientific, serialized, and telemetry-based battery warranty validation.</li>
+<li>Uncontrolled or fraudulent warranty claims can destroy dealership profitability. EVEE Showroom enforces rigorous scientific, serialized, and telemetry-based battery warranty validation.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -6073,7 +6073,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q204</span>
-                        <h4 class="qa-title mb-0">What is 3-Way Serialized Hardware Binding in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is 3-Way Serialized Hardware Binding in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q204')" title="Copy direct link to Q204">
                         <i class="fas fa-link"></i>
@@ -6276,7 +6276,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> Yes. <strong>AJ EcoDrive Battery Shield+ Policy</strong>:</p>
+            <p><strong>Answer:</strong> Yes. <strong>EVEE Showroom Battery Shield+ Policy</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>CreateSaleModal</code> &rarr; <code>Add-ons: Extended Warranty (Year 3)</code></li>
 <li>Extends battery replacement coverage for a 3rd year (up to 45,000 km) for an additional fee (e.g. PKR 18,500), tracked in the digital warranty certificate.</li>
@@ -6412,7 +6412,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q219</span>
-                        <h4 class="qa-title mb-0">What is the Vehicle Return and Cancellation policy in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the Vehicle Return and Cancellation policy in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q219')" title="Copy direct link to Q219">
                         <i class="fas fa-link"></i>
@@ -6690,7 +6690,7 @@ Commercial    Stock         High-Value    Technical     Inventory
             <p><strong>Answer:</strong> <strong>No. Deleting sales orders or invoices is architecturally impossible.</strong></p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> System Security Architecture</li>
-<li>AJ EcoDrive enforces zero hard-deletions. All cancellations must pass through the auditable <code>CreateReturnModal</code> workflow.</li>
+<li>EVEE Showroom enforces zero hard-deletions. All cancellations must pass through the auditable <code>CreateReturnModal</code> workflow.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -6725,7 +6725,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q233</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive manage Showroom Floor Inventory?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom manage Showroom Floor Inventory?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q233')" title="Copy direct link to Q233">
                         <i class="fas fa-link"></i>
@@ -7016,7 +7016,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q247</span>
-                        <h4 class="qa-title mb-0">What is a Stock Replenishment Requisition in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is a Stock Replenishment Requisition in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q247')" title="Copy direct link to Q247">
                         <i class="fas fa-link"></i>
@@ -7273,7 +7273,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q259</span>
-                        <h4 class="qa-title mb-0">What is an Inter-Branch Stock Transfer in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is an Inter-Branch Stock Transfer in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q259')" title="Copy direct link to Q259">
                         <i class="fas fa-link"></i>
@@ -7582,7 +7582,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q273</span>
-                        <h4 class="qa-title mb-0">What is the Inbound Delivery Receiving process in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the Inbound Delivery Receiving process in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q273')" title="Copy direct link to Q273">
                         <i class="fas fa-link"></i>
@@ -7891,7 +7891,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q287</span>
-                        <h4 class="qa-title mb-0">What is a Blind Physical Cycle Count in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is a Blind Physical Cycle Count in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q287')" title="Copy direct link to Q287">
                         <i class="fas fa-link"></i>
@@ -7911,7 +7911,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q288</span>
-                        <h4 class="qa-title mb-0">How often are Cycle Counts conducted in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">How often are Cycle Counts conducted in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q288')" title="Copy direct link to Q288">
                         <i class="fas fa-link"></i>
@@ -8205,7 +8205,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q301</span>
-                        <h4 class="qa-title mb-0">What is the Quality Quarantine module in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the Quality Quarantine module in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q301')" title="Copy direct link to Q301">
                         <i class="fas fa-link"></i>
@@ -8511,7 +8511,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q315</span>
-                        <h4 class="qa-title mb-0">How are Showroom Operating Expenses (OPEX) managed in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">How are Showroom Operating Expenses (OPEX) managed in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q315')" title="Copy direct link to Q315">
                         <i class="fas fa-link"></i>
@@ -8816,7 +8816,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q329</span>
-                        <h4 class="qa-title mb-0">What is Day-End Closing Reconciliation (Daily Z-Report) in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is Day-End Closing Reconciliation (Daily Z-Report) in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q329')" title="Copy direct link to Q329">
                         <i class="fas fa-link"></i>
@@ -9141,7 +9141,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q343</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive manage International Sea Container Procurement?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom manage International Sea Container Procurement?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q343')" title="Copy direct link to Q343">
                         <i class="fas fa-link"></i>
@@ -9342,7 +9342,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q350</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive track Supplier Quality and Defect Rates?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom track Supplier Quality and Defect Rates?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q350')" title="Copy direct link to Q350">
                         <i class="fas fa-link"></i>
@@ -9525,7 +9525,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q359</span>
-                        <h4 class="qa-title mb-0">How are new Dealership Showroom Branches configured in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">How are new Dealership Showroom Branches configured in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q359')" title="Copy direct link to Q359">
                         <i class="fas fa-link"></i>
@@ -9635,7 +9635,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q363</span>
-                        <h4 class="qa-title mb-0">What is Role-Based Access Control (RBAC) in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is Role-Based Access Control (RBAC) in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q363')" title="Copy direct link to Q363">
                         <i class="fas fa-link"></i>
@@ -9675,7 +9675,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q365</span>
-                        <h4 class="qa-title mb-0">How does Two-Factor Authentication (2FA) work in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">How does Two-Factor Authentication (2FA) work in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q365')" title="Copy direct link to Q365">
                         <i class="fas fa-link"></i>
@@ -9880,7 +9880,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q375</span>
-                        <h4 class="qa-title mb-0">What is the 10 Master Touchpoints Collaboration Matrix in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What is the 10 Master Touchpoints Collaboration Matrix in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q375')" title="Copy direct link to Q375">
                         <i class="fas fa-link"></i>
@@ -9900,7 +9900,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q376</span>
-                        <h4 class="qa-title mb-0">What are the 10 Master Touchpoints in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What are the 10 Master Touchpoints in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q376')" title="Copy direct link to Q376">
                         <i class="fas fa-link"></i>
@@ -10171,7 +10171,7 @@ Commercial    Stock         High-Value    Technical     Inventory
             <p><strong>Answer:</strong> Bank Deposit Slip Stamped Cross-Reconciliation:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Sidebar: Finance &amp; Accounts</code> &rarr; <code>Daily Cash Drops</code></li>
-<li>Cashier drops the day&#39;s cash collection into the corporate bank account each morning. The stamped bank deposit slip is uploaded to AJ EcoDrive, cross-reconciling the previous day&#39;s Z-Report to PKR 0.00 variance.</li>
+<li>Cashier drops the day&#39;s cash collection into the corporate bank account each morning. The stamped bank deposit slip is uploaded to EVEE Showroom, cross-reconciling the previous day&#39;s Z-Report to PKR 0.00 variance.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -10284,18 +10284,18 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q391</span>
-                        <h4 class="qa-title mb-0">How does AJ EcoDrive ensure uninterrupted operations during Internet Outages and Power Load-Shedding?</h4>
+                        <h4 class="qa-title mb-0">How does EVEE Showroom ensure uninterrupted operations during Internet Outages and Power Load-Shedding?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q391')" title="Copy direct link to Q391">
                         <i class="fas fa-link"></i>
                     </button>
                 </div>
                 <div class="qa-body">
-            <p><strong>Answer:</strong> AJ EcoDrive is engineered with <strong>Local Offline Durability &amp; Dual-Tier Synchronization Architecture</strong>:</p>
+            <p><strong>Answer:</strong> EVEE Showroom is engineered with <strong>Local Offline Durability &amp; Dual-Tier Synchronization Architecture</strong>:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> <code>Top Header Bar</code> &rarr; <code>Connectivity Badge</code> (<code>GREEN (ONLINE) / AMBER (OFFLINE)</code>)</li>
 <li><strong>The Reality in Pakistan:</strong> Power cuts, UPS cutovers, and local fiber internet disruptions are routine daily events.</li>
-<li><strong>The AJ EcoDrive Solution:</strong> Showroom counter workstations run on a local embedded SQLite database engine. When internet drops, the system seamlessly transitions to <strong>AMBER (OFFLINE)</strong> mode. Staff can continue capturing walk-in leads, creating quotations, executing POS sales, recording cash payments, and printing thermal receipts without missing a second of business.</li>
+<li><strong>The EVEE Showroom Solution:</strong> Showroom counter workstations run on a local embedded SQLite database engine. When internet drops, the system seamlessly transitions to <strong>AMBER (OFFLINE)</strong> mode. Staff can continue capturing walk-in leads, creating quotations, executing POS sales, recording cash payments, and printing thermal receipts without missing a second of business.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">
@@ -10305,7 +10305,7 @@ Commercial    Stock         High-Value    Technical     Inventory
                 <div class="qa-header">
                     <div class="d-flex align-items-center gap-2 flex-grow-1">
                         <span class="qid-badge">Q392</span>
-                        <h4 class="qa-title mb-0">What are the 3 System Connectivity States in AJ EcoDrive?</h4>
+                        <h4 class="qa-title mb-0">What are the 3 System Connectivity States in EVEE Showroom?</h4>
                     </div>
                     <button class="btn btn-sm btn-link copy-link-btn text-muted p-0 ms-2" onclick="copyCardLink('q392')" title="Copy direct link to Q392">
                         <i class="fas fa-link"></i>
@@ -10515,7 +10515,7 @@ Commercial    Stock         High-Value    Technical     Inventory
             <p><strong>Answer:</strong> Yes. Low-Bandwidth Optimization:</p>
 <ul>
 <li>📍 <strong>System Navigation Path:</strong> Network Settings</li>
-<li>AJ EcoDrive uses high-efficiency compressed JSON payloads (typically &lt; 15 KB per transaction), running flawlessly over a mobile phone 4G hotspot or backup Jazz/Zong data SIM.</li>
+<li>EVEE Showroom uses high-efficiency compressed JSON payloads (typically &lt; 15 KB per transaction), running flawlessly over a mobile phone 4G hotspot or backup Jazz/Zong data SIM.</li>
 </ul>
 </div></div>
 <hr class="doc-hr my-4">

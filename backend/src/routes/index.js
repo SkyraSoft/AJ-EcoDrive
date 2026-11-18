@@ -109,7 +109,7 @@ apiRouter.use('/sync', authenticateJWT, syncRoutes)
 apiRouter.get('/', (req, res) => {
   res.json({
     ok: true,
-    name: 'AJ EcoDrive ERP API Gateway',
+    name: 'EVEE Showroom Management System API Gateway',
     version: '1.0.0',
     documentation: '/api/v1/health',
     endpoints: {

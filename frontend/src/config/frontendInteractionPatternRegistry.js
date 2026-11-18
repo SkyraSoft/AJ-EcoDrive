@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Master Interaction Pattern Architecture Registry
+ * EVEE Showroom — Master Interaction Pattern Architecture Registry
  * Machine-Readable Specification of UI Interaction Patterns & Audits
  */
 

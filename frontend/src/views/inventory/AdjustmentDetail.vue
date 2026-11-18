@@ -436,7 +436,7 @@ const adminTabData = computed(() => {
     <!-- Header -->
     <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
       <div>
-        <h1 class="text-2xl font-bold tracking-wider uppercase text-gray-900">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+        <h1 class="text-2xl font-bold tracking-wider uppercase text-gray-900">EVEE SHOWROOM LTD / ELECTRIC VEHICLES</h1>
         <p class="text-xs text-gray-700 mt-1">Official Showroom & Warehouse Inventory Control &middot; Pakistan Network</p>
         <p class="text-[10px] text-gray-500 font-mono mt-0.5">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Form: INV-ADJ-REV3</p>
       </div>
@@ -498,7 +498,7 @@ const adminTabData = computed(() => {
         {{ adjustment?.notes || 'Physical recount verified by branch store custodian. Discrepancy reconciled between bay staging and floor inventory. Corrective serial scan updated in the primary vehicle register.' }}
       </p>
       <p class="text-[10px] text-gray-500 italic mt-2">
-        Notice: In accordance with AJ EcoDrive / BRG dealership policy, no physical inventory write-off or stock adjustment may take effect without Super Admin authorization and physical count sheet verification.
+        Notice: In accordance with EVEE Showroom dealership policy, no physical inventory write-off or stock adjustment may take effect without Super Admin authorization and physical count sheet verification.
       </p>
     </div>
 

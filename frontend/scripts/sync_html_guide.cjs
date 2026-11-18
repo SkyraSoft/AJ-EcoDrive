@@ -230,7 +230,7 @@ const fullHtml = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ EcoDrive — Client Operations Guide & Systems Architecture Manual (400+ Q&A)</title>
+    <title>EVEE Showroom Management System — Client Operations Guide & Systems Architecture Manual (400+ Q&A)</title>
     
     <!-- Google Fonts & Favicon -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -908,7 +908,7 @@ const fullHtml = `<!DOCTYPE html>
                 <a href="https://aj-eco-drive.vercel.app" target="_blank" class="btn btn-sm btn-warning fw-bold text-dark px-3 shadow-sm">
                     <i class="fas fa-desktop me-1"></i> Live Demo App
                 </a>
-                <a href="https://github.com/SkyraSoft/AJ-EcoDrive" target="_blank" class="btn btn-sm btn-outline-light px-3">
+                <a href="https://github.com/SkyraSoft/EVEE-Showroom-Management-System" target="_blank" class="btn btn-sm btn-outline-light px-3">
                     <i class="fab fa-github me-1"></i> GitHub
                 </a>
             </div>
@@ -942,7 +942,7 @@ const fullHtml = `<!DOCTYPE html>
                 <!-- Hero Header Banner -->
                 <div class="hero-guide-card">
                     <div class="badge bg-warning text-dark fw-bold mb-2">MASTER CLIENT SPECIFICATION — V3.0</div>
-                    <h1>AJ EcoDrive — Client Operations Guide &amp; Systems Architecture QA</h1>
+                    <h1>EVEE Showroom Management System — Client Operations Guide &amp; Systems Architecture QA</h1>
                     <p class="mb-0 text-white-50 small">
                         Comprehensive Operational Manual, Non-Technical Leadership Guide &amp; Master System Specification for Dealership Owners, Board Members, Head Office Executives, and Branch Managers.
                     </p>

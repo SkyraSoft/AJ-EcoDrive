@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Branch Manager DAP & Interactive Missions Registry
+ * EVEE Showroom — Branch Manager DAP & Interactive Missions Registry
  * Exhaustive 8-Stage Chronological Lifecycle Curriculum
  * Total Operational Stages: 8
  * Total Practical Interactive Steps: 57
@@ -54,7 +54,7 @@ export const branchManagerMissions = [
         "block": "Authentication Portal",
         "badge": "System Access",
         "trainingType": "observe",
-        "title": "AJ EcoDrive Secure Gateway",
+        "title": "EVEE Showroom Secure Gateway",
         "description": "Every morning starts with authenticating into the centralized ERP via your authorized Branch Manager credentials.",
         "dealershipContext": "Branch Managers must ensure dual-factor authentication is active and never share terminal sessions on floor computers.",
         "instruction": "Observe the secure enterprise gateway and active branch authentication endpoints.",
@@ -71,14 +71,14 @@ export const branchManagerMissions = [
         "title": "Branch Manager Email Verification",
         "description": "Input your designated corporate branch email to begin the daily operational session.",
         "businessRationale": "Ensures immutable audit logging linking all sales authorizations and cash approvals to the specific Branch Manager.",
-        "instruction": "Enter a valid corporate email format (e.g. manager.lahore@ajecodrive.com).",
-        "exampleValue": "manager.lahore@ajecodrive.com",
+        "instruction": "Enter a valid corporate email format (e.g. manager.lahore@eveeshowroom.com).",
+        "exampleValue": "manager.lahore@eveeshowroom.com",
         "validation": {
           "required": true,
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "rule": "Must be a valid corporate email address format.",
           "emptyMessage": "Email address is required.",
-          "invalidMessage": "Enter a valid email format (e.g. name@ajecodrive.com)."
+          "invalidMessage": "Enter a valid email format (e.g. name@eveeshowroom.com)."
         },
         "incorrectFeedback": "Please provide a valid email format with @ and a proper domain.",
         "successFeedback": "Corporate email format validated successfully.",
@@ -145,7 +145,7 @@ export const branchManagerMissions = [
         "trainingType": "decision",
         "title": "Morning Showroom Cash Float Procedure",
         "description": "A cashier arrives at 09:05 AM and asks to unlock the cash drawer to serve an early walk-in customer before the physical count is signed.",
-        "dealershipContext": "Under AJ EcoDrive Showroom Cash Regulations, no cash transactions may occur prior to dual-signature verification of the opening float register.",
+        "dealershipContext": "Under EVEE Showroom Cash Regulations, no cash transactions may occur prior to dual-signature verification of the opening float register.",
         "instruction": "Select the compliant managerial action according to dealership SOP:",
         "options": [
           {
@@ -357,7 +357,7 @@ export const branchManagerMissions = [
         "trainingType": "decision",
         "title": "Test Drive Driving License Verification",
         "description": "A prospect requests an immediate test drive of the EcoDrive Apex 220km but only carries a digital photo of their driver license on a smartphone.",
-        "dealershipContext": "Under AJ EcoDrive Fleet Insurance Policy, original physical valid driving license inspection is mandatory before handing over keys.",
+        "dealershipContext": "Under EVEE Showroom Fleet Insurance Policy, original physical valid driving license inspection is mandatory before handing over keys.",
         "instruction": "Select the compliant managerial response:",
         "options": [
           {
@@ -520,7 +520,7 @@ export const branchManagerMissions = [
         "trainingType": "decision",
         "title": "Discount Escalation Boundary",
         "description": "A corporate fleet buyer purchasing 3 units requests an immediate cash discount of 15% per vehicle before signing the quotation.",
-        "dealershipContext": "Under AJ EcoDrive Commercial Policy (Client Guide Q115), discounts exceeding 8% cannot be approved locally by Branch Managers.",
+        "dealershipContext": "Under EVEE Showroom Commercial Policy (Client Guide Q115), discounts exceeding 8% cannot be approved locally by Branch Managers.",
         "instruction": "Select the correct managerial response:",
         "options": [
           {
@@ -653,7 +653,7 @@ export const branchManagerMissions = [
         "trainingType": "practice",
         "title": "Chassis & Unit Verification",
         "description": "Locate and verify the vehicle serial or chassis identifier (e.g. CH-90111, CHS-01882, or standard 17-char VIN).",
-        "businessRationale": "Compatible with both ISO VINs and AJ EcoDrive internal chassis codes (Rule: rule-chassis-vin-flexibility).",
+        "businessRationale": "Compatible with both ISO VINs and EVEE Showroom internal chassis codes (Rule: rule-chassis-vin-flexibility).",
         "instruction": "Enter or confirm the assigned vehicle unit/chassis reference.",
         "exampleValue": "CHS-01882",
         "validation": {
@@ -848,7 +848,7 @@ export const branchManagerMissions = [
         "badge": "Inter-Branch Logistics",
         "trainingType": "inspect",
         "title": "Inter-Branch Stock Transfers Log",
-        "description": "Monitors inbound and outbound vehicle transfers between regional AJ EcoDrive branches.",
+        "description": "Monitors inbound and outbound vehicle transfers between regional EVEE Showroom branches.",
         "dealershipContext": "Transfer dispatches must be verified against carrier truck manifests before gate clearance.",
         "instruction": "Inspect transfer orders, carrier dispatch notes, and transit tracking numbers.",
         "placement": "left"
@@ -862,7 +862,7 @@ export const branchManagerMissions = [
         "badge": "Branch Logistics",
         "trainingType": "practice",
         "title": "Select Transfer Destination Branch",
-        "description": "Specify the recipient AJ EcoDrive showroom facility for the dispatched serialized vehicle.",
+        "description": "Specify the recipient EVEE Showroom facility for the dispatched serialized vehicle.",
         "businessRationale": "Transfers update custody responsibility between Branch Managers automatically.",
         "instruction": "Select destination branch from the active dealership network.",
         "exampleValue": "Gulberg Showroom Lahore",
@@ -1036,7 +1036,7 @@ export const branchManagerMissions = [
         "trainingType": "decision",
         "title": "Battery Cell Imbalance Diagnostic Decision",
         "description": "Diagnostic scan on a 6-month-old vehicle reveals a severe 95mV cell voltage delta on Module 3, triggering an automated BMS derate warning.",
-        "dealershipContext": "The vehicle is covered under AJ EcoDrive 8-Year Battery Warranty.",
+        "dealershipContext": "The vehicle is covered under EVEE Showroom 8-Year Battery Warranty.",
         "instruction": "Select the compliant after-sales action:",
         "options": [
           {
@@ -1133,7 +1133,7 @@ export const branchManagerMissions = [
         "trainingType": "decision",
         "title": "Expense Voucher Governance & Splitting Rules",
         "description": "Showroom air conditioning maintenance invoice arrives totaling Rs. 28,000. The technician suggests splitting it into two Rs. 14,000 vouchers to bypass Head Office sign-off.",
-        "dealershipContext": "Under AJ EcoDrive Financial Compliance Policy (Client Guide Q327), splitting invoices to bypass the PKR 15,000 ceiling is strictly prohibited.",
+        "dealershipContext": "Under EVEE Showroom Financial Compliance Policy (Client Guide Q327), splitting invoices to bypass the PKR 15,000 ceiling is strictly prohibited.",
         "instruction": "Select the compliant managerial action:",
         "options": [
           {

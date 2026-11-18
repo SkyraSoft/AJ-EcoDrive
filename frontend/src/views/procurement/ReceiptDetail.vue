@@ -446,7 +446,7 @@ const openPo = () => {
       <div class="border-b-2 border-black pb-4 mb-6">
         <div class="flex justify-between items-start">
           <div>
-            <h1 class="text-2xl font-black tracking-tight uppercase">AJ ECODRIVE LTD / BRG PROCUREMENT WAREHOUSE</h1>
+            <h1 class="text-2xl font-black tracking-tight uppercase">EVEE SHOWROOM LTD / PROCUREMENT WAREHOUSE</h1>
             <p class="text-xs text-gray-700 mt-1 uppercase">Goods Inward & Quality Inspection Receiving Depot</p>
             <p class="text-[11px] text-gray-600">Receiving Bay: {{ receipt?.branch || 'Peshawar' }} Central Depot</p>
             <p class="text-[11px] text-gray-600">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }}</p>

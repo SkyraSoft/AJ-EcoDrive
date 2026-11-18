@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Master State Machine Registry
+ * EVEE Showroom — Master State Machine Registry
  * Machine-Readable Specification of Entity States & Valid Transitions
  */
 

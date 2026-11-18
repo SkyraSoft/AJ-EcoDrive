@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Master Action Contract Registry
+ * EVEE Showroom — Master Action Contract Registry
  * Machine-Readable Specification of Action Triggers, Handlers, Mutations & Feedback
  */
 

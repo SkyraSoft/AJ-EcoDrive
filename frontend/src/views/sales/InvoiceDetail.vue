@@ -208,7 +208,7 @@ const handlePrint = () => {
 
       <!-- Footer Notes -->
       <div class="mt-6 text-center text-[10px] text-gray-400">
-        <p>Thank you for choosing AJ EcoDrive. All sales subject to standard warranty and vehicle registration terms.</p>
+        <p>Thank you for choosing EVEE Showroom. All sales subject to standard warranty and vehicle registration terms.</p>
       </div>
 
     </div>

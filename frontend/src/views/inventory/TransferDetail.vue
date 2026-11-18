@@ -366,7 +366,7 @@ const branchTabData = computed(() => {
       <div class="border-b-2 border-black pb-4 mb-6">
         <div class="flex justify-between items-start">
           <div>
-            <h1 class="text-2xl font-black tracking-tight uppercase">AJ ECODRIVE LTD / BRG LOGISTICS FLEET</h1>
+            <h1 class="text-2xl font-black tracking-tight uppercase">EVEE SHOWROOM LTD / LOGISTICS FLEET</h1>
             <p class="text-xs text-gray-700 mt-1 uppercase">Central Logistics & Fleet Dispatch Office</p>
             <p class="text-[11px] text-gray-600">Inter-Branch Consignment Route: {{ currentTransfer?.from }} Hub &rarr; {{ currentTransfer?.to }} Showroom</p>
             <p class="text-[11px] text-gray-600">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Logistics Helpline: {{ store.settings?.company?.phone || 'Not configured' }}</p>
@@ -427,7 +427,7 @@ const branchTabData = computed(() => {
 
       <!-- Security Transit Notice -->
       <div class="text-[10px] text-gray-600 mb-6 italic border-l-2 border-black pl-3">
-        "Transit Gate Pass Notice: Above listed serialized electric vehicle units are property of AJ EcoDrive Ltd being transferred between company facilities under official stock transfer. Highway patrol, excise checkpoints, and motorway police are requested to allow transit upon verification of driver particulars."
+        "Transit Gate Pass Notice: Above listed serialized electric vehicle units are property of EVEE Showroom Ltd being transferred between company facilities under official stock transfer. Highway patrol, excise checkpoints, and motorway police are requested to allow transit upon verification of driver particulars."
       </div>
 
       <!-- Quad Signature Blocks -->

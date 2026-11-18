@@ -386,7 +386,7 @@ const activities = computed(() => {
     <!-- Header -->
     <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-start">
       <div>
-        <h1 class="text-2xl font-bold tracking-wider uppercase text-gray-900">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+        <h1 class="text-2xl font-bold tracking-wider uppercase text-gray-900">EVEE SHOWROOM LTD / ELECTRIC VEHICLES</h1>
         <p class="text-xs text-gray-700 mt-1">Official OEM Procurement & Logistics &middot; Pakistan Network</p>
         <p class="text-[10px] text-gray-500 font-mono mt-0.5">NTN: {{ store.settings?.company?.taxNumber || 'Not configured' }} | STRN: {{ store.settings?.company?.strn || store.settings?.company?.registrationNumber || 'Not configured' }} | Form: PROC-VDN-REV2</p>
       </div>

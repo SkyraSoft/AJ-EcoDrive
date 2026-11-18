@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Master Business User Story Graph Registry
+ * EVEE Showroom — Master Business User Story Graph Registry
  * Machine-Readable Specification of End-to-End Business Journeys
  */
 

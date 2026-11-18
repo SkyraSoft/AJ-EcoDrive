@@ -509,7 +509,7 @@ const filteredTransfers = computed(() => {
       <div>
         <div class="text-[10px] text-gray-500 mb-1">Super Admin / Inventory / <span class="font-bold text-gray-800">Transfers</span></div>
         <h1 class="text-[32px] tracking-tight font-bold text-gray-900">Transfers</h1>
-        <p class="text-sm text-gray-500 mt-1">Control stock movement between AJ ECODRIVE branches.</p>
+        <p class="text-sm text-gray-500 mt-1">Control stock movement between EVEE Showroom branches.</p>
       </div>
       <button data-tour-id="sa.inventory.transfers.create-btn" @click="openCreateModal" class="px-4 py-2 bg-[#165A31] text-white text-[11px] font-bold rounded-lg hover:bg-[#114a28] transition-colors shadow-sm flex items-center gap-2 cursor-pointer">
         <Plus class="w-4 h-4" />

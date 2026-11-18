@@ -1,4 +1,4 @@
-# AJ ECODRIVE CLIENT OPERATIONS GUIDE & SYSTEM ARCHITECTURE QA
+# EVEE SHOWROOM CLIENT OPERATIONS GUIDE & SYSTEM ARCHITECTURE QA
 ### Comprehensive Operational Manual, Non-Technical Leadership Guide & Complete Architecture Specification
 **Document Version:** 3.0 (Master Enterprise Chronological Edition)  
 **Target Audience:** Dealership Owners, Board Members, Head Office Executives, Branch Managers & System Auditors  
@@ -9,7 +9,7 @@
 # TABLE OF CONTENTS
 
 ### SECTION I: FOUNDATIONS & GETTING STARTED
-1. [PART 1: Understanding AJ EcoDrive & The EV Dealership Model (Q1 – Q12)](#part-1-understanding-aj-ecodrive--the-ev-dealership-model-q1--q12)
+1. [PART 1: Understanding EVEE Showroom & The EV Dealership Model (Q1 – Q12)](#part-1-understanding-evee-showroom--the-ev-dealership-model-q1--q12)
 2. [PART 2: Workstation Platforms & User Login Categories (Q13 – Q24)](#part-2-workstation-platforms--user-login-categories-q13--q24)
 3. [PART 3: Morning Showroom Opening & System Daily Start (Q25 – Q36H)](#part-3-morning-showroom-opening--system-daily-start-q25--q36h)
 
@@ -108,10 +108,10 @@ If you are a dealership owner, board member, or business executive who does not 
 
 ---
 
-# PART 1: Understanding AJ EcoDrive & The EV Dealership Model (Q1 – Q12)
+# PART 1: Understanding EVEE Showroom & The EV Dealership Model (Q1 – Q12)
 
-### Q1: In simple words, what is AJ EcoDrive?
-**Answer:** AJ EcoDrive is an enterprise-grade Dealership Management System (DMS) and Operating Platform engineered specifically for electric vehicle (EV) businesses. It acts as the central digital nervous system of the dealership, managing every stage of operations:
+### Q1: In simple words, what is EVEE Showroom?
+**Answer:** EVEE Showroom is an enterprise-grade Dealership Management System (DMS) and Operating Platform engineered specifically for electric vehicle (EV) businesses. It acts as the central digital nervous system of the dealership, managing every stage of operations:
 * 📍 **System Navigation Path:** `Main Application Shell` &rarr; `Role-Based Dashboard` (`/dashboard`)
 * **Global Procurement:** Importing CBU (Completely Built Up) and CKD (Completely Knocked Down) containers from international OEM factories with Bill of Lading and shipping container tracking.
 * **Serialized Inventory Control:** Tracking every single electric scooter down to its physical Frame VIN, Lithium Battery Serial Number, and Motor Controller ID across all branch showrooms (Peshawar, Islamabad, Lahore, Rawalpindi).
@@ -132,11 +132,11 @@ If you are a dealership owner, board member, or business executive who does not 
 * In Excel or basic accounting tools, a salesperson can accidentally sell the same chassis number twice to different customers on the same weekend.
 * Mechanics can swap a customer's degraded or burned battery into a showroom display bike without any digital trace.
 * Showroom cashiers can alter past sales records to conceal cash shortages.
-* AJ EcoDrive makes these fraud vectors impossible by mathematically enforcing **3-way serialized hardware binding** and immutable, timestamped audit logs.
+* EVEE Showroom makes these fraud vectors impossible by mathematically enforcing **3-way serialized hardware binding** and immutable, timestamped audit logs.
 
 ---
 
-### Q3: Who are the active users of AJ EcoDrive today?
+### Q3: Who are the active users of EVEE Showroom today?
 **Answer:** In the current production deployment, the platform operates with **two primary operational user tiers**:
 * 📍 **System Navigation Path:** `Login Portal` (`/login`) &rarr; Select `Super Admin` or `Branch Manager` Badge
 1. **Super Admin (Head Office & Executive Leadership):**
@@ -172,7 +172,7 @@ If you are a dealership owner, board member, or business executive who does not 
 ---
 
 ### Q6: What is a "Serialized Unit" in the context of electric bikes?
-**Answer:** In AJ EcoDrive, a "Serialized Unit" represents a specific, physical machine with permanent, unalterable hardware identities:
+**Answer:** In EVEE Showroom, a "Serialized Unit" represents a specific, physical machine with permanent, unalterable hardware identities:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units`)
 * **Catalog Model vs. Serialized Machine:** While the catalog contains the generic product blueprint (e.g., *"Model: BRG E-125 Commuter Scooter, 1500W Brushless Motor"*), the serialized inventory ledger tracks the physical vehicle:
   * **Chassis Frame VIN:** `PK-BRG-2026-00812` (Stamped into frame)
@@ -221,7 +221,7 @@ If you are a dealership owner, board member, or business executive who does not 
 ---
 
 ### Q9: Does the system track spare parts, tyres, and workshop consumables?
-**Answer:** Yes. AJ EcoDrive includes a specialized **Spare Parts & Workshop Inventory Engine** operating alongside vehicle tracking:
+**Answer:** Yes. EVEE Showroom includes a specialized **Spare Parts & Workshop Inventory Engine** operating alongside vehicle tracking:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Spare Parts & Accessories` (`/inventory/parts`)
 * **Managed Item Types:**
   * High-frequency wear parts (Brake pads, tubeless tyres, inner tubes, drive belts).
@@ -231,7 +231,7 @@ If you are a dealership owner, board member, or business executive who does not 
 
 ---
 
-### Q10: How does AJ EcoDrive handle manufacturer warranties?
+### Q10: How does EVEE Showroom handle manufacturer warranties?
 **Answer:** Every vehicle sold automatically activates an official OEM Digital Warranty Certificate upon delivery:
 * 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Warranty Policies` (`/after-sales/warranty`)
 * **Standard Coverage Terms:**
@@ -271,8 +271,8 @@ If you are a dealership owner, board member, or business executive who does not 
 
 # PART 2: Workstation Platforms & User Login Categories (Q13 – Q24)
 
-### Q13: What hardware platforms does AJ EcoDrive support?
-**Answer:** AJ EcoDrive is engineered for resilient cross-platform operations across three specialized environments:
+### Q13: What hardware platforms does EVEE Showroom support?
+**Answer:** EVEE Showroom is engineered for resilient cross-platform operations across three specialized environments:
 * 📍 **System Navigation Path:** Cross-Device Browser & Local Desktop Shell
 1. **Windows Desktop Workstations:** Installed on dedicated counter PCs (Dell, HP, Lenovo) at showroom sales desks, cashier booths, and workshop reception. Optimized for thermal barcode label printers, 80mm POS receipt printers, and USB barcode guns.
 2. **Android Tablets & Rugged Handhelds:** Mobile touch devices used by sales representatives walking the floor with customers and workshop mechanics inspecting bikes inside service bays.
@@ -307,7 +307,7 @@ If you are a dealership owner, board member, or business executive who does not 
 ---
 
 ### Q17: What are the two active user login categories in the system today?
-**Answer:** AJ EcoDrive operates with two specialized role environments:
+**Answer:** EVEE Showroom operates with two specialized role environments:
 * 📍 **System Navigation Path:** `Login Screen` (`/login`)
 
 | User Category | Assigned Role Scope | Authentication Identity | Primary Screen Access |
@@ -450,7 +450,7 @@ Crucially, **every Quick Action launches directly in-context as an active modal 
 ---
 
 #### 2. Critical Operational Difference: Quick Sale (POS) vs. Sales Order (Booking) at Branch Manager Level
-Dealerships operate with two distinct sales motions. Conflating them creates inventory chaos and cash reconciliation errors. AJ EcoDrive enforces a strict architectural and operational boundary between them:
+Dealerships operate with two distinct sales motions. Conflating them creates inventory chaos and cash reconciliation errors. EVEE Showroom enforces a strict architectural and operational boundary between them:
 
 | Dimension | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
 | :--- | :--- | :--- |
@@ -500,7 +500,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 ---
 
 ### Q30: How does the system handle internet drops or power load-shedding in the morning?
-**Answer:** In Pakistan, power cuts and internet outages are routine. AJ EcoDrive is architected with **Local Offline Durability**:
+**Answer:** In Pakistan, power cuts and internet outages are routine. EVEE Showroom is architected with **Local Offline Durability**:
 * 📍 **System Navigation Path:** `Top Header Bar` &rarr; `System Status Indicator` (Switches from `GREEN (ONLINE)` to `AMBER (OFFLINE)`)
 * If the internet cable is cut or the local Wi-Fi router loses power, the desktop application seamlessly transitions to **AMBER (OFFLINE)** mode. Staff can continue creating customer leads, generating quotations, making sales, and printing receipts using the local SQLite database. All transactions queue in an Outbox and sync automatically to Head Office once connectivity restores.
 
@@ -527,7 +527,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 ---
 
-### Q34: What is the morning team briefing routine supported by AJ EcoDrive?
+### Q34: What is the morning team briefing routine supported by EVEE Showroom?
 **Answer:** Showroom managers guide the 09:00 AM staff huddle using live sales metrics:
 * 📍 **System Navigation Path:** `Branch Manager Dashboard` &rarr; `Monthly Target vs Actual Sales Progress Bar` OR `Sidebar: Analytics & Reports` &rarr; `Sales Performance` (`/reports/sales-performance`)
 * **Procedure:** The team reviews yesterday's closed deals, open hot leads requiring phone follow-ups, workshop bay turnaround times, and the remaining unit sales required to hit monthly sales commission targets.
@@ -644,7 +644,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 ---
 
 ### Q36E: How do the financial and accounting ledger entries differ between a Point of Sale (POS) transaction and a Sales Order booking?
-**Answer:** AJ EcoDrive enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:
+**Answer:** EVEE Showroom enforces double-entry audit rigor to prevent revenue recognition errors and tax miscalculations:
 * 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Financial Reports / General Ledger` (`/finance/general-ledger`)
 
 | Financial / Accounting Aspect | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
@@ -694,7 +694,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 ---
 
 ### Q36H: How does the system prevent staff from confusing a Sales Quotation with a Sales Order or Official Invoice?
-**Answer:** AJ EcoDrive establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:
+**Answer:** EVEE Showroom establishes clear visual, legal, and functional barriers between quotations, orders, and invoices:
 * 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; Select Quotation &rarr; Click `Convert to Order` button
 * **Watermark & Header Banners:** Quotations print with a prominent watermark: *"PRICE ESTIMATE — NOT AN INVOICE / NON-BINDING AFTER 7 DAYS"*.
 * **No Inventory Allocation:** Creating a Quotation **does NOT reserve or lock physical stock**. Other showroom salespeople can freely sell that vehicle. Physical reservation only occurs when the quote is converted to an active Sales Order or POS transaction.
@@ -712,8 +712,8 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 # PART 4: The Dealership Action Centre — The Command Bridge (Q37 – Q52)
 
-### Q37: What is the Action Centre screen in AJ EcoDrive, and how do dealership staff navigate to it?
-**Answer:** The **Action Centre** is the central operational command desk and decision engine of AJ EcoDrive. Unlike standard email or phone escalations, every managerial decision across all dealership branches is tracked, timed, and audited in a single high-visibility workspace:
+### Q37: What is the Action Centre screen in EVEE Showroom, and how do dealership staff navigate to it?
+**Answer:** The **Action Centre** is the central operational command desk and decision engine of EVEE Showroom. Unlike standard email or phone escalations, every managerial decision across all dealership branches is tracked, timed, and audited in a single high-visibility workspace:
 * 📍 **System Navigation Path:**
   * **Desktop / Web:** `Left Sidebar` &rarr; `Dashboard` &rarr; `Action Centre` (`/dashboard/action-centre`) OR Click the **Action Centre Banner** / **Action Required** table on the Main Dashboard.
   * **Mobile / Tablet:** Tap `Menu (Hamburger)` &rarr; `Action Centre` (`/dashboard/action-centre`) OR Tap the urgent Action badge in the top navigation header.
@@ -862,7 +862,7 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 ---
 
 ### Q52: What happens if an action item was submitted while the branch was offline?
-**Answer:** Offline submissions are safeguarded by AJ EcoDrive's **Local Queue Engine**:
+**Answer:** Offline submissions are safeguarded by EVEE Showroom's **Local Queue Engine**:
 * 📍 **System Navigation Path:** `Top Header` &rarr; `Offline Outbox Indicator` (`/system/outbox`)
 * When submitted without internet connectivity, the task is saved to the local SQLite database with a cryptographic local timestamp.
 * The application continues normal branch workflows.
@@ -875,8 +875,8 @@ Dealerships operate with two distinct sales motions. Conflating them creates inv
 
 # PART 5: The 5 Standard Enterprise Action Flows (Q53 – Q68)
 
-### Q53: What are the 5 Standard Enterprise Action Flows in AJ EcoDrive?
-**Answer:** AJ EcoDrive standardizes all dealership operational escalations into **5 Universal Action Flows**:
+### Q53: What are the 5 Standard Enterprise Action Flows in EVEE Showroom?
+**Answer:** EVEE Showroom standardizes all dealership operational escalations into **5 Universal Action Flows**:
 * 📍 **System Navigation Path:** `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Click `+ New Action Request` (`CreateActionWizard`)
 
 ```
@@ -1027,7 +1027,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 * 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Notification Channels`
 * **On Submission:** Super Admin receives instant email + mobile push with summary metrics.
 * **On Approval:** Branch Manager receives real-time desktop pop-up and WhatsApp alert.
-* **On Customer Impact (Flow 1 & 4):** Customer receives an automated SMS: *"Your custom discount / warranty claim has been approved by AJ EcoDrive Head Office"*.
+* **On Customer Impact (Flow 1 & 4):** Customer receives an automated SMS: *"Your custom discount / warranty claim has been approved by EVEE Showroom Head Office"*.
 
 ---
 
@@ -1047,7 +1047,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 6: The Action Creation Wizard & Decision Treatment Drawer (Q69 – Q84)
 
-### Q69: What is the Action Creation Wizard in AJ EcoDrive?
+### Q69: What is the Action Creation Wizard in EVEE Showroom?
 **Answer:** The **Action Creation Wizard** is a streamlined 2-step modal dialog that guides showroom staff and branch managers through creating standardized, audit-compliant escalation requests:
 * 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `Quick Actions ⌄` &rarr; `New Action Request` OR `Sidebar: Action Centre` (`/dashboard/action-centre`) &rarr; Click **"+ Create Action Request"** (`CreateActionWizard`)
 * **Step 1 (Category & Business Entity Selection):** User selects one of the 5 Standard Flows and links the specific customer quotation, order, chassis VIN, repair job card, or expense voucher.
@@ -1174,7 +1174,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ---
 
 ### Q84: What happens if two Super Admins open and review the same Action Item simultaneously?
-**Answer:** AJ EcoDrive includes **Concurrent Review Locking**:
+**Answer:** EVEE Showroom includes **Concurrent Review Locking**:
 * 📍 **System Navigation Path:** `Action Centre` &rarr; `Task Card Header`
 * When Administrator A opens a task drawer, a blue banner appears on Administrator B's screen: *"Currently being reviewed by [Admin Name]"*.
 * If Administrator A submits a decision, Administrator B's screen updates instantly via live WebSocket synchronization, preventing conflicting duplicate approvals.
@@ -1198,7 +1198,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q86: Why is capturing every walk-in lead mandatory in AJ EcoDrive?
+### Q86: Why is capturing every walk-in lead mandatory in EVEE Showroom?
 **Answer:** Mandatory lead capture eliminates customer drop-off and tracks showroom footfall ROI:
 * 📍 **System Navigation Path:** `Sidebar: CRM & Leads` &rarr; `Lead Pipeline Workbench` (`/sales/leads`)
 * **Conversion Rate Analytics:** Dealership leadership tracks the exact conversion ratio from Showroom Walk-Ins &rarr; Test Rides &rarr; Quotations &rarr; Invoiced Sales.
@@ -1257,7 +1257,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ### Q92: What automated WhatsApp messages are dispatched upon lead creation?
 **Answer:** The system connects to official WhatsApp Business API:
 * 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Automated Messaging Templates`
-* **Automated Welcome Message:** *"Dear [Customer Name], thank you for visiting AJ EcoDrive Peshawar! Here is the digital brochure for the [Model Name] you explored today: [Brochure Link]"*.
+* **Automated Welcome Message:** *"Dear [Customer Name], thank you for visiting EVEE Showroom Peshawar! Here is the digital brochure for the [Model Name] you explored today: [Brochure Link]"*.
 
 ---
 
@@ -1319,7 +1319,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q100: How does AJ EcoDrive validate Pakistani CNIC numbers?
+### Q100: How does EVEE Showroom validate Pakistani CNIC numbers?
 **Answer:** The system enforces standard NADRA 13-digit format validation:
 * 📍 **System Navigation Path:** `CreateCustomerModal` &rarr; `CNIC Input Field`
 * **Format:** `XXXXX-XXXXXXX-X` (e.g., `17301-8492019-3` for Khyber Pakhtunkhwa / Peshawar, `37405-XXXXXXX-X` for Rawalpindi/Islamabad).
@@ -1399,7 +1399,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q110: How does AJ EcoDrive support GDPR / Data Privacy compliance?
+### Q110: How does EVEE Showroom support GDPR / Data Privacy compliance?
 **Answer:** Built-in customer data governance:
 * 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Data Privacy & Consent`
 * Captures customer consent for marketing SMS/WhatsApp messages and provides data anonymization options upon formal legal request.
@@ -1425,7 +1425,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 9: Formal Pricing & Customer Quotations (Q113 – Q128)
 
-### Q113: What is the purpose of a formal Sales Quotation in AJ EcoDrive?
+### Q113: What is the purpose of a formal Sales Quotation in EVEE Showroom?
 **Answer:** A Sales Quotation is a binding, professional price estimate issued to prospective buyers:
 * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `New Quotation` (`CreateQuotationModal`) OR `Sidebar: Sales & Revenue` &rarr; `Quotations` (`/sales/quotations`) &rarr; `+ New Quotation`
 * **Key Capabilities:**
@@ -1560,7 +1560,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 10: Instant Point of Sale (POS) & Sales Order Confirmation (Q129 – Q144)
 
-### Q129: What is the Point of Sale (POS) workbench in AJ EcoDrive?
+### Q129: What is the Point of Sale (POS) workbench in EVEE Showroom?
 **Answer:** The Point of Sale (POS) is the high-velocity showroom counter checkout engine designed for immediate over-the-counter vehicle sales:
 * 📍 **System Navigation Path:** `Top Navigation Header` &rarr; `+ Quick Sale` button (OR `Quick Actions ⌄` &rarr; `Point of Sale (POS)`) OR `Sidebar: Sales & Revenue` &rarr; `Point of Sale` (`/sales/pos`)
 * **Operational Flow:**
@@ -1573,7 +1573,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ---
 
 ### Q130: What is the fundamental difference between Point of Sale (POS) and a Sales Order?
-**Answer:** AJ EcoDrive enforces an absolute operational and financial boundary between them:
+**Answer:** EVEE Showroom enforces an absolute operational and financial boundary between them:
 * 📍 **System Navigation Path:** `CreateSaleModal` (`mode="pos"` vs `mode="order"`)
 
 | Dimension | Point of Sale (POS) / Quick Sale | Sales Order (Booking / Advance Order) |
@@ -1707,7 +1707,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 11: Invoicing, Deposits & Customer Money Collections (Q145 – Q158)
 
-### Q145: How does AJ EcoDrive handle customer money collections and receipts?
+### Q145: How does EVEE Showroom handle customer money collections and receipts?
 **Answer:** All cash, cheque, and electronic collections are governed by the **Customer Payments Ledger**:
 * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Record Payment` (`CreatePaymentModal`) OR `Sidebar: Finance & Accounts` &rarr; `Customer Payments` (`/sales/payments`) &rarr; Click `+ Record Payment`
 * **Core Rule:** Every single Rupee entering the dealership must be linked directly to a verified customer, an official sales order/invoice ID, and a designated bank or cashier till account.
@@ -1742,7 +1742,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q148: What is an official FBR-Compliant Tax Invoice in AJ EcoDrive?
+### Q148: What is an official FBR-Compliant Tax Invoice in EVEE Showroom?
 **Answer:** The official legal commercial invoice generated upon full settlement:
 * 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Invoices` (`/sales/invoices/:id`) &rarr; Click **"Print Tax Invoice"**
 * **Invoice Header:** Dealership Legal Name, Branch Address, NTN, STRN, Customer Name, CNIC, and unique Invoice Number (`INV-PEW-2026-XXXX`).
@@ -1825,7 +1825,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 12: Pre-Delivery Inspection (PDI) & Official Gate Pass Handover (Q159 – Q174)
 
-### Q159: What is Pre-Delivery Inspection (PDI) in AJ EcoDrive?
+### Q159: What is Pre-Delivery Inspection (PDI) in EVEE Showroom?
 **Answer:** Pre-Delivery Inspection (PDI) is the mandatory 6-point technical and safety audit conducted by certified workshop technicians immediately before handing over an electric vehicle to a customer:
 * 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Sales Orders` (`/sales/orders/:id`) &rarr; Click **"Start PDI Checklist"** (`CreateDeliveryHandoverModal`)
 * **Core Objective:** Guarantees that every electric scooter leaving the showroom floor is 100% roadworthy, physically pristine, electrically balanced, and safe to ride.
@@ -1945,7 +1945,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ---
 
 ### Q171: What documentation is handed over to the customer inside the delivery folder?
-**Answer:** The **AJ EcoDrive Official Ownership Welcome Pack**:
+**Answer:** The **EVEE Showroom Official Ownership Welcome Pack**:
 * 📍 **System Navigation Path:** `Sales Order Detail Page` &rarr; Click **"Print Complete Delivery Pack"**
 * Contains: Original Tax Invoice, Payment Receipts, Official Stamped Warranty Certificate, Pre-Delivery Inspection (PDI) Report, Excise Registration Application, and Owner's Manual.
 
@@ -1954,7 +1954,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ### Q172: How does the system solicit customer satisfaction (CSAT) feedback?
 **Answer:** Automated Post-Delivery Feedback SMS:
 * 📍 **System Navigation Path:** `Sidebar: Settings` &rarr; `Customer Experience (CSAT)`
-* 2 hours after gate exit, customer receives an automated SMS/WhatsApp: *"How was your delivery experience at AJ EcoDrive? Rate us 1 to 5 stars: [Feedback Link]"*.
+* 2 hours after gate exit, customer receives an automated SMS/WhatsApp: *"How was your delivery experience at EVEE Showroom? Rate us 1 to 5 stars: [Feedback Link]"*.
 
 ---
 
@@ -1981,7 +1981,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 13: Workshop Intake & Opening Service Cases (Q175 – Q188)
 
-### Q175: What is the Workshop Service Intake process in AJ EcoDrive?
+### Q175: What is the Workshop Service Intake process in EVEE Showroom?
 **Answer:** Workshop Service Intake is the formal reception protocol when a customer brings an electric vehicle into the dealership workshop for periodic maintenance, warranty repair, or accident damage:
 * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Service Intake Case` (`CreateCaseModal`) OR `Sidebar: After-Sales & Workshop` &rarr; `Active Service Cases` (`/after-sales/warranty`) &rarr; Click `+ New Service Intake`
 * **Operational Flow:**
@@ -1993,7 +1993,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ---
 
 ### Q176: What is the difference between a Service Case and a Repair Job Card?
-**Answer:** AJ EcoDrive establishes a clear 2-tier service architecture:
+**Answer:** EVEE Showroom establishes a clear 2-tier service architecture:
 * 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Service Cases` vs `Job Cards`
 * **Service Case (`SC-PEW-XXXX`):** The master customer ticket representing the customer's visit, symptom intake, warranty claim validation, customer communication, and final invoicing.
 * **Repair Job Card (`JOB-PEW-XXXX`):** The internal workshop technical ticket assigned to a specific technician, tracking mechanic labour hours, installed spare parts, and OBD diagnostic checks.
@@ -2229,11 +2229,11 @@ Commercial    Stock         High-Value    Technical     Inventory
 ### Q203: Why is Lithium Battery warranty governance critical for an EV dealership?
 **Answer:** The Lithium-Ion Battery Pack represents **40% to 50% of the entire monetary value of an electric vehicle** (e.g., PKR 95,000 to PKR 125,000 on a PKR 245,000 scooter):
 * 📍 **System Navigation Path:** `Sidebar: After-Sales & Workshop` &rarr; `Battery Diagnostics & Warranty` (`/after-sales/battery-lab`)
-* Uncontrolled or fraudulent warranty claims can destroy dealership profitability. AJ EcoDrive enforces rigorous scientific, serialized, and telemetry-based battery warranty validation.
+* Uncontrolled or fraudulent warranty claims can destroy dealership profitability. EVEE Showroom enforces rigorous scientific, serialized, and telemetry-based battery warranty validation.
 
 ---
 
-### Q204: What is 3-Way Serialized Hardware Binding in AJ EcoDrive?
+### Q204: What is 3-Way Serialized Hardware Binding in EVEE Showroom?
 **Answer:** Cryptographic hardware pairing preventing component theft and fraudulent warranty claims:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units/:id`)
 
@@ -2319,7 +2319,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ---
 
 ### Q212: Can a customer purchase an Extended Battery Warranty?
-**Answer:** Yes. **AJ EcoDrive Battery Shield+ Policy**:
+**Answer:** Yes. **EVEE Showroom Battery Shield+ Policy**:
 * 📍 **System Navigation Path:** `CreateSaleModal` &rarr; `Add-ons: Extended Warranty (Year 3)`
 * Extends battery replacement coverage for a 3rd year (up to 45,000 km) for an additional fee (e.g. PKR 18,500), tracked in the digital warranty certificate.
 
@@ -2372,7 +2372,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 16: Vehicle Cancellations, Returns & Customer Refund Settlement (Q219 – Q232)
 
-### Q219: What is the Vehicle Return and Cancellation policy in AJ EcoDrive?
+### Q219: What is the Vehicle Return and Cancellation policy in EVEE Showroom?
 **Answer:** Formal operational governance for handling customer order cancellations, pre-delivery deposit refunds, and post-delivery returns:
 * 📍 **System Navigation Path:** `Sidebar: Sales & Revenue` &rarr; `Returns & Refunds` (`/sales/returns`) &rarr; Click `+ New Return / Refund` (`CreateReturnModal`)
 * **Core Rule:** No vehicle can be returned or refund issued via verbal agreement. Every cancellation requires a formal physical inspection, calculated deductions, and managerial sign-off.
@@ -2479,7 +2479,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ### Q231: Can a salesperson delete an order instead of processing a formal cancellation?
 **Answer:** **No. Deleting sales orders or invoices is architecturally impossible.**
 * 📍 **System Navigation Path:** System Security Architecture
-* AJ EcoDrive enforces zero hard-deletions. All cancellations must pass through the auditable `CreateReturnModal` workflow.
+* EVEE Showroom enforces zero hard-deletions. All cancellations must pass through the auditable `CreateReturnModal` workflow.
 
 ---
 
@@ -2499,7 +2499,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 17: Showroom Inventory & Serialized Unit Management (Q233 – Q246)
 
-### Q233: How does AJ EcoDrive manage Showroom Floor Inventory?
+### Q233: How does EVEE Showroom manage Showroom Floor Inventory?
 **Answer:** Showroom floor inventory is managed via the **Serialized Unit Inventory Workbench**:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Serialized Units` (`/inventory/serialized-units`) OR `Stock by Product` (`/inventory/stock-by-product`)
 * **Core Principle:** Every physical electric bike on the showroom tiles is tracked as an individual serialized asset, bound to its unique Chassis Frame VIN, Lithium Battery Serial Number, Motor Serial Number, and Physical Location (Peshawar Showroom, Bay A-1).
@@ -2608,7 +2608,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 18: Showroom Stock Replenishment Requisitions (Q247 – Q258)
 
-### Q247: What is a Stock Replenishment Requisition in AJ EcoDrive?
+### Q247: What is a Stock Replenishment Requisition in EVEE Showroom?
 **Answer:** A Stock Replenishment Requisition is a formal branch inventory request submitted by a Branch Manager to the Central Distribution Warehouse to restock low floor inventory:
 * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Stock Replenishment Request` (`CreateStockRequestModal`) OR `Sidebar: Inventory` &rarr; `Stock Requests` (`/inventory/stock-requests`) &rarr; Click `+ New Requisition`
 * **Operational Intent:** Ensures branch showrooms never run out of high-demand electric scooter models by triggering automated warehouse pick-and-pack dispatches.
@@ -2707,7 +2707,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 19: Inter-Branch Stock Transfers & In-Transit Custody (Q259 – Q272)
 
-### Q259: What is an Inter-Branch Stock Transfer in AJ EcoDrive?
+### Q259: What is an Inter-Branch Stock Transfer in EVEE Showroom?
 **Answer:** An Inter-Branch Stock Transfer is the formal logistics and legal custody workflow for moving physical electric vehicles between dealership branches (e.g., Peshawar to Islamabad) or from Central Warehouse to a branch:
 * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Inter-Branch Transfer` (`CreateTransferModal`) OR `Sidebar: Inventory` &rarr; `Transfers` (`/inventory/transfers`) &rarr; Click `+ Dispatch Transfer`
 * **Core Rule:** Physical inventory custody is tracked continuously. During transport, vehicles reside in an immutable **`In-Transit`** state, ensuring accountability for freight drivers, origin dispatchers, and destination receivers.
@@ -2834,7 +2834,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 20: Inbound Delivery Receiving & Transit Discrepancies (Q273 – Q286)
 
-### Q273: What is the Inbound Delivery Receiving process in AJ EcoDrive?
+### Q273: What is the Inbound Delivery Receiving process in EVEE Showroom?
 **Answer:** Inbound Delivery Receiving is the physical verification and digital intake protocol when a logistics carrier truck arrives at a dealership branch:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Transfers` &rarr; `Inbound Shipments Tab` (`/inventory/transfers?tab=inbound`) &rarr; Click **"Receive Shipment"** (`ReceiveTransferModal`)
 * **Core Rule:** No vehicle moves into active showroom sales inventory until its chassis barcode is physically scanned at the receiving bay and inspected for transit damage.
@@ -2955,14 +2955,14 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 21: Blind Physical Cycle Counts & Inventory Audits (Q287 – Q300)
 
-### Q287: What is a Blind Physical Cycle Count in AJ EcoDrive?
+### Q287: What is a Blind Physical Cycle Count in EVEE Showroom?
 **Answer:** A Blind Physical Cycle Count is an unannounced inventory audit where branch staff or corporate auditors physically scan every vehicle on the showroom floor and storage rooms without seeing the expected system quantities:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts & Audits` (`/inventory/cycle-counts`) &rarr; Click `+ Start Cycle Count` (`CreateCycleCountModal`)
 * **Why "Blind"?** The screen hides system numbers to prevent lazy auditors from checking boxes without physically walking the floor and verifying every stamped chassis VIN.
 
 ---
 
-### Q288: How often are Cycle Counts conducted in AJ EcoDrive?
+### Q288: How often are Cycle Counts conducted in EVEE Showroom?
 **Answer:** Scheduled and surprise audit intervals:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Cycle Counts`
 1. **Daily Morning Walk-Around (08:45 AM):** Visual verification of floor display units.
@@ -3079,7 +3079,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 22: Quality Quarantine & Defective Stock Isolation (Q301 – Q314)
 
-### Q301: What is the Quality Quarantine module in AJ EcoDrive?
+### Q301: What is the Quality Quarantine module in EVEE Showroom?
 **Answer:** Quality Quarantine is the security and inventory isolation engine that digitally and physically locks defective, damaged, or uncertified electric vehicles and high-voltage components:
 * 📍 **System Navigation Path:** `Sidebar: Inventory` &rarr; `Quality Quarantine` (`/inventory/quarantine`) &rarr; Click `+ Quarantine Unit` (`CreateQuarantineRecordModal`)
 * **Core Principle:** Any vehicle in Quarantine is assigned to **Physical Holding Bay Q-3** and is mathematically locked from being selected in Point of Sale (POS), Quotations, or Inter-Branch Transfers.
@@ -3201,7 +3201,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 23: Showroom Operating Expenses & Petty Cash (Q315 – Q328)
 
-### Q315: How are Showroom Operating Expenses (OPEX) managed in AJ EcoDrive?
+### Q315: How are Showroom Operating Expenses (OPEX) managed in EVEE Showroom?
 **Answer:** Showroom operating expenses are managed via the **Showroom Expenses & Petty Cash Ledger**:
 * 📍 **System Navigation Path:** `Top Nav` &rarr; `Quick Actions ⌄` &rarr; `Log Expense Voucher` (`CreateExpenseModal`) OR `Sidebar: Finance & Accounts` &rarr; `Showroom Expenses` (`/finance/expenses`) &rarr; Click `+ Add Expense Voucher`
 * **Core Principle:** Governs everyday showroom operating costs (customer tea/coffee, showroom cleaning supplies, generator fuel during power load-shedding, minor electrical repairs) with automated petty cash reconciliation and CFO approval ceilings.
@@ -3322,7 +3322,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 24: Day-End Closing Reconciliation (Daily Z-Report) (Q329 – Q342)
 
-### Q329: What is Day-End Closing Reconciliation (Daily Z-Report) in AJ EcoDrive?
+### Q329: What is Day-End Closing Reconciliation (Daily Z-Report) in EVEE Showroom?
 **Answer:** Day-End Closing Reconciliation is the mandatory 10-step financial and operational audit conducted by the Branch Manager and Lead Cashier at 07:00 PM before locking showroom doors:
 * 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Day-End Closing (Z-Report)` (`/finance/day-end-closing`) &rarr; Click `+ Start Daily Z-Report`
 * **Core Objective:** Reconciles every single Rupee collected in the cashier safe against system sales invoices, audits remaining physical cash float, verifies credit card terminal batch totals, and generates an immutable, signed **Daily Z-Report**.
@@ -3463,7 +3463,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 25: Sea Container Imports, Procurement & Supplier Management (Q343 – Q358)
 
-### Q343: How does AJ EcoDrive manage International Sea Container Procurement?
+### Q343: How does EVEE Showroom manage International Sea Container Procurement?
 **Answer:** International supply chain and OEM container procurement is managed via the **Global Procurement & Container Management Workbench**:
 * 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Procurement` &rarr; `Purchase Orders` (`/procurement/purchase-orders`) &rarr; Click `+ New Container PO` (`CreatePurchaseOrderModal`)
 * **Core Capabilities:** Tracks overseas OEM manufacturing orders (China, Taiwan), 40ft High-Cube shipping containers, commercial Bills of Lading, customs clearance at Karachi Port, landed cost breakdowns (PKR), and automated batch VIN serialization upon warehouse intake.
@@ -3561,7 +3561,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q350: How does AJ EcoDrive track Supplier Quality and Defect Rates?
+### Q350: How does EVEE Showroom track Supplier Quality and Defect Rates?
 **Answer:** OEM Supplier Quality Scorecard:
 * 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Procurement` &rarr; `Supplier Analytics` (`/procurement/suppliers`)
 * Audits defect rates across international factories (e.g. *Shenzhen EV Co: 0.8% defect rate vs. Wuxi Motors: 3.2% defect rate*), guiding contract negotiations.
@@ -3629,7 +3629,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 26: Showroom Branches, User Accounts & Security Permissions (Q359 – Q374)
 
-### Q359: How are new Dealership Showroom Branches configured in AJ EcoDrive?
+### Q359: How are new Dealership Showroom Branches configured in EVEE Showroom?
 **Answer:** Showroom branches are provisioned via the **Dealership Network & Branch Administration Workbench**:
 * 📍 **System Navigation Path:** `Super Admin` &rarr; `Sidebar: Settings & System` &rarr; `Showroom Branches` (`/settings/branches`) &rarr; Click `+ Add Showroom Branch` (`CreateBranchModal`)
 * **Core Principle:** Each branch is a distinct operational entity with its own dedicated physical inventory holding bays, local cashier safes, assigned staff, and local tax registration.
@@ -3681,7 +3681,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q363: What is Role-Based Access Control (RBAC) in AJ EcoDrive?
+### Q363: What is Role-Based Access Control (RBAC) in EVEE Showroom?
 **Answer:** Mathematical security permission matrix enforcing principle of least privilege:
 * 📍 **System Navigation Path:** `Sidebar: Settings & System` &rarr; `Role Permissions Matrix` (`/settings/roles`)
 * Sales reps cannot view wholesale landing costs or approve discounts > 8%. Cashiers cannot modify sales invoices. Workshop mechanics cannot access financial ledgers.
@@ -3695,7 +3695,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 ---
 
-### Q365: How does Two-Factor Authentication (2FA) work in AJ EcoDrive?
+### Q365: How does Two-Factor Authentication (2FA) work in EVEE Showroom?
 **Answer:** Time-Based One-Time Password (TOTP) & SMS 2FA:
 * 📍 **System Navigation Path:** `User Preferences` &rarr; `Security & 2FA Tab`
 * Users scan a QR code with Google Authenticator or receive an SMS OTP when logging into new or unrecognized devices.
@@ -3774,14 +3774,14 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 27: Super Admin & Branch Manager 10 Master Touchpoints Collaboration Matrix (Q375 – Q390)
 
-### Q375: What is the 10 Master Touchpoints Collaboration Matrix in AJ EcoDrive?
+### Q375: What is the 10 Master Touchpoints Collaboration Matrix in EVEE Showroom?
 **Answer:** The 10 Master Touchpoints Collaboration Matrix is the foundational operational contract defining how **Head Office Executive Leadership (Super Admin)** and **Dealership Showroom Commanders (Branch Managers)** collaborate to run a secure, profitable multi-city EV enterprise:
 * 📍 **System Navigation Path:** Master Enterprise Operating Architecture
 * **Core Philosophy:** Clear segregation of duties, zero operational bottlenecks, automated decision routing, and 100% auditable collaboration across commercial sales, inventory custody, cash protection, and technical warranty.
 
 ---
 
-### Q376: What are the 10 Master Touchpoints in AJ EcoDrive?
+### Q376: What are the 10 Master Touchpoints in EVEE Showroom?
 **Answer:** The complete 10 operational collaboration touchpoints:
 * 📍 **System Navigation Path:** `Dashboard` &rarr; `Action Centre` (`/dashboard/action-centre`)
 
@@ -3859,7 +3859,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ### Q385: How does Touchpoint 9 (Day-End Closing) guarantee safe bank deposits?
 **Answer:** Bank Deposit Slip Stamped Cross-Reconciliation:
 * 📍 **System Navigation Path:** `Sidebar: Finance & Accounts` &rarr; `Daily Cash Drops`
-* Cashier drops the day's cash collection into the corporate bank account each morning. The stamped bank deposit slip is uploaded to AJ EcoDrive, cross-reconciling the previous day's Z-Report to PKR 0.00 variance.
+* Cashier drops the day's cash collection into the corporate bank account each morning. The stamped bank deposit slip is uploaded to EVEE Showroom, cross-reconciling the previous day's Z-Report to PKR 0.00 variance.
 
 ---
 
@@ -3903,15 +3903,15 @@ Commercial    Stock         High-Value    Technical     Inventory
 
 # PART 28: Offline Continuity, Synchronization & Local Workstation Architecture (Q391 – Q405)
 
-### Q391: How does AJ EcoDrive ensure uninterrupted operations during Internet Outages and Power Load-Shedding?
-**Answer:** AJ EcoDrive is engineered with **Local Offline Durability & Dual-Tier Synchronization Architecture**:
+### Q391: How does EVEE Showroom ensure uninterrupted operations during Internet Outages and Power Load-Shedding?
+**Answer:** EVEE Showroom is engineered with **Local Offline Durability & Dual-Tier Synchronization Architecture**:
 * 📍 **System Navigation Path:** `Top Header Bar` &rarr; `Connectivity Badge` (`GREEN (ONLINE) / AMBER (OFFLINE)`)
 * **The Reality in Pakistan:** Power cuts, UPS cutovers, and local fiber internet disruptions are routine daily events.
-* **The AJ EcoDrive Solution:** Showroom counter workstations run on a local embedded SQLite database engine. When internet drops, the system seamlessly transitions to **AMBER (OFFLINE)** mode. Staff can continue capturing walk-in leads, creating quotations, executing POS sales, recording cash payments, and printing thermal receipts without missing a second of business.
+* **The EVEE Showroom Solution:** Showroom counter workstations run on a local embedded SQLite database engine. When internet drops, the system seamlessly transitions to **AMBER (OFFLINE)** mode. Staff can continue capturing walk-in leads, creating quotations, executing POS sales, recording cash payments, and printing thermal receipts without missing a second of business.
 
 ---
 
-### Q392: What are the 3 System Connectivity States in AJ EcoDrive?
+### Q392: What are the 3 System Connectivity States in EVEE Showroom?
 **Answer:** High-visibility real-time status indicators in the application header:
 * 📍 **System Navigation Path:** `Top Header Bar` &rarr; `System Status Badge`
 1. **GREEN (ONLINE):** Full high-speed bi-directional synchronization with Head Office cloud server.
@@ -3991,7 +3991,7 @@ Commercial    Stock         High-Value    Technical     Inventory
 ### Q401: Can a showroom operate continuously on a mobile 4G hotspot backup?
 **Answer:** Yes. Low-Bandwidth Optimization:
 * 📍 **System Navigation Path:** Network Settings
-* AJ EcoDrive uses high-efficiency compressed JSON payloads (typically < 15 KB per transaction), running flawlessly over a mobile phone 4G hotspot or backup Jazz/Zong data SIM.
+* EVEE Showroom uses high-efficiency compressed JSON payloads (typically < 15 KB per transaction), running flawlessly over a mobile phone 4G hotspot or backup Jazz/Zong data SIM.
 
 ---
 

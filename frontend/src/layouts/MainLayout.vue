@@ -404,12 +404,12 @@ const handleQuickActionCreated = (type, payload) => {
       <!-- Logo Area -->
       <div class="h-[72px] px-6 flex items-center" :class="isSidebarCollapsed ? 'justify-center' : 'justify-between'">
         <div class="flex items-center gap-3">
-          <div class="bg-[#165A31] text-white font-bold text-sm rounded w-8 h-8 flex items-center justify-center shrink-0">
-            AJ
+          <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white font-black text-xs rounded-lg w-8 h-8 flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
+            EV
           </div>
           <div v-if="!isSidebarCollapsed">
-            <h1 class="font-bold tracking-widest text-xs text-gray-900 leading-tight whitespace-nowrap uppercase">{{ store.settings?.company?.name || 'AJ ECODRIVE' }}</h1>
-            <p class="text-[8px] tracking-widest text-gray-500 whitespace-nowrap uppercase">{{ store.settings?.company?.brand || 'BRG MANAGEMENT SYSTEM' }}</p>
+            <h1 class="font-bold tracking-widest text-xs text-gray-900 leading-tight whitespace-nowrap uppercase">{{ store.settings?.company?.name || 'EVEE SHOWROOM' }}</h1>
+            <p class="text-[8px] tracking-widest text-gray-500 whitespace-nowrap uppercase">{{ store.settings?.company?.brand || 'SHOWROOM MANAGEMENT SYSTEM' }}</p>
           </div>
         </div>
         <button v-if="!isSidebarCollapsed" @click="isMobileMenuOpen = false" class="lg:hidden w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded bg-white border border-gray-200 shrink-0">
@@ -479,7 +479,7 @@ const handleQuickActionCreated = (type, payload) => {
           </div>
           <div v-if="!isSidebarCollapsed">
             <div class="text-[11px] font-bold text-gray-900 whitespace-nowrap">{{ isBranchUser ? 'Branch Manager' : (user.name || 'Super Admin') }}</div>
-            <div class="text-[9px] text-gray-500 whitespace-nowrap max-w-[150px] truncate">{{ isBranchUser ? `${user.branchName} Branch` : (user.email || 'admin@ajecodrive.com') }}</div>
+            <div class="text-[9px] text-gray-500 whitespace-nowrap max-w-[150px] truncate">{{ isBranchUser ? `${user.branchName} Branch` : (user.email || 'admin@eveeshowroom.com') }}</div>
           </div>
         </div>
         <ChevronRight v-if="!isSidebarCollapsed" class="w-4 h-4 text-gray-400 shrink-0" />

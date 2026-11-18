@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
   res.status(200).json({
     ok: true,
     status: dbStatus.isConnected ? 'healthy' : 'degraded (db offline)',
-    service: 'AJ EcoDrive ERP Backend API',
+    service: 'EVEE Showroom Management System Backend API',
     version: '1.0.0',
     uptime: `${Math.floor(process.uptime())}s`,
     timestamp: new Date().toISOString(),

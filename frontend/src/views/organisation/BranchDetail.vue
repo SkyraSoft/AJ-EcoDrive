@@ -171,7 +171,7 @@ const expenseCategoryItems = [
             </div>
             <div class="flex justify-between items-center pb-3 border-b border-gray-50">
               <span class="text-[11px] font-medium text-gray-500">Email</span>
-              <span class="text-[11px] font-bold text-gray-900">peshawar@ajecodrive.com</span>
+              <span class="text-[11px] font-bold text-gray-900">peshawar@eveeshowroom.com</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-[11px] font-medium text-gray-500">Stock Location</span>

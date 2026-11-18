@@ -1,7 +1,7 @@
 [package]
 name = "aj-ecodrive-erp"
 version = "1.0.3"
-description = "AJ EcoDrive ERP Desktop Application"
+description = "EVEE Showroom Management System Desktop Application"
 authors = ["SkyraSoft <support@skyrasoft.com>"]
 edition = "2024"
 rust-version = "1.90"

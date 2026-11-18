@@ -31,7 +31,7 @@ const isSuperAdmin = computed(() => {
 
 /**
  * Authoritative Canonical Settings Search Index
- * Strictly maps to real routes, pages, and tabs existing in AJ EcoDrive.
+ * Strictly maps to real routes, pages, and tabs existing in EVEE Showroom.
  */
 const SETTINGS_INDEX = [
   // --- ORGANISATION ---

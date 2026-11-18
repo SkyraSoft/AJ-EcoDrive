@@ -220,7 +220,7 @@ const submitForm = () => {
                     <input 
                       v-model="form.email" 
                       type="email" 
-                      placeholder="pew@ajecodrive.com" 
+                      placeholder="pew@eveeshowroom.com" 
                       :class="[
                         'w-full px-3.5 py-2 text-xs border rounded-lg focus:outline-none transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.01)]',
                         showValidation && errors.email ? 'border-red-300 bg-red-50/20 focus:border-red-500' : 'border-gray-200 focus:border-[#165A31]'

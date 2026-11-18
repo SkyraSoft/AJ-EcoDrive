@@ -7,22 +7,22 @@ import { X } from 'lucide-vue-next'
 <template>
   <div class="min-h-screen flex bg-[#f7f8f9]">
     <!-- Left Panel (Branding) -->
-    <div class="hidden lg:flex lg:w-1/2 bg-[#165A31] text-white p-16 flex-col justify-between">
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1E3A8A] via-[#1D4ED8] to-[#0F172A] text-white p-16 flex-col justify-between">
       
       <!-- Logo & Title -->
       <div class="flex items-center gap-3">
-        <div class="bg-white text-[#165A31] font-bold text-xl rounded-lg w-12 h-12 flex items-center justify-center">
-          AJ
+        <div class="bg-white text-[#1E3A8A] font-black text-xl rounded-xl w-12 h-12 flex items-center justify-center shadow-md">
+          EV
         </div>
         <div>
-          <h1 class="font-bold tracking-widest text-lg leading-tight">AJ ECODRIVE</h1>
-          <p class="text-[10px] tracking-widest uppercase text-white/80">BRG MANAGEMENT SYSTEM</p>
+          <h1 class="font-bold tracking-widest text-lg leading-tight">EVEE SHOWROOM</h1>
+          <p class="text-[10px] tracking-widest uppercase text-white/80">SHOWROOM MANAGEMENT SYSTEM</p>
         </div>
       </div>
 
       <!-- Main Content -->
       <div class="max-w-xl">
-        <h2 class="text-4xl lg:text-5xl font-bold mb-6 leading-tight">One secure gateway to AJ ECODRIVE operations.</h2>
+        <h2 class="text-4xl lg:text-5xl font-bold mb-6 leading-tight">One secure gateway to EVEE Showroom operations.</h2>
         <p class="text-white/90 text-lg mb-10 leading-relaxed">
           Role-based access routes Super Admin and Branch Manager accounts directly to the correct workspace. Users never select their own role.
         </p>
@@ -45,7 +45,7 @@ import { X } from 'lucide-vue-next'
 
       <!-- Footer -->
       <div class="text-sm text-white/60 font-medium">
-        AJ ECODRIVE • Exclusive BRG dealership management
+        EVEE SHOWROOM • Electric Vehicles Management System
       </div>
     </div>
 

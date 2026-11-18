@@ -1,4 +1,4 @@
-// Authentication and Cryptographic Security Module for AJ ECODRIVE Multi-Branch System
+// Authentication and Cryptographic Security Module for EVEE Showroom Management System
 import api, { ApiError } from './services/api.js'
 
 /**
@@ -16,47 +16,47 @@ export async function hashPassword(plainTextPassword) {
 export const BRANCH_ACCOUNTS = [
   {
     branchCode: 'PEW-01',
-    aliases: ['PEW-01', 'PESHAWAR', 'PEW', 'pew-01', 'peshawar'],
+    aliases: ['PEW-01', 'PESHAWAR', 'PEW', 'pew-01', 'peshawar', 'pew@eveeshowroom.com', 'pew@ajecodrive.com'],
     branchName: 'Peshawar',
     role: 'Branch Manager',
     managerName: 'Ahsan Khan',
-    email: 'pew@ajecodrive.com',
+    email: 'pew@eveeshowroom.com',
     isSuperAdmin: false
   },
   {
     branchCode: 'ISB-01',
-    aliases: ['ISB-01', 'ISLAMABAD', 'ISB', 'isb-01', 'islamabad'],
+    aliases: ['ISB-01', 'ISLAMABAD', 'ISB', 'isb-01', 'islamabad', 'isb@eveeshowroom.com', 'isb@ajecodrive.com'],
     branchName: 'Islamabad',
     role: 'Branch Manager',
     managerName: 'Hassan Ali',
-    email: 'isb@ajecodrive.com',
+    email: 'isb@eveeshowroom.com',
     isSuperAdmin: false
   },
   {
     branchCode: 'LHE-01',
-    aliases: ['LHE-01', 'LAHORE', 'LHE', 'lhe-01', 'lahore'],
+    aliases: ['LHE-01', 'LAHORE', 'LHE', 'lhe-01', 'lahore', 'lhe@eveeshowroom.com', 'lhe@ajecodrive.com'],
     branchName: 'Lahore',
     role: 'Branch Manager',
     managerName: 'Sami Ullah',
-    email: 'lhe@ajecodrive.com',
+    email: 'lhe@eveeshowroom.com',
     isSuperAdmin: false
   },
   {
     branchCode: 'RWP-01',
-    aliases: ['RWP-01', 'RAWALPINDI', 'RWP', 'rwp-01', 'rawalpindi'],
+    aliases: ['RWP-01', 'RAWALPINDI', 'RWP', 'rwp-01', 'rawalpindi', 'rwp@eveeshowroom.com', 'rwp@ajecodrive.com'],
     branchName: 'Rawalpindi',
     role: 'Branch Manager',
     managerName: 'Usman Tariq',
-    email: 'rwp@ajecodrive.com',
+    email: 'rwp@eveeshowroom.com',
     isSuperAdmin: false
   },
   {
     branchCode: 'ADMIN',
-    aliases: ['ADMIN', 'SUPERADMIN', 'admin@ajecodrive.com', 'admin', 'superadmin'],
+    aliases: ['ADMIN', 'SUPERADMIN', 'admin@eveeshowroom.com', 'admin@ajecodrive.com', 'admin', 'superadmin'],
     branchName: 'All Branches',
     role: 'Super Admin',
     managerName: 'Super Admin',
-    email: 'admin@ajecodrive.com',
+    email: 'admin@eveeshowroom.com',
     isSuperAdmin: true
   }
 ]

@@ -1,4 +1,4 @@
-# AJ ECODRIVE — Electric Vehicle Dealership Management System
+# EVEE Showroom Management System — Electric Vehicle Dealership Management System
 
 > **A Multi-Branch EV Showroom, Workshop, Inventory & Financial Management Platform**  
 > *Built for high-volume operational speed, serialized VIN traceability, and multi-branch organizational control.*
@@ -7,7 +7,7 @@
 
 ## 1. Project Overview
 
-**AJ ECODRIVE** is an enterprise management platform designed specifically for electric vehicle (EV) commercial distribution networks, retail showrooms, and after-sales service centers. Unlike generic ERP or retail POS tools, AJ ECODRIVE treats every electric bike as a serialized, unique asset tracked across its entire lifecycle:
+**EVEE Showroom Management System** is an enterprise management platform designed specifically for electric vehicle (EV) commercial distribution networks, retail showrooms, and after-sales service centers. Unlike generic ERP or retail POS tools, EVEE Showroom treats every electric bike as a serialized, unique asset tracked across its entire lifecycle:
 * **Procurement & Inbound GRN:** Container imports, supplier tracking, VIN/Chassis allocation, motor and battery serial logging.
 * **CRM & Sales Operations:** Walk-in lead management, quotation calculation, vehicle reservations, legal contracts, and sales handover.
 * **Cashier & Payments:** Split invoicing, bank transfers (IBFT), cash drawers, deposit tracking, and receipt generation.

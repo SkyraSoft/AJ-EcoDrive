@@ -35,7 +35,7 @@ const handleSendReset = async () => {
         data-tour="email" 
         v-model="email" 
         label="Email" 
-        placeholder="name@ajecodrive.com" 
+        placeholder="name@eveeshowroom.com" 
         required 
         type="email"
         :has-error="hasError"

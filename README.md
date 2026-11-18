@@ -1,4 +1,4 @@
-# AJ ECODRIVE — Monorepo (Frontend & Backend)
+# EVEE Showroom Management System — Monorepo (Frontend & Backend)
 
 > **Electric Vehicle Dealership & Multi-Branch Workshop Management System**  
 > *A decoupled enterprise monorepo containing the Vue 3 frontend application and backend services.*

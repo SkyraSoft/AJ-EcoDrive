@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Branch Manager DAP Business Rule Provenance Registry
+ * EVEE Showroom — Branch Manager DAP Business Rule Provenance Registry
  * Authoritative Classification of Business Logic, Regulatory Thresholds, and Field Validation
  *
  * Source Classifications:

@@ -9,7 +9,7 @@ const currentUser = computed(() => store.currentUser || {})
 
 const isPlaceholderEmail = computed(() => {
   const em = String(profileForm.value.email || '').trim().toLowerCase()
-  return !em || em.endsWith('@ajecodrive.com')
+  return !em || em.endsWith('@eveeshowroom.com') || em.endsWith('@ajecodrive.com')
 })
 
 const profileForm = ref({
@@ -26,7 +26,7 @@ const profileForm = ref({
 const populateFromStore = () => {
   const u = store.currentUser || {}
   profileForm.value.name = u.name || 'Admin User'
-  profileForm.value.email = u.email || 'admin@ajecodrive.com'
+  profileForm.value.email = u.email || 'admin@eveeshowroom.com'
   profileForm.value.phone = u.phone || u.mobile || '0300 555 0001'
   profileForm.value.branch = u.branchName || u.branch || 'Peshawar'
   profileForm.value.role = u.role || (u.isSuperAdmin ? 'Super Admin' : 'Branch Manager')
@@ -140,7 +140,7 @@ const saveChanges = async () => {
           <div class="text-xs text-amber-800">
             <p class="font-bold">Recovery Email Not Configured</p>
             <p class="mt-0.5 text-[11px] text-amber-700 leading-normal">
-              Your account is currently using an unconfigured demo address (<code>@ajecodrive.com</code>). Please configure your active personal or work email address below and click <strong>Save Changes</strong> so you can receive password reset OTP verification codes.
+              Your account is currently using an unconfigured demo address (<code>@eveeshowroom.com</code>). Please configure your active personal or work email address below and click <strong>Save Changes</strong> so you can receive password reset OTP verification codes.
             </p>
           </div>
         </div>

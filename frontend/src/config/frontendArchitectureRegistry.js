@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Unified Frontend Architecture & Data Lineage Registry
+ * EVEE Showroom — Unified Frontend Architecture & Data Lineage Registry
  * Authoritative Machine-Readable Source of Truth
  */
 
@@ -507,7 +507,7 @@ export const unifiedFrontendArchitectureRegistry = [
         "e.g. Peshawar",
         "e.g. Hayatabad",
         "+92 300 1234567",
-        "pew@ajecodrive.com",
+        "pew@eveeshowroom.com",
         "form.manager",
         "e.g. 9 AM - 6 PM",
         "e.g. Main Warehouse",
@@ -800,7 +800,7 @@ export const unifiedFrontendArchitectureRegistry = [
       "tables": [],
       "fields": [
         "e.g. Ahsan Khan",
-        "e.g. ahsan@ajecodrive.com",
+        "e.g. ahsan@eveeshowroom.com",
         "+92 300 555 0191",
         "form.role",
         "form.branch",
@@ -941,7 +941,7 @@ export const unifiedFrontendArchitectureRegistry = [
       ],
       "tabs": [],
       "kpis": [
-        "Ahsan Khan Branch Manager · Peshawar Branch · ahsan@ajecodrive.com",
+        "Ahsan Khan Branch Manager · Peshawar Branch · ahsan@eveeshowroom.com",
         "Account Summary"
       ],
       "tables": [],
@@ -973,7 +973,7 @@ export const unifiedFrontendArchitectureRegistry = [
       ],
       "tabs": [],
       "kpis": [
-        "Ahsan Khan Branch Manager · Peshawar Branch · ahsan@ajecodrive.com",
+        "Ahsan Khan Branch Manager · Peshawar Branch · ahsan@eveeshowroom.com",
         "Account Summary"
       ],
       "tables": [],
@@ -8558,7 +8558,7 @@ export const unifiedFrontendArchitectureRegistry = [
         "form.metrics.kpi",
         "form.schedule",
         "form.format",
-        "admin@ajecodrive.com",
+        "admin@eveeshowroom.com",
         "Report Title",
         "Category",
         "Branch Scope",
@@ -9151,7 +9151,7 @@ export const unifiedFrontendArchitectureRegistry = [
       "fields": [
         "Enter business legal name...",
         "Enter primary brand or distribution...",
-        "info@ajecodrive.com",
+        "info@eveeshowroom.com",
         "+92 91 588 4000",
         "https://ecodrive.com.pk",
         "Not configured",
@@ -9416,7 +9416,7 @@ export const unifiedFrontendArchitectureRegistry = [
     "elementInventory": {
       "headers": [
         "Logout",
-        "Sign out of AJ ECODRIVE?"
+        "Sign out of EVEE SHOWROOM?"
       ],
       "tabs": [],
       "kpis": [],

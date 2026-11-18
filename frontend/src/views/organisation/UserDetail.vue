@@ -114,7 +114,7 @@ const userAuditLogs = computed(() => {
             </div>
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
               <span class="text-[11px] font-medium text-gray-500">Email</span>
-              <span class="text-[11px] font-bold text-gray-900">ahsan@ajecodrive.com</span>
+              <span class="text-[11px] font-bold text-gray-900">ahsan@eveeshowroom.com</span>
             </div>
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
               <span class="text-[11px] font-medium text-gray-500">Mobile</span>

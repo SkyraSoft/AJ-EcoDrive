@@ -65,7 +65,7 @@ app.use('/api/v1', apiRouter)
 app.get('/', (req, res) => {
   res.json({
     ok: true,
-    service: 'AJ EcoDrive ERP Backend Gateway',
+    service: 'EVEE Showroom Management System Backend Gateway',
     version: '1.0.0',
     apiDocs: '/api/v1',
     health: '/api/v1/health'

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "AJ EcoDrive ERP",
+  "productName": "EVEE Showroom Management System",
   "version": "1.0.3",
   "identifier": "com.skyrasoft.ecodrive",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "AJ EcoDrive ERP",
+        "title": "EVEE Showroom Management System",
         "width": 1280,
         "height": 800,
         "minWidth": 1024,

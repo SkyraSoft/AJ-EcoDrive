@@ -1,7 +1,7 @@
 {
   "name": "ecodrive-backend",
   "version": "1.0.0",
-  "description": "AJ EcoDrive ERP - Enterprise Node.js / Express Backend API",
+  "description": "EVEE Showroom Management System - Enterprise Node.js / Express Backend API",
   "type": "module",
   "main": "src/server.js",
   "scripts": {

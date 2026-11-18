@@ -465,7 +465,7 @@ const filteredCycleCounts = computed(() => {
       <div class="border-b-2 border-black pb-4 mb-6">
         <div class="flex justify-between items-start">
           <div>
-            <h1 class="text-2xl font-black tracking-tight uppercase">AJ ECODRIVE LTD / BRG ELECTRIC VEHICLES</h1>
+            <h1 class="text-2xl font-black tracking-tight uppercase">EVEE SHOWROOM LTD / ELECTRIC VEHICLES</h1>
             <p class="text-xs text-gray-700 mt-1 uppercase">{{ user?.branchName || 'Peshawar' }} Showroom & Depot Inventory</p>
             <p class="text-[11px] text-gray-600">Physical Stock Count & Showroom Floor Tally Register</p>
           </div>

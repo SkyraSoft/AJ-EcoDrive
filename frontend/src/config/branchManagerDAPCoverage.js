@@ -1,5 +1,5 @@
 /**
- * AJ EcoDrive — Branch Manager DAP Machine-Readable Coverage Registry
+ * EVEE Showroom — Branch Manager DAP Machine-Readable Coverage Registry
  * Multi-Tier Verification Model:
  * mapped | sourceVerified | targetSelector | selectorResolved | selectorUnique
  * visibleWhenExpected | interactableWhenExpected | interactionVerified
@@ -55,7 +55,7 @@ export const branchManagerCoverageRegistry = [
         "route": "//",
         "component": "src/layouts/AuthLayout.vue",
         "elementCategory": "header",
-        "label": "AJ ECODRIVE",
+        "label": "EVEE SHOWROOM",
         "mapped": true,
         "targetRequired": true,
         "targetSelector": "h1, h2, h3, header, [class*=\"title\"], [class*=\"heading\"]",
@@ -67,7 +67,7 @@ export const branchManagerCoverageRegistry = [
         "runtimeError": null,
         "trainingType": "observe",
         "coveredByStep": "M1-C11-S01",
-        "resolvedSnippet": "<h1 class=\"font-bold tracking-widest text-lg leading-tight\">AJ ECODRIVE</h1>",
+        "resolvedSnippet": "<h1 class=\"font-bold tracking-widest text-lg leading-tight\">EVEE SHOWROOM</h1>",
         "sourceVerified": true,
         "selectorResolved": true,
         "selectorUnique": false,
@@ -82,7 +82,7 @@ export const branchManagerCoverageRegistry = [
         "route": "//",
         "component": "src/layouts/AuthLayout.vue",
         "elementCategory": "header",
-        "label": "One secure gateway to AJ ECODRIVE operations.",
+        "label": "One secure gateway to EVEE Showroom operations.",
         "mapped": true,
         "targetRequired": true,
         "targetSelector": "h1, h2, h3, header, [class*=\"title\"], [class*=\"heading\"]",
@@ -94,7 +94,7 @@ export const branchManagerCoverageRegistry = [
         "runtimeError": null,
         "trainingType": "observe",
         "coveredByStep": "M1-C11-S02",
-        "resolvedSnippet": "<h1 class=\"font-bold tracking-widest text-lg leading-tight\">AJ ECODRIVE</h1>",
+        "resolvedSnippet": "<h1 class=\"font-bold tracking-widest text-lg leading-tight\">EVEE SHOWROOM</h1>",
         "sourceVerified": true,
         "selectorResolved": true,
         "selectorUnique": false,
@@ -385,7 +385,7 @@ export const branchManagerCoverageRegistry = [
         "trainingType": "practice",
         "interactiveMode": "real-field-input",
         "coveredByStep": "M1-C11-S01",
-        "resolvedSnippet": "<input data-tour=\"email\" required=\"\" type=\"email\" value=\"\" placeholder=\"name@ajecodrive.com\" class=\"",
+        "resolvedSnippet": "<input data-tour=\"email\" required=\"\" type=\"email\" value=\"\" placeholder=\"name@eveeshowroom.com\" class=\"",
         "sourceVerified": true,
         "selectorResolved": true,
         "selectorUnique": true,
@@ -5067,7 +5067,7 @@ export const branchManagerCoverageRegistry = [
         "route": "/organisation/users/detail",
         "component": "src/views/organisation/UserDetail.vue",
         "elementCategory": "header",
-        "label": "ahsan@ajecodrive.com",
+        "label": "ahsan@eveeshowroom.com",
         "mapped": true,
         "targetRequired": true,
         "targetSelector": "h1, h2, h3, header, [class*=\"title\"], [class*=\"heading\"]",
@@ -5431,7 +5431,7 @@ export const branchManagerCoverageRegistry = [
         "route": "/organisation/users/:id",
         "component": "src/views/organisation/UserDetail.vue",
         "elementCategory": "header",
-        "label": "ahsan@ajecodrive.com",
+        "label": "ahsan@eveeshowroom.com",
         "mapped": true,
         "targetRequired": true,
         "targetSelector": "h1, h2, h3, header, [class*=\"title\"], [class*=\"heading\"]",

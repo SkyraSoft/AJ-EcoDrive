@@ -45,7 +45,7 @@ const handleReset = async () => {
 </script>
 
 <template>
-  <AuthCard title="Create a new password" subtitle="Choose a strong new password for your AJ ECODRIVE account.">
+  <AuthCard title="Create a new password" subtitle="Choose a strong new password for your EVEE SHOWROOM account.">
     <form @submit.prevent="handleReset">
       <BaseInput data-tour="newpassword" v-model="newPassword" label="New Password" type="password" placeholder="••••••••••••" :has-error="hasError" />
       <BaseInput data-tour="confirmpassword" v-model="confirmPassword" label="Confirm Password" type="password" placeholder="••••••••••••" :has-error="hasError" />

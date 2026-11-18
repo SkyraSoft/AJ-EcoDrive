@@ -336,7 +336,7 @@ const completeHandover = () => {
     <!-- PRINTABLE SECURITY GATE PASS (Hidden on screen, visible on print if printDocumentType === 'gatepass') -->
     <div v-if="printDocumentType === 'gatepass'" class="print-document hidden print:block bg-white text-black p-8 font-sans max-w-2xl mx-auto border-2 border-black">
       <div class="text-center border-b-2 border-black pb-4 mb-4">
-        <h1 class="text-xl font-black uppercase tracking-tight">AJ ECODRIVE LTD - SECURITY GATE PASS</h1>
+        <h1 class="text-xl font-black uppercase tracking-tight">EVEE SHOWROOM LTD - SECURITY GATE PASS</h1>
         <p class="text-xs uppercase font-semibold text-gray-700">Official Showroom Exit Authorization</p>
         <p class="text-[11px] text-gray-600">{{ deliveryRecord?.branch || user?.branchName || 'Peshawar' }} Showroom Barrier Security</p>
       </div>

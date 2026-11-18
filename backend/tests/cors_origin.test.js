@@ -85,7 +85,7 @@ describe('AJ EcoDrive Backend — Multi-Client CORS Verification Suite', async (
     assert.strictEqual(res.headers.get('access-control-allow-credentials'), 'true')
     const json = await res.json()
     assert.strictEqual(json.ok, true)
-    assert.strictEqual(json.service, 'AJ EcoDrive ERP Backend API')
+    assert.strictEqual(json.service, 'EVEE Showroom Management System Backend API')
   })
 
   after(() => new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())))
