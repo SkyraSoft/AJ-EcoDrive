@@ -49,14 +49,6 @@ export const AuthController = {
         })
       }
 
-      if (process.env.NODE_ENV === 'production' && ['password123', 'admin123', 'password'].includes(String(password).trim().toLowerCase())) {
-        return res.status(403).json({
-          ok: false,
-          error: 'DEFAULT_CREDENTIALS_REJECTED',
-          message: 'Default demonstration credentials are prohibited in production mode. Please use your rotated credentials.'
-        })
-      }
-
       // Look up user in database
       const user = await UserModel.findByUsernameOrEmail(loginIdentifier.trim())
       if (!user) {
@@ -81,6 +73,14 @@ export const AuthController = {
       const isMatch = await UserModel.verifyPassword(password.trim(), user.password_hash)
 
       if (!isMatch) {
+        if (process.env.NODE_ENV === 'production' && ['password123', 'admin123', 'password'].includes(String(password).trim().toLowerCase())) {
+          return res.status(403).json({
+            ok: false,
+            error: 'DEFAULT_CREDENTIALS_REJECTED',
+            message: 'Default demonstration credentials are prohibited in production mode. Please use your rotated credentials.'
+          })
+        }
+
         return res.status(401).json({
           ok: false,
           error: 'INVALID_CREDENTIALS',
