@@ -7,28 +7,35 @@ import { errorHandler } from './middleware/errorHandler.js'
 
 export const app = express()
 
-// 1. CORS Configuration for EcoDrive Frontend
+function isAllowedOrigin(origin) {
+  if (!origin) return true // Allow requests without Origin (e.g. mobile apps, curl, server-to-server)
+
+  // Required web and Windows Tauri production origins plus validated CORS_ORIGIN values.
+  if (config.corsOrigins.includes(origin)) return true
+
+  // Official Vercel preview deployments for AJ EcoDrive.
+  if (/^https:\/\/aj-eco-drive[a-z0-9-]*\.vercel\.app$/.test(origin) ||
+      /^https:\/\/aj-eco-drive[a-z0-9-]*\.skyrasofts-projects\.vercel\.app$/.test(origin)) {
+    return true
+  }
+
+  // 4. In development mode only, allow localhost on development ports
+  if (config.nodeEnv === 'development' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    return true
+  }
+
+  return false
+}
+
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
-    if (!origin) return callback(null, true)
-    
-    if (config.corsOrigins.includes(origin) || config.corsOrigins.includes('*')) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true)
     }
-    
-    // Allow official Vercel preview and production deployments for AJ EcoDrive
-    if (/^https:\/\/aj-eco-drive[a-z0-9-]*\.vercel\.app$/.test(origin) ||
-        /^https:\/\/aj-eco-drive[a-z0-9-]*\.skyrasofts-projects\.vercel\.app$/.test(origin)) {
-      return callback(null, true)
-    }
-    
-    // In development mode, allow localhost on any port
-    if (config.nodeEnv === 'development' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-      return callback(null, true)
-    }
-
-    return callback(new Error(`CORS error: Origin ${origin} not allowed by Access-Control policy`))
+    // For unauthorized origins, pass null, false:
+    // 1. No Access-Control-Allow-Origin header is emitted.
+    // 2. Prevents throwing a generic HTTP 500 error on the server.
+    return callback(null, false)
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -41,7 +48,8 @@ const corsOptions = {
     'X-Branch-ID',
     'X-User-Role'
   ],
-  exposedHeaders: ['Content-Range', 'X-Total-Count']
+  exposedHeaders: ['Content-Range', 'X-Total-Count'],
+  optionsSuccessStatus: 204
 }
 
 app.use(cors(corsOptions))

@@ -8,13 +8,42 @@ const __dirname = path.dirname(__filename)
 // Load .env from backend root
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
+const REQUIRED_CORS_ORIGINS = [
+  'https://aj-eco-drive.vercel.app',
+  'https://ecodrive.skyrasoft.com',
+  // Tauri v2 on Windows uses this origin for the production WebView.
+  'http://tauri.localhost'
+]
+
+function parseCorsOrigins(value) {
+  if (!value) return []
+
+  return value
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => {
+      // Never turn a wildcard or malformed value into an authorization rule.
+      if (!origin || origin === '*') return false
+      try {
+        const parsed = new URL(origin)
+        return (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+          !parsed.username && !parsed.password && !parsed.pathname.replace(/\/$/, '') &&
+          !parsed.search && !parsed.hash
+      } catch {
+        return false
+      }
+    })
+}
+
 export const config = {
   port: parseInt(process.env.PORT, 10) || 3000,
   socketPath: process.env.SOCKET_PATH || null,
   nodeEnv: process.env.NODE_ENV || 'development',
-  corsOrigins: process.env.CORS_ORIGIN 
-    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-    : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  corsOrigins: [...new Set([
+    ...REQUIRED_CORS_ORIGINS,
+    ...parseCorsOrigins(process.env.CORS_ORIGIN),
+    ...(process.env.CORS_ORIGIN ? [] : ['http://localhost:5173', 'http://127.0.0.1:5173'])
+  ])],
   db: {
     host: process.env.DB_HOST || '127.0.0.1',
     port: parseInt(process.env.DB_PORT, 10) || 3306,

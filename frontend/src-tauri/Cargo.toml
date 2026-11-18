@@ -1,6 +1,6 @@
 [package]
 name = "aj-ecodrive-erp"
-version = "1.0.0"
+version = "1.0.1"
 description = "AJ EcoDrive ERP Desktop Application"
 authors = ["SkyraSoft <support@skyrasoft.com>"]
 edition = "2024"
